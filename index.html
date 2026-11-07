@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8faf8">
+  <title>Lab Inventory | Material Directory</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172a27;
+      --muted: #73817d;
+      --line: #e2e9e4;
+      --paper: #f8faf8;
+      --green: #176e59;
+      --green-dark: #124d40;
+      --mint: #e5f2ec;
+      --orange: #d9633b;
+      --orange-soft: #fbede6;
+      --search-button: #b74628;
+      --search-button-hover: #9f371e;
+      --mono: "SFMono-Regular", Consolas, monospace;
+      --sans: "Avenir Next", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { min-width: 320px; background: var(--paper); }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font: 14px var(--sans);
+      background-color: #edf3ef;
+      background-image: linear-gradient(rgba(23,110,89,.055) 1px, transparent 1px), linear-gradient(90deg, rgba(23,110,89,.055) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    .shell { width: min(1440px, 100%); min-height: 100vh; margin: auto; padding: 0 7%; background: rgba(248,250,248,.94); }
+    .topbar { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 10px; color: var(--green-dark); font-size: 13px; font-weight: 800; }
+    .brand-mark { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 4px; background: var(--green); color: white; font-size: 17px; }
+    .brand-light { color: #75837e; font-weight: 500; }
+    .primary-nav { display: flex; align-items: stretch; gap: 6px; height: 72px; }
+    .page-tab { position: relative; padding: 0 14px; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 600; }
+    .page-tab:hover, .page-tab.active { color: var(--green-dark); }
+    .page-tab.active::after { position: absolute; right: 12px; bottom: 0; left: 12px; height: 2px; background: var(--orange); content: ""; }
+    .page-view[hidden] { display: none; }
+    .kicker { margin: 0; color: var(--green); font: 10px var(--mono); }
+    .catalog { padding-top: 31px; }
+    .catalog-head { display: flex; align-items: end; justify-content: space-between; gap: 15px; margin-bottom: 18px; }
+    .catalog-actions { display: flex; align-items: center; gap: 10px; }
+    .kicker { margin-bottom: 7px; color: #82908b; }
+    h2 { margin: 0; font-size: 22px; }
+    .catalog-meta { display: flex; align-items: center; gap: 8px; padding-bottom: 2px; color: #75827d; font: 9px var(--mono); }
+    .meta-divider { color: #bdc8c1; }
+    .controls { display: flex; gap: 9px; }
+    .search { height: 49px; min-width: 0; flex: 1; display: flex; align-items: center; gap: 11px; padding: 0 14px; border: 1px solid #dce4df; border-radius: 4px; background: white; color: #728079; }
+    .search:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px rgba(23,110,89,.08); }
+    .search-icon { font-size: 18px; }
+    .search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 12px; }
+    .search input::placeholder { color: #96a19c; }
+    .clear-button { border: 0; padding: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 20px; }
+    .action-button { height: 49px; min-width: 92px; display: inline-flex; align-items: center; justify-content: center; padding: 0 16px; border: 1px solid var(--search-button); border-radius: 4px; background: var(--search-button); color: white; cursor: pointer; font-size: 11px; font-weight: 700; white-space: nowrap; transition: background-color .15s, border-color .15s, transform .15s; }
+    .action-button:hover { border-color: var(--search-button-hover); background: var(--search-button-hover); transform: translateY(-1px); }
+    .action-button:focus-visible { outline: 3px solid rgba(183,70,40,.25); outline-offset: 2px; }
+    .danger-button { border-color: #a6442b; background: #a6442b; }
+    .danger-button:hover { border-color: #85331f; background: #85331f; }
+    .workbook-status { min-height: 28px; margin: 10px 0 0; color: var(--muted); font-size: 11px; }
+    .workbook-status.error { color: #b55130; }
+    .page-heading { margin: 0 0 22px; }
+    .page-heading p { margin: 0 0 7px; color: #82908b; font: 10px var(--mono); }
+    .page-heading h2 { font-size: 22px; }
+    .entry-panel { max-width: 760px; padding: 22px; border: 1px solid var(--line); border-radius: 4px; background: rgba(255,255,255,.82); }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 17px; }
+    .field { display: flex; min-width: 0; flex-direction: column; gap: 7px; color: #53645e; font-size: 11px; font-weight: 600; }
+    .field input, .field select { width: 100%; height: 42px; padding: 0 11px; border: 1px solid #dce4df; border-radius: 4px; outline: none; background: white; color: var(--ink); font-size: 12px; font-weight: 400; }
+    .field input:focus, .field select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(23,110,89,.08); }
+    .form-actions { display: flex; align-items: center; gap: 14px; margin-top: 20px; }
+    .form-status { min-height: 16px; margin: 0; color: var(--green); font-size: 11px; }
+    .form-status.error { color: #b55130; }
+    .field[hidden] { display: none; }
+    .storage-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(250px, 1fr); gap: 22px; align-items: start; }
+    .storage-sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+    .storage-section { display: grid; align-content: start; gap: 12px; padding: 15px; border: 1px solid var(--line); border-radius: 4px; background: rgba(255,255,255,.82); }
+    .storage-status { grid-column: 1 / -1; }
+    .storage-form { display: grid; gap: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .storage-form h3 { margin: 0; font-size: 13px; }
+    .storage-form .action-button { justify-self: start; }
+    .location-tree { min-height: 130px; }
+    .location-group { margin-bottom: 20px; }
+    .location-group > h3 { margin: 0 0 10px; font-size: 13px; }
+    .location-cupboard { margin-bottom: 11px; padding: 15px; border-left: 3px solid var(--green); background: rgba(255,255,255,.7); }
+    .location-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .location-row h3 { margin: 0; font-size: 13px; }
+    .location-delete { flex: 0 0 auto; padding: 5px 8px; border: 1px solid #e6c6bd; border-radius: 3px; background: #fffaf8; color: #a6442b; cursor: pointer; font-size: 10px; }
+    .location-delete:hover { border-color: #b74628; background: #fbede6; }
+    .location-box { margin: 8px 0 0 14px; padding: 9px 11px; border-left: 1px solid #b7c8be; }
+    .location-box strong { font-size: 11px; }
+    .location-rack { margin: 7px 0 0 14px; color: var(--muted); font-size: 11px; }
+    .table-scroll { overflow-x: auto; }
+    .table-head, .product-row { display: grid; grid-template-columns: minmax(180px, 1.5fr) minmax(150px, 1.2fr) minmax(110px, .8fr) minmax(190px, 1.5fr); align-items: center; column-gap: 11px; }
+    .table-head { min-height: 42px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); }
+    .product-row { min-height: 61px; border-bottom: 1px solid #eaf0eb; font-size: 11px; animation: appear .22s both; }
+    .product-row:hover { background: rgba(229,242,236,.45); }
+    .product-name { min-width: 0; display: flex; align-items: center; gap: 10px; font-weight: 600; }
+    .product-name span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .part-code { color: #718079; font: 10px var(--mono); }
+    .location-cell { min-width: 0; overflow: hidden; color: #718079; text-overflow: ellipsis; white-space: nowrap; }
+    .quantity-cell { display: flex; align-items: baseline; gap: 5px; }
+    .quantity-cell strong { font: 13px var(--mono); font-weight: 500; }
+    .quantity-cell small { color: #87938e; font-size: 9px; }
+    .empty { min-height: 175px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; color: #8b9992; text-align: center; }
+    .empty[hidden] { display: none; }
+    .empty-symbol { color: var(--green); font: 22px var(--mono); }
+    .empty strong { color: var(--ink); font-size: 12px; }
+    .empty span:last-child { font-size: 11px; }
+    @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 850px) {
+      .shell { padding: 0 5%; }
+      .table-head, .product-list { min-width: 750px; }
+    }
+    @media (max-width: 600px) {
+      .shell { padding: 0 18px; }
+      .topbar { flex-wrap: wrap; padding-top: 10px; }
+      .primary-nav { width: 100%; height: 46px; gap: 0; }
+      .page-tab { flex: 1; padding: 0 7px; font-size: 10px; }
+      .catalog { padding-top: 25px; }
+      .catalog-head { align-items: start; }
+      h2 { font-size: 19px; }
+      .catalog-meta { max-width: 145px; flex-wrap: wrap; justify-content: end; gap: 6px; padding-top: 14px; font-size: 8px; }
+      .catalog-actions { gap: 6px; }
+      .controls { gap: 6px; }
+      .search { height: 46px; gap: 8px; padding: 0 10px; }
+      .search input { font-size: 11px; }
+      .search input::placeholder { color: transparent; }
+      .action-button { height: 46px; min-width: 78px; padding: 0 10px; font-size: 10px; }
+      .entry-panel { padding: 15px; }
+      .form-grid, .storage-layout, .storage-sections { grid-template-columns: minmax(0, 1fr); }
+      .storage-layout { gap: 22px; }
+      .table-head, .product-list { min-width: 720px; }
+      .product-row { min-height: 57px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">L</span><span>LAB <span class="brand-light">INVENTORY</span></span></div>
+      <nav class="primary-nav" aria-label="Pages">
+        <button class="page-tab active" type="button" data-page="searchPage">Search</button>
+        <button class="page-tab" type="button" data-page="materialPage">Add Material</button>
+        <button class="page-tab" type="button" data-page="storagePage">Storage Locations</button>
+      </nav>
+    </header>
+
+    <section class="catalog page-view" id="searchPage" aria-label="Material catalog">
+      <div class="catalog-head">
+        <div><p class="kicker">DIRECTORY</p><h2>Material catalog</h2></div>
+        <div class="catalog-actions">
+          <div class="catalog-meta"><span id="itemCount">8 ITEMS</span></div>
+          <button class="action-button" id="exportButton" type="button">Export Excel</button>
+        </div>
+      </div>
+
+      <div class="controls">
+        <label class="search">
+          <span class="search-icon" aria-hidden="true">&#128269;</span>
+          <input id="searchInput" type="text" placeholder="Search by part number or part code" autocomplete="off" aria-label="Search part number or part code">
+          <button class="clear-button" id="clearButton" type="button" aria-label="Clear search" hidden>&times;</button>
+        </label>
+        <button class="action-button" id="searchButton" type="button">Search</button>
+      </div>
+      <p class="workbook-status" id="workbookStatus" role="status" aria-live="polite"></p>
+
+      <div class="table-scroll">
+        <div class="table-head" aria-hidden="true"><span>PART NUMBER</span><span>PART CODE</span><span>QUANTITY</span><span>LOCATION</span></div>
+        <div class="product-list" id="productList" aria-live="polite"></div>
+        <div class="empty" id="emptyState" hidden><span class="empty-symbol" aria-hidden="true">/</span><strong id="emptyTitle">No materials found</strong><span id="emptyMessage">Try another name, item code, or location.</span></div>
+      </div>
+    </section>
+
+    <section class="catalog page-view" id="materialPage" hidden>
+      <div class="page-heading"><p>INVENTORY</p><h2>Add Material</h2></div>
+      <form class="entry-panel" id="materialForm">
+        <div class="form-grid">
+          <label class="field">Part Number<input name="partNumber" required maxlength="100"></label>
+          <label class="field">Part Code<input name="partCode" required maxlength="100"></label>
+          <label class="field">Quantity<input name="quantity" type="number" min="0" step="any" required></label>
+          <label class="field">Location type<select name="locationType" id="locationType"><option value="rack">Cupboard rack</option><option value="box">Box</option></select></label>
+          <label class="field" id="materialCupboardField">Cupboard<select name="cupboardId" id="materialCupboard" required disabled><option value="">Choose a cupboard</option></select></label>
+          <label class="field" id="rackLocationField">Rack<select name="rackId" id="materialRack" required disabled><option value="">Choose a rack</option></select></label>
+          <label class="field" id="boxLocationField" hidden>Box<select name="boxId" id="materialBox" required disabled><option value="">Choose a box</option></select></label>
+        </div>
+        <div class="form-actions">
+          <button class="action-button" type="submit">Save Material</button>
+          <p class="form-status" id="materialStatus" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+      <div class="page-heading" style="margin-top: 30px"><p>INVENTORY</p><h2>Remove Material Quantity</h2></div>
+      <form class="entry-panel" id="removeMaterialForm">
+        <div class="form-grid">
+          <label class="field">Part Number<input name="partNumber" required maxlength="100"></label>
+          <label class="field">Part Code<input name="partCode" required maxlength="100"></label>
+          <label class="field">Quantity to remove<input name="quantity" type="number" min="0.001" step="any" required></label>
+          <label class="field">Location type<select name="locationType" id="removeLocationType"><option value="rack">Cupboard rack</option><option value="box">Box</option></select></label>
+          <label class="field" id="removeCupboardField">Cupboard<select name="cupboardId" id="removeCupboard" required disabled><option value="">Choose a cupboard</option></select></label>
+          <label class="field" id="removeRackField">Rack<select name="rackId" id="removeRack" required disabled><option value="">Choose a rack</option></select></label>
+          <label class="field" id="removeBoxField" hidden>Box<select name="boxId" id="removeBox" required disabled><option value="">Choose a box</option></select></label>
+        </div>
+        <div class="form-actions">
+          <button class="action-button danger-button" type="submit">Remove Quantity</button>
+          <p class="form-status" id="removeMaterialStatus" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </section>
+
+    <section class="catalog page-view" id="storagePage" hidden>
+      <div class="page-heading"><p>LOCATIONS</p><h2>Storage Locations</h2></div>
+      <div class="storage-layout">
+        <div class="storage-sections">
+          <section class="storage-section">
+            <h3>Cupboards &amp; Racks</h3>
+            <form class="storage-form" id="cupboardRackForm">
+              <h3>Add Cupboard and Racks</h3>
+              <label class="field">Cupboard name<input name="name" placeholder="Cupboard 1" required maxlength="80"></label>
+              <label class="field">Number of racks<input name="rackCount" type="number" min="1" max="50" step="1" value="1" required></label>
+              <button class="action-button" type="submit">Add Cupboard &amp; Racks</button>
+            </form>
+          </section>
+          <section class="storage-section">
+            <h3>Boxes</h3>
+            <form class="storage-form" id="boxForm">
+              <h3>Add Box</h3>
+              <label class="field">Box name<input name="name" placeholder="Box 1" required maxlength="80"></label>
+              <button class="action-button" type="submit">Add Box</button>
+            </form>
+          </section>
+          <p class="form-status storage-status" id="storageStatus" role="status" aria-live="polite"></p>
+        </div>
+        <div class="location-tree" id="locationTree" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let products = [];
+    let submittedQuery = null;
+    let totalProducts = null;
+    let workbookModifiedAt = null;
+    let requestSequence = 0;
+    let requestInProgress = false;
+    let storageTree = [];
+    let storageBoxes = [];
+    const searchInput = document.getElementById("searchInput");
+    const clearButton = document.getElementById("clearButton");
+    const productList = document.getElementById("productList");
+    const emptyState = document.getElementById("emptyState");
+    const workbookStatus = document.getElementById("workbookStatus");
+    const exportButton = document.getElementById("exportButton");
+    const materialForm = document.getElementById("materialForm");
+    const materialStatus = document.getElementById("materialStatus");
+    const removeMaterialForm = document.getElementById("removeMaterialForm");
+    const removeMaterialStatus = document.getElementById("removeMaterialStatus");
+    const removeLocationType = document.getElementById("removeLocationType");
+    const removeCupboard = document.getElementById("removeCupboard");
+    const removeRack = document.getElementById("removeRack");
+    const removeBox = document.getElementById("removeBox");
+    const removeCupboardField = document.getElementById("removeCupboardField");
+    const removeRackField = document.getElementById("removeRackField");
+    const removeBoxField = document.getElementById("removeBoxField");
+    const locationType = document.getElementById("locationType");
+    const materialCupboard = document.getElementById("materialCupboard");
+    const materialRack = document.getElementById("materialRack");
+    const materialBox = document.getElementById("materialBox");
+    const materialCupboardField = document.getElementById("materialCupboardField");
+    const rackLocationField = document.getElementById("rackLocationField");
+    const boxLocationField = document.getElementById("boxLocationField");
+    const storageStatus = document.getElementById("storageStatus");
+
+    async function apiRequest(url, options = {}) {
+      const method = (options.method || "GET").toUpperCase();
+      let requestOptions = { cache: "no-store", ...options };
+      let response = await fetch(url, requestOptions);
+      if (response.status === 401 && ["POST", "DELETE"].includes(method)) {
+        let adminKey = sessionStorage.getItem("labInventoryAdminKey");
+        if (!adminKey) {
+          adminKey = window.prompt("Enter the inventory admin key to make this change.");
+          if (!adminKey) throw new Error("An admin key is required to change inventory.");
+          sessionStorage.setItem("labInventoryAdminKey", adminKey);
+        }
+        requestOptions = {
+          ...requestOptions,
+          headers: { ...options.headers, "X-Admin-Key": adminKey }
+        };
+        response = await fetch(url, requestOptions);
+        if (response.status === 401) {
+          sessionStorage.removeItem("labInventoryAdminKey");
+          throw new Error("The admin key was rejected. Try again with the correct key.");
+        }
+      }
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "The request could not be completed.");
+      return result;
+    }
+
+    function setFormStatus(element, message, isError = false) {
+      element.textContent = message;
+      element.classList.toggle("error", isError);
+    }
+
+    function selectOptions(select, entries, placeholder, getValue, getLabel) {
+      const previousValue = select.value;
+      select.replaceChildren(new Option(placeholder, ""));
+      for (const entry of entries) select.add(new Option(getLabel(entry), getValue(entry)));
+      select.disabled = entries.length === 0;
+      if (entries.some((entry) => getValue(entry) === previousValue)) select.value = previousValue;
+    }
+
+    function renderStorage() {
+      selectOptions(materialCupboard, storageTree, "Choose a cupboard", (cupboard) => cupboard.id, (cupboard) => cupboard.name);
+      renderMaterialLocationOptions();
+
+      const tree = document.getElementById("locationTree");
+      tree.replaceChildren();
+      if (!storageTree.length && !storageBoxes.length) {
+        const empty = document.createElement("p");
+        empty.className = "form-status";
+        empty.textContent = "No cupboards added yet.";
+        tree.append(empty);
+        return;
+      }
+
+      const rackGroup = document.createElement("section");
+      rackGroup.className = "location-group";
+      const rackGroupHeading = document.createElement("h3");
+      rackGroupHeading.textContent = "Cupboards & Racks";
+      rackGroup.append(rackGroupHeading);
+
+      const boxGroup = document.createElement("section");
+      boxGroup.className = "location-group";
+      const boxGroupHeading = document.createElement("h3");
+      boxGroupHeading.textContent = "Boxes";
+      boxGroup.append(boxGroupHeading);
+
+      for (const cupboard of storageTree) {
+        const cupboardElement = document.createElement("section");
+        cupboardElement.className = "location-cupboard";
+        const cupboardRow = document.createElement("div");
+        cupboardRow.className = "location-row";
+        const cupboardTitle = document.createElement("h3");
+        cupboardTitle.textContent = cupboard.name;
+        cupboardRow.append(cupboardTitle, makeDeleteButton("cupboard", cupboard.id, cupboard.name));
+        cupboardElement.append(cupboardRow);
+        if (cupboard.racks.length) {
+          for (const rack of cupboard.racks) {
+            const rackElement = document.createElement("div");
+            rackElement.className = "location-rack";
+            rackElement.classList.add("location-row");
+            const rackName = document.createElement("span");
+            rackName.textContent = rack.name;
+            rackElement.append(rackName, makeDeleteButton("rack", rack.id, rack.name, cupboard.id));
+            cupboardElement.append(rackElement);
+          }
+        } else {
+          const noRacks = document.createElement("p");
+          noRacks.className = "form-status";
+          noRacks.textContent = "No racks added.";
+          cupboardElement.append(noRacks);
+        }
+        rackGroup.append(cupboardElement);
+      }
+
+      for (const box of storageBoxes) {
+        const boxElement = document.createElement("div");
+        boxElement.className = "location-box";
+        boxElement.classList.add("location-row");
+        const boxTitle = document.createElement("strong");
+        boxTitle.textContent = box.name;
+        boxElement.append(boxTitle, makeDeleteButton("box", box.id, box.name));
+        boxGroup.append(boxElement);
+      }
+      if (!storageBoxes.length) {
+        const noBoxes = document.createElement("p");
+        noBoxes.className = "form-status";
+        noBoxes.textContent = "No boxes added.";
+        boxGroup.append(noBoxes);
+      }
+      tree.append(rackGroup, boxGroup);
+    }
+
+    function makeDeleteButton(type, id, name, cupboardId = "") {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "location-delete";
+      button.textContent = "Delete";
+      button.dataset.deleteType = type;
+      button.dataset.deleteId = id;
+      button.dataset.deleteName = name;
+      if (cupboardId) button.dataset.cupboardId = cupboardId;
+      button.setAttribute("aria-label", `Delete ${type} ${name}`);
+      return button;
+    }
+
+    async function deleteLocation(button) {
+      const { deleteType: type, deleteId: id, deleteName: name, cupboardId } = button.dataset;
+      const impacts = type === "cupboard"
+        ? " Its racks and materials stored on those racks will also be deleted; boxes and their materials are kept."
+        : " Materials assigned to this location will also be deleted from the workbook.";
+      if (!window.confirm(`Delete ${type} \"${name}\"?${impacts}`)) return;
+
+      try {
+        const result = await apiRequest("/api/storage", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type, id, cupboardId })
+        });
+        storageTree = result.cupboards;
+        storageBoxes = result.boxes;
+        renderStorage();
+        const deleted = result.deletedMaterials || 0;
+        const updated = result.updatedMaterials || 0;
+        setFormStatus(storageStatus, `${type[0].toUpperCase()}${type.slice(1)} deleted. ${deleted} material${deleted === 1 ? "" : "s"} removed${updated ? `; ${updated} box location${updated === 1 ? "" : "s"} preserved` : ""}.`);
+        if (submittedQuery) await loadProducts(submittedQuery);
+      } catch (error) {
+        setFormStatus(storageStatus, error.message, true);
+      }
+    }
+
+    function renderMaterialLocationOptions() {
+      const cupboard = storageTree.find((item) => item.id === materialCupboard.value);
+      const useRack = locationType.value === "rack";
+      materialCupboardField.hidden = !useRack;
+      rackLocationField.hidden = !useRack;
+      boxLocationField.hidden = useRack;
+      selectOptions(materialRack, cupboard?.racks || [], "Choose a rack", (rack) => rack.id, (rack) => rack.name);
+      selectOptions(materialBox, storageBoxes, "Choose a box", (box) => box.id, (box) => box.name);
+      materialCupboard.disabled = !useRack || !storageTree.length;
+      materialRack.disabled = !useRack || !cupboard?.racks.length;
+      materialBox.disabled = useRack || !storageBoxes.length;
+    }
+
+    function renderRemoveLocationOptions() {
+      const cupboard = storageTree.find((item) => item.id === removeCupboard.value);
+      const useRack = removeLocationType.value === "rack";
+      removeCupboardField.hidden = !useRack;
+      removeRackField.hidden = !useRack;
+      removeBoxField.hidden = useRack;
+      selectOptions(removeCupboard, storageTree, "Choose a cupboard", (item) => item.id, (item) => item.name);
+      selectOptions(removeRack, cupboard?.racks || [], "Choose a rack", (item) => item.id, (item) => item.name);
+      selectOptions(removeBox, storageBoxes, "Choose a box", (item) => item.id, (item) => item.name);
+      removeCupboard.disabled = !useRack || !storageTree.length;
+      removeRack.disabled = !useRack || !cupboard?.racks.length;
+      removeBox.disabled = useRack || !storageBoxes.length;
+    }
+
+    async function loadStorage() {
+      try {
+        const result = await apiRequest("/api/storage");
+        storageTree = result.cupboards;
+        storageBoxes = result.boxes || [];
+        renderStorage();
+        renderRemoveLocationOptions();
+        setFormStatus(storageStatus, "");
+      } catch (error) {
+        setFormStatus(storageStatus, error.message, true);
+        setFormStatus(materialStatus, error.message, true);
+      }
+    }
+
+    async function refreshTotal() {
+      const result = await apiRequest("/api/products?q=");
+      totalProducts = result.total;
+      workbookModifiedAt = result.modifiedAt;
+      render();
+    }
+
+    async function saveLocation(form, type) {
+      const values = Object.fromEntries(new FormData(form).entries());
+      try {
+        await apiRequest("/api/storage", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type, ...values })
+        });
+        form.reset();
+        await loadStorage();
+        setFormStatus(storageStatus, type === "cupboard"
+          ? `Cupboard and ${values.rackCount} rack${values.rackCount === "1" ? "" : "s"} added.`
+          : `${type[0].toUpperCase()}${type.slice(1)} added.`);
+      } catch (error) {
+        setFormStatus(storageStatus, error.message, true);
+      }
+    }
+
+    document.querySelectorAll(".page-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".page-tab").forEach((item) => item.classList.toggle("active", item === tab));
+        document.querySelectorAll(".page-view").forEach((view) => { view.hidden = view.id !== tab.dataset.page; });
+        if (tab.dataset.page === "storagePage" || tab.dataset.page === "materialPage") loadStorage();
+      });
+    });
+
+    locationType.addEventListener("change", renderMaterialLocationOptions);
+    materialCupboard.addEventListener("change", renderMaterialLocationOptions);
+    removeLocationType.addEventListener("change", renderRemoveLocationOptions);
+    removeCupboard.addEventListener("change", renderRemoveLocationOptions);
+    document.getElementById("locationTree").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-delete-type]");
+      if (button) deleteLocation(button);
+    });
+    document.getElementById("cupboardRackForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      saveLocation(event.currentTarget, "cupboard");
+    });
+    document.getElementById("boxForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      saveLocation(event.currentTarget, "box");
+    });
+    materialForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const values = Object.fromEntries(new FormData(materialForm).entries());
+      try {
+        await apiRequest("/api/products", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(values)
+        });
+        materialForm.reset();
+        setFormStatus(materialStatus, "Material added to Lab Material.xlsx.");
+        if (submittedQuery) await loadProducts(submittedQuery);
+        else await refreshTotal();
+      } catch (error) {
+        setFormStatus(materialStatus, error.message, true);
+      }
+    });
+    removeMaterialForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const values = Object.fromEntries(new FormData(removeMaterialForm).entries());
+      const location = values.locationType === "rack"
+        ? `${removeCupboard.selectedOptions[0].text} / ${removeRack.selectedOptions[0].text}`
+        : removeBox.selectedOptions[0].text;
+      if (!window.confirm(`Remove ${values.quantity} from ${values.partNumber} (${values.partCode}) at ${location}?`)) return;
+
+      try {
+        const result = await apiRequest("/api/products/remove", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(values)
+        });
+        const message = result.deleted
+          ? "Quantity is now zero; the material row was deleted."
+          : `Quantity removed. ${result.remainingQuantity} remains at this location.`;
+        removeMaterialForm.reset();
+        renderRemoveLocationOptions();
+        setFormStatus(removeMaterialStatus, message);
+        await refreshTotal();
+        if (submittedQuery) await loadProducts(submittedQuery);
+      } catch (error) {
+        setFormStatus(removeMaterialStatus, error.message, true);
+      }
+    });
+
+    function makeCell(className, text) {
+      const cell = document.createElement("span");
+      cell.className = className;
+      cell.textContent = text;
+      return cell;
+    }
+
+    function render() {
+      const query = submittedQuery?.toLocaleLowerCase();
+      const matching = query
+        ? products.filter((product) => [product.partNumber, product.partCode]
+          .some((value) => value.toLocaleLowerCase().includes(query)))
+        : [];
+
+      productList.replaceChildren();
+      emptyState.hidden = submittedQuery === null || matching.length !== 0;
+      if (submittedQuery !== null && matching.length === 0) {
+        document.getElementById("emptyTitle").textContent = "No matching parts found";
+        document.getElementById("emptyMessage").textContent = "Try another part number or part code.";
+      }
+
+      for (const product of matching) {
+        const row = document.createElement("article");
+        row.className = "product-row";
+        row.append(
+          makeCell("", product.partNumber),
+          makeCell("part-code", product.partCode),
+          makeCell("quantity-cell", product.quantity),
+          makeCell("location-cell", product.location),
+        );
+        productList.append(row);
+      }
+
+      document.getElementById("itemCount").textContent = totalProducts === null ? "WORKBOOK" : `${totalProducts} PARTS`;
+      clearButton.hidden = !searchInput.value;
+    }
+
+    function runSearch() {
+      submittedQuery = searchInput.value.trim() || null;
+      render();
+      if (submittedQuery) loadProducts(submittedQuery);
+    }
+
+    async function loadProducts(query, quiet = false) {
+      if (quiet && requestInProgress) return;
+      const sequence = ++requestSequence;
+      requestInProgress = true;
+      if (!quiet) {
+        products = [];
+        workbookStatus.textContent = "Searching the latest workbook data…";
+        render();
+      }
+      try {
+        const response = await fetch(`/api/products?q=${encodeURIComponent(query)}`, { cache: "no-store" });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "Could not read the workbook.");
+        if (sequence !== requestSequence || query !== submittedQuery) return;
+        const workbookChanged = workbookModifiedAt !== null && workbookModifiedAt !== result.modifiedAt;
+        products = result.products;
+        totalProducts = result.total;
+        workbookModifiedAt = result.modifiedAt;
+        if (!quiet || workbookChanged) {
+          workbookStatus.classList.remove("error");
+          workbookStatus.textContent = workbookChanged
+            ? "Workbook changed; search results were refreshed."
+            : `Connected to Lab Material.xlsx · ${totalProducts} parts.`;
+        }
+        render();
+      } catch (error) {
+        if (sequence !== requestSequence || query !== submittedQuery) return;
+        workbookStatus.classList.add("error");
+        workbookStatus.textContent = error instanceof Error && error.message
+          ? error.message
+          : "Could not connect to the workbook server. Start it with python3 server.py.";
+        products = [];
+        render();
+      } finally {
+        if (sequence === requestSequence) requestInProgress = false;
+      }
+    }
+
+    searchInput.addEventListener("input", () => {
+      submittedQuery = null;
+      products = [];
+      requestSequence += 1;
+      requestInProgress = false;
+      render();
+    });
+    searchInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") runSearch();
+    });
+    clearButton.addEventListener("click", () => { searchInput.value = ""; submittedQuery = null; products = []; requestSequence += 1; requestInProgress = false; searchInput.focus(); render(); });
+    document.getElementById("searchButton").addEventListener("click", runSearch);
+    exportButton.addEventListener("click", async () => {
+      exportButton.disabled = true;
+      exportButton.textContent = "Exporting...";
+      try {
+        const response = await fetch("/api/export.xlsx", { cache: "no-store" });
+        if (!response.ok) {
+          const result = await response.json();
+          throw new Error(result.error || "Excel export failed.");
+        }
+        const file = await response.blob();
+        const objectUrl = URL.createObjectURL(file);
+        const download = document.createElement("a");
+        download.href = objectUrl;
+        download.download = `lab-inventory-${new Date().toISOString().slice(0, 10)}.xlsx`;
+        download.click();
+        URL.revokeObjectURL(objectUrl);
+        workbookStatus.classList.remove("error");
+        workbookStatus.textContent = "Excel export downloaded. Check your browser's download folder.";
+      } catch (error) {
+        workbookStatus.classList.add("error");
+        workbookStatus.textContent = error instanceof Error ? error.message : "Excel export failed.";
+      } finally {
+        exportButton.disabled = false;
+        exportButton.textContent = "Export Excel";
+      }
+    });
+
+    window.setInterval(() => {
+      if (submittedQuery && !requestInProgress) loadProducts(submittedQuery, true);
+    }, 15_000);
+
+    render();
+  </script>
+</body>
+</html>
