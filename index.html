@@ -36,13 +36,13 @@
       background-image: linear-gradient(rgba(23,110,89,.055) 1px, transparent 1px), linear-gradient(90deg, rgba(23,110,89,.055) 1px, transparent 1px);
       background-size: 32px 32px;
     }
-    button, input { font: inherit; }
+    button, input, select { font: inherit; }
     button { color: inherit; }
     .shell { width: min(1440px, 100%); min-height: 100vh; margin: auto; padding: 0 7%; background: rgba(248,250,248,.94); }
     .topbar { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); }
     
-    /* Brand & Dynamic Title Color */
-    .brand { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 800; }
+    /* Dynamic Connection Status Colors */
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 800; cursor: pointer; }
     .brand-mark { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 4px; background: #dc2626; color: white; font-size: 17px; transition: background-color 0.3s; }
     #labTitleText { color: #dc2626; transition: color 0.3s; }
     #labTitleText.connected { color: #16a34a !important; }
@@ -52,13 +52,15 @@
     .page-tab { position: relative; padding: 0 14px; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 600; }
     .page-tab:hover, .page-tab.active { color: var(--green-dark); }
     .page-tab.active::after { position: absolute; right: 12px; bottom: 0; left: 12px; height: 2px; background: var(--orange); content: ""; }
-    .page-view[hidden] { display: none; }
-    .kicker { margin: 0; color: var(--green); font: 10px var(--mono); margin-bottom: 7px; }
+    .page-view[hidden] { display: none !important; }
+    
+    .kicker { margin: 0 0 7px; color: var(--green); font: 10px var(--mono); }
     .catalog { padding-top: 31px; }
     .catalog-head { display: flex; align-items: end; justify-content: space-between; gap: 15px; margin-bottom: 18px; }
     .catalog-actions { display: flex; align-items: center; gap: 10px; }
     h2 { margin: 0; font-size: 22px; }
     .catalog-meta { display: flex; align-items: center; gap: 8px; padding-bottom: 2px; color: #75827d; font: 9px var(--mono); }
+    
     .controls { display: flex; gap: 9px; }
     .search { height: 49px; min-width: 0; flex: 1; display: flex; align-items: center; gap: 11px; padding: 0 14px; border: 1px solid #dce4df; border-radius: 4px; background: white; color: #728079; }
     .search:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px rgba(23,110,89,.08); }
@@ -66,16 +68,20 @@
     .search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 12px; }
     .search input::placeholder { color: #96a19c; }
     .clear-button { border: 0; padding: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 20px; }
+    
     .action-button { height: 49px; min-width: 92px; display: inline-flex; align-items: center; justify-content: center; padding: 0 16px; border: 1px solid var(--search-button); border-radius: 4px; background: var(--search-button); color: white; cursor: pointer; font-size: 11px; font-weight: 700; white-space: nowrap; transition: background-color .15s, border-color .15s, transform .15s; }
     .action-button:hover { border-color: var(--search-button-hover); background: var(--search-button-hover); transform: translateY(-1px); }
     .action-button:focus-visible { outline: 3px solid rgba(183,70,40,.25); outline-offset: 2px; }
     .danger-button { border-color: #a6442b; background: #a6442b; }
     .danger-button:hover { border-color: #85331f; background: #85331f; }
+    
     .workbook-status { min-height: 28px; margin: 10px 0 0; color: var(--muted); font-size: 11px; }
     .workbook-status.error { color: #b55130; }
+    
     .page-heading { margin: 0 0 22px; }
     .page-heading p { margin: 0 0 7px; color: #82908b; font: 10px var(--mono); }
     .page-heading h2 { font-size: 22px; }
+    
     .entry-panel { max-width: 760px; padding: 22px; border: 1px solid var(--line); border-radius: 4px; background: rgba(255,255,255,.82); }
     .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 17px; }
     .field { display: flex; min-width: 0; flex-direction: column; gap: 7px; color: #53645e; font-size: 11px; font-weight: 600; }
@@ -84,7 +90,8 @@
     .form-actions { display: flex; align-items: center; gap: 14px; margin-top: 20px; }
     .form-status { min-height: 16px; margin: 0; color: var(--green); font-size: 11px; }
     .form-status.error { color: #b55130; }
-    .field[hidden] { display: none; }
+    .field[hidden] { display: none !important; }
+    
     .storage-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(250px, 1fr); gap: 22px; align-items: start; }
     .storage-sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
     .storage-section { display: grid; align-content: start; gap: 12px; padding: 15px; border: 1px solid var(--line); border-radius: 4px; background: rgba(255,255,255,.82); }
@@ -92,6 +99,7 @@
     .storage-form { display: grid; gap: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
     .storage-form h3 { margin: 0; font-size: 13px; }
     .storage-form .action-button { justify-self: start; }
+    
     .location-tree { min-height: 130px; }
     .location-group { margin-bottom: 20px; }
     .location-group > h3 { margin: 0 0 10px; font-size: 13px; }
@@ -102,6 +110,7 @@
     .location-delete:hover { border-color: #b74628; background: #fbede6; }
     .location-rack { margin: 7px 0 0 14px; color: var(--muted); font-size: 11px; }
     .location-box { margin: 8px 0 0 14px; padding: 9px 11px; border-left: 1px solid #b7c8be; }
+    
     .table-scroll { overflow-x: auto; }
     .table-head, .product-row { display: grid; grid-template-columns: minmax(180px, 1.5fr) minmax(150px, 1.2fr) minmax(110px, .8fr) minmax(190px, 1.5fr); align-items: center; column-gap: 11px; }
     .table-head { min-height: 42px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); }
@@ -111,8 +120,9 @@
     .location-cell { min-width: 0; overflow: hidden; color: #718079; text-overflow: ellipsis; white-space: nowrap; }
     .quantity-cell strong { font: 13px var(--mono); font-weight: 500; }
     .empty { min-height: 175px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; color: #8b9992; text-align: center; }
-    .empty[hidden] { display: none; }
+    .empty[hidden] { display: none !important; }
     .empty-symbol { color: var(--green); font: 22px var(--mono); }
+    
     @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 850px) { .shell { padding: 0 5%; } .table-head, .product-list { min-width: 750px; } }
     @media (max-width: 600px) {
@@ -126,7 +136,7 @@
 <body>
   <main class="shell">
     <header class="topbar">
-      <!-- Dynamic Title: Switches to green when connected -->
+      <!-- Dynamic Title: Switches to green when Supabase is connected -->
       <div class="brand">
         <span class="brand-mark" id="brandMark" aria-hidden="true">L</span>
         <span id="labTitleText">LAB INVENTORY</span>
@@ -138,6 +148,7 @@
       </nav>
     </header>
 
+    <!-- Search Page -->
     <section class="catalog page-view" id="searchPage" aria-label="Material catalog">
       <div class="catalog-head">
         <div><p class="kicker">DIRECTORY</p><h2>Material catalog</h2></div>
@@ -164,6 +175,7 @@
       </div>
     </section>
 
+    <!-- Add & Remove Material Page -->
     <section class="catalog page-view" id="materialPage" hidden>
       <div class="page-heading"><p>INVENTORY</p><h2>Add Material</h2></div>
       <form class="entry-panel" id="materialForm">
@@ -171,10 +183,27 @@
           <label class="field">Part Number<input name="partNumber" required maxlength="100"></label>
           <label class="field">Part Code<input name="partCode" required maxlength="100"></label>
           <label class="field">Quantity<input name="quantity" type="number" min="0" step="any" required></label>
-          <label class="field">Location type<select name="locationType" id="locationType"><option value="rack">Cupboard rack</option><option value="box">Box</option></select></label>
-          <label class="field" id="materialCupboardField">Cupboard<select name="cupboardId" id="materialCupboard" required disabled><option value="">Choose a cupboard</option></select></label>
-          <label class="field" id="rackLocationField">Rack<select name="rackId" id="materialRack" required disabled><option value="">Choose a rack</option></select></label>
-          <label class="field" id="boxLocationField" hidden>Box<select name="boxId" id="materialBox" required disabled><option value="">Choose a box</option></select></label>
+          <label class="field">Location type
+            <select name="locationType" id="locationType">
+              <option value="rack">Cupboard rack</option>
+              <option value="box">Box</option>
+            </select>
+          </label>
+          <label class="field" id="materialCupboardField">Cupboard
+            <select name="cupboardId" id="materialCupboard" required disabled>
+              <option value="">Choose a cupboard</option>
+            </select>
+          </label>
+          <label class="field" id="rackLocationField">Rack
+            <select name="rackId" id="materialRack" required disabled>
+              <option value="">Choose a rack</option>
+            </select>
+          </label>
+          <label class="field" id="boxLocationField" hidden>Box
+            <select name="boxId" id="materialBox" disabled>
+              <option value="">Choose a box</option>
+            </select>
+          </label>
         </div>
         <div class="form-actions">
           <button class="action-button" type="submit">Save Material</button>
@@ -188,10 +217,27 @@
           <label class="field">Part Number<input name="partNumber" required maxlength="100"></label>
           <label class="field">Part Code<input name="partCode" required maxlength="100"></label>
           <label class="field">Quantity to remove<input name="quantity" type="number" min="0.001" step="any" required></label>
-          <label class="field">Location type<select name="locationType" id="removeLocationType"><option value="rack">Cupboard rack</option><option value="box">Box</option></select></label>
-          <label class="field" id="removeCupboardField">Cupboard<select name="cupboardId" id="removeCupboard" required disabled><option value="">Choose a cupboard</option></select></label>
-          <label class="field" id="removeRackField">Rack<select name="rackId" id="removeRack" required disabled><option value="">Choose a rack</option></select></label>
-          <label class="field" id="removeBoxField" hidden>Box<select name="boxId" id="removeBox" required disabled><option value="">Choose a box</option></select></label>
+          <label class="field">Location type
+            <select name="locationType" id="removeLocationType">
+              <option value="rack">Cupboard rack</option>
+              <option value="box">Box</option>
+            </select>
+          </label>
+          <label class="field" id="removeCupboardField">Cupboard
+            <select name="cupboardId" id="removeCupboard" required disabled>
+              <option value="">Choose a cupboard</option>
+            </select>
+          </label>
+          <label class="field" id="removeRackField">Rack
+            <select name="rackId" id="removeRack" required disabled>
+              <option value="">Choose a rack</option>
+            </select>
+          </label>
+          <label class="field" id="removeBoxField" hidden>Box
+            <select name="boxId" id="removeBox" disabled>
+              <option value="">Choose a box</option>
+            </select>
+          </label>
         </div>
         <div class="form-actions">
           <button class="action-button danger-button" type="submit">Remove Quantity</button>
@@ -200,13 +246,13 @@
       </form>
     </section>
 
+    <!-- Storage Locations Page -->
     <section class="catalog page-view" id="storagePage" hidden>
       <div class="page-heading"><p>LOCATIONS</p><h2>Storage Locations</h2></div>
       <div class="storage-layout">
         <div class="storage-sections">
           <section class="storage-section">
             <h3>Cupboards &amp; Racks</h3>
-            <!-- Add Cupboard and automatically generate nested racks -->
             <form class="storage-form" id="cupboardRackForm">
               <h3>Add Cupboard and Racks</h3>
               <label class="field">Cupboard name<input name="name" placeholder="Cupboard 1" required maxlength="80"></label>
@@ -231,21 +277,22 @@
 
   <script>
     // ==========================================
-    // 1. SUPABASE AUTOMATIC CONFIGURATION
+    // 1. SUPABASE CLIENT & CREDENTIALS
     // ==========================================
-    // Replace with your actual credentials:
+
     const SUPABASE_URL = "https://yeydscvvujnekicsbdxi.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_uBh_Q_7YFakzCqHknzb1tw_4qj3_7eI";
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Use supabaseClient to prevent shadowing global window.supabase
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // State Variables
+    // Global State
     let products = [];
     let submittedQuery = null;
     let storageTree = [];
     let storageBoxes = [];
 
-    // DOM Elements
+    // DOM References
     const labTitleText = document.getElementById("labTitleText");
     const brandMark = document.getElementById("brandMark");
     const searchInput = document.getElementById("searchInput");
@@ -275,7 +322,7 @@
     const storageStatus = document.getElementById("storageStatus");
 
     // ==========================================
-    // 2. SERVER CONNECTION CHECK & COLOR TOGGLE
+    // 2. CONNECTION VERIFICATION & COLOR SHIFT
     // ==========================================
     function setConnectionVisuals(isConnected) {
       if (isConnected) {
@@ -289,13 +336,14 @@
 
     async function checkServerConnection() {
       try {
-        const { error } = await supabase.from('cupboards').select('id', { count: 'exact', head: true });
+        const { error } = await supabaseClient.from('cupboards').select('id', { count: 'exact', head: true });
         if (error) throw error;
         setConnectionVisuals(true);
+        workbookStatus.textContent = "Connected to Supabase live database.";
+        workbookStatus.classList.remove("error");
       } catch (err) {
-        console.error("Connection failed:", err.message);
         setConnectionVisuals(false);
-        workbookStatus.textContent = "Supabase connection error: " + err.message;
+        workbookStatus.textContent = "Connection error: " + err.message;
         workbookStatus.classList.add("error");
       }
     }
@@ -308,20 +356,24 @@
     function selectOptions(select, entries, placeholder, getValue, getLabel) {
       const previousValue = select.value;
       select.replaceChildren(new Option(placeholder, ""));
-      for (const entry of entries) select.add(new Option(getLabel(entry), getValue(entry)));
+      for (const entry of entries) {
+        select.add(new Option(getLabel(entry), getValue(entry)));
+      }
       select.disabled = entries.length === 0;
-      if (entries.some((entry) => getValue(entry) === previousValue)) select.value = previousValue;
+      if (entries.some((entry) => String(getValue(entry)) === String(previousValue))) {
+        select.value = previousValue;
+      }
     }
 
     // ==========================================
-    // 3. STORAGE & CUPBOARD LOGIC
+    // 3. STORAGE & CUPBOARD ENGINE
     // ==========================================
     async function loadStorage() {
       try {
         const [cupboardsRes, racksRes, boxesRes] = await Promise.all([
-          supabase.from('cupboards').select('*').order('created_at', { ascending: true }),
-          supabase.from('racks').select('*').order('created_at', { ascending: true }),
-          supabase.from('boxes').select('*').order('created_at', { ascending: true })
+          supabaseClient.from('cupboards').select('*').order('created_at', { ascending: true }),
+          supabaseClient.from('racks').select('*').order('created_at', { ascending: true }),
+          supabaseClient.from('boxes').select('*').order('created_at', { ascending: true })
         ]);
 
         if (cupboardsRes.error) throw cupboardsRes.error;
@@ -425,14 +477,15 @@
 
     async function deleteLocation(button) {
       const { deleteType: type, deleteId: id, deleteName: name } = button.dataset;
-      const impacts = type === "cupboard"
-        ? " Its racks and all stored materials will also be deleted."
-        : " Materials assigned to this location will also be deleted.";
-      if (!window.confirm(`Delete ${type} "${name}"?${impacts}`)) return;
+      const warning = type === "cupboard"
+        ? `Delete cupboard "${name}"? Its racks and materials stored on those racks will also be deleted.`
+        : `Delete ${type} "${name}"? Materials stored here will also be removed.`;
+
+      if (!window.confirm(warning)) return;
 
       try {
         let table = type === "cupboard" ? 'cupboards' : type === 'rack' ? 'racks' : 'boxes';
-        const { error } = await supabase.from(table).delete().eq('id', id);
+        const { error } = await supabaseClient.from(table).delete().eq('id', id);
         if (error) throw error;
 
         await loadStorage();
@@ -444,11 +497,16 @@
     }
 
     function renderMaterialLocationOptions() {
-      const cupboard = storageTree.find((item) => item.id === materialCupboard.value);
+      const cupboard = storageTree.find((item) => String(item.id) === String(materialCupboard.value));
       const useRack = locationType.value === "rack";
+      
       materialCupboardField.hidden = !useRack;
       rackLocationField.hidden = !useRack;
       boxLocationField.hidden = useRack;
+
+      materialCupboard.required = useRack;
+      materialRack.required = useRack;
+      materialBox.required = !useRack;
 
       selectOptions(materialRack, cupboard?.racks || [], "Choose a rack", r => r.id, r => r.name);
       selectOptions(materialBox, storageBoxes, "Choose a box", b => b.id, b => b.name);
@@ -459,11 +517,16 @@
     }
 
     function renderRemoveLocationOptions() {
-      const cupboard = storageTree.find((item) => item.id === removeCupboard.value);
+      const cupboard = storageTree.find((item) => String(item.id) === String(removeCupboard.value));
       const useRack = removeLocationType.value === "rack";
+
       removeCupboardField.hidden = !useRack;
       removeRackField.hidden = !useRack;
       removeBoxField.hidden = useRack;
+
+      removeCupboard.required = useRack;
+      removeRack.required = useRack;
+      removeBox.required = !useRack;
 
       selectOptions(removeCupboard, storageTree, "Choose a cupboard", c => c.id, c => c.name);
       selectOptions(removeRack, cupboard?.racks || [], "Choose a rack", r => r.id, r => r.name);
@@ -475,7 +538,7 @@
     }
 
     // ==========================================
-    // 4. ADD CUPBOARDS, RACKS & BOXES
+    // 4. STORAGE FORMS (CUPBOARD, RACK & BOX)
     // ==========================================
     document.getElementById("cupboardRackForm").addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -484,8 +547,8 @@
       const rackCount = parseInt(form.rackCount.value, 10);
 
       try {
-        // Insert cupboard
-        const { data: cupboardData, error: cupboardError } = await supabase
+        // Create Cupboard
+        const { data: cupboardData, error: cupboardError } = await supabaseClient
           .from('cupboards')
           .insert([{ name }])
           .select()
@@ -493,21 +556,18 @@
 
         if (cupboardError) throw cupboardError;
 
-        // Auto-create numbered racks
-        const racksToInsert = [];
+        // Auto-generate requested number of racks
+        const racks = [];
         for (let i = 1; i <= rackCount; i++) {
-          racksToInsert.push({
-            cupboard_id: cupboardData.id,
-            name: `Rack ${i}`
-          });
+          racks.push({ cupboard_id: cupboardData.id, name: `Rack ${i}` });
         }
 
-        const { error: racksError } = await supabase.from('racks').insert(racksToInsert);
+        const { error: racksError } = await supabaseClient.from('racks').insert(racks);
         if (racksError) throw racksError;
 
         form.reset();
         await loadStorage();
-        setFormStatus(storageStatus, `Cupboard "${name}" and ${rackCount} rack(s) added successfully.`);
+        setFormStatus(storageStatus, `Cupboard "${name}" with ${rackCount} rack(s) added.`);
       } catch (error) {
         setFormStatus(storageStatus, error.message, true);
       }
@@ -519,7 +579,7 @@
       const name = form.name.value.trim();
 
       try {
-        const { error } = await supabase.from('boxes').insert([{ name }]);
+        const { error } = await supabaseClient.from('boxes').insert([{ name }]);
         if (error) throw error;
 
         form.reset();
@@ -531,7 +591,7 @@
     });
 
     // ==========================================
-    // 5. MATERIAL OPERATIONS (ADD & REMOVE)
+    // 5. MATERIAL OPERATIONS (SAVE & REMOVE)
     // ==========================================
     materialForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -544,18 +604,18 @@
         let boxId = null;
 
         if (values.locationType === "rack") {
-          const cName = materialCupboard.selectedOptions[0].text;
-          const rName = materialRack.selectedOptions[0].text;
+          const cName = materialCupboard.selectedOptions[0]?.text || "Unknown Cupboard";
+          const rName = materialRack.selectedOptions[0]?.text || "Unknown Rack";
           locationText = `${cName} / ${rName}`;
           cupboardId = values.cupboardId;
           rackId = values.rackId;
         } else {
-          locationText = materialBox.selectedOptions[0].text;
+          locationText = materialBox.selectedOptions[0]?.text || "Unknown Box";
           boxId = values.boxId;
         }
 
-        // Check if item already exists at that exact location
-        let query = supabase
+        // Check if material already exists at this location
+        let query = supabaseClient
           .from('materials')
           .select('*')
           .eq('part_number', values.partNumber.trim())
@@ -569,16 +629,14 @@
         if (fetchErr) throw fetchErr;
 
         if (existing && existing.length > 0) {
-          // Increment quantity
           const updatedQty = Number(existing[0].quantity) + Number(values.quantity);
-          const { error } = await supabase
+          const { error } = await supabaseClient
             .from('materials')
             .update({ quantity: updatedQty, updated_at: new Date() })
             .eq('id', existing[0].id);
           if (error) throw error;
         } else {
-          // Insert new
-          const { error } = await supabase.from('materials').insert([{
+          const { error } = await supabaseClient.from('materials').insert([{
             part_number: values.partNumber.trim(),
             part_code: values.partCode.trim(),
             quantity: Number(values.quantity),
@@ -593,7 +651,7 @@
 
         materialForm.reset();
         renderMaterialLocationOptions();
-        setFormStatus(materialStatus, "Material saved successfully to Supabase.");
+        setFormStatus(materialStatus, "Material added successfully.");
         await refreshInventory();
       } catch (error) {
         setFormStatus(materialStatus, error.message, true);
@@ -606,7 +664,7 @@
       const removeQty = Number(values.quantity);
 
       try {
-        let query = supabase
+        let query = supabaseClient
           .from('materials')
           .select('*')
           .eq('part_number', values.partNumber.trim())
@@ -625,20 +683,20 @@
 
         const item = matched[0];
         if (removeQty > Number(item.quantity)) {
-          throw new Error(`Cannot remove ${removeQty}. Only ${item.quantity} in stock.`);
+          throw new Error(`Cannot remove ${removeQty}. Current stock is ${item.quantity}.`);
         }
 
-        if (!window.confirm(`Remove ${removeQty} from ${item.part_number} at ${item.location_text}?`)) return;
+        if (!window.confirm(`Deduct ${removeQty} from ${item.part_number} at ${item.location_text}?`)) return;
 
         const remaining = Number(item.quantity) - removeQty;
         if (remaining <= 0) {
-          const { error } = await supabase.from('materials').delete().eq('id', item.id);
+          const { error } = await supabaseClient.from('materials').delete().eq('id', item.id);
           if (error) throw error;
-          setFormStatus(removeMaterialStatus, "Quantity reached 0; material row removed.");
+          setFormStatus(removeMaterialStatus, "Quantity is now 0; item removed from inventory.");
         } else {
-          const { error } = await supabase.from('materials').update({ quantity: remaining }).eq('id', item.id);
+          const { error } = await supabaseClient.from('materials').update({ quantity: remaining }).eq('id', item.id);
           if (error) throw error;
-          setFormStatus(removeMaterialStatus, `Quantity removed. ${remaining} units remain.`);
+          setFormStatus(removeMaterialStatus, `Quantity deducted. ${remaining} units remaining.`);
         }
 
         removeMaterialForm.reset();
@@ -650,11 +708,11 @@
     });
 
     // ==========================================
-    // 6. SEARCH & RENDERING
+    // 6. INVENTORY LIST & SEARCH
     // ==========================================
     async function refreshInventory() {
       try {
-        const { data, error } = await supabase.from('materials').select('*').order('part_number', { ascending: true });
+        const { data, error } = await supabaseClient.from('materials').select('*').order('part_number', { ascending: true });
         if (error) throw error;
         products = data || [];
         document.getElementById("itemCount").textContent = `${products.length} PARTS`;
@@ -703,7 +761,7 @@
       render();
     }
 
-    // Export to Excel using SheetJS
+    // Export using local SheetJS
     exportButton.addEventListener("click", () => {
       if (!products.length) {
         alert("No materials to export.");
@@ -721,20 +779,30 @@
       XLSX.writeFile(workbook, `lab-inventory-${new Date().toISOString().slice(0, 10)}.xlsx`);
     });
 
-    // Tab Navigation
+    // ==========================================
+    // 7. TAB NAVIGATION & EVENT LISTENERS
+    // ==========================================
     document.querySelectorAll(".page-tab").forEach((tab) => {
-      tab.addEventListener("click", () => {
-        document.querySelectorAll(".page-tab").forEach(item => item.classList.toggle("active", item === tab));
-        document.querySelectorAll(".page-view").forEach(view => { view.hidden = view.id !== tab.dataset.page; });
-        if (tab.dataset.page === "storagePage" || tab.dataset.page === "materialPage") loadStorage();
+      tab.addEventListener("click", async () => {
+        document.querySelectorAll(".page-tab").forEach(item => item.classList.remove("active"));
+        tab.classList.add("active");
+
+        const targetPageId = tab.dataset.page;
+        document.querySelectorAll(".page-view").forEach(view => {
+          view.hidden = view.id !== targetPageId;
+        });
+
+        if (targetPageId === "storagePage" || targetPageId === "materialPage") {
+          await loadStorage();
+        }
       });
     });
 
-    // Listeners
     locationType.addEventListener("change", renderMaterialLocationOptions);
     materialCupboard.addEventListener("change", renderMaterialLocationOptions);
     removeLocationType.addEventListener("change", renderRemoveLocationOptions);
     removeCupboard.addEventListener("change", renderRemoveLocationOptions);
+
     document.getElementById("locationTree").addEventListener("click", event => {
       const btn = event.target.closest("[data-delete-type]");
       if (btn) deleteLocation(btn);
@@ -755,7 +823,7 @@
     });
 
     // ==========================================
-    // 7. INITIALIZE ON LOAD
+    // 8. ONLOAD BOOTSTRAP
     // ==========================================
     window.addEventListener("DOMContentLoaded", async () => {
       await checkServerConnection();
