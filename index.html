@@ -667,7 +667,7 @@
     .user-alloc-row:hover { background: rgba(229,242,236,.35); }
 
     /* ==========================================
-       COMBINED TRANSACTION LOGS PAGE
+       COMBINED SAME-ROW LIFECYCLE LOGS
        ========================================== */
     .log-filter-bar {
       display: flex;
@@ -702,11 +702,13 @@
     .log-filter-bar select:focus, .log-filter-bar input[type="date"]:focus {
       border-color: var(--green);
     }
+
+    /* 7-column layout matching exact prompt specification */
     .log-table-head, .log-row {
       display: grid;
-      grid-template-columns: minmax(130px, 1.2fr) minmax(110px, 1.1fr) minmax(110px, 1fr) minmax(140px, 1.3fr) 85px minmax(135px, 1.3fr) minmax(135px, 1.3fr) 80px;
+      grid-template-columns: minmax(140px, 1.2fr) minmax(110px, 1fr) minmax(140px, 1.3fr) 80px 110px minmax(140px, 1.3fr) minmax(140px, 1.3fr);
       align-items: center;
-      column-gap: 10px;
+      column-gap: 12px;
     }
     .log-table-head {
       min-height: 34px;
@@ -723,16 +725,17 @@
       min-height: 0;
       padding-right: 4px;
     }
-    .log-row { min-height: 42px; border-bottom: 1px solid #eaf0eb; font-size: 11px; }
+    .log-row { min-height: 42px; border-bottom: 1px solid #eaf0eb; font-size: 11px; animation: appear .22s both; }
     .log-row:hover { background: rgba(229,242,236,.3); }
     .log-badge {
       display: inline-block;
-      padding: 2px 7px;
+      padding: 2px 8px;
       font-size: 9px;
       font-weight: 700;
       border-radius: 3px;
       text-transform: uppercase;
       text-align: center;
+      letter-spacing: 0.3px;
     }
     .log-badge.allocated { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
     .log-badge.returned { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
@@ -1157,10 +1160,10 @@
       </div>
     </section>
 
-    <!-- Combined Lifecycle Logs Page with Date Range Filters -->
+    <!-- Lifecycle Logs Page (Exact Single-Row Implementation) -->
     <section class="catalog page-view" id="logsPage" hidden>
       <div class="catalog-head">
-        <div><p class="kicker">AUDIT TRAIL</p><h2>Combined Activity Logs</h2></div>
+        <div><p class="kicker">AUDIT TRAIL</p><h2>Material Activity Logs</h2></div>
         <div class="catalog-actions">
           <button class="action-button" id="exportLogsButton" type="button">Export Excel</button>
         </div>
@@ -1172,8 +1175,8 @@
           Filter Status:
           <select id="logActionFilter">
             <option value="ALL">All Records</option>
-            <option value="ALLOCATED">Only Allocated (Pending Return)</option>
-            <option value="RETURNED">Only Returned</option>
+            <option value="Allocated">Only Allocated</option>
+            <option value="Return">Only Returned</option>
           </select>
         </label>
 
@@ -1193,19 +1196,18 @@
       <div class="table-scroll">
         <div class="log-table-head" aria-hidden="true">
           <span>USER NAME</span>
-          <span>PART NUMBER</span>
           <span>PART CODE</span>
-          <span>QTY &amp; LOCATION</span>
-          <span>STATUS</span>
+          <span>PART NUMBER</span>
+          <span>QUANTITY</span>
+          <span>ALLOCATED OR RETURNED</span>
           <span>ALLOCATED TIME</span>
           <span>RETURNED TIME</span>
-          <span style="text-align: right;">DURATION</span>
         </div>
         <div id="logList" aria-live="polite"></div>
         <div class="empty" id="emptyLogs" hidden>
           <span class="empty-symbol" aria-hidden="true">&#9776;</span>
           <strong>No matching activity records found</strong>
-          <span>Allocated materials combined with their return transactions will appear here.</span>
+          <span>Allocated materials and their return updates will appear here in the same row.</span>
         </div>
       </div>
     </section>
@@ -1244,13 +1246,15 @@
     let users = [];
     let userAllocations = [];
     let activityLogs = [];
-    let combinedLogPairs = []; // Combined Allocate & Return records
     let submittedQuery = null;
     let storageTree = [];
     let storageBoxes = [];
     let storageWorkbenches = [];
     let activeInspectorFilter = "cupboard";
     let selectedInspectorLocationId = null;
+
+    // Supabase Logs Table Resolution
+    let LOGS_TABLE_NAME = "material_logs";
 
     // Cache original locations
     const allocationOriginMap = new Map();
@@ -2144,25 +2148,90 @@
     }
 
     // ==========================================
-    // 6. RECORD TRANSACTIONS & UPDATE AUDIT LOGS
+    // 6. RECORD & UPDATE SINGLE-LINE LOGS
     // ==========================================
-    async function recordActivityLog(userId, actionType, partNumber, partCode, qty, locationText) {
-      try {
-        const u = users.find(x => String(x.id) === String(userId));
-        const userName = u ? u.name : "User";
+    async function recordAllocationLog(userId, userName, partCode, partNumber, quantity, locationText) {
+      const payload = {
+        user_id: userId,
+        user_name: userName,
+        part_code: partCode,
+        part_number: partNumber,
+        quantity: quantity,
+        status: "Allocated",
+        allocated_time: new Date().toISOString(),
+        returned_time: null,
+        location_text: locationText || "Storage"
+      };
 
-        const { error } = await supabaseClient.from('inventory_logs').insert([{
-          user_id: userId,
-          user_name: userName,
-          action: actionType,
-          part_number: partNumber,
-          part_code: partCode,
-          quantity: qty,
-          location_text: locationText
-        }]);
-        if (error) console.warn("Log write error:", error);
+      let { error } = await supabaseClient.from(LOGS_TABLE_NAME).insert([payload]);
+      
+      // Fallback detection if database table is named material_lifecycle_logs or inventory_logs
+      if (error && (error.code === '42P01' || error.message?.includes('does not exist'))) {
+        const fallbacks = ['material_lifecycle_logs', 'inventory_logs'];
+        for (const fb of fallbacks) {
+          const res = await supabaseClient.from(fb).insert([payload]);
+          if (!res.error) {
+            LOGS_TABLE_NAME = fb;
+            error = null;
+            break;
+          }
+        }
+      }
+
+      if (error) {
+        console.warn("Could not insert allocated log:", error);
+      }
+    }
+
+    async function recordReturnUpdateLog(userId, partCode, partNumber, quantityReturned) {
+      try {
+        // Query the latest open 'Allocated' record for this user and part
+        const { data: openLog, error: fetchErr } = await supabaseClient
+          .from(LOGS_TABLE_NAME)
+          .select('id, quantity')
+          .eq('user_id', userId)
+          .eq('part_code', partCode)
+          .ilike('status', 'Allocated%')
+          .order('allocated_time', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (fetchErr) {
+          console.warn("Error finding open allocated log row:", fetchErr);
+          return;
+        }
+
+        if (openLog) {
+          // Update the SAME entry in place from 'Allocated' to 'Return' and update returned_time
+          const nowIso = new Date().toISOString();
+          const { error: updErr } = await supabaseClient
+            .from(LOGS_TABLE_NAME)
+            .update({
+              status: "Return",
+              returned_time: nowIso
+            })
+            .eq('id', openLog.id);
+
+          if (updErr) {
+            console.warn("Error updating log row to Return:", updErr);
+          }
+        } else {
+          // If no open allocation row was found, insert a standalone returned row
+          const u = users.find(x => String(x.id) === String(userId));
+          const userName = u ? u.name : "User";
+          await supabaseClient.from(LOGS_TABLE_NAME).insert([{
+            user_id: userId,
+            user_name: userName,
+            part_code: partCode,
+            part_number: partNumber,
+            quantity: quantityReturned,
+            status: "Return",
+            allocated_time: null,
+            returned_time: new Date().toISOString()
+          }]);
+        }
       } catch (err) {
-        console.warn("Could not insert into inventory_logs:", err);
+        console.warn("Exception updating log entry:", err);
       }
     }
 
@@ -2311,10 +2380,11 @@
           throw new Error(`Allocation Conflict: Stock changed concurrently by another user.`);
         }
 
-        // AUDIT LOG INSERT
-        await recordActivityLog(userId, "ALLOCATED", item.part_number, item.part_code, takeQty, item.location_text || "Storage");
-
         const userName = takeUserSelect.selectedOptions[0]?.text || "User";
+
+        // Insert new single-line lifecycle log
+        await recordAllocationLog(userId, userName, item.part_code, item.part_number, takeQty, item.location_text || "Storage");
+
         setFormStatus(globalStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userName}.`);
 
         resetTakeForm();
@@ -2421,8 +2491,8 @@
           if (allocUpdErr) throw allocUpdErr;
         }
 
-        // Record RETURNED in activity logs
-        await recordActivityLog(userId, "RETURNED", allocItem.part_number, allocItem.part_code, returnQty, locationText);
+        // Update the SAME row from Allocated to Return and update returned_time
+        await recordReturnUpdateLog(userId, allocItem.part_code, allocItem.part_number, returnQty);
 
         setFormStatus(globalStripStatus, `Returned ${returnQty} units of "${allocItem.part_number}" to ${locationText}.`);
         
@@ -2451,126 +2521,59 @@
     });
 
     // ==========================================
-    // 7. SINGLE COMBINED ACTIVITY LOG WITH SAME-ROW STATUS
+    // 7. FETCH & DISPLAY SINGLE-ROW LIFECYCLE LOGS
     // ==========================================
     async function loadLogs() {
       try {
-        const { data, error } = await supabaseClient
-          .from('inventory_logs')
+        let { data, error } = await supabaseClient
+          .from(LOGS_TABLE_NAME)
           .select('*')
-          .order('created_at', { ascending: true }) // Oldest first to marry allocation with return
-          .limit(1000);
+          .order('allocated_time', { ascending: false });
+
+        // Fallback checks
+        if (error && (error.code === '42P01' || error.message?.includes('does not exist'))) {
+          const fallbacks = ['material_lifecycle_logs', 'inventory_logs'];
+          for (const fb of fallbacks) {
+            const res = await supabaseClient.from(fb).select('*').order('created_at', { ascending: false });
+            if (!res.error) {
+              LOGS_TABLE_NAME = fb;
+              data = res.data;
+              error = null;
+              break;
+            }
+          }
+        }
 
         if (error) throw error;
         activityLogs = data || [];
-        buildCombinedLogPairs();
         renderLogs();
       } catch (err) {
         console.error("Error loading activity logs:", err);
       }
     }
 
-    // Merge separate Allocate and Return actions into one consolidated row
-    function buildCombinedLogPairs() {
-      const pendingAllocations = [];
-      const combined = [];
-
-      for (const log of activityLogs) {
-        if (log.action === "ALLOCATED") {
-          const pair = {
-            id: log.id,
-            userName: log.user_name || "User",
-            userId: log.user_id,
-            partNumber: log.part_number,
-            partCode: log.part_code,
-            quantity: log.quantity,
-            locationText: log.location_text || "-",
-            allocatedTime: log.created_at,
-            returnedTime: null,
-            status: "ALLOCATED"
-          };
-          pendingAllocations.push(pair);
-          combined.push(pair);
-        } else if (log.action === "RETURNED") {
-          // Find matching open allocation record
-          const matchIndex = pendingAllocations.findIndex(p => 
-            p.userId === log.user_id &&
-            p.part_number === log.part_number &&
-            p.part_code === log.part_code
-          );
-
-          if (matchIndex !== -1) {
-            // Update the SAME row with the returned status and timestamp
-            const matchedPair = pendingAllocations[matchIndex];
-            matchedPair.returnedTime = log.created_at;
-            matchedPair.status = "RETURNED";
-            if (log.location_text) {
-              matchedPair.locationText = `${matchedPair.locationText} ➔ ${log.location_text}`;
-            }
-            pendingAllocations.splice(matchIndex, 1);
-          } else {
-            // Unmatched return row
-            combined.push({
-              id: log.id,
-              userName: log.user_name || "User",
-              userId: log.user_id,
-              partNumber: log.part_number,
-              partCode: log.part_code,
-              quantity: log.quantity,
-              locationText: log.location_text || "-",
-              allocatedTime: null,
-              returnedTime: log.created_at,
-              status: "RETURNED"
-            });
-          }
-        }
-      }
-
-      // Order newest activity first
-      combinedLogPairs = combined.sort((a, b) => {
-        const timeA = new Date(a.returnedTime || a.allocatedTime).getTime();
-        const timeB = new Date(b.returnedTime || b.allocatedTime).getTime();
-        return timeB - timeA;
-      });
-    }
-
-    function calculateDuration(startStr, endStr) {
-      if (!startStr || !endStr) return "-";
-      const diffMs = new Date(endStr) - new Date(startStr);
-      if (diffMs < 0) return "-";
-
-      const totalMins = Math.floor(diffMs / 60000);
-      const hours = Math.floor(totalMins / 60);
-      const mins = totalMins % 60;
-
-      if (hours > 0) return `${hours}h ${mins}m`;
-      return `${mins}m`;
-    }
-
     function renderLogs() {
       logList.replaceChildren();
 
-      const statusFilter = logActionFilter.value;
+      const statusFilter = logActionFilter.value; // 'ALL', 'Allocated', 'Return'
       const fromDateVal = logFromDateFilter.value; // YYYY-MM-DD
       const toDateVal = logToDateFilter.value;     // YYYY-MM-DD
 
-      const filtered = combinedLogPairs.filter(item => {
-        // Status filter
-        if (statusFilter !== "ALL" && item.status !== statusFilter) {
+      const filtered = activityLogs.filter(item => {
+        const itemStatus = (item.status || item.action || '').trim();
+        const isReturn = itemStatus.toLowerCase().startsWith('return');
+        const normalizedStatus = isReturn ? 'Return' : 'Allocated';
+
+        if (statusFilter !== "ALL" && normalizedStatus !== statusFilter) {
           return false;
         }
 
-        // Date Range: From Date & To Date check
-        const recordDate = item.allocatedTime || item.returnedTime;
-        if (recordDate) {
-          const itemDay = new Date(recordDate).toISOString().split('T')[0];
-
-          if (fromDateVal && itemDay < fromDateVal) {
-            return false;
-          }
-          if (toDateVal && itemDay > toDateVal) {
-            return false;
-          }
+        // Date filter against allocated_time or created_at
+        const dateStamp = item.allocated_time || item.created_at;
+        if (dateStamp) {
+          const itemDay = new Date(dateStamp).toISOString().split('T')[0];
+          if (fromDateVal && itemDay < fromDateVal) return false;
+          if (toDateVal && itemDay > toDateVal) return false;
         }
 
         return true;
@@ -2587,22 +2590,23 @@
         const row = document.createElement("article");
         row.className = "log-row";
 
-        const allocStr = log.allocatedTime ? new Date(log.allocatedTime).toLocaleString() : "-";
-        const returnStr = log.returnedTime ? new Date(log.returnedTime).toLocaleString() : "-";
-        const isReturned = log.status === "RETURNED";
-        const badgeClass = isReturned ? "returned" : "allocated";
-        const statusText = isReturned ? "Returned" : "Allocated";
-        const durationText = calculateDuration(log.allocatedTime, log.returnedTime);
+        const rawStatus = (log.status || log.action || 'Allocated').trim();
+        const isReturn = rawStatus.toLowerCase().startsWith('return');
+        const displayStatus = isReturn ? 'Return' : 'Allocated';
+        const badgeClass = isReturn ? 'returned' : 'allocated';
+
+        const allocTime = log.allocated_time || log.created_at;
+        const allocStr = allocTime ? new Date(allocTime).toLocaleString() : '-';
+        const returnStr = log.returned_time ? new Date(log.returned_time).toLocaleString() : '-';
 
         row.innerHTML = `
-          <span><strong>${log.userName}</strong></span>
-          <span>${log.partNumber}</span>
-          <span class="part-code">${log.partCode}</span>
-          <span class="location-cell" title="${log.locationText}"><strong>${log.quantity}x</strong> @ ${log.locationText}</span>
-          <span><span class="log-badge ${badgeClass}">${statusText}</span></span>
+          <span><strong>${log.user_name || 'User'}</strong></span>
+          <span class="part-code">${log.part_code || '-'}</span>
+          <span><strong>${log.part_number || '-'}</strong></span>
+          <span><strong>${log.quantity || 1}</strong></span>
+          <span><span class="log-badge ${badgeClass}">${displayStatus}</span></span>
           <span style="font-size:10px;color:#395045;">${allocStr}</span>
           <span style="font-size:10px;color:#395045;">${returnStr}</span>
-          <span style="font-size:10px;font-family:var(--mono);text-align:right;color:var(--muted);">${durationText}</span>
         `;
         logList.append(row);
       });
@@ -2619,23 +2623,24 @@
     });
 
     exportLogsButton.addEventListener("click", () => {
-      if (!combinedLogPairs.length) return alert("No logs available to export.");
-      const rows = combinedLogPairs.map(l => ({
-        "User": l.userName,
-        "Part Number": l.partNumber,
-        "Part Code": l.partCode,
-        "Quantity": l.quantity,
-        "Location": l.locationText,
-        "Status": l.status,
-        "Allocated Time": l.allocatedTime ? new Date(l.allocatedTime).toLocaleString() : "-",
-        "Returned Time": l.returnedTime ? new Date(l.returnedTime).toLocaleString() : "-",
-        "Duration": calculateDuration(l.allocatedTime, l.returnedTime)
-      }));
+      if (!activityLogs.length) return alert("No logs available to export.");
+      const rows = activityLogs.map(l => {
+        const isReturn = (l.status || l.action || '').toLowerCase().startsWith('return');
+        return {
+          "Username": l.user_name || "User",
+          "Part Code": l.part_code || "-",
+          "Part Number": l.part_number || "-",
+          "Quantity": l.quantity || 1,
+          "Allocated or Returned": isReturn ? "Return" : "Allocated",
+          "Allocated Time": (l.allocated_time || l.created_at) ? new Date(l.allocated_time || l.created_at).toLocaleString() : "-",
+          "Returned Time": l.returned_time ? new Date(l.returned_time).toLocaleString() : "-"
+        };
+      });
 
       const ws = XLSX.utils.json_to_sheet(rows);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Combined Logs");
-      XLSX.writeFile(wb, "Combined_Material_Activity_Logs.xlsx");
+      XLSX.utils.book_append_sheet(wb, ws, "Material Logs");
+      XLSX.writeFile(wb, "Material_Activity_Logs.xlsx");
     });
 
     // ==========================================
@@ -2819,9 +2824,10 @@
         })
         .subscribe();
 
+      // Listen to real-time changes on logs
       supabaseClient
-        .channel('public:inventory_logs')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_logs' }, () => { loadLogs(); })
+        .channel('public:material_logs_sync')
+        .on('postgres_changes', { event: '*', schema: 'public', table: LOGS_TABLE_NAME }, () => { loadLogs(); })
         .subscribe();
 
       setInterval(() => {
