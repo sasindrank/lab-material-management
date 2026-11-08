@@ -48,12 +48,16 @@
     #labTitleText.connected { color: #16a34a !important; }
     .brand-mark.connected { background-color: #16a34a !important; }
 
+    .nav-wrapper { display: flex; align-items: center; gap: 16px; }
     .primary-nav { display: flex; align-items: stretch; gap: 6px; height: 72px; }
     .page-tab { position: relative; padding: 0 14px; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 600; }
     .page-tab:hover, .page-tab.active { color: var(--green-dark); }
     .page-tab.active::after { position: absolute; right: 12px; bottom: 0; left: 12px; height: 2px; background: var(--orange); content: ""; }
     .page-view[hidden] { display: none !important; }
     
+    .session-badge { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: var(--mono); color: var(--green-dark); background: var(--mint); padding: 5px 10px; border-radius: 4px; border: 1px solid #c2ded3; }
+    .logout-btn { background: transparent; border: 0; cursor: pointer; font-weight: bold; color: var(--search-button); padding: 0 4px; text-decoration: underline; font-size: 10px; }
+
     .kicker { margin: 0 0 7px; color: var(--green); font: 10px var(--mono); }
     .catalog { padding-top: 31px; }
     .catalog-head { display: flex; align-items: end; justify-content: space-between; gap: 15px; margin-bottom: 18px; }
@@ -123,6 +127,34 @@
     .empty[hidden] { display: none !important; }
     .empty-symbol { color: var(--green); font: 22px var(--mono); }
     
+    /* Login Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(18, 77, 64, 0.45);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay[hidden] { display: none !important; }
+    .modal-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 24px;
+      width: min(380px, 90%);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .modal-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--green-dark); }
+    .modal-card p { margin: 0 0 16px; color: var(--muted); font-size: 12px; }
+    .modal-card .field { margin-bottom: 14px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .btn-secondary { background: #eef2f0; border: 1px solid #ced6d1; border-radius: 4px; padding: 0 14px; height: 38px; cursor: pointer; font-size: 11px; font-weight: 600; }
+    .btn-secondary:hover { background: #e0e7e3; }
+    .modal-actions .action-button { height: 38px; min-width: 75px; }
+
     @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 850px) { .shell { padding: 0 5%; } .table-head, .product-list { min-width: 750px; } }
     @media (max-width: 600px) {
@@ -141,11 +173,17 @@
         <span class="brand-mark" id="brandMark" aria-hidden="true">L</span>
         <span id="labTitleText">LAB INVENTORY</span>
       </div>
-      <nav class="primary-nav" aria-label="Pages">
-        <button class="page-tab active" type="button" data-page="searchPage">Search</button>
-        <button class="page-tab" type="button" data-page="materialPage">Add Material</button>
-        <button class="page-tab" type="button" data-page="storagePage">Storage Locations</button>
-      </nav>
+      <div class="nav-wrapper">
+        <div id="sessionIndicator" class="session-badge" hidden>
+          <span>Authenticated (<span id="sessionTimerText">30s</span>)</span>
+          <button type="button" class="logout-btn" id="logoutButton">Log out</button>
+        </div>
+        <nav class="primary-nav" aria-label="Pages">
+          <button class="page-tab active" type="button" data-page="searchPage">Search</button>
+          <button class="page-tab" type="button" data-page="materialPage">Add Material</button>
+          <button class="page-tab" type="button" data-page="storagePage">Storage Locations</button>
+        </nav>
+      </div>
     </header>
 
     <!-- Search Page -->
@@ -275,6 +313,25 @@
     </section>
   </main>
 
+  <!-- Login Dialog Modal -->
+  <div class="modal-overlay" id="authModal" hidden>
+    <div class="modal-card">
+      <h3>Authentication Required</h3>
+      <p>Enter the master password to access restricted inventory controls.</p>
+      <form id="authForm">
+        <label class="field">
+          Password
+          <input type="password" id="authPasswordInput" required placeholder="Enter password" autocomplete="current-password">
+        </label>
+        <p class="form-status error" id="authError" style="margin-bottom: 12px;"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="authCancelButton">Cancel</button>
+          <button type="submit" class="action-button">Unlock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     // ==========================================
     // 1. SUPABASE CLIENT & CREDENTIALS
@@ -291,6 +348,135 @@
     let submittedQuery = null;
     let storageTree = [];
     let storageBoxes = [];
+
+    // ==========================================
+    // AUTHENTICATION & INACTIVITY TIMEOUT
+    // ==========================================
+    const AUTH_PASSWORD = "FESTO";
+    const TIMEOUT_SECONDS = 30;
+
+    let isAuthenticated = false;
+    let pendingTargetPage = null;
+    let activePageId = "searchPage";
+    let remainingSeconds = TIMEOUT_SECONDS;
+    let countdownIntervalId = null;
+
+    const authModal = document.getElementById("authModal");
+    const authForm = document.getElementById("authForm");
+    const authPasswordInput = document.getElementById("authPasswordInput");
+    const authError = document.getElementById("authError");
+    const authCancelButton = document.getElementById("authCancelButton");
+    const sessionIndicator = document.getElementById("sessionIndicator");
+    const sessionTimerText = document.getElementById("sessionTimerText");
+    const logoutButton = document.getElementById("logoutButton");
+
+    function updateTimerBadge() {
+      sessionTimerText.textContent = `${remainingSeconds}s`;
+    }
+
+    function resetActivityTimer() {
+      if (!isAuthenticated) return;
+      remainingSeconds = TIMEOUT_SECONDS;
+      updateTimerBadge();
+    }
+
+    function startInactivityCountdown() {
+      stopInactivityCountdown();
+      remainingSeconds = TIMEOUT_SECONDS;
+      updateTimerBadge();
+
+      countdownIntervalId = setInterval(() => {
+        if (!isAuthenticated) {
+          stopInactivityCountdown();
+          return;
+        }
+
+        remainingSeconds--;
+        updateTimerBadge();
+
+        if (remainingSeconds <= 0) {
+          // If the page is currently in the search tab, or if user was idle in protected tabs
+          logout();
+          alert("Session expired due to 30 seconds of inactivity.");
+        }
+      }, 1000);
+    }
+
+    function stopInactivityCountdown() {
+      if (countdownIntervalId) {
+        clearInterval(countdownIntervalId);
+        countdownIntervalId = null;
+      }
+    }
+
+    function loginSuccess() {
+      isAuthenticated = true;
+      authModal.hidden = true;
+      authPasswordInput.value = "";
+      authError.textContent = "";
+      sessionIndicator.hidden = false;
+      startInactivityCountdown();
+
+      if (pendingTargetPage) {
+        navigateTo(pendingTargetPage);
+        pendingTargetPage = null;
+      }
+    }
+
+    function logout() {
+      isAuthenticated = false;
+      stopInactivityCountdown();
+      sessionIndicator.hidden = true;
+      authModal.hidden = true;
+      pendingTargetPage = null;
+
+      // Always switch back to Search on logout if currently on a protected tab
+      if (activePageId !== "searchPage") {
+        navigateTo("searchPage");
+      }
+    }
+
+    function promptLogin(targetPage) {
+      pendingTargetPage = targetPage;
+      authModal.hidden = false;
+      authError.textContent = "";
+      authPasswordInput.value = "";
+      authPasswordInput.focus();
+    }
+
+    // Only detect mouse movement when outside the search tab
+    window.addEventListener("mousemove", () => {
+      if (!isAuthenticated) return;
+      if (activePageId === "searchPage") {
+        // Do not reset timer when cursor moves while in Search tab
+        return;
+      }
+      resetActivityTimer();
+    });
+
+    // Also reset timer on active keystrokes inside protected tabs
+    window.addEventListener("keydown", () => {
+      if (isAuthenticated && activePageId !== "searchPage") {
+        resetActivityTimer();
+      }
+    });
+
+    authForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (authPasswordInput.value === AUTH_PASSWORD) {
+        loginSuccess();
+      } else {
+        authError.textContent = "Incorrect password. Please try again.";
+        authPasswordInput.select();
+      }
+    });
+
+    authCancelButton.addEventListener("click", () => {
+      authModal.hidden = true;
+      pendingTargetPage = null;
+    });
+
+    logoutButton.addEventListener("click", logout);
 
     // DOM References
     const labTitleText = document.getElementById("labTitleText");
@@ -547,7 +733,6 @@
       const rackCount = parseInt(form.rackCount.value, 10);
 
       try {
-        // Create Cupboard
         const { data: cupboardData, error: cupboardError } = await supabaseClient
           .from('cupboards')
           .insert([{ name }])
@@ -556,7 +741,6 @@
 
         if (cupboardError) throw cupboardError;
 
-        // Auto-generate requested number of racks
         const racks = [];
         for (let i = 1; i <= rackCount; i++) {
           racks.push({ cupboard_id: cupboardData.id, name: `Rack ${i}` });
@@ -614,7 +798,6 @@
           boxId = values.boxId;
         }
 
-        // Check if material already exists at this location
         let query = supabaseClient
           .from('materials')
           .select('*')
@@ -707,8 +890,7 @@
       }
     });
 
-    
-// ==========================================
+    // ==========================================
     // 6. INVENTORY LIST & SEARCH (SEARCH-ONLY)
     // ==========================================
     async function refreshInventory() {
@@ -718,7 +900,6 @@
         products = data || [];
         document.getElementById("itemCount").textContent = `${products.length} PRODUCTS`;
         
-        // Re-render only if there is an active search query
         render();
         setConnectionVisuals(true);
       } catch (err) {
@@ -738,7 +919,6 @@
     function render() {
       const query = submittedQuery?.toLocaleLowerCase();
 
-      // If no query has been submitted, do not show any products
       const matching = query
         ? products.filter(p => 
             p.part_number.toLocaleLowerCase().includes(query) || 
@@ -748,9 +928,6 @@
 
       productList.replaceChildren();
 
-      // Empty state logic:
-      // - If query is null (user hasn't searched yet): hide results and show "Type to search" prompt
-      // - If query was searched but 0 items matched: show "No materials found"
       if (!submittedQuery) {
         emptyState.hidden = false;
         document.getElementById("emptyTitle").textContent = "Search Material Directory";
@@ -784,21 +961,35 @@
     }
 
     // ==========================================
-    // 7. TAB NAVIGATION & EVENT LISTENERS
+    // 7. TAB NAVIGATION & PROTECTED ROUTING
     // ==========================================
+    async function navigateTo(targetPageId) {
+      activePageId = targetPageId;
+
+      document.querySelectorAll(".page-tab").forEach(item => {
+        item.classList.toggle("active", item.dataset.page === targetPageId);
+      });
+
+      document.querySelectorAll(".page-view").forEach(view => {
+        view.hidden = view.id !== targetPageId;
+      });
+
+      if (targetPageId === "storagePage" || targetPageId === "materialPage") {
+        await loadStorage();
+      }
+    }
+
     document.querySelectorAll(".page-tab").forEach((tab) => {
-      tab.addEventListener("click", async () => {
-        document.querySelectorAll(".page-tab").forEach(item => item.classList.remove("active"));
-        tab.classList.add("active");
-
+      tab.addEventListener("click", () => {
         const targetPageId = tab.dataset.page;
-        document.querySelectorAll(".page-view").forEach(view => {
-          view.hidden = view.id !== targetPageId;
-        });
-
-        if (targetPageId === "storagePage" || targetPageId === "materialPage") {
-          await loadStorage();
+        
+        // If clicking on Add Material or Storage Locations and not logged in, prompt password
+        if ((targetPageId === "materialPage" || targetPageId === "storagePage") && !isAuthenticated) {
+          promptLogin(targetPageId);
+          return;
         }
+
+        navigateTo(targetPageId);
       });
     });
 
