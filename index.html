@@ -1898,7 +1898,7 @@
           throw new Error(`Insufficient quantity. Current stock is ${item.quantity}.`);
         }
 
-        // 1. UPDATE OR INSERT INTO MATERIAL_ALLOCATIONS (saving original source storage parameters)
+        // 1. UPDATE OR INSERT INTO MATERIAL_ALLOCATIONS
         const { data: existingAlloc, error: allocSelectErr } = await supabaseClient
           .from('material_allocations')
           .select('*')
@@ -1908,38 +1908,71 @@
 
         if (allocSelectErr) throw new Error("Failed checking allocations: " + allocSelectErr.message);
 
+        // Attempt write with origin location fields; fallback to minimal payload if schema lacks columns
         if (existingAlloc && existingAlloc.length > 0) {
           const updatedQty = parseInt(existingAlloc[0].quantity, 10) + takeQty;
-          const { error: allocUpdErr } = await supabaseClient
+          
+          let updatePayload = {
+            quantity: updatedQty,
+            location_type: item.location_type || existingAlloc[0].location_type,
+            cupboard_id: item.cupboard_id || existingAlloc[0].cupboard_id,
+            rack_id: item.rack_id || existingAlloc[0].rack_id,
+            box_id: item.box_id || existingAlloc[0].box_id,
+            workbench_id: item.workbench_id || existingAlloc[0].workbench_id,
+            location_text: item.location_text || existingAlloc[0].location_text,
+            updated_at: new Date()
+          };
+
+          let { error: allocUpdErr } = await supabaseClient
             .from('material_allocations')
-            .update({
-              quantity: updatedQty,
-              location_type: item.location_type || existingAlloc[0].location_type,
-              cupboard_id: item.cupboard_id || existingAlloc[0].cupboard_id,
-              rack_id: item.rack_id || existingAlloc[0].rack_id,
-              box_id: item.box_id || existingAlloc[0].box_id,
-              workbench_id: item.workbench_id || existingAlloc[0].workbench_id,
-              location_text: item.location_text || existingAlloc[0].location_text,
-              updated_at: new Date()
-            })
+            .update(updatePayload)
             .eq('id', existingAlloc[0].id);
+
+          // Graceful fallback if database schema lacks location columns
+          if (allocUpdErr && (allocUpdErr.message.includes('column') || allocUpdErr.code === 'PGRST204')) {
+            const fallbackUpdate = { quantity: updatedQty, updated_at: new Date() };
+            const retryRes = await supabaseClient
+              .from('material_allocations')
+              .update(fallbackUpdate)
+              .eq('id', existingAlloc[0].id);
+            allocUpdErr = retryRes.error;
+          }
+
           if (allocUpdErr) throw new Error("Failed updating allocation record: " + allocUpdErr.message);
         } else {
-          const { error: allocInsErr } = await supabaseClient
+          let insertPayload = {
+            user_id: userId,
+            material_id: item.id,
+            part_number: item.part_number,
+            part_code: item.part_code,
+            quantity: takeQty,
+            location_type: item.location_type,
+            cupboard_id: item.cupboard_id,
+            rack_id: item.rack_id,
+            box_id: item.box_id,
+            workbench_id: item.workbench_id,
+            location_text: item.location_text
+          };
+
+          let { error: allocInsErr } = await supabaseClient
             .from('material_allocations')
-            .insert([{
+            .insert([insertPayload]);
+
+          // Graceful fallback if database schema lacks location columns
+          if (allocInsErr && (allocInsErr.message.includes('column') || allocInsErr.code === 'PGRST204')) {
+            const fallbackInsert = {
               user_id: userId,
               material_id: item.id,
               part_number: item.part_number,
               part_code: item.part_code,
-              quantity: takeQty,
-              location_type: item.location_type,
-              cupboard_id: item.cupboard_id,
-              rack_id: item.rack_id,
-              box_id: item.box_id,
-              workbench_id: item.workbench_id,
-              location_text: item.location_text
-            }]);
+              quantity: takeQty
+            };
+            const retryRes = await supabaseClient
+              .from('material_allocations')
+              .insert([fallbackInsert]);
+            allocInsErr = retryRes.error;
+          }
+
           if (allocInsErr) throw new Error("Failed creating allocation record: " + allocInsErr.message);
         }
 
