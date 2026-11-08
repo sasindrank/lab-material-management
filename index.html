@@ -160,7 +160,7 @@
     .field[hidden] { display: none !important; }
     
     .storage-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(250px, 1fr); gap: 22px; align-items: start; }
-    .storage-sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+    .storage-sections { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: start; }
     .storage-section { display: grid; align-content: start; gap: 12px; padding: 15px; border: 1px solid var(--line); border-radius: 4px; background: rgba(255,255,255,.82); }
     .storage-status { grid-column: 1 / -1; }
     .storage-form { display: grid; gap: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
@@ -177,6 +177,7 @@
     .location-delete:hover { border-color: #b74628; background: #fbede6; }
     .location-rack { margin: 7px 0 0 14px; color: var(--muted); font-size: 11px; }
     .location-box { margin: 8px 0 0 14px; padding: 9px 11px; border-left: 1px solid #b7c8be; }
+    .location-workbench { margin-bottom: 8px; padding: 10px 12px; border-left: 3px solid #d9633b; background: rgba(255,255,255,.7); }
     
     .table-scroll { overflow-x: auto; }
     .table-head, .product-row { display: grid; grid-template-columns: minmax(180px, 1.5fr) minmax(150px, 1.2fr) minmax(110px, .8fr) minmax(190px, 1.5fr); align-items: center; column-gap: 11px; }
@@ -221,6 +222,7 @@
     .modal-actions .action-button { height: 38px; min-width: 75px; }
 
     @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+    @media (max-width: 950px) { .storage-sections { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 850px) { .shell { padding: 0 5%; } .table-head, .product-list { min-width: 750px; } }
     @media (max-width: 600px) {
       .shell { padding: 0 18px; }
@@ -312,6 +314,7 @@
             <select name="locationType" id="locationType">
               <option value="rack">Cupboard rack</option>
               <option value="box">Box</option>
+              <option value="workbench">Workbench</option>
             </select>
           </label>
           <label class="field" id="materialCupboardField">Cupboard
@@ -327,6 +330,11 @@
           <label class="field" id="boxLocationField" hidden>Box
             <select name="boxId" id="materialBox" disabled>
               <option value="">Choose a box</option>
+            </select>
+          </label>
+          <label class="field" id="workbenchLocationField" hidden>Workbench
+            <select name="workbenchId" id="materialWorkbench" disabled>
+              <option value="">Choose a workbench</option>
             </select>
           </label>
         </div>
@@ -346,6 +354,7 @@
             <select name="locationType" id="removeLocationType">
               <option value="rack">Cupboard rack</option>
               <option value="box">Box</option>
+              <option value="workbench">Workbench</option>
             </select>
           </label>
           <label class="field" id="removeCupboardField">Cupboard
@@ -361,6 +370,11 @@
           <label class="field" id="removeBoxField" hidden>Box
             <select name="boxId" id="removeBox" disabled>
               <option value="">Choose a box</option>
+            </select>
+          </label>
+          <label class="field" id="removeWorkbenchField" hidden>Workbench
+            <select name="workbenchId" id="removeWorkbench" disabled>
+              <option value="">Choose a workbench</option>
             </select>
           </label>
         </div>
@@ -391,6 +405,14 @@
               <h3>Add Box</h3>
               <label class="field">Box name<input name="name" placeholder="Box 1" required maxlength="80"></label>
               <button class="action-button" type="submit">Add Box</button>
+            </form>
+          </section>
+          <section class="storage-section">
+            <h3>Workbenches</h3>
+            <form class="storage-form" id="workbenchForm">
+              <h3>Add Workbench</h3>
+              <label class="field">Workbench name<input name="name" placeholder="Workbench 1" required maxlength="80"></label>
+              <button class="action-button" type="submit">Add Workbench</button>
             </form>
           </section>
           <p class="form-status storage-status" id="storageStatus" role="status" aria-live="polite"></p>
@@ -433,6 +455,7 @@
     let submittedQuery = null;
     let storageTree = [];
     let storageBoxes = [];
+    let storageWorkbenches = [];
 
     // Screen Overlays
     const initialOverlay = document.getElementById("initialOverlay");
@@ -517,7 +540,7 @@
     function logout() {
       isAuthenticated = false;
       stopInactivityCountdown();
-      sessionIndicator.hidden = true; // Hide time and logout button
+      sessionIndicator.hidden = true;
       authModal.hidden = true;
       pendingTargetPage = null;
 
@@ -534,7 +557,7 @@
       authPasswordInput.focus();
     }
 
-    // Reset countdown on mouse movement only in authenticated tabs (ignored on Search tab)
+    // Reset countdown on mouse movement only in authenticated tabs
     window.addEventListener("mousemove", () => {
       if (!isAuthenticated) return;
       if (activePageId === "searchPage") return;
@@ -573,24 +596,33 @@
     const emptyState = document.getElementById("emptyState");
     const workbookStatus = document.getElementById("workbookStatus");
     const exportButton = document.getElementById("exportButton");
+    
+    // Add Material elements
     const materialForm = document.getElementById("materialForm");
     const materialStatus = document.getElementById("materialStatus");
+    const locationType = document.getElementById("locationType");
+    const materialCupboard = document.getElementById("materialCupboard");
+    const materialRack = document.getElementById("materialRack");
+    const materialBox = document.getElementById("materialBox");
+    const materialWorkbench = document.getElementById("materialWorkbench");
+    const materialCupboardField = document.getElementById("materialCupboardField");
+    const rackLocationField = document.getElementById("rackLocationField");
+    const boxLocationField = document.getElementById("boxLocationField");
+    const workbenchLocationField = document.getElementById("workbenchLocationField");
+
+    // Remove Material elements
     const removeMaterialForm = document.getElementById("removeMaterialForm");
     const removeMaterialStatus = document.getElementById("removeMaterialStatus");
     const removeLocationType = document.getElementById("removeLocationType");
     const removeCupboard = document.getElementById("removeCupboard");
     const removeRack = document.getElementById("removeRack");
     const removeBox = document.getElementById("removeBox");
+    const removeWorkbench = document.getElementById("removeWorkbench");
     const removeCupboardField = document.getElementById("removeCupboardField");
     const removeRackField = document.getElementById("removeRackField");
     const removeBoxField = document.getElementById("removeBoxField");
-    const locationType = document.getElementById("locationType");
-    const materialCupboard = document.getElementById("materialCupboard");
-    const materialRack = document.getElementById("materialRack");
-    const materialBox = document.getElementById("materialBox");
-    const materialCupboardField = document.getElementById("materialCupboardField");
-    const rackLocationField = document.getElementById("rackLocationField");
-    const boxLocationField = document.getElementById("boxLocationField");
+    const removeWorkbenchField = document.getElementById("removeWorkbenchField");
+
     const storageStatus = document.getElementById("storageStatus");
 
     // ==========================================
@@ -610,7 +642,6 @@
       const { error } = await supabaseClient.from('cupboards').select('id', { count: 'exact', head: true });
       if (error) throw error;
       setConnectionVisuals(true);
-      // Removed connection info from search view
       workbookStatus.textContent = "";
       workbookStatus.classList.remove("error");
     }
@@ -633,19 +664,22 @@
     }
 
     // ==========================================
-    // 3. STORAGE & CUPBOARD ENGINE
+    // 3. STORAGE & CUPBOARD / BOX / WORKBENCH ENGINE
     // ==========================================
     async function loadStorage() {
       try {
-        const [cupboardsRes, racksRes, boxesRes] = await Promise.all([
+        const [cupboardsRes, racksRes, boxesRes, workbenchesRes] = await Promise.all([
           supabaseClient.from('cupboards').select('*').order('created_at', { ascending: true }),
           supabaseClient.from('racks').select('*').order('created_at', { ascending: true }),
-          supabaseClient.from('boxes').select('*').order('created_at', { ascending: true })
+          supabaseClient.from('boxes').select('*').order('created_at', { ascending: true }),
+          supabaseClient.from('workbenches').select('*').order('created_at', { ascending: true })
         ]);
 
         if (cupboardsRes.error) throw cupboardsRes.error;
         if (racksRes.error) throw racksRes.error;
         if (boxesRes.error) throw boxesRes.error;
+        // If table workbenches doesn't exist yet, handle gracefully
+        const workbenchesData = workbenchesRes.error ? [] : (workbenchesRes.data || []);
 
         const racks = racksRes.data || [];
         storageTree = (cupboardsRes.data || []).map(cupboard => ({
@@ -654,6 +688,8 @@
         }));
 
         storageBoxes = boxesRes.data || [];
+        storageWorkbenches = workbenchesData;
+
         renderStorage();
         renderRemoveLocationOptions();
         setConnectionVisuals(true);
@@ -670,64 +706,89 @@
       const tree = document.getElementById("locationTree");
       tree.replaceChildren();
 
-      if (!storageTree.length && !storageBoxes.length) {
+      if (!storageTree.length && !storageBoxes.length && !storageWorkbenches.length) {
         const empty = document.createElement("p");
         empty.className = "form-status";
-        empty.textContent = "No cupboards or boxes added yet.";
+        empty.textContent = "No cupboards, boxes, or workbenches added yet.";
         tree.append(empty);
         return;
       }
 
-      const rackGroup = document.createElement("section");
-      rackGroup.className = "location-group";
-      const rackGroupHeading = document.createElement("h3");
-      rackGroupHeading.textContent = "Cupboards & Racks";
-      rackGroup.append(rackGroupHeading);
+      // Cupboards & Racks
+      if (storageTree.length) {
+        const rackGroup = document.createElement("section");
+        rackGroup.className = "location-group";
+        const rackGroupHeading = document.createElement("h3");
+        rackGroupHeading.textContent = "Cupboards & Racks";
+        rackGroup.append(rackGroupHeading);
 
-      for (const cupboard of storageTree) {
-        const cupboardElement = document.createElement("section");
-        cupboardElement.className = "location-cupboard";
-        const cupboardRow = document.createElement("div");
-        cupboardRow.className = "location-row";
-        const cupboardTitle = document.createElement("h3");
-        cupboardTitle.textContent = cupboard.name;
-        cupboardRow.append(cupboardTitle, makeDeleteButton("cupboard", cupboard.id, cupboard.name));
-        cupboardElement.append(cupboardRow);
+        for (const cupboard of storageTree) {
+          const cupboardElement = document.createElement("section");
+          cupboardElement.className = "location-cupboard";
+          const cupboardRow = document.createElement("div");
+          cupboardRow.className = "location-row";
+          const cupboardTitle = document.createElement("h3");
+          cupboardTitle.textContent = cupboard.name;
+          cupboardRow.append(cupboardTitle, makeDeleteButton("cupboard", cupboard.id, cupboard.name));
+          cupboardElement.append(cupboardRow);
 
-        if (cupboard.racks.length) {
-          for (const rack of cupboard.racks) {
-            const rackElement = document.createElement("div");
-            rackElement.className = "location-rack location-row";
-            const rackName = document.createElement("span");
-            rackName.textContent = rack.name;
-            rackElement.append(rackName, makeDeleteButton("rack", rack.id, rack.name, cupboard.id));
-            cupboardElement.append(rackElement);
+          if (cupboard.racks.length) {
+            for (const rack of cupboard.racks) {
+              const rackElement = document.createElement("div");
+              rackElement.className = "location-rack location-row";
+              const rackName = document.createElement("span");
+              rackName.textContent = rack.name;
+              rackElement.append(rackName, makeDeleteButton("rack", rack.id, rack.name, cupboard.id));
+              cupboardElement.append(rackElement);
+            }
+          } else {
+            const noRacks = document.createElement("p");
+            noRacks.className = "form-status";
+            noRacks.textContent = "No racks in this cupboard.";
+            cupboardElement.append(noRacks);
           }
-        } else {
-          const noRacks = document.createElement("p");
-          noRacks.className = "form-status";
-          noRacks.textContent = "No racks in this cupboard.";
-          cupboardElement.append(noRacks);
+          rackGroup.append(cupboardElement);
         }
-        rackGroup.append(cupboardElement);
+        tree.append(rackGroup);
       }
 
-      const boxGroup = document.createElement("section");
-      boxGroup.className = "location-group";
-      const boxGroupHeading = document.createElement("h3");
-      boxGroupHeading.textContent = "Boxes";
-      boxGroup.append(boxGroupHeading);
+      // Boxes
+      if (storageBoxes.length) {
+        const boxGroup = document.createElement("section");
+        boxGroup.className = "location-group";
+        const boxGroupHeading = document.createElement("h3");
+        boxGroupHeading.textContent = "Boxes";
+        boxGroup.append(boxGroupHeading);
 
-      for (const box of storageBoxes) {
-        const boxElement = document.createElement("div");
-        boxElement.className = "location-box location-row";
-        const boxTitle = document.createElement("strong");
-        boxTitle.textContent = box.name;
-        boxElement.append(boxTitle, makeDeleteButton("box", box.id, box.name));
-        boxGroup.append(boxElement);
+        for (const box of storageBoxes) {
+          const boxElement = document.createElement("div");
+          boxElement.className = "location-box location-row";
+          const boxTitle = document.createElement("strong");
+          boxTitle.textContent = box.name;
+          boxElement.append(boxTitle, makeDeleteButton("box", box.id, box.name));
+          boxGroup.append(boxElement);
+        }
+        tree.append(boxGroup);
       }
 
-      tree.append(rackGroup, boxGroup);
+      // Workbenches
+      if (storageWorkbenches.length) {
+        const wbGroup = document.createElement("section");
+        wbGroup.className = "location-group";
+        const wbGroupHeading = document.createElement("h3");
+        wbGroupHeading.textContent = "Workbenches";
+        wbGroup.append(wbGroupHeading);
+
+        for (const wb of storageWorkbenches) {
+          const wbElement = document.createElement("div");
+          wbElement.className = "location-workbench location-row";
+          const wbTitle = document.createElement("strong");
+          wbTitle.textContent = wb.name;
+          wbElement.append(wbTitle, makeDeleteButton("workbench", wb.id, wb.name));
+          wbGroup.append(wbElement);
+        }
+        tree.append(wbGroup);
+      }
     }
 
     function makeDeleteButton(type, id, name, cupboardId = "") {
@@ -751,7 +812,11 @@
       if (!window.confirm(warning)) return;
 
       try {
-        let table = type === "cupboard" ? 'cupboards' : type === 'rack' ? 'racks' : 'boxes';
+        let table = 'boxes';
+        if (type === 'cupboard') table = 'cupboards';
+        else if (type === 'rack') table = 'racks';
+        else if (type === 'workbench') table = 'workbenches';
+
         const { error } = await supabaseClient.from(table).delete().eq('id', id);
         if (error) throw error;
 
@@ -764,48 +829,56 @@
     }
 
     function renderMaterialLocationOptions() {
+      const locType = locationType.value;
       const cupboard = storageTree.find((item) => String(item.id) === String(materialCupboard.value));
-      const useRack = locationType.value === "rack";
-      
-      materialCupboardField.hidden = !useRack;
-      rackLocationField.hidden = !useRack;
-      boxLocationField.hidden = useRack;
 
-      materialCupboard.required = useRack;
-      materialRack.required = useRack;
-      materialBox.required = !useRack;
+      materialCupboardField.hidden = locType !== "rack";
+      rackLocationField.hidden = locType !== "rack";
+      boxLocationField.hidden = locType !== "box";
+      workbenchLocationField.hidden = locType !== "workbench";
+
+      materialCupboard.required = locType === "rack";
+      materialRack.required = locType === "rack";
+      materialBox.required = locType === "box";
+      materialWorkbench.required = locType === "workbench";
 
       selectOptions(materialRack, cupboard?.racks || [], "Choose a rack", r => r.id, r => r.name);
       selectOptions(materialBox, storageBoxes, "Choose a box", b => b.id, b => b.name);
+      selectOptions(materialWorkbench, storageWorkbenches, "Choose a workbench", w => w.id, w => w.name);
 
-      materialCupboard.disabled = !useRack || !storageTree.length;
-      materialRack.disabled = !useRack || !cupboard?.racks.length;
-      materialBox.disabled = useRack || !storageBoxes.length;
+      materialCupboard.disabled = locType !== "rack" || !storageTree.length;
+      materialRack.disabled = locType !== "rack" || !cupboard?.racks.length;
+      materialBox.disabled = locType !== "box" || !storageBoxes.length;
+      materialWorkbench.disabled = locType !== "workbench" || !storageWorkbenches.length;
     }
 
     function renderRemoveLocationOptions() {
+      const locType = removeLocationType.value;
       const cupboard = storageTree.find((item) => String(item.id) === String(removeCupboard.value));
-      const useRack = removeLocationType.value === "rack";
 
-      removeCupboardField.hidden = !useRack;
-      removeRackField.hidden = !useRack;
-      removeBoxField.hidden = useRack;
+      removeCupboardField.hidden = locType !== "rack";
+      removeRackField.hidden = locType !== "rack";
+      removeBoxField.hidden = locType !== "box";
+      removeWorkbenchField.hidden = locType !== "workbench";
 
-      removeCupboard.required = useRack;
-      removeRack.required = useRack;
-      removeBox.required = !useRack;
+      removeCupboard.required = locType === "rack";
+      removeRack.required = locType === "rack";
+      removeBox.required = locType === "box";
+      removeWorkbench.required = locType === "workbench";
 
       selectOptions(removeCupboard, storageTree, "Choose a cupboard", c => c.id, c => c.name);
       selectOptions(removeRack, cupboard?.racks || [], "Choose a rack", r => r.id, r => r.name);
       selectOptions(removeBox, storageBoxes, "Choose a box", b => b.id, b => b.name);
+      selectOptions(removeWorkbench, storageWorkbenches, "Choose a workbench", w => w.id, w => w.name);
 
-      removeCupboard.disabled = !useRack || !storageTree.length;
-      removeRack.disabled = !useRack || !cupboard?.racks.length;
-      removeBox.disabled = useRack || !storageBoxes.length;
+      removeCupboard.disabled = locType !== "rack" || !storageTree.length;
+      removeRack.disabled = locType !== "rack" || !cupboard?.racks.length;
+      removeBox.disabled = locType !== "box" || !storageBoxes.length;
+      removeWorkbench.disabled = locType !== "workbench" || !storageWorkbenches.length;
     }
 
     // ==========================================
-    // 4. STORAGE FORMS (CUPBOARD, RACK & BOX)
+    // 4. STORAGE FORMS (CUPBOARD, RACK, BOX & WORKBENCH)
     // ==========================================
     document.getElementById("cupboardRackForm").addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -855,6 +928,23 @@
       }
     });
 
+    document.getElementById("workbenchForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const name = form.name.value.trim();
+
+      try {
+        const { error } = await supabaseClient.from('workbenches').insert([{ name }]);
+        if (error) throw error;
+
+        form.reset();
+        await loadStorage();
+        setFormStatus(storageStatus, `Workbench "${name}" added.`);
+      } catch (error) {
+        setFormStatus(storageStatus, error.message, true);
+      }
+    });
+
     // ==========================================
     // 5. MATERIAL OPERATIONS (SAVE & REMOVE)
     // ==========================================
@@ -867,6 +957,7 @@
         let cupboardId = null;
         let rackId = null;
         let boxId = null;
+        let workbenchId = null;
 
         if (values.locationType === "rack") {
           const cName = materialCupboard.selectedOptions[0]?.text || "Unknown Cupboard";
@@ -874,9 +965,12 @@
           locationText = `${cName} / ${rName}`;
           cupboardId = values.cupboardId;
           rackId = values.rackId;
-        } else {
-          locationText = materialBox.selectedOptions[0]?.text || "Unknown Box";
+        } else if (values.locationType === "box") {
+          locationText = `Box: ${materialBox.selectedOptions[0]?.text || "Unknown Box"}`;
           boxId = values.boxId;
+        } else if (values.locationType === "workbench") {
+          locationText = `Workbench: ${materialWorkbench.selectedOptions[0]?.text || "Unknown Workbench"}`;
+          workbenchId = values.workbenchId;
         }
 
         let query = supabaseClient
@@ -887,7 +981,8 @@
           .eq('location_type', values.locationType);
 
         if (values.locationType === 'rack') query = query.eq('rack_id', rackId);
-        else query = query.eq('box_id', boxId);
+        else if (values.locationType === 'box') query = query.eq('box_id', boxId);
+        else if (values.locationType === 'workbench') query = query.eq('workbench_id', workbenchId);
 
         const { data: existing, error: fetchErr } = await query;
         if (fetchErr) throw fetchErr;
@@ -908,6 +1003,7 @@
             cupboard_id: cupboardId,
             rack_id: rackId,
             box_id: boxId,
+            workbench_id: workbenchId,
             location_text: locationText
           }]);
           if (error) throw error;
@@ -936,7 +1032,8 @@
           .eq('location_type', values.locationType);
 
         if (values.locationType === 'rack') query = query.eq('rack_id', values.rackId);
-        else query = query.eq('box_id', values.boxId);
+        else if (values.locationType === 'box') query = query.eq('box_id', values.boxId);
+        else if (values.locationType === 'workbench') query = query.eq('workbench_id', values.workbenchId);
 
         const { data: matched, error: matchErr } = await query;
         if (matchErr) throw matchErr;
@@ -1005,21 +1102,10 @@
 
       supabaseClient
         .channel('public:locations')
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'cupboards' },
-          () => { loadStorage(); }
-        )
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'boxes' },
-          () => { loadStorage(); }
-        )
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'racks' },
-          () => { loadStorage(); }
-        )
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'cupboards' }, () => { loadStorage(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'boxes' }, () => { loadStorage(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'racks' }, () => { loadStorage(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'workbenches' }, () => { loadStorage(); })
         .subscribe();
 
       setInterval(() => {
@@ -1101,7 +1187,7 @@
       tab.addEventListener("click", () => {
         const targetPageId = tab.dataset.page;
         
-        // Intercept protected tabs if not logged in
+        // Intercept protected tabs if not authenticated
         if ((targetPageId === "materialPage" || targetPageId === "storagePage") && !isAuthenticated) {
           promptLogin(targetPageId);
           return;
