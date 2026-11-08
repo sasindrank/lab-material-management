@@ -170,7 +170,7 @@
     .form-status.error { color: #b55130; }
     .field[hidden] { display: none !important; }
 
-    /* Split layout for Add Material Page: Form on left, Location Inspector on right */
+    /* Split layout for Add Material Page */
     .mat-page-split {
       display: grid;
       grid-template-columns: minmax(0, 1.35fr) minmax(320px, 1fr);
@@ -409,10 +409,24 @@
     .user-name { font-weight: 600; color: var(--ink); }
     .user-email { color: #53645e; font: 11px var(--mono); word-break: break-all; }
 
-    /* Logs Table Styles */
+    /* Unified Logs Table Styles (Allocated & Returned in the same view) */
+    .log-filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .log-filter-bar select {
+      height: 36px;
+      padding: 0 10px;
+      border: 1px solid #d0dad4;
+      border-radius: 4px;
+      background: white;
+      font-size: 11px;
+    }
     .log-table-head, .log-row {
       display: grid;
-      grid-template-columns: 140px 100px minmax(140px, 1.4fr) minmax(120px, 1.2fr) 70px minmax(140px, 1.4fr) 140px;
+      grid-template-columns: 140px 105px minmax(140px, 1.4fr) minmax(120px, 1.2fr) 70px minmax(140px, 1.4fr) 140px;
       align-items: center;
       column-gap: 10px;
     }
@@ -420,14 +434,14 @@
     .log-row { min-height: 48px; border-bottom: 1px solid #eaf0eb; font-size: 11px; }
     .log-badge {
       display: inline-block;
-      padding: 3px 6px;
+      padding: 3px 8px;
       font-size: 9px;
       font-weight: 700;
       border-radius: 3px;
       text-transform: uppercase;
     }
-    .log-badge.allocated { background: #fee2e2; color: #b91c1c; }
-    .log-badge.returned { background: #dcfce7; color: #15803d; }
+    .log-badge.allocated { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    .log-badge.returned { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
 
     /* ==========================================
        LOGIN DIALOG MODAL
@@ -583,7 +597,7 @@
               </select>
             </div>
             <div class="inline-field">
-              <select name="allocationSelect" id="returnAllocatedPartCodeSelect" required style="width: 180px;">
+              <select name="allocationSelect" id="returnAllocatedPartCodeSelect" required style="width: 190px;">
                 <option value="">Allocated Part Code</option>
               </select>
             </div>
@@ -712,7 +726,7 @@
           </form>
         </div>
 
-        <!-- Right: Clickable Location Inspector (Cupboard, Racks, Box, Workbench) -->
+        <!-- Right: Clickable Location Inspector -->
         <div class="inspector-panel">
           <h3>Location Contents Inspector</h3>
           <p>Click any cupboard, box, or workbench to view stored materials.</p>
@@ -813,7 +827,7 @@
       </div>
     </section>
 
-    <!-- Logs Page -->
+    <!-- Unified Logs Page (Both Allocated & Returned in the same table) -->
     <section class="catalog page-view" id="logsPage" hidden>
       <div class="catalog-head">
         <div><p class="kicker">AUDIT TRAIL</p><h2>Activity Logs</h2></div>
@@ -821,6 +835,17 @@
           <button class="action-button" id="exportLogsButton" type="button">Export Excel</button>
         </div>
       </div>
+
+      <!-- Quick Action Filter to view Allocated, Returned, or All in the same page -->
+      <div class="log-filter-bar">
+        <label style="font-size:11px;font-weight:700;color:#52635d;">Filter Actions:</label>
+        <select id="logActionFilter">
+          <option value="ALL">All Transactions (Allocated &amp; Returned)</option>
+          <option value="ALLOCATED">Only Allocated</option>
+          <option value="RETURNED">Only Returned</option>
+        </select>
+      </div>
+
       <div class="table-scroll">
         <div class="log-table-head" aria-hidden="true">
           <span>USER</span>
@@ -834,7 +859,7 @@
         <div id="logList" aria-live="polite"></div>
         <div class="empty" id="emptyLogs" hidden>
           <span class="empty-symbol" aria-hidden="true">&#9776;</span>
-          <strong>No transaction logs recorded yet</strong>
+          <strong>No transaction logs found</strong>
           <span>Allocating or returning materials will record audit trails here.</span>
         </div>
       </div>
@@ -1084,6 +1109,7 @@
     const logList = document.getElementById("logList");
     const emptyLogs = document.getElementById("emptyLogs");
     const exportLogsButton = document.getElementById("exportLogsButton");
+    const logActionFilter = document.getElementById("logActionFilter");
 
     // Inspector elements
     const inspectorContent = document.getElementById("inspectorContent");
@@ -1322,7 +1348,6 @@
           renderLocationInspector();
         });
 
-        // Expand details if active
         if (selectedInspectorLocationId === item.id) {
           const detailContainer = document.createElement("div");
           detailContainer.style.marginTop = "8px";
@@ -1740,7 +1765,7 @@
     }
 
     // ==========================================
-    // 7. TRANSACTION PROCESSING & ACTIVITY LOGS
+    // 7. TRANSACTION PROCESSING (TAKE & RETURN)
     // ==========================================
     async function recordActivityLog(userId, actionType, partNumber, partCode, qty, locationText) {
       try {
@@ -1785,16 +1810,7 @@
           throw new Error(`Insufficient quantity. Current stock is ${item.quantity}.`);
         }
 
-        const remaining = Number(item.quantity) - takeQty;
-        if (remaining <= 0) {
-          const { error } = await supabaseClient.from('materials').delete().eq('id', item.id);
-          if (error) throw error;
-        } else {
-          const { error } = await supabaseClient.from('materials').update({ quantity: remaining }).eq('id', item.id);
-          if (error) throw error;
-        }
-
-        // --- UPDATE OR INSERT MATERIAL ALLOCATION ---
+        // 1. UPDATE OR INSERT INTO MATERIAL_ALLOCATIONS FIRST (to ensure foreign keys exist)
         const { data: existingAlloc, error: allocSelectErr } = await supabaseClient
           .from('material_allocations')
           .select('*')
@@ -1802,7 +1818,7 @@
           .eq('part_number', item.part_number)
           .eq('part_code', item.part_code);
 
-        if (allocSelectErr) throw new Error("Failed to check user allocations: " + allocSelectErr.message);
+        if (allocSelectErr) throw new Error("Failed checking allocations: " + allocSelectErr.message);
 
         if (existingAlloc && existingAlloc.length > 0) {
           const updatedQty = Number(existingAlloc[0].quantity) + takeQty;
@@ -1810,7 +1826,7 @@
             .from('material_allocations')
             .update({ quantity: updatedQty, updated_at: new Date() })
             .eq('id', existingAlloc[0].id);
-          if (allocUpdErr) throw new Error("Failed to update allocation: " + allocUpdErr.message);
+          if (allocUpdErr) throw new Error("Failed updating allocation record: " + allocUpdErr.message);
         } else {
           const { error: allocInsErr } = await supabaseClient
             .from('material_allocations')
@@ -1821,17 +1837,27 @@
               part_code: item.part_code,
               quantity: takeQty
             }]);
-          if (allocInsErr) throw new Error("Failed to create allocation: " + allocInsErr.message);
+          if (allocInsErr) throw new Error("Failed creating allocation record: " + allocInsErr.message);
         }
 
-        // Record in audit logs
+        // 2. DEDUCT OR DELETE FROM MATERIALS INVENTORY AFTER ALLOCATION SUCCEEDS
+        const remaining = Number(item.quantity) - takeQty;
+        if (remaining <= 0) {
+          const { error: delErr } = await supabaseClient.from('materials').delete().eq('id', item.id);
+          if (delErr) throw delErr;
+        } else {
+          const { error: updErr } = await supabaseClient.from('materials').update({ quantity: remaining }).eq('id', item.id);
+          if (updErr) throw updErr;
+        }
+
+        // 3. RECORD AUDIT LOG
         await recordActivityLog(userId, "ALLOCATED", item.part_number, item.part_code, takeQty, item.location_text || "Storage");
 
         const userName = takeUserSelect.selectedOptions[0]?.text || "User";
         takeQuantity.value = "";
         setFormStatus(globalStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userName}.`);
 
-        // Refresh lists immediately
+        // Refresh all synchronized views
         await refreshInventory();
         await loadLogs();
         if (userAllocViewerSelect.value === userId) {
@@ -1887,7 +1913,7 @@
           throw new Error("Invalid location type selected.");
         }
 
-        // Check if material already exists at this destination
+        // Restock material back into materials inventory
         const existingAtDestination = products.find(p => 
           p.part_number.trim().toLowerCase() === allocItem.part_number.trim().toLowerCase() &&
           p.part_code.trim().toLowerCase() === allocItem.part_code.trim().toLowerCase() &&
@@ -1920,7 +1946,7 @@
           if (insertErr) throw insertErr;
         }
 
-        // Deduct from material_allocations
+        // Deduct returned quantity from material_allocations
         const remainingAlloc = Number(allocItem.quantity) - returnQty;
         if (remainingAlloc <= 0) {
           const { error: allocDelErr } = await supabaseClient.from('material_allocations').delete().eq('id', allocItem.id);
@@ -1930,7 +1956,7 @@
           if (allocUpdErr) throw allocUpdErr;
         }
 
-        // Record return in activity logs
+        // Record in activity logs
         await recordActivityLog(userId, "RETURNED", allocItem.part_number, allocItem.part_code, returnQty, locationText);
 
         returnQuantity.value = "";
@@ -1964,7 +1990,7 @@
     });
 
     // ==========================================
-    // 8. LOGS ENGINE
+    // 8. UNIFIED LOGS ENGINE (Allocated & Returned in One Table)
     // ==========================================
     async function loadLogs() {
       try {
@@ -1972,7 +1998,7 @@
           .from('inventory_logs')
           .select('*')
           .order('created_at', { ascending: false })
-          .limit(200);
+          .limit(300);
 
         if (error) throw error;
         activityLogs = data || [];
@@ -1985,14 +2011,20 @@
     function renderLogs() {
       logList.replaceChildren();
 
-      if (!activityLogs.length) {
+      const filterMode = logActionFilter.value;
+      const filteredLogs = activityLogs.filter(log => {
+        if (filterMode === "ALL") return true;
+        return log.action === filterMode;
+      });
+
+      if (!filteredLogs.length) {
         emptyLogs.hidden = false;
         return;
       }
 
       emptyLogs.hidden = true;
 
-      activityLogs.forEach(log => {
+      filteredLogs.forEach(log => {
         const row = document.createElement("article");
         row.className = "log-row";
 
@@ -2011,6 +2043,8 @@
         logList.append(row);
       });
     }
+
+    logActionFilter.addEventListener("change", renderLogs);
 
     exportLogsButton.addEventListener("click", () => {
       if (!activityLogs.length) return alert("No logs available to export.");
