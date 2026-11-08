@@ -39,6 +39,68 @@
     button, input, select { font: inherit; }
     button { color: inherit; }
     .shell { width: min(1440px, 100%); min-height: 100vh; margin: auto; padding: 0 7%; background: rgba(248,250,248,.94); }
+    .shell[hidden] { display: none !important; }
+
+    /* ==========================================
+       STARTUP LOADING & ERROR OVERLAY
+       ========================================== */
+    .initial-overlay {
+      position: fixed;
+      inset: 0;
+      background: #edf3ef;
+      background-image: linear-gradient(rgba(23,110,89,.055) 1px, transparent 1px), linear-gradient(90deg, rgba(23,110,89,.055) 1px, transparent 1px);
+      background-size: 32px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.3s ease;
+    }
+    .initial-overlay[hidden] { display: none !important; }
+    .initial-box {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 36px 32px;
+      width: min(440px, 92%);
+      text-align: center;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.06);
+    }
+    .initial-spinner {
+      width: 44px;
+      height: 44px;
+      margin: 0 auto 18px;
+      border: 3px solid var(--mint);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    .initial-title { margin: 0 0 8px; font-size: 18px; font-weight: 700; color: var(--green-dark); }
+    .initial-desc { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .error-container { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    .error-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #fee2e2;
+      color: #dc2626;
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .error-details {
+      background: #fff5f5;
+      border: 1px solid #fecaca;
+      border-radius: 4px;
+      padding: 10px 14px;
+      color: #b91c1c;
+      font: 11px var(--mono);
+      word-break: break-word;
+      max-width: 100%;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
     .topbar { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); }
     
     /* Dynamic Connection Status Colors */
@@ -130,7 +192,7 @@
     /* Login Modal Styles */
     .modal-overlay {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      inset: 0;
       background: rgba(18, 77, 64, 0.45);
       backdrop-filter: blur(4px);
       display: flex;
@@ -166,7 +228,28 @@
   </style>
 </head>
 <body>
-  <main class="shell">
+
+  <!-- Fullscreen Startup Landing / Connection Screen -->
+  <div class="initial-overlay" id="initialOverlay">
+    <div class="initial-box" id="loadingState">
+      <div class="initial-spinner"></div>
+      <h3 class="initial-title">Connecting to Database...</h3>
+      <p class="initial-desc">Establishing live connection with Supabase services. Please wait.</p>
+    </div>
+
+    <div class="initial-box" id="errorState" hidden>
+      <div class="error-container">
+        <div class="error-icon">&#9888;</div>
+        <h3 class="initial-title" style="color: #b91c1c;">Connection Failed</h3>
+        <p class="initial-desc">Could not establish a connection to Supabase database.</p>
+        <div class="error-details" id="errorMsgText"></div>
+        <button class="action-button danger-button" id="retryButton" type="button" style="margin-top: 10px;">Retry Connection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Application Shell (hidden until Supabase connected) -->
+  <main class="shell" id="appShell" hidden>
     <header class="topbar">
       <!-- Dynamic Title: Switches to green when Supabase is connected -->
       <div class="brand">
@@ -336,11 +419,9 @@
     // ==========================================
     // 1. SUPABASE CLIENT & CREDENTIALS
     // ==========================================
-
     const SUPABASE_URL = "https://yeydscvvujnekicsbdxi.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_uBh_Q_7YFakzCqHknzb1tw_4qj3_7eI";
 
-    // Use supabaseClient to prevent shadowing global window.supabase
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // Global State
@@ -348,6 +429,14 @@
     let submittedQuery = null;
     let storageTree = [];
     let storageBoxes = [];
+
+    // Screen Overlays
+    const initialOverlay = document.getElementById("initialOverlay");
+    const loadingState = document.getElementById("loadingState");
+    const errorState = document.getElementById("errorState");
+    const errorMsgText = document.getElementById("errorMsgText");
+    const retryButton = document.getElementById("retryButton");
+    const appShell = document.getElementById("appShell");
 
     // ==========================================
     // AUTHENTICATION & INACTIVITY TIMEOUT
@@ -444,9 +533,7 @@
 
     window.addEventListener("mousemove", () => {
       if (!isAuthenticated) return;
-      if (activePageId === "searchPage") {
-        return; // Don't reset if mouse moves inside Search tab
-      }
+      if (activePageId === "searchPage") return;
       resetActivityTimer();
     });
 
@@ -516,17 +603,11 @@
     }
 
     async function checkServerConnection() {
-      try {
-        const { error } = await supabaseClient.from('cupboards').select('id', { count: 'exact', head: true });
-        if (error) throw error;
-        setConnectionVisuals(true);
-        workbookStatus.textContent = "Connected to Supabase live database.";
-        workbookStatus.classList.remove("error");
-      } catch (err) {
-        setConnectionVisuals(false);
-        workbookStatus.textContent = "Connection error: " + err.message;
-        workbookStatus.classList.add("error");
-      }
+      const { error } = await supabaseClient.from('cupboards').select('id', { count: 'exact', head: true });
+      if (error) throw error;
+      setConnectionVisuals(true);
+      workbookStatus.textContent = "Connected to Supabase live database.";
+      workbookStatus.classList.remove("error");
     }
 
     function setFormStatus(element, message, isError = false) {
@@ -886,7 +967,7 @@
     });
 
     // ==========================================
-    // 6. INVENTORY LIST & SEARCH (SEARCH-ONLY)
+    // 6. INVENTORY LIST & SEARCH
     // ==========================================
     async function refreshInventory() {
       try {
@@ -908,23 +989,15 @@
     // REALTIME & CONTINUOUS BACKGROUND SYNC
     // ==========================================
     function setupContinuousSync() {
-      // 1. Supabase WebSocket Real-Time Listener (instant updates on insert, update, delete)
       supabaseClient
         .channel('public:materials')
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'materials' },
-          () => {
-            refreshInventory();
-          }
+          () => { refreshInventory(); }
         )
-        .subscribe((status) => {
-          if (status === 'SUBSCRIBED') {
-            console.log('Realtime sync connected for materials table.');
-          }
-        });
+        .subscribe();
 
-      // Also listen to storage changes if boxes/racks get deleted
       supabaseClient
         .channel('public:locations')
         .on(
@@ -944,7 +1017,6 @@
         )
         .subscribe();
 
-      // 2. Continuous Background Polling interval (every 4 seconds) as a network/fallback guarantee
       setInterval(() => {
         refreshInventory();
       }, 4000);
@@ -1058,13 +1130,45 @@
     });
 
     // ==========================================
-    // 8. ONLOAD BOOTSTRAP
+    // 8. STARTUP & BOOTSTRAP WORKFLOW
     // ==========================================
-    window.addEventListener("DOMContentLoaded", async () => {
-      await checkServerConnection();
-      await loadStorage();
-      await refreshInventory();
-      setupContinuousSync();
+    async function initializeApplication() {
+      // Show loading spinner
+      loadingState.hidden = false;
+      errorState.hidden = true;
+      initialOverlay.hidden = false;
+      appShell.hidden = true;
+
+      try {
+        // Test connection to Supabase
+        await checkServerConnection();
+
+        // Populate initial cache
+        await Promise.all([
+          loadStorage(),
+          refreshInventory()
+        ]);
+
+        // Start real-time sync listeners
+        setupContinuousSync();
+
+        // Successful connection: Hide landing loader, display inventory interface
+        initialOverlay.hidden = true;
+        appShell.hidden = false;
+      } catch (err) {
+        // Connection error: Display error message on landing screen
+        loadingState.hidden = true;
+        errorState.hidden = false;
+        errorMsgText.textContent = err.message || (typeof err === "string" ? err : JSON.stringify(err));
+      }
+    }
+
+    retryButton.addEventListener("click", () => {
+      initializeApplication();
+    });
+
+    window.addEventListener("DOMContentLoaded", () => {
+      initializeApplication();
     });
   </script>
 </body>
