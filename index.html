@@ -208,26 +208,24 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       min-height: 0;
       overflow: hidden;
       width: 100%;
+      justify-content: flex-start;
     }
     .material-compact-panel {
-      flex: 1;
+      flex: 0 0 auto;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
-      padding: 10px 14px;
+      padding: 10px 14px 8px;
       border: 1px solid var(--line);
       border-radius: 4px;
       background: rgba(255,255,255,.9);
-      min-height: 0;
-      overflow: hidden;
     }
     .material-compact-panel .form-grid {
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 8px 10px;
+      gap: 6px 10px;
     }
     .material-compact-panel .field {
       gap: 3px;
@@ -235,7 +233,7 @@
     }
     .material-compact-panel .field input,
     .material-compact-panel .field select {
-      height: 30px;
+      height: 28px;
       padding: 0 8px;
       font-size: 11px;
     }
@@ -243,11 +241,11 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-top: 8px;
+      margin-top: 6px;
       flex-shrink: 0;
     }
     .material-compact-panel .action-button {
-      height: 30px;
+      height: 28px;
       min-width: 95px;
       font-size: 10px;
       padding: 0 12px;
@@ -278,21 +276,19 @@
     .storage-sections {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
       min-height: 0;
       overflow: hidden;
-      height: 100%;
+      justify-content: flex-start;
     }
     .storage-section {
-      flex: 1;
+      flex: 0 0 auto;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      padding: 9px 12px;
+      padding: 8px 12px 7px;
       border: 1px solid var(--line);
       border-radius: 4px;
       background: rgba(255,255,255,.85);
-      min-height: 0;
     }
     .storage-status {
       min-height: 14px;
@@ -302,25 +298,23 @@
     .storage-form {
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      height: 100%;
-      justify-content: space-between;
+      gap: 4px;
     }
-    .storage-form h3 { margin: 0; font-size: 12px; color: var(--green-dark); }
+    .storage-form h3 { margin: 0 0 2px; font-size: 12px; color: var(--green-dark); }
     .storage-form .field { gap: 2px; font-size: 10px; }
-    .storage-form .field input { height: 28px; padding: 0 8px; font-size: 11px; }
+    .storage-form .field input { height: 26px; padding: 0 8px; font-size: 11px; }
     .storage-inline-inputs {
       display: grid;
       grid-template-columns: 1fr 100px;
       gap: 8px;
     }
     .storage-small-btn {
-      height: 26px !important;
-      min-width: 65px !important;
+      height: 24px !important;
+      min-width: max-content !important;
       font-size: 9.5px !important;
-      padding: 0 10px !important;
+      padding: 0 9px !important;
       align-self: flex-start;
-      margin-top: 2px;
+      margin-top: 4px;
     }
 
     .unified-inspector-panel {
@@ -963,7 +957,7 @@
       </div>
     </section>
 
-    <!-- Add & Delete Material Page (Compact & Fit to Screen - Small Clean Gap) -->
+    <!-- Add & Delete Material Page (Tightened Geometry: Rectangles Wrapped Directly Around Fields & Buttons) -->
     <section class="catalog page-view" id="materialPage" hidden>
       <div class="page-heading">
         <p>MANUAL INVENTORY</p>
@@ -1059,7 +1053,7 @@
       </div>
     </section>
 
-    <!-- Combined Storage Locations & Content Inspector Page (Small Save Buttons, Top Inputs & Below Buttons) -->
+    <!-- Combined Storage Locations & Content Inspector Page (Fitted Rectangles, No Dead Space, Dedicated Action Buttons) -->
     <section class="catalog page-view" id="storagePage" hidden>
       <div class="page-heading">
         <p>LOCATIONS &amp; AUDIT</p>
@@ -1067,41 +1061,35 @@
       </div>
 
       <div class="storage-layout">
-        <!-- Left: Stacked Add Location Forms (Names Above, Save Buttons Below, Small Button Size) -->
+        <!-- Left: Stacked Add Location Forms (Tight rectangle bounds, parameters above, action buttons below) -->
         <div class="storage-sections">
           <!-- Add Cupboard and Racks -->
           <section class="storage-section">
             <form class="storage-form" id="cupboardRackForm">
-              <div>
-                <h3>Add Cupboard &amp; Racks</h3>
-                <div class="storage-inline-inputs" style="margin-top: 4px;">
-                  <label class="field">Cupboard Name<input name="name" placeholder="e.g. Cupboard 1" required maxlength="80"></label>
-                  <label class="field">Racks Count<input name="rackCount" type="number" min="1" max="50" step="1" value="1" required></label>
-                </div>
+              <h3>Add Cupboard &amp; Racks</h3>
+              <div class="storage-inline-inputs">
+                <label class="field">Cupboard Name<input name="name" placeholder="e.g. Cupboard 1" required maxlength="80"></label>
+                <label class="field">Racks Count<input name="rackCount" type="number" min="1" max="50" step="1" value="1" required></label>
               </div>
-              <button class="action-button storage-small-btn" type="submit">Save</button>
+              <button class="action-button storage-small-btn" type="submit">Add Cupboard &amp; Racks</button>
             </form>
           </section>
 
           <!-- Add Box -->
           <section class="storage-section">
             <form class="storage-form" id="boxForm">
-              <div>
-                <h3>Add Box</h3>
-                <label class="field" style="margin-top: 4px;">Box Name<input name="name" placeholder="e.g. Box A" required maxlength="80"></label>
-              </div>
-              <button class="action-button storage-small-btn" type="submit">Save</button>
+              <h3>Add Box</h3>
+              <label class="field">Box Name<input name="name" placeholder="e.g. Box A" required maxlength="80"></label>
+              <button class="action-button storage-small-btn" type="submit">Add Box</button>
             </form>
           </section>
 
           <!-- Add Workbench -->
           <section class="storage-section">
             <form class="storage-form" id="workbenchForm">
-              <div>
-                <h3>Add Workbench</h3>
-                <label class="field" style="margin-top: 4px;">Workbench Name<input name="name" placeholder="e.g. Workbench 1" required maxlength="80"></label>
-              </div>
-              <button class="action-button storage-small-btn" type="submit">Save</button>
+              <h3>Add Workbench</h3>
+              <label class="field">Workbench Name<input name="name" placeholder="e.g. Workbench 1" required maxlength="80"></label>
+              <button class="action-button storage-small-btn" type="submit">Add Workbench</button>
             </form>
           </section>
 
