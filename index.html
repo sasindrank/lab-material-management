@@ -555,7 +555,7 @@
             <label><input type="radio" name="globalOpMode" value="return"> Return</label>
           </div>
 
-          <!-- Single-Line Take Form: Part Number and Part Code are populated on search click AND fully editable by user -->
+          <!-- Single-Line Take Form -->
           <form id="globalTakeForm" style="display: contents;">
             <input type="hidden" id="takeMaterialId" name="materialId">
             <div class="inline-field">
@@ -575,7 +575,7 @@
             <button class="compact-btn danger" type="submit">Allocate</button>
           </form>
 
-          <!-- Single-Line Return Form: Select allocated part code to automatically populate part name (number) and quantity -->
+          <!-- Single-Line Return Form -->
           <form id="globalReturnForm" style="display: none;">
             <div class="inline-field">
               <select name="userId" id="returnUserSelect" required style="width: 130px;">
@@ -630,7 +630,6 @@
     <!-- Add & Remove Material Page with Split Inspector -->
     <section class="catalog page-view" id="materialPage" hidden>
       <div class="mat-page-split">
-        <!-- Left: Material Forms -->
         <div>
           <div class="page-heading"><p>MANUAL INVENTORY</p><h2>Add Material Stock</h2></div>
           <form class="entry-panel" id="materialForm">
@@ -1589,9 +1588,8 @@
       selectOptions(userAllocViewerSelect, users, "Choose User to View Allocations", u => u.id, u => `${u.name} (${u.email})`);
     }
 
-    // Inspect user allocations inside Users Tab
-    userAllocViewerSelect.addEventListener("change", async (e) => {
-      const uId = e.target.value;
+    // Refresh allocation inspector inside Users Tab
+    async function refreshUserAllocationsViewer(uId) {
       if (!uId) {
         userAllocViewerResults.innerHTML = `<p style="color:#718079;font-size:11px;">Select a user from the dropdown above to view checkout records.</p>`;
         return;
@@ -1602,7 +1600,8 @@
           .from('material_allocations')
           .select('*')
           .eq('user_id', uId)
-          .gt('quantity', 0);
+          .gt('quantity', 0)
+          .order('part_number', { ascending: true });
 
         if (error) throw error;
         const allocs = data || [];
@@ -1624,6 +1623,10 @@
       } catch (err) {
         userAllocViewerResults.innerHTML = `<p style="color:#b91c1c;font-size:11px;">Error loading user allocations: ${err.message}</p>`;
       }
+    }
+
+    userAllocViewerSelect.addEventListener("change", (e) => {
+      refreshUserAllocationsViewer(e.target.value);
     });
 
     userForm.addEventListener("submit", async (event) => {
@@ -1682,11 +1685,8 @@
           .gt('quantity', 0)
           .order('part_code', { ascending: true });
 
-        if (error) {
-          userAllocations = [];
-        } else {
-          userAllocations = data || [];
-        }
+        if (error) throw error;
+        userAllocations = data || [];
 
         selectOptions(
           returnAllocatedPartCodeSelect,
@@ -1697,6 +1697,7 @@
         );
       } catch (err) {
         console.error("Error loading allocations:", err);
+        setFormStatus(globalStripStatus, `Failed loading allocations: ${err.message}`, true);
       }
     }
 
@@ -1746,15 +1747,16 @@
         const u = users.find(x => String(x.id) === String(userId));
         const userName = u ? u.name : "User";
 
-        await supabaseClient.from('inventory_logs').insert([{
+        const { error } = await supabaseClient.from('inventory_logs').insert([{
           user_id: userId,
           user_name: userName,
-          action: actionType, // ALLOCATED or RETURNED
+          action: actionType,
           part_number: partNumber,
           part_code: partCode,
           quantity: qty,
           location_text: locationText
         }]);
+        if (error) console.warn("Log write error:", error);
       } catch (err) {
         console.warn("Could not insert into inventory_logs:", err);
       }
@@ -1792,33 +1794,34 @@
           if (error) throw error;
         }
 
-        // Record or increment allocation in material_allocations table
-        try {
-          const { data: existingAlloc } = await supabaseClient
-            .from('material_allocations')
-            .select('*')
-            .eq('user_id', userId)
-            .eq('part_number', item.part_number)
-            .eq('part_code', item.part_code);
+        // --- UPDATE OR INSERT MATERIAL ALLOCATION ---
+        const { data: existingAlloc, error: allocSelectErr } = await supabaseClient
+          .from('material_allocations')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('part_number', item.part_number)
+          .eq('part_code', item.part_code);
 
-          if (existingAlloc && existingAlloc.length > 0) {
-            await supabaseClient
-              .from('material_allocations')
-              .update({ quantity: Number(existingAlloc[0].quantity) + takeQty, updated_at: new Date() })
-              .eq('id', existingAlloc[0].id);
-          } else {
-            await supabaseClient
-              .from('material_allocations')
-              .insert([{
-                user_id: userId,
-                material_id: item.id,
-                part_number: item.part_number,
-                part_code: item.part_code,
-                quantity: takeQty
-              }]);
-          }
-        } catch (allocErr) {
-          console.warn("Could not record in material_allocations:", allocErr);
+        if (allocSelectErr) throw new Error("Failed to check user allocations: " + allocSelectErr.message);
+
+        if (existingAlloc && existingAlloc.length > 0) {
+          const updatedQty = Number(existingAlloc[0].quantity) + takeQty;
+          const { error: allocUpdErr } = await supabaseClient
+            .from('material_allocations')
+            .update({ quantity: updatedQty, updated_at: new Date() })
+            .eq('id', existingAlloc[0].id);
+          if (allocUpdErr) throw new Error("Failed to update allocation: " + allocUpdErr.message);
+        } else {
+          const { error: allocInsErr } = await supabaseClient
+            .from('material_allocations')
+            .insert([{
+              user_id: userId,
+              material_id: item.id,
+              part_number: item.part_number,
+              part_code: item.part_code,
+              quantity: takeQty
+            }]);
+          if (allocInsErr) throw new Error("Failed to create allocation: " + allocInsErr.message);
         }
 
         // Record in audit logs
@@ -1827,8 +1830,13 @@
         const userName = takeUserSelect.selectedOptions[0]?.text || "User";
         takeQuantity.value = "";
         setFormStatus(globalStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userName}.`);
+
+        // Refresh lists immediately
         await refreshInventory();
         await loadLogs();
+        if (userAllocViewerSelect.value === userId) {
+          await refreshUserAllocationsViewer(userId);
+        }
       } catch (err) {
         setFormStatus(globalStripStatus, err.message, true);
       }
@@ -1913,16 +1921,13 @@
         }
 
         // Deduct from material_allocations
-        try {
-          const remainingAlloc = Number(allocItem.quantity) - returnQty;
-          if (remainingAlloc <= 0) {
-            await supabaseClient.from('material_allocations').delete().eq('id', allocItem.id);
-          } else {
-            await supabaseClient.from('material_allocations').update({ quantity: remainingAlloc }).eq('id', allocItem.id);
-          }
-          await loadAllocationsForUser(userId);
-        } catch (allocErr) {
-          console.warn("Could not update material_allocations:", allocErr);
+        const remainingAlloc = Number(allocItem.quantity) - returnQty;
+        if (remainingAlloc <= 0) {
+          const { error: allocDelErr } = await supabaseClient.from('material_allocations').delete().eq('id', allocItem.id);
+          if (allocDelErr) throw allocDelErr;
+        } else {
+          const { error: allocUpdErr } = await supabaseClient.from('material_allocations').update({ quantity: remainingAlloc, updated_at: new Date() }).eq('id', allocItem.id);
+          if (allocUpdErr) throw allocUpdErr;
         }
 
         // Record return in activity logs
@@ -1932,8 +1937,12 @@
         returnPartNumber.value = "";
         setFormStatus(globalStripStatus, `Returned ${returnQty} units of "${allocItem.part_number}" to ${locationText}.`);
         
+        await loadAllocationsForUser(userId);
         await refreshInventory();
         await loadLogs();
+        if (userAllocViewerSelect.value === userId) {
+          await refreshUserAllocationsViewer(userId);
+        }
       } catch (err) {
         setFormStatus(globalStripStatus, err.message, true);
       }
@@ -2181,6 +2190,9 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'material_allocations' }, () => {
           if (returnUserSelect.value) {
             loadAllocationsForUser(returnUserSelect.value);
+          }
+          if (userAllocViewerSelect.value) {
+            refreshUserAllocationsViewer(userAllocViewerSelect.value);
           }
         })
         .subscribe();
