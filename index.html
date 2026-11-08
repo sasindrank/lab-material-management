@@ -716,7 +716,7 @@
         const { data, error } = await supabaseClient.from('materials').select('*').order('part_number', { ascending: true });
         if (error) throw error;
         products = data || [];
-        document.getElementById("itemCount").textContent = `${products.length} PARTS IN DB`;
+        document.getElementById("itemCount").textContent = `${products.length} PRODUCTS`;
         
         // Re-render only if there is an active search query
         render();
