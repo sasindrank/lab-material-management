@@ -667,7 +667,7 @@
     .user-alloc-row:hover { background: rgba(229,242,236,.35); }
 
     /* ==========================================
-       COMBINED SAME-ROW LIFECYCLE LOGS
+       SAME-ROW LIFECYCLE LOGS
        ========================================== */
     .log-filter-bar {
       display: flex;
@@ -703,12 +703,13 @@
       border-color: var(--green);
     }
 
-    /* 7-column layout matching exact prompt specification */
+    /* 7-column layout matching exact prompt specification:
+       username, part code, part number, quantity, allocated or returned, allocated time, returned time */
     .log-table-head, .log-row {
       display: grid;
-      grid-template-columns: minmax(140px, 1.2fr) minmax(110px, 1fr) minmax(140px, 1.3fr) 80px 110px minmax(140px, 1.3fr) minmax(140px, 1.3fr);
+      grid-template-columns: minmax(130px, 1.2fr) minmax(105px, 1fr) minmax(130px, 1.2fr) 75px 115px minmax(140px, 1.3fr) minmax(140px, 1.3fr);
       align-items: center;
-      column-gap: 12px;
+      column-gap: 10px;
     }
     .log-table-head {
       min-height: 34px;
@@ -730,7 +731,7 @@
     .log-badge {
       display: inline-block;
       padding: 2px 8px;
-      font-size: 9px;
+      font-size: 9.5px;
       font-weight: 700;
       border-radius: 3px;
       text-transform: uppercase;
@@ -1160,7 +1161,7 @@
       </div>
     </section>
 
-    <!-- Lifecycle Logs Page (Exact Single-Row Implementation) -->
+    <!-- Combined Lifecycle Logs Page with Date Range Filters -->
     <section class="catalog page-view" id="logsPage" hidden>
       <div class="catalog-head">
         <div><p class="kicker">AUDIT TRAIL</p><h2>Material Activity Logs</h2></div>
@@ -1253,8 +1254,8 @@
     let activeInspectorFilter = "cupboard";
     let selectedInspectorLocationId = null;
 
-    // Supabase Logs Table Resolution
-    let LOGS_TABLE_NAME = "material_logs";
+    // Supabase Logs Table Candidate Resolution
+    let ACTIVE_LOG_TABLE = "material_logs";
 
     // Cache original locations
     const allocationOriginMap = new Map();
@@ -2151,87 +2152,103 @@
     // 6. RECORD & UPDATE SINGLE-LINE LOGS
     // ==========================================
     async function recordAllocationLog(userId, userName, partCode, partNumber, quantity, locationText) {
-      const payload = {
-        user_id: userId,
-        user_name: userName,
-        part_code: partCode,
-        part_number: partNumber,
-        quantity: quantity,
-        status: "Allocated",
-        allocated_time: new Date().toISOString(),
-        returned_time: null,
-        location_text: locationText || "Storage"
-      };
+      const nowIso = new Date().toISOString();
+      const candidateTables = [ACTIVE_LOG_TABLE, "material_logs", "material_lifecycle_logs", "inventory_logs"];
+      const uniqueTables = [...new Set(candidateTables)];
 
-      let { error } = await supabaseClient.from(LOGS_TABLE_NAME).insert([payload]);
-      
-      // Fallback detection if database table is named material_lifecycle_logs or inventory_logs
-      if (error && (error.code === '42P01' || error.message?.includes('does not exist'))) {
-        const fallbacks = ['material_lifecycle_logs', 'inventory_logs'];
-        for (const fb of fallbacks) {
-          const res = await supabaseClient.from(fb).insert([payload]);
-          if (!res.error) {
-            LOGS_TABLE_NAME = fb;
-            error = null;
-            break;
-          }
-        }
-      }
-
-      if (error) {
-        console.warn("Could not insert allocated log:", error);
-      }
-    }
-
-    async function recordReturnUpdateLog(userId, partCode, partNumber, quantityReturned) {
-      try {
-        // Query the latest open 'Allocated' record for this user and part
-        const { data: openLog, error: fetchErr } = await supabaseClient
-          .from(LOGS_TABLE_NAME)
-          .select('id, quantity')
-          .eq('user_id', userId)
-          .eq('part_code', partCode)
-          .ilike('status', 'Allocated%')
-          .order('allocated_time', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (fetchErr) {
-          console.warn("Error finding open allocated log row:", fetchErr);
-          return;
-        }
-
-        if (openLog) {
-          // Update the SAME entry in place from 'Allocated' to 'Return' and update returned_time
-          const nowIso = new Date().toISOString();
-          const { error: updErr } = await supabaseClient
-            .from(LOGS_TABLE_NAME)
-            .update({
-              status: "Return",
-              returned_time: nowIso
-            })
-            .eq('id', openLog.id);
-
-          if (updErr) {
-            console.warn("Error updating log row to Return:", updErr);
-          }
-        } else {
-          // If no open allocation row was found, insert a standalone returned row
-          const u = users.find(x => String(x.id) === String(userId));
-          const userName = u ? u.name : "User";
-          await supabaseClient.from(LOGS_TABLE_NAME).insert([{
+      for (const table of uniqueTables) {
+        try {
+          // Attempt 1: Full payload
+          const payload = {
             user_id: userId,
             user_name: userName,
             part_code: partCode,
             part_number: partNumber,
-            quantity: quantityReturned,
-            status: "Return",
-            allocated_time: null,
-            returned_time: new Date().toISOString()
-          }]);
+            quantity: quantity,
+            status: "Allocated",
+            allocated_time: nowIso,
+            returned_time: null,
+            location_text: locationText || "Storage"
+          };
+
+          let res = await supabaseClient.from(table).insert([payload]);
+          if (!res.error) {
+            ACTIVE_LOG_TABLE = table;
+            return;
+          }
+
+          // Attempt 2: If user_id constraint failed (e.g., non-uuid or foreign key constraint)
+          if (res.error.message?.includes('violates foreign key') || res.error.message?.includes('invalid input syntax for type uuid')) {
+            delete payload.user_id;
+            res = await supabaseClient.from(table).insert([payload]);
+            if (!res.error) {
+              ACTIVE_LOG_TABLE = table;
+              return;
+            }
+          }
+        } catch (e) {
+          // try next table candidate
         }
+      }
+    }
+
+    async function recordReturnUpdateLog(userId, userName, partCode, partNumber, quantityReturned) {
+      const nowIso = new Date().toISOString();
+      const candidateTables = [ACTIVE_LOG_TABLE, "material_logs", "material_lifecycle_logs", "inventory_logs"];
+      const uniqueTables = [...new Set(candidateTables)];
+
+      for (const table of uniqueTables) {
+        try {
+          // Find the active Allocated row for this user and part
+          let query = supabaseClient
+            .from(table)
+            .select('id, quantity, user_id, part_code, status')
+            .eq('part_code', partCode)
+            .ilike('status', 'Allocated%')
+            .order('allocated_time', { ascending: false })
+            .limit(1);
+
+          if (userId) {
+            query = query.eq('user_id', userId);
+          }
+
+          const { data: openLogs, error: findErr } = await query;
+
+          if (!findErr && openLogs && openLogs.length > 0) {
+            const openLogId = openLogs[0].id;
+            // Update the SAME line: status to Return and returned_time to now
+            const updateRes = await supabaseClient
+              .from(table)
+              .update({
+                status: "Return",
+                returned_time: nowIso
+              })
+              .eq('id', openLogId);
+
+            if (!updateRes.error) {
+              ACTIVE_LOG_TABLE = table;
+              return;
+            }
+          }
+        } catch (e) {
+          // try next table
+        }
+      }
+
+      // If no active allocation row was found, insert a returned entry
+      try {
+        await supabaseClient.from(ACTIVE_LOG_TABLE).insert([{
+          user_id: userId,
+          user_name: userName,
+          part_code: partCode,
+          part_number: partNumber,
+          quantity: quantityReturned,
+          status: "Return",
+          allocated_time: null,
+          returned_time: nowIso
+        }]);
       } catch (err) {
-        console.warn("Exception updating log entry:", err);
+        console.warn("Could not insert standalone return log:", err);
       }
     }
 
@@ -2491,8 +2508,10 @@
           if (allocUpdErr) throw allocUpdErr;
         }
 
+        const userName = returnUserSelect.selectedOptions[0]?.text || "User";
+
         // Update the SAME row from Allocated to Return and update returned_time
-        await recordReturnUpdateLog(userId, allocItem.part_code, allocItem.part_number, returnQty);
+        await recordReturnUpdateLog(userId, userName, allocItem.part_code, allocItem.part_number, returnQty);
 
         setFormStatus(globalStripStatus, `Returned ${returnQty} units of "${allocItem.part_number}" to ${locationText}.`);
         
@@ -2524,32 +2543,31 @@
     // 7. FETCH & DISPLAY SINGLE-ROW LIFECYCLE LOGS
     // ==========================================
     async function loadLogs() {
-      try {
-        let { data, error } = await supabaseClient
-          .from(LOGS_TABLE_NAME)
-          .select('*')
-          .order('allocated_time', { ascending: false });
+      const candidateTables = [ACTIVE_LOG_TABLE, "material_logs", "material_lifecycle_logs", "inventory_logs"];
+      const uniqueTables = [...new Set(candidateTables)];
 
-        // Fallback checks
-        if (error && (error.code === '42P01' || error.message?.includes('does not exist'))) {
-          const fallbacks = ['material_lifecycle_logs', 'inventory_logs'];
-          for (const fb of fallbacks) {
-            const res = await supabaseClient.from(fb).select('*').order('created_at', { ascending: false });
-            if (!res.error) {
-              LOGS_TABLE_NAME = fb;
-              data = res.data;
-              error = null;
-              break;
-            }
+      for (const table of uniqueTables) {
+        try {
+          const { data, error } = await supabaseClient
+            .from(table)
+            .select('*')
+            .limit(1000);
+
+          if (!error && Array.isArray(data)) {
+            ACTIVE_LOG_TABLE = table;
+            activityLogs = data.sort((a, b) => {
+              const timeA = new Date(b.allocated_time || b.created_at || 0).getTime();
+              const timeB = new Date(a.allocated_time || a.created_at || 0).getTime();
+              return timeA - timeB;
+            });
+            renderLogs();
+            return;
           }
+        } catch (err) {
+          // continue checking
         }
-
-        if (error) throw error;
-        activityLogs = data || [];
-        renderLogs();
-      } catch (err) {
-        console.error("Error loading activity logs:", err);
       }
+      renderLogs();
     }
 
     function renderLogs() {
@@ -2560,7 +2578,7 @@
       const toDateVal = logToDateFilter.value;     // YYYY-MM-DD
 
       const filtered = activityLogs.filter(item => {
-        const itemStatus = (item.status || item.action || '').trim();
+        const itemStatus = (item.status || item.action || 'Allocated').trim();
         const isReturn = itemStatus.toLowerCase().startsWith('return');
         const normalizedStatus = isReturn ? 'Return' : 'Allocated';
 
@@ -2568,8 +2586,8 @@
           return false;
         }
 
-        // Date filter against allocated_time or created_at
-        const dateStamp = item.allocated_time || item.created_at;
+        // Date filter checking against allocated_time or created_at
+        const dateStamp = item.allocated_time || item.created_at || item.returned_time;
         if (dateStamp) {
           const itemDay = new Date(dateStamp).toISOString().split('T')[0];
           if (fromDateVal && itemDay < fromDateVal) return false;
@@ -2595,9 +2613,12 @@
         const displayStatus = isReturn ? 'Return' : 'Allocated';
         const badgeClass = isReturn ? 'returned' : 'allocated';
 
-        const allocTime = log.allocated_time || log.created_at;
-        const allocStr = allocTime ? new Date(allocTime).toLocaleString() : '-';
-        const returnStr = log.returned_time ? new Date(log.returned_time).toLocaleString() : '-';
+        // Extract dates cleanly
+        const rawAllocTime = log.allocated_time || (rawStatus.toUpperCase() === 'ALLOCATED' ? log.created_at : null);
+        const rawReturnTime = log.returned_time || (rawStatus.toUpperCase() === 'RETURNED' ? log.created_at : null);
+
+        const allocStr = rawAllocTime ? new Date(rawAllocTime).toLocaleString() : '-';
+        const returnStr = rawReturnTime ? new Date(rawReturnTime).toLocaleString() : '-';
 
         row.innerHTML = `
           <span><strong>${log.user_name || 'User'}</strong></span>
@@ -2626,14 +2647,17 @@
       if (!activityLogs.length) return alert("No logs available to export.");
       const rows = activityLogs.map(l => {
         const isReturn = (l.status || l.action || '').toLowerCase().startsWith('return');
+        const rawAllocTime = l.allocated_time || (l.status?.toUpperCase() === 'ALLOCATED' ? l.created_at : null);
+        const rawReturnTime = l.returned_time || (l.status?.toUpperCase() === 'RETURNED' ? l.created_at : null);
+
         return {
           "Username": l.user_name || "User",
           "Part Code": l.part_code || "-",
           "Part Number": l.part_number || "-",
           "Quantity": l.quantity || 1,
           "Allocated or Returned": isReturn ? "Return" : "Allocated",
-          "Allocated Time": (l.allocated_time || l.created_at) ? new Date(l.allocated_time || l.created_at).toLocaleString() : "-",
-          "Returned Time": l.returned_time ? new Date(l.returned_time).toLocaleString() : "-"
+          "Allocated Time": rawAllocTime ? new Date(rawAllocTime).toLocaleString() : "-",
+          "Returned Time": rawReturnTime ? new Date(rawReturnTime).toLocaleString() : "-"
         };
       });
 
@@ -2824,10 +2848,10 @@
         })
         .subscribe();
 
-      // Listen to real-time changes on logs
+      // Listen to real-time changes on logs table
       supabaseClient
-        .channel('public:material_logs_sync')
-        .on('postgres_changes', { event: '*', schema: 'public', table: LOGS_TABLE_NAME }, () => { loadLogs(); })
+        .channel('public:logs_realtime_sync')
+        .on('postgres_changes', { event: '*', schema: 'public', table: ACTIVE_LOG_TABLE }, () => { loadLogs(); })
         .subscribe();
 
       setInterval(() => {
