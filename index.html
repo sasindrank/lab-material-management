@@ -482,7 +482,7 @@
             <button class="compact-btn danger" type="submit">Allocate</button>
           </form>
 
-          <!-- Single-Line Return Form: Select already allocated product to auto-fill part number, code, and quantity (adjustable) -->
+          <!-- Single-Line Return Form: Select allocated part code to automatically populate part name (number) and quantity -->
           <form id="globalReturnForm" style="display: none;">
             <div class="inline-field">
               <select name="userId" id="returnUserSelect" required style="width: 130px;">
@@ -490,15 +490,12 @@
               </select>
             </div>
             <div class="inline-field">
-              <select name="allocationSelect" id="returnAllocatedSelect" required style="width: 210px;">
-                <option value="">Allocated Products</option>
+              <select name="allocationSelect" id="returnAllocatedPartCodeSelect" required style="width: 180px;">
+                <option value="">Allocated Part Code</option>
               </select>
             </div>
             <div class="inline-field">
-              <input name="partNumber" id="returnPartNumber" readonly placeholder="Part Number" style="width: 140px;">
-            </div>
-            <div class="inline-field">
-              <input name="partCode" id="returnPartCode" readonly placeholder="Part Code" style="width: 110px;">
+              <input name="partNumber" id="returnPartNumber" readonly placeholder="Part Name" style="width: 160px;">
             </div>
             <div class="inline-field">
               <input name="quantity" id="returnQuantity" type="number" min="0.001" step="any" required placeholder="Quantity" style="width: 80px;">
@@ -912,9 +909,8 @@
     const takeQuantity = document.getElementById("takeQuantity");
 
     const returnUserSelect = document.getElementById("returnUserSelect");
-    const returnAllocatedSelect = document.getElementById("returnAllocatedSelect");
+    const returnAllocatedPartCodeSelect = document.getElementById("returnAllocatedPartCodeSelect");
     const returnPartNumber = document.getElementById("returnPartNumber");
-    const returnPartCode = document.getElementById("returnPartCode");
     const returnQuantity = document.getElementById("returnQuantity");
     const returnLocationType = document.getElementById("returnLocationType");
     const returnCupboard = document.getElementById("returnCupboard");
@@ -1182,7 +1178,7 @@
 
       returnCupboardField.hidden = locType !== "rack";
       returnRackField.hidden = locType !== "rack";
-      returnBoxField.hidden = locType !== "box";
+      boxLocationField.hidden = locType !== "box";
       returnWorkbenchField.hidden = locType !== "workbench";
 
       returnCupboard.required = locType === "rack";
@@ -1369,12 +1365,12 @@
     }
 
     // ==========================================
-    // 6. ALLOCATED PRODUCTS TRACKING (RETURN MODE)
+    // 6. ALLOCATED PART CODE TRACKING (RETURN MODE)
     // ==========================================
     async function loadAllocationsForUser(userId) {
       if (!userId) {
         userAllocations = [];
-        selectOptions(returnAllocatedSelect, [], "Allocated Products", a => a.id, a => a.part_number);
+        selectOptions(returnAllocatedPartCodeSelect, [], "Allocated Part Code", a => a.id, a => a.part_code);
         return;
       }
 
@@ -1384,7 +1380,7 @@
           .select('*')
           .eq('user_id', userId)
           .gt('quantity', 0)
-          .order('part_number', { ascending: true });
+          .order('part_code', { ascending: true });
 
         if (error) {
           userAllocations = [];
@@ -1392,12 +1388,13 @@
           userAllocations = data || [];
         }
 
+        // Show the Allocated Part Code option
         selectOptions(
-          returnAllocatedSelect,
+          returnAllocatedPartCodeSelect,
           userAllocations,
-          userAllocations.length ? "Select Allocated Product" : "No Allocated Products",
+          userAllocations.length ? "Select Allocated Part Code" : "No Allocated Part Codes",
           a => a.id,
-          a => `${a.part_number} (${a.part_code}) - Qty: ${a.quantity}`
+          a => `${a.part_code} (Allocated: ${a.quantity})`
         );
       } catch (err) {
         console.error("Error loading allocations:", err);
@@ -1407,47 +1404,43 @@
     returnUserSelect.addEventListener("change", (e) => {
       loadAllocationsForUser(e.target.value);
       returnPartNumber.value = "";
-      returnPartCode.value = "";
       returnQuantity.value = "";
     });
 
-    // When an Allocated Product is selected in Return Mode, auto-fill Part No, Part Code, and Quantity (customer can adjust later)
-    returnAllocatedSelect.addEventListener("change", (e) => {
+    // Selecting an Allocated Part Code automatically populates Part Name (number) and Quantity
+    returnAllocatedPartCodeSelect.addEventListener("change", (e) => {
       const allocId = e.target.value;
       const item = userAllocations.find(a => String(a.id) === String(allocId));
       if (item) {
-        returnPartNumber.value = item.part_number;
-        returnPartCode.value = item.part_code;
-        returnQuantity.value = item.quantity; // auto-populates quantity, can be adjusted by customer
-        setFormStatus(globalStripStatus, `Loaded allocated "${item.part_number}". Adjust quantity if returning partial amount.`);
+        returnPartNumber.value = item.part_number; // auto-populates part name
+        returnQuantity.value = item.quantity;     // auto-populates quantity (adjustable)
+        setFormStatus(globalStripStatus, `Loaded "${item.part_number}". Adjust quantity if returning partial amount.`);
       } else {
         returnPartNumber.value = "";
-        returnPartCode.value = "";
         returnQuantity.value = "";
       }
     });
 
     // CLICK-TO-POPULATE SEARCH ROW SELECTION:
-    // Only operates if in Take (Allocate) Mode. Ignored when in Return mode.
+    // Only operates in Allocate (Take) mode. Clicking search rows is ignored in Return mode.
     function onProductRowClicked(product) {
       const isTakeMode = document.querySelector('input[name="globalOpMode"]:checked').value === "take";
 
       if (!isTakeMode) {
-        // In Return mode, clicking the search results does not populate; must be selected via the allocated dropdown
+        // Ignored when in Return mode; return must be selected via the allocated part code list
         return;
       }
 
-      // Highlight the active selected row in the search catalog
       document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
       const clickedRow = document.querySelector(`.product-row[data-row-id="${product.id}"]`);
       if (clickedRow) clickedRow.classList.add("selected-row");
 
-      // Auto-fill Part Number & Part Code (both fields remain fully editable by user)
+      // Populate Part Number and Part Code (both fields remain fully editable by user)
       takeMaterialId.value = product.id;
       takePartNumber.value = product.part_number;
       takePartCode.value = product.part_code;
 
-      // Quantity is NOT populated; left blank for customer to enter
+      // Quantity is left empty for customer/user to enter
       takeQuantity.value = "";
       takeQuantity.focus();
 
@@ -1467,7 +1460,6 @@
         const pCode = takePartCode.value.trim();
         if (!pNum || !pCode) throw new Error("Please provide both Part Number and Part Code.");
 
-        // Find product matching part number and code
         let item = products.find(p => p.part_number.toLowerCase() === pNum.toLowerCase() && p.part_code.toLowerCase() === pCode.toLowerCase());
         if (!item && takeMaterialId.value) {
           item = products.find(p => String(p.id) === String(takeMaterialId.value));
@@ -1537,9 +1529,9 @@
         const returnQty = Number(returnQuantity.value);
         if (returnQty <= 0 || isNaN(returnQty)) throw new Error("Please enter a valid quantity greater than 0.");
 
-        const allocId = returnAllocatedSelect.value;
+        const allocId = returnAllocatedPartCodeSelect.value;
         const allocItem = userAllocations.find(a => String(a.id) === String(allocId));
-        if (!allocItem) throw new Error("Please select an item from the Allocated Products list.");
+        if (!allocItem) throw new Error("Please select an Allocated Part Code.");
 
         if (returnQty > Number(allocItem.quantity)) {
           throw new Error(`Cannot return ${returnQty}. User is only allocated ${allocItem.quantity}.`);
@@ -1619,7 +1611,6 @@
 
         returnQuantity.value = "";
         returnPartNumber.value = "";
-        returnPartCode.value = "";
         setFormStatus(globalStripStatus, `Returned ${returnQty} units of "${allocItem.part_number}" to stock.`);
         await refreshInventory();
       } catch (err) {
@@ -1635,7 +1626,7 @@
         globalReturnForm.style.display = isTake ? "none" : "contents";
         globalStripStatus.textContent = "";
 
-        // Un-highlight selected rows when switching modes
+        // Un-highlight rows when switching modes
         document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
 
         if (!isTake && returnUserSelect.value) {
