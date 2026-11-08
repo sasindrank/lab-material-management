@@ -212,7 +212,6 @@
 
     /* ==========================================
        MATCHED-WIDTH IN-FLOW BOTTOM TRANSACTION STRIP
-       Matches search controls start & end boundary
        ========================================== */
     .aligned-bottom-bar {
       width: 100%;
@@ -455,7 +454,7 @@
         <div class="empty" id="emptyState" hidden><span class="empty-symbol" aria-hidden="true">/</span><strong id="emptyTitle">No materials found</strong><span id="emptyMessage">Try another name or item code.</span></div>
       </div>
 
-      <!-- IN-FLOW BOTTOM BAR (Same width and alignment as Search Bar) -->
+      <!-- IN-FLOW BOTTOM BAR (Same width & alignment as Search Bar) -->
       <div class="aligned-bottom-bar" id="alignedBottomBar">
         <div class="transaction-bar">
           <div class="compact-switch">
@@ -463,19 +462,19 @@
             <label><input type="radio" name="globalOpMode" value="return"> Return</label>
           </div>
 
-          <!-- Single-Line Take Form: Part Number and Part Code individual auto-populated fields, quantity entered by customer -->
+          <!-- Single-Line Take Form: Part Number and Part Code are populated on search click AND fully editable by user -->
           <form id="globalTakeForm" style="display: contents;">
             <input type="hidden" id="takeMaterialId" name="materialId">
             <div class="inline-field">
-              <select name="userId" id="takeUserSelect" required style="width: 130px;">
-                <option value="">User</option>
+              <select name="userId" id="takeUserSelect" required style="width: 140px;">
+                <option value="">Choose User</option>
               </select>
             </div>
             <div class="inline-field">
-              <input name="partNumber" id="takePartNumber" readonly placeholder="Part Number (Click row)" style="width: 190px;">
+              <input name="partNumber" id="takePartNumber" required maxlength="100" placeholder="Part Number" style="width: 190px;">
             </div>
             <div class="inline-field">
-              <input name="partCode" id="takePartCode" readonly placeholder="Part Code" style="width: 130px;">
+              <input name="partCode" id="takePartCode" required maxlength="100" placeholder="Part Code" style="width: 130px;">
             </div>
             <div class="inline-field">
               <input name="quantity" id="takeQuantity" type="number" min="0.001" step="any" required placeholder="Quantity" style="width: 90px;">
@@ -483,18 +482,23 @@
             <button class="compact-btn danger" type="submit">Allocate</button>
           </form>
 
-          <!-- Single-Line Return Form -->
+          <!-- Single-Line Return Form: Select already allocated product to auto-fill part number, code, and quantity (adjustable) -->
           <form id="globalReturnForm" style="display: none;">
             <div class="inline-field">
-              <select name="userId" id="returnUserSelect" required style="width: 120px;">
-                <option value="">User</option>
+              <select name="userId" id="returnUserSelect" required style="width: 130px;">
+                <option value="">Choose User</option>
               </select>
             </div>
             <div class="inline-field">
-              <input name="partNumber" id="returnPartNumber" required maxlength="100" placeholder="Part Number" style="width: 140px;">
+              <select name="allocationSelect" id="returnAllocatedSelect" required style="width: 210px;">
+                <option value="">Allocated Products</option>
+              </select>
             </div>
             <div class="inline-field">
-              <input name="partCode" id="returnPartCode" required maxlength="100" placeholder="Part Code" style="width: 120px;">
+              <input name="partNumber" id="returnPartNumber" readonly placeholder="Part Number" style="width: 140px;">
+            </div>
+            <div class="inline-field">
+              <input name="partCode" id="returnPartCode" readonly placeholder="Part Code" style="width: 110px;">
             </div>
             <div class="inline-field">
               <input name="quantity" id="returnQuantity" type="number" min="0.001" step="any" required placeholder="Quantity" style="width: 80px;">
@@ -719,6 +723,7 @@
     // Global State
     let products = [];
     let users = [];
+    let userAllocations = [];
     let submittedQuery = null;
     let storageTree = [];
     let storageBoxes = [];
@@ -907,6 +912,7 @@
     const takeQuantity = document.getElementById("takeQuantity");
 
     const returnUserSelect = document.getElementById("returnUserSelect");
+    const returnAllocatedSelect = document.getElementById("returnAllocatedSelect");
     const returnPartNumber = document.getElementById("returnPartNumber");
     const returnPartCode = document.getElementById("returnPartCode");
     const returnQuantity = document.getElementById("returnQuantity");
@@ -1176,7 +1182,7 @@
 
       returnCupboardField.hidden = locType !== "rack";
       returnRackField.hidden = locType !== "rack";
-      boxLocationField.hidden = locType !== "box";
+      returnBoxField.hidden = locType !== "box";
       returnWorkbenchField.hidden = locType !== "workbench";
 
       returnCupboard.required = locType === "rack";
@@ -1320,8 +1326,8 @@
     }
 
     function populateUserDropdowns() {
-      selectOptions(takeUserSelect, users, "User", u => u.id, u => u.name);
-      selectOptions(returnUserSelect, users, "User", u => u.id, u => u.name);
+      selectOptions(takeUserSelect, users, "Choose User", u => u.id, u => u.name);
+      selectOptions(returnUserSelect, users, "Choose User", u => u.id, u => u.name);
     }
 
     userForm.addEventListener("submit", async (event) => {
@@ -1363,36 +1369,89 @@
     }
 
     // ==========================================
-    // 6. CLICK-TO-POPULATE SEARCH ROW SELECTION
+    // 6. ALLOCATED PRODUCTS TRACKING (RETURN MODE)
     // ==========================================
+    async function loadAllocationsForUser(userId) {
+      if (!userId) {
+        userAllocations = [];
+        selectOptions(returnAllocatedSelect, [], "Allocated Products", a => a.id, a => a.part_number);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('material_allocations')
+          .select('*')
+          .eq('user_id', userId)
+          .gt('quantity', 0)
+          .order('part_number', { ascending: true });
+
+        if (error) {
+          userAllocations = [];
+        } else {
+          userAllocations = data || [];
+        }
+
+        selectOptions(
+          returnAllocatedSelect,
+          userAllocations,
+          userAllocations.length ? "Select Allocated Product" : "No Allocated Products",
+          a => a.id,
+          a => `${a.part_number} (${a.part_code}) - Qty: ${a.quantity}`
+        );
+      } catch (err) {
+        console.error("Error loading allocations:", err);
+      }
+    }
+
+    returnUserSelect.addEventListener("change", (e) => {
+      loadAllocationsForUser(e.target.value);
+      returnPartNumber.value = "";
+      returnPartCode.value = "";
+      returnQuantity.value = "";
+    });
+
+    // When an Allocated Product is selected in Return Mode, auto-fill Part No, Part Code, and Quantity (customer can adjust later)
+    returnAllocatedSelect.addEventListener("change", (e) => {
+      const allocId = e.target.value;
+      const item = userAllocations.find(a => String(a.id) === String(allocId));
+      if (item) {
+        returnPartNumber.value = item.part_number;
+        returnPartCode.value = item.part_code;
+        returnQuantity.value = item.quantity; // auto-populates quantity, can be adjusted by customer
+        setFormStatus(globalStripStatus, `Loaded allocated "${item.part_number}". Adjust quantity if returning partial amount.`);
+      } else {
+        returnPartNumber.value = "";
+        returnPartCode.value = "";
+        returnQuantity.value = "";
+      }
+    });
+
+    // CLICK-TO-POPULATE SEARCH ROW SELECTION:
+    // Only operates if in Take (Allocate) Mode. Ignored when in Return mode.
     function onProductRowClicked(product) {
-      // Highlight the active selected row in the search results
+      const isTakeMode = document.querySelector('input[name="globalOpMode"]:checked').value === "take";
+
+      if (!isTakeMode) {
+        // In Return mode, clicking the search results does not populate; must be selected via the allocated dropdown
+        return;
+      }
+
+      // Highlight the active selected row in the search catalog
       document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
       const clickedRow = document.querySelector(`.product-row[data-row-id="${product.id}"]`);
       if (clickedRow) clickedRow.classList.add("selected-row");
 
-      const isTakeMode = document.querySelector('input[name="globalOpMode"]:checked').value === "take";
+      // Auto-fill Part Number & Part Code (both fields remain fully editable by user)
+      takeMaterialId.value = product.id;
+      takePartNumber.value = product.part_number;
+      takePartCode.value = product.part_code;
 
-      if (isTakeMode) {
-        // Individual option fields populated for part number and part code
-        takeMaterialId.value = product.id;
-        takePartNumber.value = product.part_number;
-        takePartCode.value = product.part_code;
+      // Quantity is NOT populated; left blank for customer to enter
+      takeQuantity.value = "";
+      takeQuantity.focus();
 
-        // Quantity is NOT populated; left blank for customer to enter
-        takeQuantity.value = "";
-        takeQuantity.focus();
-
-        setFormStatus(globalStripStatus, `Selected "${product.part_number}". Available stock: ${product.quantity}. Please enter quantity.`);
-      } else {
-        // Auto-populate in Return mode
-        returnPartNumber.value = product.part_number;
-        returnPartCode.value = product.part_code;
-        returnQuantity.value = "";
-        returnQuantity.focus();
-
-        setFormStatus(globalStripStatus, `Selected "${product.part_number}". Enter quantity and destination to return.`);
-      }
+      setFormStatus(globalStripStatus, `Selected "${product.part_number}". Available stock: ${product.quantity}. Please enter quantity to allocate.`);
     }
 
     // ==========================================
@@ -1401,9 +1460,20 @@
     globalTakeForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       try {
-        const materialId = takeMaterialId.value;
-        const item = products.find(p => String(p.id) === String(materialId));
-        if (!item) throw new Error("Please click or select a product from the search results table.");
+        const userId = takeUserSelect.value;
+        if (!userId) throw new Error("Please select a user to allocate this material to.");
+
+        const pNum = takePartNumber.value.trim();
+        const pCode = takePartCode.value.trim();
+        if (!pNum || !pCode) throw new Error("Please provide both Part Number and Part Code.");
+
+        // Find product matching part number and code
+        let item = products.find(p => p.part_number.toLowerCase() === pNum.toLowerCase() && p.part_code.toLowerCase() === pCode.toLowerCase());
+        if (!item && takeMaterialId.value) {
+          item = products.find(p => String(p.id) === String(takeMaterialId.value));
+        }
+
+        if (!item) throw new Error(`Material "${pNum}" with code "${pCode}" was not found in catalog.`);
 
         const takeQty = Number(takeQuantity.value);
         if (takeQty <= 0 || isNaN(takeQty)) throw new Error("Please enter a valid quantity greater than 0.");
@@ -1420,6 +1490,35 @@
           if (error) throw error;
         }
 
+        // Record or increment allocation in material_allocations table
+        try {
+          const { data: existingAlloc } = await supabaseClient
+            .from('material_allocations')
+            .select('*')
+            .eq('user_id', userId)
+            .eq('part_number', item.part_number)
+            .eq('part_code', item.part_code);
+
+          if (existingAlloc && existingAlloc.length > 0) {
+            await supabaseClient
+              .from('material_allocations')
+              .update({ quantity: Number(existingAlloc[0].quantity) + takeQty, updated_at: new Date() })
+              .eq('id', existingAlloc[0].id);
+          } else {
+            await supabaseClient
+              .from('material_allocations')
+              .insert([{
+                user_id: userId,
+                material_id: item.id,
+                part_number: item.part_number,
+                part_code: item.part_code,
+                quantity: takeQty
+              }]);
+          }
+        } catch (allocErr) {
+          console.warn("Could not record in material_allocations:", allocErr);
+        }
+
         const userName = takeUserSelect.selectedOptions[0]?.text || "User";
         takeQuantity.value = "";
         setFormStatus(globalStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userName}.`);
@@ -1432,8 +1531,19 @@
     globalReturnForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       try {
+        const userId = returnUserSelect.value;
+        if (!userId) throw new Error("Please select a user returning the material.");
+
         const returnQty = Number(returnQuantity.value);
         if (returnQty <= 0 || isNaN(returnQty)) throw new Error("Please enter a valid quantity greater than 0.");
+
+        const allocId = returnAllocatedSelect.value;
+        const allocItem = userAllocations.find(a => String(a.id) === String(allocId));
+        if (!allocItem) throw new Error("Please select an item from the Allocated Products list.");
+
+        if (returnQty > Number(allocItem.quantity)) {
+          throw new Error(`Cannot return ${returnQty}. User is only allocated ${allocItem.quantity}.`);
+        }
 
         const values = Object.fromEntries(new FormData(globalReturnForm).entries());
 
@@ -1457,11 +1567,12 @@
           workbenchId = values.workbenchId;
         }
 
+        // Restock material back into materials table
         let query = supabaseClient
           .from('materials')
           .select('*')
-          .eq('part_number', values.partNumber.trim())
-          .eq('part_code', values.partCode.trim())
+          .eq('part_number', allocItem.part_number)
+          .eq('part_code', allocItem.part_code)
           .eq('location_type', values.locationType);
 
         if (values.locationType === 'rack') query = query.eq('rack_id', rackId);
@@ -1480,8 +1591,8 @@
           if (error) throw error;
         } else {
           const { error } = await supabaseClient.from('materials').insert([{
-            part_number: values.partNumber.trim(),
-            part_code: values.partCode.trim(),
+            part_number: allocItem.part_number,
+            part_code: allocItem.part_code,
             quantity: returnQty,
             location_type: values.locationType,
             cupboard_id: cupboardId,
@@ -1493,8 +1604,23 @@
           if (error) throw error;
         }
 
+        // Deduct returned quantity from material_allocations table
+        try {
+          const remainingAlloc = Number(allocItem.quantity) - returnQty;
+          if (remainingAlloc <= 0) {
+            await supabaseClient.from('material_allocations').delete().eq('id', allocItem.id);
+          } else {
+            await supabaseClient.from('material_allocations').update({ quantity: remainingAlloc }).eq('id', allocItem.id);
+          }
+          await loadAllocationsForUser(userId);
+        } catch (allocErr) {
+          console.warn("Could not update material_allocations:", allocErr);
+        }
+
         returnQuantity.value = "";
-        setFormStatus(globalStripStatus, `Returned ${returnQty} units of "${values.partNumber.trim()}" to stock.`);
+        returnPartNumber.value = "";
+        returnPartCode.value = "";
+        setFormStatus(globalStripStatus, `Returned ${returnQty} units of "${allocItem.part_number}" to stock.`);
         await refreshInventory();
       } catch (err) {
         setFormStatus(globalStripStatus, err.message, true);
@@ -1508,6 +1634,13 @@
         globalTakeForm.style.display = isTake ? "contents" : "none";
         globalReturnForm.style.display = isTake ? "none" : "contents";
         globalStripStatus.textContent = "";
+
+        // Un-highlight selected rows when switching modes
+        document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
+
+        if (!isTake && returnUserSelect.value) {
+          loadAllocationsForUser(returnUserSelect.value);
+        }
       });
     });
 
@@ -1672,6 +1805,15 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, () => { loadUsers(); })
         .subscribe();
 
+      supabaseClient
+        .channel('public:material_allocations')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'material_allocations' }, () => {
+          if (returnUserSelect.value) {
+            loadAllocationsForUser(returnUserSelect.value);
+          }
+        })
+        .subscribe();
+
       setInterval(() => {
         refreshInventory();
       }, 4000);
@@ -1719,7 +1861,7 @@
           makeCell("location-cell", product.location_text)
         );
         
-        // Clicking row populates individual Part Number and Part Code without filling quantity
+        // Clicking row populates fields ONLY if in Take (Allocate) mode
         row.addEventListener("click", () => onProductRowClicked(product));
 
         productList.append(row);
