@@ -584,7 +584,7 @@
               <input name="partCode" id="takePartCode" required maxlength="100" placeholder="Part Code" style="width: 130px;">
             </div>
             <div class="inline-field">
-              <input name="quantity" id="takeQuantity" type="number" min="0.001" step="any" required placeholder="Quantity" style="width: 90px;">
+              <input name="quantity" id="takeQuantity" type="number" min="1" step="1" required placeholder="Quantity" style="width: 90px;">
             </div>
             <button class="compact-btn danger" type="submit">Allocate</button>
           </form>
@@ -605,7 +605,7 @@
               <input name="partNumber" id="returnPartNumber" readonly placeholder="Part Name" style="width: 160px;">
             </div>
             <div class="inline-field">
-              <input name="quantity" id="returnQuantity" type="number" min="0.001" step="any" required placeholder="Quantity" style="width: 80px;">
+              <input name="quantity" id="returnQuantity" type="number" min="1" step="1" required placeholder="Quantity" style="width: 80px;">
             </div>
             <div class="inline-field">
               <select name="locationType" id="returnLocationType" style="width: 110px;">
@@ -650,7 +650,7 @@
             <div class="form-grid">
               <label class="field">Part Number<input name="partNumber" required maxlength="100"></label>
               <label class="field">Part Code<input name="partCode" required maxlength="100"></label>
-              <label class="field">Quantity<input name="quantity" type="number" min="0" step="any" required></label>
+              <label class="field">Quantity<input name="quantity" type="number" min="1" step="1" required></label>
               <label class="field">Location type
                 <select name="locationType" id="locationType">
                   <option value="rack">Cupboard rack</option>
@@ -690,7 +690,7 @@
             <div class="form-grid">
               <label class="field">Part Number<input name="partNumber" required maxlength="100"></label>
               <label class="field">Part Code<input name="partCode" required maxlength="100"></label>
-              <label class="field">Quantity to remove<input name="quantity" type="number" min="0.001" step="any" required></label>
+              <label class="field">Quantity to remove<input name="quantity" type="number" min="1" step="1" required></label>
               <label class="field">Location type
                 <select name="locationType" id="removeLocationType">
                   <option value="rack">Cupboard rack</option>
@@ -1804,9 +1804,9 @@
 
         if (!item) throw new Error(`Material "${pNum}" with code "${pCode}" was not found in catalog.`);
 
-        const takeQty = Number(takeQuantity.value);
-        if (takeQty <= 0 || isNaN(takeQty)) throw new Error("Please enter a valid quantity greater than 0.");
-        if (takeQty > Number(item.quantity)) {
+        const takeQty = parseInt(takeQuantity.value, 10);
+        if (isNaN(takeQty) || takeQty < 1) throw new Error("Please enter a valid whole number quantity starting from 1.");
+        if (takeQty > parseInt(item.quantity, 10)) {
           throw new Error(`Insufficient quantity. Current stock is ${item.quantity}.`);
         }
 
@@ -1821,7 +1821,7 @@
         if (allocSelectErr) throw new Error("Failed checking allocations: " + allocSelectErr.message);
 
         if (existingAlloc && existingAlloc.length > 0) {
-          const updatedQty = Number(existingAlloc[0].quantity) + takeQty;
+          const updatedQty = parseInt(existingAlloc[0].quantity, 10) + takeQty;
           const { error: allocUpdErr } = await supabaseClient
             .from('material_allocations')
             .update({ quantity: updatedQty, updated_at: new Date() })
@@ -1841,7 +1841,7 @@
         }
 
         // 2. DEDUCT OR DELETE FROM MATERIALS INVENTORY AFTER ALLOCATION SUCCEEDS
-        const remaining = Number(item.quantity) - takeQty;
+        const remaining = parseInt(item.quantity, 10) - takeQty;
         if (remaining <= 0) {
           const { error: delErr } = await supabaseClient.from('materials').delete().eq('id', item.id);
           if (delErr) throw delErr;
@@ -1874,14 +1874,14 @@
         const userId = returnUserSelect.value;
         if (!userId) throw new Error("Please select a user returning the material.");
 
-        const returnQty = Number(returnQuantity.value);
-        if (returnQty <= 0 || isNaN(returnQty)) throw new Error("Please enter a valid quantity greater than 0.");
+        const returnQty = parseInt(returnQuantity.value, 10);
+        if (isNaN(returnQty) || returnQty < 1) throw new Error("Please enter a valid whole number quantity starting from 1.");
 
         const allocId = returnAllocatedPartCodeSelect.value;
         const allocItem = userAllocations.find(a => String(a.id) === String(allocId));
         if (!allocItem) throw new Error("Please select an Allocated Part Code.");
 
-        if (returnQty > Number(allocItem.quantity)) {
+        if (returnQty > parseInt(allocItem.quantity, 10)) {
           throw new Error(`Cannot return ${returnQty}. User is only allocated ${allocItem.quantity}.`);
         }
 
@@ -1924,7 +1924,7 @@
         );
 
         if (existingAtDestination) {
-          const updatedQty = Number(existingAtDestination.quantity) + returnQty;
+          const updatedQty = parseInt(existingAtDestination.quantity, 10) + returnQty;
           const { error: updateErr } = await supabaseClient
             .from('materials')
             .update({ quantity: updatedQty, updated_at: new Date() })
@@ -1947,7 +1947,7 @@
         }
 
         // Deduct returned quantity from material_allocations
-        const remainingAlloc = Number(allocItem.quantity) - returnQty;
+        const remainingAlloc = parseInt(allocItem.quantity, 10) - returnQty;
         if (remainingAlloc <= 0) {
           const { error: allocDelErr } = await supabaseClient.from('material_allocations').delete().eq('id', allocItem.id);
           if (allocDelErr) throw allocDelErr;
@@ -2070,6 +2070,12 @@
     materialForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const values = Object.fromEntries(new FormData(materialForm).entries());
+      const addQty = parseInt(values.quantity, 10);
+
+      if (isNaN(addQty) || addQty < 1) {
+        setFormStatus(materialStatus, "Please enter a valid whole number quantity starting from 1.", true);
+        return;
+      }
 
       try {
         let locationText = "";
@@ -2102,7 +2108,7 @@
         );
 
         if (existingItem) {
-          const updatedQty = Number(existingItem.quantity) + Number(values.quantity);
+          const updatedQty = parseInt(existingItem.quantity, 10) + addQty;
           const { error } = await supabaseClient
             .from('materials')
             .update({ quantity: updatedQty, updated_at: new Date() })
@@ -2112,7 +2118,7 @@
           const { error } = await supabaseClient.from('materials').insert([{
             part_number: values.partNumber.trim(),
             part_code: values.partCode.trim(),
-            quantity: Number(values.quantity),
+            quantity: addQty,
             location_type: values.locationType,
             cupboard_id: cupboardId,
             rack_id: rackId,
@@ -2135,7 +2141,12 @@
     removeMaterialForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const values = Object.fromEntries(new FormData(removeMaterialForm).entries());
-      const removeQty = Number(values.quantity);
+      const removeQty = parseInt(values.quantity, 10);
+
+      if (isNaN(removeQty) || removeQty < 1) {
+        setFormStatus(removeMaterialStatus, "Please enter a valid whole number quantity starting from 1.", true);
+        return;
+      }
 
       try {
         let rackId = values.rackId || null;
@@ -2155,13 +2166,14 @@
           throw new Error("No material found matching this part number, code, and location.");
         }
 
-        if (removeQty > Number(item.quantity)) {
-          throw new Error(`Cannot remove ${removeQty}. Current stock is ${item.quantity}.`);
+        const currentQty = parseInt(item.quantity, 10);
+        if (removeQty > currentQty) {
+          throw new Error(`Cannot remove ${removeQty}. Current stock is ${currentQty}.`);
         }
 
         if (!window.confirm(`Deduct ${removeQty} from ${item.part_number} at ${item.location_text}?`)) return;
 
-        const remaining = Number(item.quantity) - removeQty;
+        const remaining = currentQty - removeQty;
         if (remaining <= 0) {
           const { error } = await supabaseClient.from('materials').delete().eq('id', item.id);
           if (error) throw error;
