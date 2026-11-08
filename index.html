@@ -707,15 +707,18 @@
       }
     });
 
-    // ==========================================
-    // 6. INVENTORY LIST & SEARCH
+    
+// ==========================================
+    // 6. INVENTORY LIST & SEARCH (SEARCH-ONLY)
     // ==========================================
     async function refreshInventory() {
       try {
         const { data, error } = await supabaseClient.from('materials').select('*').order('part_number', { ascending: true });
         if (error) throw error;
         products = data || [];
-        document.getElementById("itemCount").textContent = `${products.length} PARTS`;
+        document.getElementById("itemCount").textContent = `${products.length} PARTS IN DB`;
+        
+        // Re-render only if there is an active search query
         render();
         setConnectionVisuals(true);
       } catch (err) {
@@ -734,12 +737,31 @@
 
     function render() {
       const query = submittedQuery?.toLocaleLowerCase();
+
+      // If no query has been submitted, do not show any products
       const matching = query
-        ? products.filter(p => p.part_number.toLocaleLowerCase().includes(query) || p.part_code.toLocaleLowerCase().includes(query))
-        : products;
+        ? products.filter(p => 
+            p.part_number.toLocaleLowerCase().includes(query) || 
+            p.part_code.toLocaleLowerCase().includes(query)
+          )
+        : [];
 
       productList.replaceChildren();
-      emptyState.hidden = matching.length !== 0;
+
+      // Empty state logic:
+      // - If query is null (user hasn't searched yet): hide results and show "Type to search" prompt
+      // - If query was searched but 0 items matched: show "No materials found"
+      if (!submittedQuery) {
+        emptyState.hidden = false;
+        document.getElementById("emptyTitle").textContent = "Search Material Directory";
+        document.getElementById("emptyMessage").textContent = "Enter a part number or part code above and press Search.";
+      } else if (matching.length === 0) {
+        emptyState.hidden = false;
+        document.getElementById("emptyTitle").textContent = "No materials found";
+        document.getElementById("emptyMessage").textContent = "Try another part number or part code.";
+      } else {
+        emptyState.hidden = true;
+      }
 
       for (const product of matching) {
         const row = document.createElement("article");
@@ -760,24 +782,6 @@
       submittedQuery = searchInput.value.trim() || null;
       render();
     }
-
-    // Export using local SheetJS
-    exportButton.addEventListener("click", () => {
-      if (!products.length) {
-        alert("No materials to export.");
-        return;
-      }
-      const dataForSheet = products.map(p => ({
-        "Part Number": p.part_number,
-        "Part Code": p.part_code,
-        "Quantity": p.quantity,
-        "Location": p.location_text
-      }));
-      const worksheet = XLSX.utils.json_to_sheet(dataForSheet);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Lab Materials");
-      XLSX.writeFile(workbook, `lab-inventory-${new Date().toISOString().slice(0, 10)}.xlsx`);
-    });
 
     // ==========================================
     // 7. TAB NAVIGATION & EVENT LISTENERS
