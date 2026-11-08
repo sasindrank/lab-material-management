@@ -839,7 +839,8 @@
       <div class="catalog-head">
         <div><p class="kicker">DIRECTORY</p><h2>Material catalog</h2></div>
         <div class="catalog-actions">
-          <div class="catalog-meta"><span id="itemCount">0 PARTS</span></div>
+          <!-- Displays total available quantity stock next to Export Excel -->
+          <div class="catalog-meta"><span id="itemCount">0 TOTAL QTY</span></div>
           <button class="action-button" id="exportButton" type="button">Export Excel</button>
         </div>
       </div>
@@ -1004,7 +1005,7 @@
 
         <form class="material-compact-panel" id="removeMaterialForm">
           <div>
-            <h3 style="margin: 0 0 6px; font-size: 13px; color: #a6442b;">Deduct / Delete Material Stock</h3>
+            <h3 style="margin: 0 0 6px; font-size: 13px; color: #a6442b;">Delete Material Stock</h3>
             <div class="form-grid">
               <label class="field">Part Number<input name="partNumber" required maxlength="100" placeholder="e.g. PN-1029"></label>
               <label class="field">Part Code<input name="partCode" required maxlength="100" placeholder="e.g. PC-A1"></label>
@@ -1057,7 +1058,7 @@
         <div class="storage-sections">
           <section class="storage-section">
             <form class="storage-form" id="cupboardRackForm">
-              <h3>Add Cupboard &amp; Racks</h3>
+              <h3>Cupboard and Rack</h3>
               <div class="storage-inline-inputs">
                 <label class="field">Cupboard Name<input name="name" placeholder="e.g. Cupboard 1" required maxlength="80"></label>
                 <label class="field">Racks Count<input name="rackCount" type="number" min="1" max="50" step="1" value="1" required></label>
@@ -1068,7 +1069,7 @@
 
           <section class="storage-section">
             <form class="storage-form" id="boxForm">
-              <h3>Add Box</h3>
+              <h3>Box</h3>
               <label class="field">Box Name<input name="name" placeholder="e.g. Box A" required maxlength="80"></label>
               <button class="action-button storage-small-btn" type="submit">Add Box</button>
             </form>
@@ -1076,7 +1077,7 @@
 
           <section class="storage-section">
             <form class="storage-form" id="workbenchForm">
-              <h3>Add Workbench</h3>
+              <h3>Workbench</h3>
               <label class="field">Workbench Name<input name="name" placeholder="e.g. Workbench 1" required maxlength="80"></label>
               <button class="action-button storage-small-btn" type="submit">Add Workbench</button>
             </form>
@@ -1160,7 +1161,7 @@
       </div>
     </section>
 
-    <!-- Lifecycle Logs Page -->
+    <!-- Combined Lifecycle Logs Page with Date Range Filters -->
     <section class="catalog page-view" id="logsPage" hidden>
       <div class="catalog-head">
         <div><p class="kicker">AUDIT TRAIL</p><h2>Material Activity Logs</h2></div>
@@ -1527,7 +1528,7 @@
     function prepareExcelWorksheet(jsonRows) {
       const ws = XLSX.utils.json_to_sheet(jsonRows);
       if (ws['!ref']) {
-        // Enable AutoFilter by default
+        // Enable AutoFilter by default across the table headers
         ws['!autofilter'] = { ref: ws['!ref'] };
 
         // Auto-size columns nicely based on content
@@ -2199,7 +2200,6 @@
             return;
           }
 
-          // Fallback if foreign key / UUID constraint fails on user_id
           if (res.error.message?.includes('violates foreign key') || res.error.message?.includes('invalid input syntax for type uuid')) {
             delete payload.user_id;
             res = await supabaseClient.from(table).insert([payload]);
@@ -2854,8 +2854,14 @@
         if (error) throw error;
         products = data || [];
         
-        const inStockCount = products.filter(p => parseInt(p.quantity, 10) >= 1).length;
-        document.getElementById("itemCount").textContent = `${inStockCount} PARTS`;
+        // Sum total quantity of available parts
+        const totalUnits = products.reduce((acc, p) => {
+          const q = parseInt(p.quantity, 10);
+          return acc + (isNaN(q) || q < 1 ? 0 : q);
+        }, 0);
+
+        // Update the badge text near the export excel button
+        document.getElementById("itemCount").textContent = `${totalUnits} IN STOCK`;
         
         render();
         renderCombinedStorageInspector();
