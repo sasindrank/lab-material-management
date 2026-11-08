@@ -35,7 +35,7 @@
     body {
       margin: 0;
       height: 100vh;
-      overflow: hidden; /* Locks background viewport to prevent entire webpage from stretching */
+      overflow: hidden;
       color: var(--ink);
       font: 14px var(--sans);
       background-color: #edf3ef;
@@ -146,7 +146,6 @@
       flex-shrink: 0;
     }
     
-    /* Dynamic Connection Status Colors */
     .brand { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 800; cursor: pointer; }
     .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 4px; background: #dc2626; color: white; font-size: 16px; transition: background-color 0.3s; }
     #labTitleText { color: #dc2626; transition: color 0.3s; }
@@ -692,26 +691,39 @@
     .user-alloc-row:hover { background: rgba(229,242,236,.35); }
 
     /* ==========================================
-       LOGS PAGE SCROLL
+       COMBINED TRANSACTION LOGS PAGE
        ========================================== */
     .log-filter-bar {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       margin-bottom: 8px;
       flex-shrink: 0;
+      flex-wrap: wrap;
     }
-    .log-filter-bar select {
+    .log-filter-bar label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #52635d;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .log-filter-bar select, .log-filter-bar input[type="date"] {
       height: 30px;
       padding: 0 8px;
       border: 1px solid #d0dad4;
       border-radius: 4px;
       background: white;
       font-size: 11px;
+      outline: none;
+    }
+    .log-filter-bar select:focus, .log-filter-bar input[type="date"]:focus {
+      border-color: var(--green);
     }
     .log-table-head, .log-row {
       display: grid;
-      grid-template-columns: 140px 105px minmax(140px, 1.4fr) minmax(120px, 1.2fr) 70px minmax(140px, 1.4fr) 140px;
+      grid-template-columns: minmax(120px, 1.2fr) minmax(100px, 1fr) minmax(130px, 1.3fr) minmax(100px, 1fr) 55px minmax(130px, 1.3fr) minmax(130px, 1.3fr) 85px;
       align-items: center;
       column-gap: 10px;
     }
@@ -730,7 +742,7 @@
       min-height: 0;
       padding-right: 4px;
     }
-    .log-row { min-height: 40px; border-bottom: 1px solid #eaf0eb; font-size: 11px; }
+    .log-row { min-height: 42px; border-bottom: 1px solid #eaf0eb; font-size: 11px; }
     .log-badge {
       display: inline-block;
       padding: 2px 7px;
@@ -738,6 +750,7 @@
       font-weight: 700;
       border-radius: 3px;
       text-transform: uppercase;
+      text-align: center;
     }
     .log-badge.allocated { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
     .log-badge.returned { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
@@ -782,7 +795,7 @@
     }
     @media (max-width: 850px) {
       .shell { padding: 0 4% 16px; }
-      .table-head, .product-list, .user-table-head, .user-row, .log-table-head, .log-row, .user-alloc-table-head, .user-alloc-row { min-width: 700px; }
+      .table-head, .product-list, .user-table-head, .user-row, .log-table-head, .log-row, .user-alloc-table-head, .user-alloc-row { min-width: 880px; }
       .material-compact-panel .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 600px) {
@@ -1174,39 +1187,49 @@
       </div>
     </section>
 
-    <!-- Unified Logs Page -->
+    <!-- Combined Lifecycle Logs Page -->
     <section class="catalog page-view" id="logsPage" hidden>
       <div class="catalog-head">
-        <div><p class="kicker">AUDIT TRAIL</p><h2>Activity Logs</h2></div>
+        <div><p class="kicker">AUDIT TRAIL</p><h2>Combined Activity Logs</h2></div>
         <div class="catalog-actions">
           <button class="action-button" id="exportLogsButton" type="button">Export Excel</button>
         </div>
       </div>
 
+      <!-- Filter Controls: Status Filter & Date Picker Filter -->
       <div class="log-filter-bar">
-        <label style="font-size:11px;font-weight:700;color:#52635d;">Filter Actions:</label>
-        <select id="logActionFilter">
-          <option value="ALL">All Transactions (Allocated &amp; Returned)</option>
-          <option value="ALLOCATED">Only Allocated</option>
-          <option value="RETURNED">Only Returned</option>
-        </select>
+        <label>
+          Filter Status:
+          <select id="logActionFilter">
+            <option value="ALL">All Records</option>
+            <option value="ALLOCATED">Only Allocated (Pending Return)</option>
+            <option value="RETURNED">Only Returned</option>
+          </select>
+        </label>
+
+        <label>
+          Filter Date:
+          <input type="date" id="logDateFilter">
+        </label>
+        <button type="button" class="btn-secondary" id="clearLogDateBtn" style="height: 30px; padding: 0 10px; font-size: 10px;">Clear Date</button>
       </div>
 
       <div class="table-scroll">
         <div class="log-table-head" aria-hidden="true">
-          <span>USER</span>
-          <span>ACTION</span>
+          <span>USER NAME</span>
           <span>PART NUMBER</span>
           <span>PART CODE</span>
-          <span>QTY</span>
-          <span>LOCATION</span>
-          <span>DATE &amp; TIME</span>
+          <span>QTY &amp; LOCATION</span>
+          <span>STATUS</span>
+          <span>ALLOCATED TIME</span>
+          <span>RETURNED TIME</span>
+          <span style="text-align: right;">DURATION</span>
         </div>
         <div id="logList" aria-live="polite"></div>
         <div class="empty" id="emptyLogs" hidden>
           <span class="empty-symbol" aria-hidden="true">&#9776;</span>
-          <strong>No transaction logs found</strong>
-          <span>Allocating or returning materials will record audit trails here.</span>
+          <strong>No matching activity records found</strong>
+          <span>Allocated materials combined with their return transactions will appear here.</span>
         </div>
       </div>
     </section>
@@ -1245,6 +1268,7 @@
     let users = [];
     let userAllocations = [];
     let activityLogs = [];
+    let combinedLogPairs = []; // Combined Allocate & Return records
     let submittedQuery = null;
     let storageTree = [];
     let storageBoxes = [];
@@ -1320,7 +1344,6 @@
       sessionDeadline = Date.now() + (TIMEOUT_SECONDS * 1000);
       updateTimerBadge();
 
-      // Poll frequently so tab waking triggers instant logout if time elapsed
       countdownIntervalId = setInterval(checkSessionTimeout, 500);
     }
 
@@ -1385,7 +1408,7 @@
 
       const protectedPages = ['materialPage', 'storagePage', 'usersPage', 'logsPage'];
       
-      // If we are currently viewing the search page, ignore mouse/key movements
+      // If we are currently viewing the search page or switching out, ignore mouse/key movements
       if (!protectedPages.includes(activePageId)) return;
 
       const activeElement = document.getElementById(activePageId);
@@ -1491,6 +1514,8 @@
     const emptyLogs = document.getElementById("emptyLogs");
     const exportLogsButton = document.getElementById("exportLogsButton");
     const logActionFilter = document.getElementById("logActionFilter");
+    const logDateFilter = document.getElementById("logDateFilter");
+    const clearLogDateBtn = document.getElementById("clearLogDateBtn");
 
     // Inspector elements
     const unifiedInspectorContent = document.getElementById("unifiedInspectorContent");
@@ -1917,7 +1942,6 @@
         emailSpan.className = "user-email";
         emailSpan.textContent = user.email;
 
-        // Delete option placed on the right
         const actionDiv = document.createElement("div");
         actionDiv.className = "user-actions";
 
@@ -2220,14 +2244,14 @@
 
         const currentLiveStock = parseInt(item.quantity, 10);
         if (currentLiveStock < 1 || isNaN(currentLiveStock)) {
-          throw new Error(`Cannot allocate: This item has 0 quantity available. Another user has already admitted it into allocation.`);
+          throw new Error(`Cannot allocate: This item has 0 quantity available.`);
         }
 
         if (takeQty > currentLiveStock) {
-          throw new Error(`Insufficient quantity available. Current live stock is ${currentLiveStock}. Please reduce requested quantity.`);
+          throw new Error(`Insufficient quantity available. Current live stock is ${currentLiveStock}.`);
         }
 
-        // STEP 1: CREATE OR UPDATE RECORD IN MATERIAL_ALLOCATIONS FIRST
+        // STEP 1: CREATE OR UPDATE RECORD IN MATERIAL_ALLOCATIONS
         const { data: existingAlloc, error: allocSelectErr } = await supabaseClient
           .from('material_allocations')
           .select('*')
@@ -2334,7 +2358,7 @@
 
         if (updErr) throw updErr;
         if (!updData || updData.length === 0) {
-          throw new Error(`Allocation Conflict: Stock changed concurrently by another user. Allocation denied.`);
+          throw new Error(`Allocation Conflict: Stock changed concurrently by another user.`);
         }
 
         // RECORD AUDIT LOG
@@ -2477,78 +2501,185 @@
     });
 
     // ==========================================
-    // 8. UNIFIED LOGS ENGINE
+    // 8. COMBINED PAIR-BASED ACTIVITY LOGS ENGINE
     // ==========================================
     async function loadLogs() {
       try {
         const { data, error } = await supabaseClient
           .from('inventory_logs')
           .select('*')
-          .order('created_at', { ascending: false })
-          .limit(300);
+          .order('created_at', { ascending: true }) // Oldest first to match allocation with subsequent return
+          .limit(800);
 
         if (error) throw error;
         activityLogs = data || [];
+        buildCombinedLogPairs();
         renderLogs();
       } catch (err) {
         console.error("Error loading activity logs:", err);
       }
     }
 
+    // Combines separate Allocate & Return entries into single paired lifecycle records
+    function buildCombinedLogPairs() {
+      const pendingAllocations = [];
+      const combined = [];
+
+      for (const log of activityLogs) {
+        if (log.action === "ALLOCATED") {
+          const pair = {
+            id: log.id,
+            userName: log.user_name || "User",
+            userId: log.user_id,
+            partNumber: log.part_number,
+            partCode: log.part_code,
+            quantity: log.quantity,
+            locationText: log.location_text || "-",
+            allocatedTime: log.created_at,
+            returnedTime: null,
+            status: "ALLOCATED"
+          };
+          pendingAllocations.push(pair);
+          combined.push(pair);
+        } else if (log.action === "RETURNED") {
+          // Find matching open allocation for the same user, part number, and part code
+          const matchIndex = pendingAllocations.findIndex(p => 
+            p.userId === log.user_id &&
+            p.part_number === log.part_number &&
+            p.part_code === log.part_code
+          );
+
+          if (matchIndex !== -1) {
+            const matchedPair = pendingAllocations[matchIndex];
+            matchedPair.returnedTime = log.created_at;
+            matchedPair.status = "RETURNED";
+            if (log.location_text) {
+              matchedPair.locationText = log.location_text;
+            }
+            pendingAllocations.splice(matchIndex, 1);
+          } else {
+            // Return record without prior allocation captured
+            combined.push({
+              id: log.id,
+              userName: log.user_name || "User",
+              userId: log.user_id,
+              partNumber: log.part_number,
+              partCode: log.part_code,
+              quantity: log.quantity,
+              locationText: log.location_text || "-",
+              allocatedTime: null,
+              returnedTime: log.created_at,
+              status: "RETURNED"
+            });
+          }
+        }
+      }
+
+      // Order paired records by newest action time descending
+      combinedLogPairs = combined.sort((a, b) => {
+        const timeA = new Date(a.returnedTime || a.allocatedTime).getTime();
+        const timeB = new Date(b.returnedTime || b.allocatedTime).getTime();
+        return timeB - timeA;
+      });
+    }
+
+    function calculateDuration(startStr, endStr) {
+      if (!startStr || !endStr) return "-";
+      const diffMs = new Date(endStr) - new Date(startStr);
+      if (diffMs < 0) return "-";
+
+      const totalMins = Math.floor(diffMs / 60000);
+      const hours = Math.floor(totalMins / 60);
+      const mins = totalMins % 60;
+
+      if (hours > 0) {
+        return `${hours}h ${mins}m`;
+      }
+      return `${mins}m`;
+    }
+
     function renderLogs() {
       logList.replaceChildren();
 
-      const filterMode = logActionFilter.value;
-      const filteredLogs = activityLogs.filter(log => {
-        if (filterMode === "ALL") return true;
-        return log.action === filterMode;
+      const statusFilter = logActionFilter.value;
+      const dateFilterVal = logDateFilter.value; // Expected: YYYY-MM-DD
+
+      const filtered = combinedLogPairs.filter(item => {
+        // Status filter
+        if (statusFilter !== "ALL" && item.status !== statusFilter) {
+          return false;
+        }
+
+        // Date picker filter: matches either allocation date or returned date
+        if (dateFilterVal) {
+          const allocDateStr = item.allocatedTime ? new Date(item.allocatedTime).toISOString().split('T')[0] : null;
+          const returnDateStr = item.returnedTime ? new Date(item.returnedTime).toISOString().split('T')[0] : null;
+
+          if (allocDateStr !== dateFilterVal && returnDateStr !== dateFilterVal) {
+            return false;
+          }
+        }
+
+        return true;
       });
 
-      if (!filteredLogs.length) {
+      if (!filtered.length) {
         emptyLogs.hidden = false;
         return;
       }
 
       emptyLogs.hidden = true;
 
-      filteredLogs.forEach(log => {
+      filtered.forEach(log => {
         const row = document.createElement("article");
         row.className = "log-row";
 
-        const dateStr = new Date(log.created_at).toLocaleString();
-        const actionClass = log.action === "ALLOCATED" ? "allocated" : "returned";
+        const allocStr = log.allocatedTime ? new Date(log.allocatedTime).toLocaleString() : "-";
+        const returnStr = log.returnedTime ? new Date(log.returnedTime).toLocaleString() : "-";
+        const isReturned = log.status === "RETURNED";
+        const badgeClass = isReturned ? "returned" : "allocated";
+        const statusText = isReturned ? "Returned" : "Allocated";
+        const durationText = calculateDuration(log.allocatedTime, log.returnedTime);
 
         row.innerHTML = `
-          <span><strong>${log.user_name || "User"}</strong></span>
-          <span><span class="log-badge ${actionClass}">${log.action}</span></span>
-          <span>${log.part_number}</span>
-          <span class="part-code">${log.part_code}</span>
-          <span><strong>${log.quantity}</strong></span>
-          <span class="location-cell">${log.location_text || "-"}</span>
-          <span style="font-size:10px;color:var(--muted);">${dateStr}</span>
+          <span><strong>${log.userName}</strong></span>
+          <span>${log.partNumber}</span>
+          <span class="part-code">${log.partCode}</span>
+          <span class="location-cell"><strong>${log.quantity}x</strong> @ ${log.locationText}</span>
+          <span><span class="log-badge ${badgeClass}">${statusText}</span></span>
+          <span style="font-size:10px;color:#395045;">${allocStr}</span>
+          <span style="font-size:10px;color:#395045;">${returnStr}</span>
+          <span style="font-size:10px;font-family:var(--mono);text-align:right;color:var(--muted);">${durationText}</span>
         `;
         logList.append(row);
       });
     }
 
     logActionFilter.addEventListener("change", renderLogs);
+    logDateFilter.addEventListener("change", renderLogs);
+    clearLogDateBtn.addEventListener("click", () => {
+      logDateFilter.value = "";
+      renderLogs();
+    });
 
     exportLogsButton.addEventListener("click", () => {
-      if (!activityLogs.length) return alert("No logs available to export.");
-      const rows = activityLogs.map(l => ({
-        "User": l.user_name,
-        "Action": l.action,
-        "Part Number": l.part_number,
-        "Part Code": l.part_code,
+      if (!combinedLogPairs.length) return alert("No logs available to export.");
+      const rows = combinedLogPairs.map(l => ({
+        "User": l.userName,
+        "Part Number": l.partNumber,
+        "Part Code": l.partCode,
         "Quantity": l.quantity,
-        "Location": l.location_text,
-        "Date & Time": new Date(l.created_at).toLocaleString()
+        "Location": l.locationText,
+        "Status": l.status,
+        "Allocated Time": l.allocatedTime ? new Date(l.allocatedTime).toLocaleString() : "-",
+        "Returned Time": l.returnedTime ? new Date(l.returnedTime).toLocaleString() : "-",
+        "Duration": calculateDuration(l.allocatedTime, l.returnedTime)
       }));
 
       const ws = XLSX.utils.json_to_sheet(rows);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Inventory Logs");
-      XLSX.writeFile(wb, "Lab_Inventory_Activity_Logs.xlsx");
+      XLSX.utils.book_append_sheet(wb, ws, "Combined Logs");
+      XLSX.writeFile(wb, "Combined_Material_Activity_Logs.xlsx");
     });
 
     // ==========================================
