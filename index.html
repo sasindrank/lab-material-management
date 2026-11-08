@@ -1178,7 +1178,7 @@
 
       returnCupboardField.hidden = locType !== "rack";
       returnRackField.hidden = locType !== "rack";
-      boxLocationField.hidden = locType !== "box";
+      returnBoxField.hidden = locType !== "box";
       returnWorkbenchField.hidden = locType !== "workbench";
 
       returnCupboard.required = locType === "rack";
@@ -1394,7 +1394,7 @@
           userAllocations,
           userAllocations.length ? "Select Allocated Part Code" : "No Allocated Part Codes",
           a => a.id,
-          a => `${a.part_code} (Allocated: ${a.quantity})`
+          a => `${a.part_code} (Qty: ${a.quantity})`
         );
       } catch (err) {
         console.error("Error loading allocations:", err);
@@ -1549,42 +1549,37 @@
           const cName = returnCupboard.selectedOptions[0]?.text || "Unknown Cupboard";
           const rName = returnRack.selectedOptions[0]?.text || "Unknown Rack";
           locationText = `${cName} / ${rName}`;
-          cupboardId = values.cupboardId;
-          rackId = values.rackId;
+          cupboardId = values.cupboardId || null;
+          rackId = values.rackId || null;
         } else if (values.locationType === "box") {
           locationText = `Box: ${returnBox.selectedOptions[0]?.text || "Unknown Box"}`;
-          boxId = values.boxId;
+          boxId = values.boxId || null;
         } else if (values.locationType === "workbench") {
           locationText = `Workbench: ${returnWorkbench.selectedOptions[0]?.text || "Unknown Workbench"}`;
-          workbenchId = values.workbenchId;
+          workbenchId = values.workbenchId || null;
         }
 
-        // Restock material back into materials table
-        let query = supabaseClient
-          .from('materials')
-          .select('*')
-          .eq('part_number', allocItem.part_number)
-          .eq('part_code', allocItem.part_code)
-          .eq('location_type', values.locationType);
+        // Search in local state or query database accurately for an existing record
+        let existingItem = products.find(p => 
+          p.part_number.trim().toLowerCase() === allocItem.part_number.trim().toLowerCase() &&
+          p.part_code.trim().toLowerCase() === allocItem.part_code.trim().toLowerCase() &&
+          p.location_type === values.locationType &&
+          (values.locationType !== 'rack' || String(p.rack_id) === String(rackId)) &&
+          (values.locationType !== 'box' || String(p.box_id) === String(boxId)) &&
+          (values.locationType !== 'workbench' || String(p.workbench_id) === String(workbenchId))
+        );
 
-        if (values.locationType === 'rack') query = query.eq('rack_id', rackId);
-        else if (values.locationType === 'box') query = query.eq('box_id', boxId);
-        else if (values.locationType === 'workbench') query = query.eq('workbench_id', workbenchId);
-
-        const { data: existing, error: fetchErr } = await query;
-        if (fetchErr) throw fetchErr;
-
-        if (existing && existing.length > 0) {
-          const updatedQty = Number(existing[0].quantity) + returnQty;
-          const { error } = await supabaseClient
+        if (existingItem) {
+          const updatedQty = Number(existingItem.quantity) + returnQty;
+          const { error: updateErr } = await supabaseClient
             .from('materials')
             .update({ quantity: updatedQty, updated_at: new Date() })
-            .eq('id', existing[0].id);
-          if (error) throw error;
+            .eq('id', existingItem.id);
+          if (updateErr) throw updateErr;
         } else {
-          const { error } = await supabaseClient.from('materials').insert([{
-            part_number: allocItem.part_number,
-            part_code: allocItem.part_code,
+          const insertPayload = {
+            part_number: allocItem.part_number.trim(),
+            part_code: allocItem.part_code.trim(),
             quantity: returnQty,
             location_type: values.locationType,
             cupboard_id: cupboardId,
@@ -1592,8 +1587,9 @@
             box_id: boxId,
             workbench_id: workbenchId,
             location_text: locationText
-          }]);
-          if (error) throw error;
+          };
+          const { error: insertErr } = await supabaseClient.from('materials').insert([insertPayload]);
+          if (insertErr) throw insertErr;
         }
 
         // Deduct returned quantity from material_allocations table
@@ -1612,6 +1608,8 @@
         returnQuantity.value = "";
         returnPartNumber.value = "";
         setFormStatus(globalStripStatus, `Returned ${returnQty} units of "${allocItem.part_number}" to stock.`);
+        
+        // Refresh the main catalog immediately so the updated stock is displayed
         await refreshInventory();
       } catch (err) {
         setFormStatus(globalStripStatus, err.message, true);
@@ -1653,36 +1651,31 @@
           const cName = materialCupboard.selectedOptions[0]?.text || "Unknown Cupboard";
           const rName = materialRack.selectedOptions[0]?.text || "Unknown Rack";
           locationText = `${cName} / ${rName}`;
-          cupboardId = values.cupboardId;
-          rackId = values.rackId;
+          cupboardId = values.cupboardId || null;
+          rackId = values.rackId || null;
         } else if (values.locationType === "box") {
           locationText = `Box: ${materialBox.selectedOptions[0]?.text || "Unknown Box"}`;
-          boxId = values.boxId;
+          boxId = values.boxId || null;
         } else if (values.locationType === "workbench") {
           locationText = `Workbench: ${materialWorkbench.selectedOptions[0]?.text || "Unknown Workbench"}`;
-          workbenchId = values.workbenchId;
+          workbenchId = values.workbenchId || null;
         }
 
-        let query = supabaseClient
-          .from('materials')
-          .select('*')
-          .eq('part_number', values.partNumber.trim())
-          .eq('part_code', values.partCode.trim())
-          .eq('location_type', values.locationType);
+        let existingItem = products.find(p => 
+          p.part_number.trim().toLowerCase() === values.partNumber.trim().toLowerCase() &&
+          p.part_code.trim().toLowerCase() === values.partCode.trim().toLowerCase() &&
+          p.location_type === values.locationType &&
+          (values.locationType !== 'rack' || String(p.rack_id) === String(rackId)) &&
+          (values.locationType !== 'box' || String(p.box_id) === String(boxId)) &&
+          (values.locationType !== 'workbench' || String(p.workbench_id) === String(workbenchId))
+        );
 
-        if (values.locationType === 'rack') query = query.eq('rack_id', rackId);
-        else if (values.locationType === 'box') query = query.eq('box_id', boxId);
-        else if (values.locationType === 'workbench') query = query.eq('workbench_id', workbenchId);
-
-        const { data: existing, error: fetchErr } = await query;
-        if (fetchErr) throw fetchErr;
-
-        if (existing && existing.length > 0) {
-          const updatedQty = Number(existing[0].quantity) + Number(values.quantity);
+        if (existingItem) {
+          const updatedQty = Number(existingItem.quantity) + Number(values.quantity);
           const { error } = await supabaseClient
             .from('materials')
             .update({ quantity: updatedQty, updated_at: new Date() })
-            .eq('id', existing[0].id);
+            .eq('id', existingItem.id);
           if (error) throw error;
         } else {
           const { error } = await supabaseClient.from('materials').insert([{
@@ -1714,25 +1707,23 @@
       const removeQty = Number(values.quantity);
 
       try {
-        let query = supabaseClient
-          .from('materials')
-          .select('*')
-          .eq('part_number', values.partNumber.trim())
-          .eq('part_code', values.partCode.trim())
-          .eq('location_type', values.locationType);
+        let rackId = values.rackId || null;
+        let boxId = values.boxId || null;
+        let workbenchId = values.workbenchId || null;
 
-        if (values.locationType === 'rack') query = query.eq('rack_id', values.rackId);
-        else if (values.locationType === 'box') query = query.eq('box_id', values.boxId);
-        else if (values.locationType === 'workbench') query = query.eq('workbench_id', values.workbenchId);
+        let item = products.find(p => 
+          p.part_number.trim().toLowerCase() === values.partNumber.trim().toLowerCase() &&
+          p.part_code.trim().toLowerCase() === values.partCode.trim().toLowerCase() &&
+          p.location_type === values.locationType &&
+          (values.locationType !== 'rack' || String(p.rack_id) === String(rackId)) &&
+          (values.locationType !== 'box' || String(p.box_id) === String(boxId)) &&
+          (values.locationType !== 'workbench' || String(p.workbench_id) === String(workbenchId))
+        );
 
-        const { data: matched, error: matchErr } = await query;
-        if (matchErr) throw matchErr;
-
-        if (!matched || matched.length === 0) {
+        if (!item) {
           throw new Error("No material found matching this part number, code, and location.");
         }
 
-        const item = matched[0];
         if (removeQty > Number(item.quantity)) {
           throw new Error(`Cannot remove ${removeQty}. Current stock is ${item.quantity}.`);
         }
@@ -1766,7 +1757,7 @@
         const { data, error } = await supabaseClient.from('materials').select('*').order('part_number', { ascending: true });
         if (error) throw error;
         products = data || [];
-        document.getElementById("itemCount").textContent = `${products.length} PRODUCTS`;
+        document.getElementById("itemCount").textContent = `${products.length} PARTS`;
         
         render();
         setConnectionVisuals(true);
