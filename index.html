@@ -141,6 +141,8 @@
     .action-button:focus-visible { outline: 3px solid rgba(183,70,40,.25); outline-offset: 2px; }
     .danger-button { border-color: #a6442b; background: #a6442b; }
     .danger-button:hover { border-color: #85331f; background: #85331f; }
+    .success-button { border-color: #16a34a; background: #16a34a; }
+    .success-button:hover { border-color: #15803d; background: #15803d; }
     
     .workbook-status { min-height: 28px; margin: 10px 0 0; color: var(--muted); font-size: 11px; }
     .workbook-status.error { color: #b55130; }
@@ -159,6 +161,12 @@
     .form-status.error { color: #b55130; }
     .field[hidden] { display: none !important; }
     
+    /* Transaction Operation Panel (Take/Return) */
+    .transaction-panel { margin: 20px 0 25px; padding: 18px 22px; border: 1px solid #d6e2db; border-radius: 6px; background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+    .operation-switch { display: flex; gap: 12px; margin-bottom: 16px; border-bottom: 1px solid #edf1ee; padding-bottom: 12px; }
+    .radio-pill { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #4b5d56; cursor: pointer; }
+    .radio-pill input[type="radio"] { cursor: pointer; accent-color: var(--green); }
+
     .storage-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(250px, 1fr); gap: 22px; align-items: start; }
     .storage-sections { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: start; }
     .storage-section { display: grid; align-content: start; gap: 12px; padding: 15px; border: 1px solid var(--line); border-radius: 4px; background: rgba(255,255,255,.82); }
@@ -306,6 +314,102 @@
       </div>
       <p class="workbook-status" id="workbookStatus" role="status" aria-live="polite"></p>
 
+      <!-- Take / Return Material Interactive Operations Bar -->
+      <div class="transaction-panel">
+        <div class="operation-switch">
+          <label class="radio-pill">
+            <input type="radio" name="searchOpMode" value="take" checked>
+            <span>Take Material</span>
+          </label>
+          <label class="radio-pill">
+            <input type="radio" name="searchOpMode" value="return">
+            <span>Return Material</span>
+          </label>
+        </div>
+
+        <!-- Take Material Form -->
+        <form id="searchTakeForm">
+          <div class="form-grid">
+            <label class="field">User
+              <select name="userId" id="takeUserSelect" required>
+                <option value="">Select User</option>
+              </select>
+            </label>
+            <label class="field">Product (Material)
+              <select name="materialId" id="takeMaterialSelect" required>
+                <option value="">Select Product</option>
+              </select>
+            </label>
+            <label class="field">Product Code
+              <input name="partCode" id="takePartCode" readonly placeholder="Auto-filled" style="background:#f4f7f5;">
+            </label>
+            <label class="field">Quantity
+              <input name="quantity" id="takeQuantity" type="number" min="0.001" step="any" required placeholder="Quantity to take">
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="action-button danger-button" type="submit">Allocate to User</button>
+            <p class="form-status" id="searchTakeStatus" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+
+        <!-- Return Material Form -->
+        <form id="searchReturnForm" hidden>
+          <div class="form-grid">
+            <label class="field">User
+              <select name="userId" id="returnUserSelect" required>
+                <option value="">Select User</option>
+              </select>
+            </label>
+            <label class="field">Product (Material)
+              <select name="materialSelectId" id="returnMaterialSelect">
+                <option value="">Choose Existing or Type Below</option>
+              </select>
+            </label>
+            <label class="field">Product Part Number
+              <input name="partNumber" id="returnPartNumber" required maxlength="100" placeholder="Part Number">
+            </label>
+            <label class="field">Product Part Code
+              <input name="partCode" id="returnPartCode" required maxlength="100" placeholder="Part Code">
+            </label>
+            <label class="field">Quantity
+              <input name="quantity" type="number" min="0.001" step="any" required placeholder="Quantity to return">
+            </label>
+            <label class="field">Destination Location Type
+              <select name="locationType" id="returnLocationType">
+                <option value="rack">Cupboard rack</option>
+                <option value="box">Box</option>
+                <option value="workbench">Workbench</option>
+              </select>
+            </label>
+            <label class="field" id="returnCupboardField">Cupboard
+              <select name="cupboardId" id="returnCupboard" required disabled>
+                <option value="">Choose a cupboard</option>
+              </select>
+            </label>
+            <label class="field" id="returnRackField">Rack
+              <select name="rackId" id="returnRack" required disabled>
+                <option value="">Choose a rack</option>
+              </select>
+            </label>
+            <label class="field" id="returnBoxField" hidden>Box
+              <select name="boxId" id="returnBox" disabled>
+                <option value="">Choose a box</option>
+              </select>
+            </label>
+            <label class="field" id="returnWorkbenchField" hidden>Workbench
+              <select name="workbenchId" id="returnWorkbench" disabled>
+                <option value="">Choose a workbench</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="action-button success-button" type="submit">Return Material</button>
+            <p class="form-status" id="searchReturnStatus" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+      </div>
+
       <div class="table-scroll">
         <div class="table-head" aria-hidden="true"><span>PART NUMBER</span><span>PART CODE</span><span>QUANTITY</span><span>LOCATION</span></div>
         <div class="product-list" id="productList" aria-live="polite"></div>
@@ -315,7 +419,104 @@
 
     <!-- Add & Remove Material Page -->
     <section class="catalog page-view" id="materialPage" hidden>
-      <div class="page-heading"><p>INVENTORY</p><h2>Add Material</h2></div>
+      <div class="page-heading"><p>INVENTORY</p><h2>Take or Return Material (Fast Track)</h2></div>
+      
+      <div class="transaction-panel" style="margin-top: 0;">
+        <div class="operation-switch">
+          <label class="radio-pill">
+            <input type="radio" name="materialOpMode" value="take" checked>
+            <span>Take Material</span>
+          </label>
+          <label class="radio-pill">
+            <input type="radio" name="materialOpMode" value="return">
+            <span>Return Material</span>
+          </label>
+        </div>
+
+        <!-- Mat Tab Take Form -->
+        <form id="matTabTakeForm">
+          <div class="form-grid">
+            <label class="field">User
+              <select name="userId" id="matTakeUserSelect" required>
+                <option value="">Select User</option>
+              </select>
+            </label>
+            <label class="field">Product (Material)
+              <select name="materialId" id="matTakeMaterialSelect" required>
+                <option value="">Select Product</option>
+              </select>
+            </label>
+            <label class="field">Product Code
+              <input name="partCode" id="matTakePartCode" readonly placeholder="Auto-filled" style="background:#f4f7f5;">
+            </label>
+            <label class="field">Quantity
+              <input name="quantity" type="number" min="0.001" step="any" required placeholder="Quantity to take">
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="action-button danger-button" type="submit">Allocate to User</button>
+            <p class="form-status" id="matTabTakeStatus" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+
+        <!-- Mat Tab Return Form -->
+        <form id="matTabReturnForm" hidden>
+          <div class="form-grid">
+            <label class="field">User
+              <select name="userId" id="matReturnUserSelect" required>
+                <option value="">Select User</option>
+              </select>
+            </label>
+            <label class="field">Product (Material)
+              <select name="materialSelectId" id="matReturnMaterialSelect">
+                <option value="">Choose Existing or Type Below</option>
+              </select>
+            </label>
+            <label class="field">Product Part Number
+              <input name="partNumber" id="matReturnPartNumber" required maxlength="100" placeholder="Part Number">
+            </label>
+            <label class="field">Product Part Code
+              <input name="partCode" id="matReturnPartCode" required maxlength="100" placeholder="Part Code">
+            </label>
+            <label class="field">Quantity
+              <input name="quantity" type="number" min="0.001" step="any" required placeholder="Quantity to return">
+            </label>
+            <label class="field">Destination Location Type
+              <select name="locationType" id="matReturnLocationType">
+                <option value="rack">Cupboard rack</option>
+                <option value="box">Box</option>
+                <option value="workbench">Workbench</option>
+              </select>
+            </label>
+            <label class="field" id="matReturnCupboardField">Cupboard
+              <select name="cupboardId" id="matReturnCupboard" required disabled>
+                <option value="">Choose a cupboard</option>
+              </select>
+            </label>
+            <label class="field" id="matReturnRackField">Rack
+              <select name="rackId" id="matReturnRack" required disabled>
+                <option value="">Choose a rack</option>
+              </select>
+            </label>
+            <label class="field" id="matReturnBoxField" hidden>Box
+              <select name="boxId" id="matReturnBox" disabled>
+                <option value="">Choose a box</option>
+              </select>
+            </label>
+            <label class="field" id="matReturnWorkbenchField" hidden>Workbench
+              <select name="workbenchId" id="matReturnWorkbench" disabled>
+                <option value="">Choose a workbench</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="action-button success-button" type="submit">Return Material</button>
+            <p class="form-status" id="matTabReturnStatus" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+      </div>
+
+      <div class="page-heading" style="margin-top: 30px;"><p>MANUAL INVENTORY</p><h2>Add New Material Stock</h2></div>
       <form class="entry-panel" id="materialForm">
         <div class="form-grid">
           <label class="field">Part Number<input name="partNumber" required maxlength="100"></label>
@@ -355,7 +556,7 @@
         </div>
       </form>
 
-      <div class="page-heading" style="margin-top: 30px"><p>INVENTORY</p><h2>Remove Material Quantity</h2></div>
+      <div class="page-heading" style="margin-top: 30px"><p>MANUAL INVENTORY</p><h2>Delete Material Quantity</h2></div>
       <form class="entry-panel" id="removeMaterialForm">
         <div class="form-grid">
           <label class="field">Part Number<input name="partNumber" required maxlength="100"></label>
@@ -679,7 +880,7 @@
     const emptyUsers = document.getElementById("emptyUsers");
 
     // ==========================================
-    // 2. CONNECTION VERIFICATION & COLOR SHIFT
+    // 2. CONNECTION VERIFICATION & STATUS
     // ==========================================
     function setConnectionVisuals(isConnected) {
       if (isConnected) {
@@ -744,6 +945,8 @@
 
         renderStorage();
         renderRemoveLocationOptions();
+        renderReturnLocationOptions('search');
+        renderReturnLocationOptions('matTab');
         setConnectionVisuals(true);
       } catch (error) {
         setFormStatus(storageStatus, error.message, true);
@@ -929,8 +1132,45 @@
       removeWorkbench.disabled = locType !== "workbench" || !storageWorkbenches.length;
     }
 
+    function renderReturnLocationOptions(prefix = 'search') {
+      const isSearch = prefix === 'search';
+      const locTypeEl = isSearch ? document.getElementById("returnLocationType") : document.getElementById("matReturnLocationType");
+      const cupboardEl = isSearch ? document.getElementById("returnCupboard") : document.getElementById("matReturnCupboard");
+      const rackEl = isSearch ? document.getElementById("returnRack") : document.getElementById("matReturnRack");
+      const boxEl = isSearch ? document.getElementById("returnBox") : document.getElementById("matReturnBox");
+      const wbEl = isSearch ? document.getElementById("returnWorkbench") : document.getElementById("matReturnWorkbench");
+
+      const cupboardFld = isSearch ? document.getElementById("returnCupboardField") : document.getElementById("matReturnCupboardField");
+      const rackFld = isSearch ? document.getElementById("returnRackField") : document.getElementById("matReturnRackField");
+      const boxFld = isSearch ? document.getElementById("returnBoxField") : document.getElementById("matReturnBoxField");
+      const wbFld = isSearch ? document.getElementById("returnWorkbenchField") : document.getElementById("matReturnWorkbenchField");
+
+      const locType = locTypeEl.value;
+      const cupboard = storageTree.find((item) => String(item.id) === String(cupboardEl.value));
+
+      cupboardFld.hidden = locType !== "rack";
+      rackFld.hidden = locType !== "rack";
+      boxFld.hidden = locType !== "box";
+      wbFld.hidden = locType !== "workbench";
+
+      cupboardEl.required = locType === "rack";
+      rackEl.required = locType === "rack";
+      boxEl.required = locType === "box";
+      wbEl.required = locType === "workbench";
+
+      selectOptions(cupboardEl, storageTree, "Choose a cupboard", c => c.id, c => c.name);
+      selectOptions(rackEl, cupboard?.racks || [], "Choose a rack", r => r.id, r => r.name);
+      selectOptions(boxEl, storageBoxes, "Choose a box", b => b.id, b => b.name);
+      selectOptions(wbEl, storageWorkbenches, "Choose a workbench", w => w.id, w => w.name);
+
+      cupboardEl.disabled = locType !== "rack" || !storageTree.length;
+      rackEl.disabled = locType !== "rack" || !cupboard?.racks.length;
+      boxEl.disabled = locType !== "box" || !storageBoxes.length;
+      wbEl.disabled = locType !== "workbench" || !storageWorkbenches.length;
+    }
+
     // ==========================================
-    // 4. STORAGE FORMS (CUPBOARD, RACK, BOX & WORKBENCH)
+    // 4. STORAGE FORMS
     // ==========================================
     document.getElementById("cupboardRackForm").addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -1010,6 +1250,7 @@
         if (error) throw error;
         users = data || [];
         renderUsers();
+        populateUserDropdowns();
       } catch (error) {
         setFormStatus(userStatus, error.message, true);
       }
@@ -1052,6 +1293,20 @@
       }
     }
 
+    function populateUserDropdowns() {
+      const userSelects = [
+        document.getElementById("takeUserSelect"),
+        document.getElementById("returnUserSelect"),
+        document.getElementById("matTakeUserSelect"),
+        document.getElementById("matReturnUserSelect")
+      ];
+
+      userSelects.forEach(select => {
+        if (!select) return;
+        selectOptions(select, users, "Select User", u => u.id, u => `${u.name} (${u.email})`);
+      });
+    }
+
     userForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const name = userForm.userName.value.trim();
@@ -1091,7 +1346,230 @@
     }
 
     // ==========================================
-    // 6. MATERIAL OPERATIONS (SAVE & REMOVE)
+    // 6. MATERIAL TRANSACTIONS (TAKE & RETURN)
+    // ==========================================
+    function populateMaterialDropdowns() {
+      const takeSelects = [
+        document.getElementById("takeMaterialSelect"),
+        document.getElementById("matTakeMaterialSelect")
+      ];
+      const returnSelects = [
+        document.getElementById("returnMaterialSelect"),
+        document.getElementById("matReturnMaterialSelect")
+      ];
+
+      takeSelects.forEach(sel => {
+        if (!sel) return;
+        selectOptions(
+          sel, 
+          products.filter(p => Number(p.quantity) > 0), 
+          "Select Product", 
+          p => p.id, 
+          p => `${p.part_number} | ${p.part_code} (Qty: ${p.quantity})`
+        );
+      });
+
+      returnSelects.forEach(sel => {
+        if (!sel) return;
+        selectOptions(
+          sel, 
+          products, 
+          "Choose Existing or Type Below", 
+          p => p.id, 
+          p => `${p.part_number} | ${p.part_code}`
+        );
+      });
+    }
+
+    // Auto-fill Part Code on Product Select (Take mode)
+    document.getElementById("takeMaterialSelect").addEventListener("change", (e) => {
+      const p = products.find(item => String(item.id) === String(e.target.value));
+      document.getElementById("takePartCode").value = p ? p.part_code : "";
+    });
+    document.getElementById("matTakeMaterialSelect").addEventListener("change", (e) => {
+      const p = products.find(item => String(item.id) === String(e.target.value));
+      document.getElementById("matTakePartCode").value = p ? p.part_code : "";
+    });
+
+    // Auto-fill fields on Product Select (Return mode)
+    document.getElementById("returnMaterialSelect").addEventListener("change", (e) => {
+      const p = products.find(item => String(item.id) === String(e.target.value));
+      if (p) {
+        document.getElementById("returnPartNumber").value = p.part_number;
+        document.getElementById("returnPartCode").value = p.part_code;
+      }
+    });
+    document.getElementById("matReturnMaterialSelect").addEventListener("change", (e) => {
+      const p = products.find(item => String(item.id) === String(e.target.value));
+      if (p) {
+        document.getElementById("matReturnPartNumber").value = p.part_number;
+        document.getElementById("matReturnPartCode").value = p.part_code;
+      }
+    });
+
+    // Execution of Take Material (Deduction & Allocation)
+    async function handleTakeMaterial(materialId, qty, statusEl, formEl) {
+      try {
+        const item = products.find(p => String(p.id) === String(materialId));
+        if (!item) throw new Error("Selected product was not found.");
+
+        const takeQty = Number(qty);
+        if (takeQty <= 0) throw new Error("Quantity must be greater than 0.");
+        if (takeQty > Number(item.quantity)) {
+          throw new Error(`Insufficient quantity. Only ${item.quantity} units available.`);
+        }
+
+        const remaining = Number(item.quantity) - takeQty;
+        if (remaining <= 0) {
+          const { error } = await supabaseClient.from('materials').delete().eq('id', item.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabaseClient.from('materials').update({ quantity: remaining }).eq('id', item.id);
+          if (error) throw error;
+        }
+
+        formEl.reset();
+        setFormStatus(statusEl, `Allocated ${takeQty} units of ${item.part_number} to user.`);
+        await refreshInventory();
+      } catch (err) {
+        setFormStatus(statusEl, err.message, true);
+      }
+    }
+
+    // Execution of Return Material (Restocking)
+    async function handleReturnMaterial(values, cupboardEl, rackEl, boxEl, wbEl, statusEl, formEl) {
+      try {
+        const returnQty = Number(values.quantity);
+        if (returnQty <= 0) throw new Error("Quantity must be greater than 0.");
+
+        let locationText = "";
+        let cupboardId = null;
+        let rackId = null;
+        let boxId = null;
+        let workbenchId = null;
+
+        if (values.locationType === "rack") {
+          const cName = cupboardEl.selectedOptions[0]?.text || "Unknown Cupboard";
+          const rName = rackEl.selectedOptions[0]?.text || "Unknown Rack";
+          locationText = `${cName} / ${rName}`;
+          cupboardId = values.cupboardId;
+          rackId = values.rackId;
+        } else if (values.locationType === "box") {
+          locationText = `Box: ${boxEl.selectedOptions[0]?.text || "Unknown Box"}`;
+          boxId = values.boxId;
+        } else if (values.locationType === "workbench") {
+          locationText = `Workbench: ${wbEl.selectedOptions[0]?.text || "Unknown Workbench"}`;
+          workbenchId = values.workbenchId;
+        }
+
+        // Match existing stock at location
+        let query = supabaseClient
+          .from('materials')
+          .select('*')
+          .eq('part_number', values.partNumber.trim())
+          .eq('part_code', values.partCode.trim())
+          .eq('location_type', values.locationType);
+
+        if (values.locationType === 'rack') query = query.eq('rack_id', rackId);
+        else if (values.locationType === 'box') query = query.eq('box_id', boxId);
+        else if (values.locationType === 'workbench') query = query.eq('workbench_id', workbenchId);
+
+        const { data: existing, error: fetchErr } = await query;
+        if (fetchErr) throw fetchErr;
+
+        if (existing && existing.length > 0) {
+          const updatedQty = Number(existing[0].quantity) + returnQty;
+          const { error } = await supabaseClient
+            .from('materials')
+            .update({ quantity: updatedQty, updated_at: new Date() })
+            .eq('id', existing[0].id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabaseClient.from('materials').insert([{
+            part_number: values.partNumber.trim(),
+            part_code: values.partCode.trim(),
+            quantity: returnQty,
+            location_type: values.locationType,
+            cupboard_id: cupboardId,
+            rack_id: rackId,
+            box_id: boxId,
+            workbench_id: workbenchId,
+            location_text: locationText
+          }]);
+          if (error) throw error;
+        }
+
+        formEl.reset();
+        setFormStatus(statusEl, `Successfully returned ${returnQty} units of ${values.partNumber.trim()} to inventory.`);
+        await refreshInventory();
+      } catch (err) {
+        setFormStatus(statusEl, err.message, true);
+      }
+    }
+
+    // Submit Listeners for Search Page Take/Return
+    document.getElementById("searchTakeForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const form = e.currentTarget;
+      handleTakeMaterial(form.materialId.value, form.quantity.value, document.getElementById("searchTakeStatus"), form);
+    });
+
+    document.getElementById("searchReturnForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const values = Object.fromEntries(new FormData(form).entries());
+      handleReturnMaterial(
+        values,
+        document.getElementById("returnCupboard"),
+        document.getElementById("returnRack"),
+        document.getElementById("returnBox"),
+        document.getElementById("returnWorkbench"),
+        document.getElementById("searchReturnStatus"),
+        form
+      );
+    });
+
+    // Submit Listeners for Add/Delete Material Page Take/Return
+    document.getElementById("matTabTakeForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const form = e.currentTarget;
+      handleTakeMaterial(form.materialId.value, form.quantity.value, document.getElementById("matTabTakeStatus"), form);
+    });
+
+    document.getElementById("matTabReturnForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const values = Object.fromEntries(new FormData(form).entries());
+      handleReturnMaterial(
+        values,
+        document.getElementById("matReturnCupboard"),
+        document.getElementById("matReturnRack"),
+        document.getElementById("matReturnBox"),
+        document.getElementById("matReturnWorkbench"),
+        document.getElementById("matTabReturnStatus"),
+        form
+      );
+    });
+
+    // Toggle Modes (Take vs Return)
+    document.querySelectorAll('input[name="searchOpMode"]').forEach(radio => {
+      radio.addEventListener("change", (e) => {
+        const isTake = e.target.value === "take";
+        document.getElementById("searchTakeForm").hidden = !isTake;
+        document.getElementById("searchReturnForm").hidden = isTake;
+      });
+    });
+
+    document.querySelectorAll('input[name="materialOpMode"]').forEach(radio => {
+      radio.addEventListener("change", (e) => {
+        const isTake = e.target.value === "take";
+        document.getElementById("matTabTakeForm").hidden = !isTake;
+        document.getElementById("matTabReturnForm").hidden = isTake;
+      });
+    });
+
+    // ==========================================
+    // 7. MANUAL MATERIAL OPERATIONS (SAVE & REMOVE)
     // ==========================================
     materialForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -1214,7 +1692,7 @@
     });
 
     // ==========================================
-    // 7. INVENTORY LIST & SEARCH
+    // 8. INVENTORY LIST & SEARCH
     // ==========================================
     async function refreshInventory() {
       try {
@@ -1224,6 +1702,7 @@
         document.getElementById("itemCount").textContent = `${products.length} PRODUCTS`;
         
         render();
+        populateMaterialDropdowns();
         setConnectionVisuals(true);
       } catch (err) {
         workbookStatus.textContent = "Error fetching catalog: " + err.message;
@@ -1315,7 +1794,7 @@
     }
 
     // ==========================================
-    // 8. TAB NAVIGATION & PROTECTED ROUTING
+    // 9. TAB NAVIGATION & PROTECTED ROUTING
     // ==========================================
     async function navigateTo(targetPageId) {
       activePageId = targetPageId;
@@ -1355,6 +1834,12 @@
     removeLocationType.addEventListener("change", renderRemoveLocationOptions);
     removeCupboard.addEventListener("change", renderRemoveLocationOptions);
 
+    // Return location listeners
+    document.getElementById("returnLocationType").addEventListener("change", () => renderReturnLocationOptions('search'));
+    document.getElementById("returnCupboard").addEventListener("change", () => renderReturnLocationOptions('search'));
+    document.getElementById("matReturnLocationType").addEventListener("change", () => renderReturnLocationOptions('matTab'));
+    document.getElementById("matReturnCupboard").addEventListener("change", () => renderReturnLocationOptions('matTab'));
+
     document.getElementById("locationTree").addEventListener("click", event => {
       const btn = event.target.closest("[data-delete-type]");
       if (btn) deleteLocation(btn);
@@ -1375,7 +1860,7 @@
     });
 
     // ==========================================
-    // 9. STARTUP & BOOTSTRAP WORKFLOW
+    // 10. STARTUP & BOOTSTRAP WORKFLOW
     // ==========================================
     async function initializeApplication() {
       loadingState.hidden = false;
