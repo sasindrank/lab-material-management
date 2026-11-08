@@ -435,6 +435,20 @@
       border-radius: 4px;
       background: rgba(255,255,255,.85);
       padding: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+    #usersList {
+      max-height: 240px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    #usersList::-webkit-scrollbar {
+      width: 5px;
+    }
+    #usersList::-webkit-scrollbar-thumb {
+      background: #b8c8be;
+      border-radius: 3px;
     }
     .user-table-head, .user-row {
       display: grid;
