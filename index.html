@@ -351,6 +351,22 @@
     }
     .inline-field[hidden] { display: none !important; }
 
+    .orig-loc-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #e8f3ed;
+      border: 1px solid #b7d6c6;
+      border-radius: 4px;
+      padding: 0 8px;
+      height: 34px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--green-dark);
+      flex-shrink: 0;
+    }
+    .orig-loc-badge[hidden] { display: none !important; }
+
     .compact-btn {
       height: 34px;
       padding: 0 14px;
@@ -607,6 +623,12 @@
             <div class="inline-field">
               <input name="quantity" id="returnQuantity" type="number" min="1" step="1" required placeholder="Quantity" style="width: 80px;">
             </div>
+
+            <!-- Original Storage Location Badge (Helpful Context) -->
+            <div class="orig-loc-badge" id="origLocationBadge" hidden>
+              <span>Origin:</span> <strong id="origLocationText">-</strong>
+            </div>
+
             <div class="inline-field">
               <select name="locationType" id="returnLocationType" style="width: 110px;">
                 <option value="rack">Cupboard Rack</option>
@@ -1103,6 +1125,8 @@
     const returnRackField = document.getElementById("returnRackField");
     const returnBoxField = document.getElementById("returnBoxField");
     const returnWorkbenchField = document.getElementById("returnWorkbenchField");
+    const origLocationBadge = document.getElementById("origLocationBadge");
+    const origLocationText = document.getElementById("origLocationText");
     const globalStripStatus = document.getElementById("globalStripStatus");
 
     // Logs elements
@@ -1642,7 +1666,8 @@
           row.style.padding = "8px 10px";
           row.style.borderBottom = "1px solid #edf1ee";
           row.innerHTML = `<div style="font-weight:700;color:var(--green-dark);">${a.part_number}</div>
-                           <div style="font-size:10px;color:var(--muted);">${a.part_code} &bull; Allocated Quantity: <strong>${a.quantity}</strong></div>`;
+                           <div style="font-size:10px;color:var(--muted);">${a.part_code} &bull; Allocated Quantity: <strong>${a.quantity}</strong></div>
+                           <div style="font-size:10px;color:var(--green);margin-top:2px;">Origin: ${a.location_text || "Storage"}</div>`;
           userAllocViewerResults.append(row);
         });
       } catch (err) {
@@ -1699,6 +1724,7 @@
       if (!userId) {
         userAllocations = [];
         selectOptions(returnAllocatedPartCodeSelect, [], "Allocated Part Code", a => a.id, a => a.part_code);
+        origLocationBadge.hidden = true;
         return;
       }
 
@@ -1730,7 +1756,18 @@
       loadAllocationsForUser(e.target.value);
       returnPartNumber.value = "";
       returnQuantity.value = "";
+      origLocationBadge.hidden = true;
+      resetReturnLocationFields();
     });
+
+    function resetReturnLocationFields() {
+      returnLocationType.value = "rack";
+      renderReturnLocationOptions();
+      returnCupboard.value = "";
+      returnRack.value = "";
+      returnBox.value = "";
+      returnWorkbench.value = "";
+    }
 
     returnAllocatedPartCodeSelect.addEventListener("change", (e) => {
       const allocId = e.target.value;
@@ -1738,12 +1775,63 @@
       if (item) {
         returnPartNumber.value = item.part_number;
         returnQuantity.value = item.quantity;
-        setFormStatus(globalStripStatus, `Loaded "${item.part_number}". Adjust quantity and select target return location.`);
+
+        // Display original source location
+        if (item.location_text) {
+          origLocationBadge.hidden = false;
+          origLocationText.textContent = item.location_text;
+        } else {
+          origLocationBadge.hidden = true;
+        }
+
+        // Auto pre-populate the return location selectors with the original origin
+        if (item.location_type) {
+          returnLocationType.value = item.location_type;
+          renderReturnLocationOptions();
+
+          if (item.location_type === "rack") {
+            if (item.cupboard_id) {
+              returnCupboard.value = item.cupboard_id;
+              renderReturnLocationOptions(); // Repopulate racks for this cupboard
+            }
+            if (item.rack_id) {
+              returnRack.value = item.rack_id;
+            }
+          } else if (item.location_type === "box" && item.box_id) {
+            returnBox.value = item.box_id;
+          } else if (item.location_type === "workbench" && item.workbench_id) {
+            returnWorkbench.value = item.workbench_id;
+          }
+        }
+
+        setFormStatus(globalStripStatus, `Loaded "${item.part_number}". Location pre-set to original storage place (${item.location_text || 'Storage'}).`);
       } else {
         returnPartNumber.value = "";
         returnQuantity.value = "";
+        origLocationBadge.hidden = true;
+        resetReturnLocationFields();
       }
     });
+
+    function resetTakeForm() {
+      takeUserSelect.value = "";
+      takeMaterialId.value = "";
+      takePartNumber.value = "";
+      takePartCode.value = "";
+      takeQuantity.value = "";
+      document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
+    }
+
+    function resetReturnForm() {
+      returnUserSelect.value = "";
+      returnAllocatedPartCodeSelect.replaceChildren(new Option("Allocated Part Code", ""));
+      returnAllocatedPartCodeSelect.disabled = true;
+      returnPartNumber.value = "";
+      returnQuantity.value = "";
+      origLocationBadge.hidden = true;
+      resetReturnLocationFields();
+      userAllocations = [];
+    }
 
     function onProductRowClicked(product) {
       const isTakeMode = document.querySelector('input[name="globalOpMode"]:checked').value === "take";
@@ -1810,7 +1898,7 @@
           throw new Error(`Insufficient quantity. Current stock is ${item.quantity}.`);
         }
 
-        // 1. UPDATE OR INSERT INTO MATERIAL_ALLOCATIONS FIRST (to ensure foreign keys exist)
+        // 1. UPDATE OR INSERT INTO MATERIAL_ALLOCATIONS (saving original source storage parameters)
         const { data: existingAlloc, error: allocSelectErr } = await supabaseClient
           .from('material_allocations')
           .select('*')
@@ -1824,7 +1912,16 @@
           const updatedQty = parseInt(existingAlloc[0].quantity, 10) + takeQty;
           const { error: allocUpdErr } = await supabaseClient
             .from('material_allocations')
-            .update({ quantity: updatedQty, updated_at: new Date() })
+            .update({
+              quantity: updatedQty,
+              location_type: item.location_type || existingAlloc[0].location_type,
+              cupboard_id: item.cupboard_id || existingAlloc[0].cupboard_id,
+              rack_id: item.rack_id || existingAlloc[0].rack_id,
+              box_id: item.box_id || existingAlloc[0].box_id,
+              workbench_id: item.workbench_id || existingAlloc[0].workbench_id,
+              location_text: item.location_text || existingAlloc[0].location_text,
+              updated_at: new Date()
+            })
             .eq('id', existingAlloc[0].id);
           if (allocUpdErr) throw new Error("Failed updating allocation record: " + allocUpdErr.message);
         } else {
@@ -1835,7 +1932,13 @@
               material_id: item.id,
               part_number: item.part_number,
               part_code: item.part_code,
-              quantity: takeQty
+              quantity: takeQty,
+              location_type: item.location_type,
+              cupboard_id: item.cupboard_id,
+              rack_id: item.rack_id,
+              box_id: item.box_id,
+              workbench_id: item.workbench_id,
+              location_text: item.location_text
             }]);
           if (allocInsErr) throw new Error("Failed creating allocation record: " + allocInsErr.message);
         }
@@ -1854,8 +1957,10 @@
         await recordActivityLog(userId, "ALLOCATED", item.part_number, item.part_code, takeQty, item.location_text || "Storage");
 
         const userName = takeUserSelect.selectedOptions[0]?.text || "User";
-        takeQuantity.value = "";
         setFormStatus(globalStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userName}.`);
+
+        // RESET ALL TAKE PARAMETERS
+        resetTakeForm();
 
         // Refresh all synchronized views
         await refreshInventory();
@@ -1959,11 +2064,11 @@
         // Record in activity logs
         await recordActivityLog(userId, "RETURNED", allocItem.part_number, allocItem.part_code, returnQty, locationText);
 
-        returnQuantity.value = "";
-        returnPartNumber.value = "";
         setFormStatus(globalStripStatus, `Returned ${returnQty} units of "${allocItem.part_number}" to ${locationText}.`);
         
-        await loadAllocationsForUser(userId);
+        // RESET ALL RETURN PARAMETERS
+        resetReturnForm();
+
         await refreshInventory();
         await loadLogs();
         if (userAllocViewerSelect.value === userId) {
@@ -1981,11 +2086,8 @@
         globalReturnForm.style.display = isTake ? "none" : "contents";
         globalStripStatus.textContent = "";
 
-        document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
-
-        if (!isTake && returnUserSelect.value) {
-          loadAllocationsForUser(returnUserSelect.value);
-        }
+        resetTakeForm();
+        resetReturnForm();
       });
     });
 
