@@ -217,7 +217,7 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-start;
       padding: 10px 14px;
       border: 1px solid var(--line);
       border-radius: 4px;
@@ -243,12 +243,12 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-top: 6px;
+      margin-top: 8px;
       flex-shrink: 0;
     }
     .material-compact-panel .action-button {
       height: 30px;
-      min-width: 100px;
+      min-width: 95px;
       font-size: 10px;
       padding: 0 12px;
     }
@@ -273,14 +273,14 @@
       align-items: stretch;
       flex: 1;
       min-height: 0;
-      overflow: hidden; /* No scroll for container */
+      overflow: hidden;
     }
     .storage-sections {
       display: flex;
       flex-direction: column;
       gap: 8px;
       min-height: 0;
-      overflow: hidden; /* Scroll removed: fits vertically */
+      overflow: hidden;
       height: 100%;
     }
     .storage-section {
@@ -288,7 +288,7 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 8px 12px;
+      padding: 9px 12px;
       border: 1px solid var(--line);
       border-radius: 4px;
       background: rgba(255,255,255,.85);
@@ -297,13 +297,14 @@
     .storage-status {
       min-height: 14px;
       flex-shrink: 0;
+      margin: 2px 0 0;
     }
     .storage-form {
       display: flex;
       flex-direction: column;
       gap: 6px;
       height: 100%;
-      justify-content: space-around;
+      justify-content: space-between;
     }
     .storage-form h3 { margin: 0; font-size: 12px; color: var(--green-dark); }
     .storage-form .field { gap: 2px; font-size: 10px; }
@@ -313,18 +314,13 @@
       grid-template-columns: 1fr 100px;
       gap: 8px;
     }
-    .storage-form-row {
-      display: flex;
-      gap: 8px;
-      align-items: flex-end;
-    }
-    .storage-form-row .field { flex: 1; }
-    .storage-form .action-button {
-      height: 28px;
-      min-width: 80px;
-      font-size: 10px;
-      padding: 0 10px;
-      flex-shrink: 0;
+    .storage-small-btn {
+      height: 26px !important;
+      min-width: 65px !important;
+      font-size: 9.5px !important;
+      padding: 0 10px !important;
+      align-self: flex-start;
+      margin-top: 2px;
     }
 
     .unified-inspector-panel {
@@ -360,7 +356,7 @@
       border-top: 1px solid #edf1ee;
       padding-top: 8px;
       flex: 1;
-      overflow-y: auto; /* Inspector retains interior scroll if many items are listed */
+      overflow-y: auto;
       min-height: 0;
       padding-right: 4px;
     }
@@ -967,7 +963,7 @@
       </div>
     </section>
 
-    <!-- Add & Delete Material Page (Compact & Fit to Screen - No Scroll) -->
+    <!-- Add & Delete Material Page (Compact & Fit to Screen - Small Clean Gap) -->
     <section class="catalog page-view" id="materialPage" hidden>
       <div class="page-heading">
         <p>MANUAL INVENTORY</p>
@@ -1063,7 +1059,7 @@
       </div>
     </section>
 
-    <!-- Combined Storage Locations & Content Inspector Page (Fit Vertically, No Outer Scroll) -->
+    <!-- Combined Storage Locations & Content Inspector Page (Small Save Buttons, Top Inputs & Below Buttons) -->
     <section class="catalog page-view" id="storagePage" hidden>
       <div class="page-heading">
         <p>LOCATIONS &amp; AUDIT</p>
@@ -1071,39 +1067,41 @@
       </div>
 
       <div class="storage-layout">
-        <!-- Left: Stacked Add Location Forms (Fit vertically, zero scroll) -->
+        <!-- Left: Stacked Add Location Forms (Names Above, Save Buttons Below, Small Button Size) -->
         <div class="storage-sections">
           <!-- Add Cupboard and Racks -->
           <section class="storage-section">
             <form class="storage-form" id="cupboardRackForm">
-              <h3>Add Cupboard &amp; Racks</h3>
-              <div class="storage-inline-inputs">
-                <label class="field">Cupboard Name<input name="name" placeholder="e.g. Cupboard 1" required maxlength="80"></label>
-                <label class="field">Racks Count<input name="rackCount" type="number" min="1" max="50" step="1" value="1" required></label>
+              <div>
+                <h3>Add Cupboard &amp; Racks</h3>
+                <div class="storage-inline-inputs" style="margin-top: 4px;">
+                  <label class="field">Cupboard Name<input name="name" placeholder="e.g. Cupboard 1" required maxlength="80"></label>
+                  <label class="field">Racks Count<input name="rackCount" type="number" min="1" max="50" step="1" value="1" required></label>
+                </div>
               </div>
-              <button class="action-button" type="submit">Add Cupboard &amp; Racks</button>
+              <button class="action-button storage-small-btn" type="submit">Save</button>
             </form>
           </section>
 
           <!-- Add Box -->
           <section class="storage-section">
             <form class="storage-form" id="boxForm">
-              <h3>Add Box</h3>
-              <div class="storage-form-row">
-                <label class="field">Box Name<input name="name" placeholder="e.g. Box A" required maxlength="80"></label>
-                <button class="action-button" type="submit">Add Box</button>
+              <div>
+                <h3>Add Box</h3>
+                <label class="field" style="margin-top: 4px;">Box Name<input name="name" placeholder="e.g. Box A" required maxlength="80"></label>
               </div>
+              <button class="action-button storage-small-btn" type="submit">Save</button>
             </form>
           </section>
 
           <!-- Add Workbench -->
           <section class="storage-section">
             <form class="storage-form" id="workbenchForm">
-              <h3>Add Workbench</h3>
-              <div class="storage-form-row">
-                <label class="field">Workbench Name<input name="name" placeholder="e.g. Workbench 1" required maxlength="80"></label>
-                <button class="action-button" type="submit">Add Workbench</button>
+              <div>
+                <h3>Add Workbench</h3>
+                <label class="field" style="margin-top: 4px;">Workbench Name<input name="name" placeholder="e.g. Workbench 1" required maxlength="80"></label>
               </div>
+              <button class="action-button storage-small-btn" type="submit">Save</button>
             </form>
           </section>
 
