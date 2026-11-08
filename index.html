@@ -351,22 +351,6 @@
     }
     .inline-field[hidden] { display: none !important; }
 
-    .orig-loc-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background: #e8f3ed;
-      border: 1px solid #b7d6c6;
-      border-radius: 4px;
-      padding: 0 8px;
-      height: 34px;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--green-dark);
-      flex-shrink: 0;
-    }
-    .orig-loc-badge[hidden] { display: none !important; }
-
     .compact-btn {
       height: 34px;
       padding: 0 14px;
@@ -624,11 +608,7 @@
               <input name="quantity" id="returnQuantity" type="number" min="1" step="1" required placeholder="Quantity" style="width: 80px;">
             </div>
 
-            <!-- Original Storage Location Badge (Helpful Context) -->
-            <div class="orig-loc-badge" id="origLocationBadge" hidden>
-              <span>Origin:</span> <strong id="origLocationText">-</strong>
-            </div>
-
+            <!-- Return Location Selection Fields (Directly pre-filled with original location) -->
             <div class="inline-field">
               <select name="locationType" id="returnLocationType" style="width: 110px;">
                 <option value="rack">Cupboard Rack</option>
@@ -637,22 +617,22 @@
               </select>
             </div>
             <div class="inline-field" id="returnCupboardField">
-              <select name="cupboardId" id="returnCupboard" required disabled style="width: 110px;">
+              <select name="cupboardId" id="returnCupboard" required style="width: 110px;">
                 <option value="">Cupboard</option>
               </select>
             </div>
             <div class="inline-field" id="returnRackField">
-              <select name="rackId" id="returnRack" required disabled style="width: 85px;">
+              <select name="rackId" id="returnRack" required style="width: 85px;">
                 <option value="">Rack</option>
               </select>
             </div>
             <div class="inline-field" id="returnBoxField" hidden>
-              <select name="boxId" id="returnBox" disabled style="width: 110px;">
+              <select name="boxId" id="returnBox" style="width: 110px;">
                 <option value="">Box</option>
               </select>
             </div>
             <div class="inline-field" id="returnWorkbenchField" hidden>
-              <select name="workbenchId" id="returnWorkbench" disabled style="width: 115px;">
+              <select name="workbenchId" id="returnWorkbench" style="width: 115px;">
                 <option value="">Workbench</option>
               </select>
             </div>
@@ -928,6 +908,9 @@
     let activeInspectorFilter = "cupboard";
     let selectedInspectorLocationId = null;
 
+    // Local in-memory mapping to remember checkout origin without schema alterations
+    const allocationOriginMap = new Map();
+
     // Screen Overlays
     const initialOverlay = document.getElementById("initialOverlay");
     const loadingState = document.getElementById("loadingState");
@@ -1125,8 +1108,6 @@
     const returnRackField = document.getElementById("returnRackField");
     const returnBoxField = document.getElementById("returnBoxField");
     const returnWorkbenchField = document.getElementById("returnWorkbenchField");
-    const origLocationBadge = document.getElementById("origLocationBadge");
-    const origLocationText = document.getElementById("origLocationText");
     const globalStripStatus = document.getElementById("globalStripStatus");
 
     // Logs elements
@@ -1662,12 +1643,13 @@
         }
 
         allocs.forEach(a => {
+          const locText = a.location_text || allocationOriginMap.get(a.id)?.location_text || "Storage";
           const row = document.createElement("div");
           row.style.padding = "8px 10px";
           row.style.borderBottom = "1px solid #edf1ee";
           row.innerHTML = `<div style="font-weight:700;color:var(--green-dark);">${a.part_number}</div>
                            <div style="font-size:10px;color:var(--muted);">${a.part_code} &bull; Allocated Quantity: <strong>${a.quantity}</strong></div>
-                           <div style="font-size:10px;color:var(--green);margin-top:2px;">Origin: ${a.location_text || "Storage"}</div>`;
+                           <div style="font-size:10px;color:var(--green);margin-top:2px;">Original Location: ${locText}</div>`;
           userAllocViewerResults.append(row);
         });
       } catch (err) {
@@ -1724,7 +1706,6 @@
       if (!userId) {
         userAllocations = [];
         selectOptions(returnAllocatedPartCodeSelect, [], "Allocated Part Code", a => a.id, a => a.part_code);
-        origLocationBadge.hidden = true;
         return;
       }
 
@@ -1756,7 +1737,6 @@
       loadAllocationsForUser(e.target.value);
       returnPartNumber.value = "";
       returnQuantity.value = "";
-      origLocationBadge.hidden = true;
       resetReturnLocationFields();
     });
 
@@ -1776,39 +1756,41 @@
         returnPartNumber.value = item.part_number;
         returnQuantity.value = item.quantity;
 
-        // Display original source location
-        if (item.location_text) {
-          origLocationBadge.hidden = false;
-          origLocationText.textContent = item.location_text;
-        } else {
-          origLocationBadge.hidden = true;
-        }
+        // Resolve original location parameters from item or in-memory map or current product catalogue
+        const cachedOrigin = allocationOriginMap.get(item.id);
+        const refProduct = products.find(p => 
+          p.part_number.trim().toLowerCase() === item.part_number.trim().toLowerCase() &&
+          p.part_code.trim().toLowerCase() === item.part_code.trim().toLowerCase()
+        );
 
-        // Auto pre-populate the return location selectors with the original origin
-        if (item.location_type) {
-          returnLocationType.value = item.location_type;
-          renderReturnLocationOptions();
+        const targetLocType = item.location_type || cachedOrigin?.location_type || refProduct?.location_type || "rack";
+        const targetCupboard = item.cupboard_id || cachedOrigin?.cupboard_id || refProduct?.cupboard_id;
+        const targetRack = item.rack_id || cachedOrigin?.rack_id || refProduct?.rack_id;
+        const targetBox = item.box_id || cachedOrigin?.box_id || refProduct?.box_id;
+        const targetWb = item.workbench_id || cachedOrigin?.workbench_id || refProduct?.workbench_id;
 
-          if (item.location_type === "rack") {
-            if (item.cupboard_id) {
-              returnCupboard.value = item.cupboard_id;
-              renderReturnLocationOptions(); // Repopulate racks for this cupboard
-            }
-            if (item.rack_id) {
-              returnRack.value = item.rack_id;
-            }
-          } else if (item.location_type === "box" && item.box_id) {
-            returnBox.value = item.box_id;
-          } else if (item.location_type === "workbench" && item.workbench_id) {
-            returnWorkbench.value = item.workbench_id;
+        // Automatically load the original storage location into the return selectors
+        returnLocationType.value = targetLocType;
+        renderReturnLocationOptions();
+
+        if (targetLocType === "rack") {
+          if (targetCupboard) {
+            returnCupboard.value = targetCupboard;
+            renderReturnLocationOptions();
           }
+          if (targetRack) {
+            returnRack.value = targetRack;
+          }
+        } else if (targetLocType === "box" && targetBox) {
+          returnBox.value = targetBox;
+        } else if (targetLocType === "workbench" && targetWb) {
+          returnWorkbench.value = targetWb;
         }
 
-        setFormStatus(globalStripStatus, `Loaded "${item.part_number}". Location pre-set to original storage place (${item.location_text || 'Storage'}).`);
+        setFormStatus(globalStripStatus, `Loaded "${item.part_number}". Target location set to original location. Change if returning elsewhere.`);
       } else {
         returnPartNumber.value = "";
         returnQuantity.value = "";
-        origLocationBadge.hidden = true;
         resetReturnLocationFields();
       }
     });
@@ -1828,7 +1810,6 @@
       returnAllocatedPartCodeSelect.disabled = true;
       returnPartNumber.value = "";
       returnQuantity.value = "";
-      origLocationBadge.hidden = true;
       resetReturnLocationFields();
       userAllocations = [];
     }
@@ -1908,8 +1889,10 @@
 
         if (allocSelectErr) throw new Error("Failed checking allocations: " + allocSelectErr.message);
 
-        // Attempt write with origin location fields; fallback to minimal payload if schema lacks columns
+        let activeAllocId = null;
+
         if (existingAlloc && existingAlloc.length > 0) {
+          activeAllocId = existingAlloc[0].id;
           const updatedQty = parseInt(existingAlloc[0].quantity, 10) + takeQty;
           
           let updatePayload = {
@@ -1928,7 +1911,7 @@
             .update(updatePayload)
             .eq('id', existingAlloc[0].id);
 
-          // Graceful fallback if database schema lacks location columns
+          // Graceful fallback to avoid schema cache failure when location columns do not exist
           if (allocUpdErr && (allocUpdErr.message.includes('column') || allocUpdErr.code === 'PGRST204')) {
             const fallbackUpdate = { quantity: updatedQty, updated_at: new Date() };
             const retryRes = await supabaseClient
@@ -1954,9 +1937,10 @@
             location_text: item.location_text
           };
 
-          let { error: allocInsErr } = await supabaseClient
+          let { data: insertedData, error: allocInsErr } = await supabaseClient
             .from('material_allocations')
-            .insert([insertPayload]);
+            .insert([insertPayload])
+            .select();
 
           // Graceful fallback if database schema lacks location columns
           if (allocInsErr && (allocInsErr.message.includes('column') || allocInsErr.code === 'PGRST204')) {
@@ -1969,11 +1953,28 @@
             };
             const retryRes = await supabaseClient
               .from('material_allocations')
-              .insert([fallbackInsert]);
+              .insert([fallbackInsert])
+              .select();
             allocInsErr = retryRes.error;
+            insertedData = retryRes.data;
           }
 
           if (allocInsErr) throw new Error("Failed creating allocation record: " + allocInsErr.message);
+          if (insertedData && insertedData[0]) {
+            activeAllocId = insertedData[0].id;
+          }
+        }
+
+        // Cache original location in memory for reliable pre-fill on return
+        if (activeAllocId) {
+          allocationOriginMap.set(activeAllocId, {
+            location_type: item.location_type,
+            cupboard_id: item.cupboard_id,
+            rack_id: item.rack_id,
+            box_id: item.box_id,
+            workbench_id: item.workbench_id,
+            location_text: item.location_text
+          });
         }
 
         // 2. DEDUCT OR DELETE FROM MATERIALS INVENTORY AFTER ALLOCATION SUCCEEDS
@@ -1992,10 +1993,10 @@
         const userName = takeUserSelect.selectedOptions[0]?.text || "User";
         setFormStatus(globalStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userName}.`);
 
-        // RESET ALL TAKE PARAMETERS
+        // Reset fields
         resetTakeForm();
 
-        // Refresh all synchronized views
+        // Refresh synchronized views
         await refreshInventory();
         await loadLogs();
         if (userAllocViewerSelect.value === userId) {
@@ -2089,6 +2090,7 @@
         if (remainingAlloc <= 0) {
           const { error: allocDelErr } = await supabaseClient.from('material_allocations').delete().eq('id', allocItem.id);
           if (allocDelErr) throw allocDelErr;
+          allocationOriginMap.delete(allocItem.id);
         } else {
           const { error: allocUpdErr } = await supabaseClient.from('material_allocations').update({ quantity: remainingAlloc, updated_at: new Date() }).eq('id', allocItem.id);
           if (allocUpdErr) throw allocUpdErr;
@@ -2099,7 +2101,7 @@
 
         setFormStatus(globalStripStatus, `Returned ${returnQty} units of "${allocItem.part_number}" to ${locationText}.`);
         
-        // RESET ALL RETURN PARAMETERS
+        // Reset fields
         resetReturnForm();
 
         await refreshInventory();
