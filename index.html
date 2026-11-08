@@ -1414,7 +1414,7 @@
       if (item) {
         returnPartNumber.value = item.part_number; // auto-populates part name
         returnQuantity.value = item.quantity;     // auto-populates quantity (adjustable)
-        setFormStatus(globalStripStatus, `Loaded "${item.part_number}". Adjust quantity if returning partial amount.`);
+        setFormStatus(globalStripStatus, `Loaded "${item.part_number}". Adjust quantity and select target return location.`);
       } else {
         returnPartNumber.value = "";
         returnQuantity.value = "";
@@ -1537,51 +1537,59 @@
           throw new Error(`Cannot return ${returnQty}. User is only allocated ${allocItem.quantity}.`);
         }
 
-        const values = Object.fromEntries(new FormData(globalReturnForm).entries());
-
+        const targetLocationType = (returnLocationType.value || '').trim().toLowerCase();
         let locationText = "";
         let cupboardId = null;
         let rackId = null;
         let boxId = null;
         let workbenchId = null;
 
-        if (values.locationType === "rack") {
-          const cName = returnCupboard.selectedOptions[0]?.text || "Unknown Cupboard";
-          const rName = returnRack.selectedOptions[0]?.text || "Unknown Rack";
+        if (targetLocationType === "rack") {
+          cupboardId = returnCupboard.value || null;
+          rackId = returnRack.value || null;
+          const cName = returnCupboard.selectedOptions[0]?.text || "Cupboard";
+          const rName = returnRack.selectedOptions[0]?.text || "Rack";
           locationText = `${cName} / ${rName}`;
-          cupboardId = values.cupboardId || null;
-          rackId = values.rackId || null;
-        } else if (values.locationType === "box") {
-          locationText = `Box: ${returnBox.selectedOptions[0]?.text || "Unknown Box"}`;
-          boxId = values.boxId || null;
-        } else if (values.locationType === "workbench") {
-          locationText = `Workbench: ${returnWorkbench.selectedOptions[0]?.text || "Unknown Workbench"}`;
-          workbenchId = values.workbenchId || null;
+          if (!cupboardId || !rackId) throw new Error("Please select both a cupboard and a rack.");
+        } else if (targetLocationType === "box") {
+          boxId = returnBox.value || null;
+          const bName = returnBox.selectedOptions[0]?.text || "Box";
+          locationText = `Box: ${bName}`;
+          if (!boxId) throw new Error("Please select a target box.");
+        } else if (targetLocationType === "workbench") {
+          workbenchId = returnWorkbench.value || null;
+          const wName = returnWorkbench.selectedOptions[0]?.text || "Workbench";
+          locationText = `Workbench: ${wName}`;
+          if (!workbenchId) throw new Error("Please select a target workbench.");
+        } else {
+          throw new Error("Invalid location type selected.");
         }
 
-        // Search in local state or query database accurately for an existing record
-        let existingItem = products.find(p => 
+        // Check if this material ALREADY exists at the designated return destination
+        const existingAtDestination = products.find(p => 
           p.part_number.trim().toLowerCase() === allocItem.part_number.trim().toLowerCase() &&
           p.part_code.trim().toLowerCase() === allocItem.part_code.trim().toLowerCase() &&
-          p.location_type === values.locationType &&
-          (values.locationType !== 'rack' || String(p.rack_id) === String(rackId)) &&
-          (values.locationType !== 'box' || String(p.box_id) === String(boxId)) &&
-          (values.locationType !== 'workbench' || String(p.workbench_id) === String(workbenchId))
+          p.location_type === targetLocationType &&
+          (targetLocationType !== 'rack' || String(p.rack_id) === String(rackId)) &&
+          (targetLocationType !== 'box' || String(p.box_id) === String(boxId)) &&
+          (targetLocationType !== 'workbench' || String(p.workbench_id) === String(workbenchId))
         );
 
-        if (existingItem) {
-          const updatedQty = Number(existingItem.quantity) + returnQty;
+        if (existingAtDestination) {
+          // Increment stock at the selected destination
+          const updatedQty = Number(existingAtDestination.quantity) + returnQty;
           const { error: updateErr } = await supabaseClient
             .from('materials')
             .update({ quantity: updatedQty, updated_at: new Date() })
-            .eq('id', existingItem.id);
+            .eq('id', existingAtDestination.id);
           if (updateErr) throw updateErr;
         } else {
+          // Create new material stock entry at the new destination location
           const insertPayload = {
             part_number: allocItem.part_number.trim(),
             part_code: allocItem.part_code.trim(),
             quantity: returnQty,
-            location_type: values.locationType,
+            location_type: targetLocationType,
             cupboard_id: cupboardId,
             rack_id: rackId,
             box_id: boxId,
@@ -1607,9 +1615,9 @@
 
         returnQuantity.value = "";
         returnPartNumber.value = "";
-        setFormStatus(globalStripStatus, `Returned ${returnQty} units of "${allocItem.part_number}" to stock.`);
+        setFormStatus(globalStripStatus, `Returned ${returnQty} units of "${allocItem.part_number}" to ${locationText}.`);
         
-        // Refresh the main catalog immediately so the updated stock is displayed
+        // Refresh catalog immediately so the updated stock at the chosen location appears
         await refreshInventory();
       } catch (err) {
         setFormStatus(globalStripStatus, err.message, true);
