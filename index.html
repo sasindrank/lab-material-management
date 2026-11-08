@@ -38,7 +38,7 @@
     }
     button, input, select { font: inherit; }
     button { color: inherit; }
-    .shell { width: min(1440px, 100%); min-height: 100vh; margin: auto; padding: 0 7%; background: rgba(248,250,248,.94); }
+    .shell { width: min(1440px, 100%); min-height: 100vh; margin: auto; padding: 0 7% 40px; background: rgba(248,250,248,.94); }
     .shell[hidden] { display: none !important; }
 
     /* ==========================================
@@ -160,12 +160,107 @@
     .form-status { min-height: 16px; margin: 0; color: var(--green); font-size: 11px; }
     .form-status.error { color: #b55130; }
     .field[hidden] { display: none !important; }
-    
-    /* Transaction Operation Panel (Take/Return) */
-    .transaction-panel { margin: 20px 0 25px; padding: 18px 22px; border: 1px solid #d6e2db; border-radius: 6px; background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-    .operation-switch { display: flex; gap: 12px; margin-bottom: 16px; border-bottom: 1px solid #edf1ee; padding-bottom: 12px; }
-    .radio-pill { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #4b5d56; cursor: pointer; }
-    .radio-pill input[type="radio"] { cursor: pointer; accent-color: var(--green); }
+
+    /* ==========================================
+       ONE-LINE ULTRA COMPACT BOTTOM BAR
+       ========================================== */
+    .bottom-transaction-strip {
+      margin-top: 24px;
+      padding: 8px 12px;
+      border: 1px solid #d6e2db;
+      border-radius: 6px;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .transaction-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      white-space: nowrap;
+      padding-bottom: 2px;
+    }
+    .transaction-bar::-webkit-scrollbar { height: 4px; }
+    .transaction-bar::-webkit-scrollbar-thumb { background: #cbd7d0; border-radius: 2px; }
+
+    .compact-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding-right: 8px;
+      border-right: 1px solid #e1e8e4;
+      flex-shrink: 0;
+    }
+    .compact-switch label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #3b4d46;
+      cursor: pointer;
+    }
+    .compact-switch input[type="radio"] {
+      margin: 0;
+      accent-color: var(--green);
+      cursor: pointer;
+    }
+
+    .inline-field {
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .inline-field input, .inline-field select {
+      height: 34px;
+      padding: 0 8px;
+      border: 1px solid #d0dad4;
+      border-radius: 4px;
+      background: white;
+      color: var(--ink);
+      font-size: 11px;
+      outline: none;
+    }
+    .inline-field input:focus, .inline-field select:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 2px rgba(23,110,89,.1);
+    }
+    .inline-field input[readonly] {
+      background: #f4f7f5;
+      color: #63736d;
+    }
+    .inline-field[hidden] { display: none !important; }
+
+    .compact-btn {
+      height: 34px;
+      padding: 0 12px;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+      white-space: nowrap;
+      color: white;
+      transition: background-color .15s;
+    }
+    .compact-btn.danger { background: var(--search-button); border-color: var(--search-button); }
+    .compact-btn.danger:hover { background: var(--search-button-hover); }
+    .compact-btn.success { background: #16a34a; border-color: #16a34a; }
+    .compact-btn.success:hover { background: #15803d; }
+
+    .strip-status {
+      font-size: 10px;
+      color: var(--green);
+      margin: 0;
+      min-height: 14px;
+      padding-left: 2px;
+    }
+    .strip-status.error { color: #b55130; }
 
     .storage-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(250px, 1fr); gap: 22px; align-items: start; }
     .storage-sections { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: start; }
@@ -241,9 +336,9 @@
 
     @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 950px) { .storage-sections { grid-template-columns: repeat(2, minmax(0, 1fr)); } .user-layout { grid-template-columns: 1fr; } }
-    @media (max-width: 850px) { .shell { padding: 0 5%; } .table-head, .product-list, .user-table-head, .user-row { min-width: 600px; } }
+    @media (max-width: 850px) { .shell { padding: 0 5% 40px; } .table-head, .product-list, .user-table-head, .user-row { min-width: 600px; } }
     @media (max-width: 600px) {
-      .shell { padding: 0 18px; }
+      .shell { padding: 0 18px 30px; }
       .topbar { flex-wrap: wrap; padding-top: 10px; }
       .primary-nav { width: 100%; height: 46px; gap: 0; }
       .form-grid, .storage-layout, .storage-sections { grid-template-columns: minmax(0, 1fr); }
@@ -314,209 +409,58 @@
       </div>
       <p class="workbook-status" id="workbookStatus" role="status" aria-live="polite"></p>
 
-      <!-- Take / Return Material Interactive Operations Bar -->
-      <div class="transaction-panel">
-        <div class="operation-switch">
-          <label class="radio-pill">
-            <input type="radio" name="searchOpMode" value="take" checked>
-            <span>Take Material</span>
-          </label>
-          <label class="radio-pill">
-            <input type="radio" name="searchOpMode" value="return">
-            <span>Return Material</span>
-          </label>
-        </div>
-
-        <!-- Take Material Form -->
-        <form id="searchTakeForm">
-          <div class="form-grid">
-            <label class="field">User
-              <select name="userId" id="takeUserSelect" required>
-                <option value="">Select User</option>
-              </select>
-            </label>
-            <label class="field">Product (Material)
-              <select name="materialId" id="takeMaterialSelect" required>
-                <option value="">Select Product</option>
-              </select>
-            </label>
-            <label class="field">Product Code
-              <input name="partCode" id="takePartCode" readonly placeholder="Auto-filled" style="background:#f4f7f5;">
-            </label>
-            <label class="field">Quantity
-              <input name="quantity" id="takeQuantity" type="number" min="0.001" step="any" required placeholder="Quantity to take">
-            </label>
-          </div>
-          <div class="form-actions">
-            <button class="action-button danger-button" type="submit">Allocate to User</button>
-            <p class="form-status" id="searchTakeStatus" role="status" aria-live="polite"></p>
-          </div>
-        </form>
-
-        <!-- Return Material Form -->
-        <form id="searchReturnForm" hidden>
-          <div class="form-grid">
-            <label class="field">User
-              <select name="userId" id="returnUserSelect" required>
-                <option value="">Select User</option>
-              </select>
-            </label>
-            <label class="field">Product (Material)
-              <select name="materialSelectId" id="returnMaterialSelect">
-                <option value="">Choose Existing or Type Below</option>
-              </select>
-            </label>
-            <label class="field">Product Part Number
-              <input name="partNumber" id="returnPartNumber" required maxlength="100" placeholder="Part Number">
-            </label>
-            <label class="field">Product Part Code
-              <input name="partCode" id="returnPartCode" required maxlength="100" placeholder="Part Code">
-            </label>
-            <label class="field">Quantity
-              <input name="quantity" type="number" min="0.001" step="any" required placeholder="Quantity to return">
-            </label>
-            <label class="field">Destination Location Type
-              <select name="locationType" id="returnLocationType">
-                <option value="rack">Cupboard rack</option>
-                <option value="box">Box</option>
-                <option value="workbench">Workbench</option>
-              </select>
-            </label>
-            <label class="field" id="returnCupboardField">Cupboard
-              <select name="cupboardId" id="returnCupboard" required disabled>
-                <option value="">Choose a cupboard</option>
-              </select>
-            </label>
-            <label class="field" id="returnRackField">Rack
-              <select name="rackId" id="returnRack" required disabled>
-                <option value="">Choose a rack</option>
-              </select>
-            </label>
-            <label class="field" id="returnBoxField" hidden>Box
-              <select name="boxId" id="returnBox" disabled>
-                <option value="">Choose a box</option>
-              </select>
-            </label>
-            <label class="field" id="returnWorkbenchField" hidden>Workbench
-              <select name="workbenchId" id="returnWorkbench" disabled>
-                <option value="">Choose a workbench</option>
-              </select>
-            </label>
-          </div>
-          <div class="form-actions">
-            <button class="action-button success-button" type="submit">Return Material</button>
-            <p class="form-status" id="searchReturnStatus" role="status" aria-live="polite"></p>
-          </div>
-        </form>
-      </div>
-
+      <!-- Search Products Table -->
       <div class="table-scroll">
         <div class="table-head" aria-hidden="true"><span>PART NUMBER</span><span>PART CODE</span><span>QUANTITY</span><span>LOCATION</span></div>
         <div class="product-list" id="productList" aria-live="polite"></div>
         <div class="empty" id="emptyState" hidden><span class="empty-symbol" aria-hidden="true">/</span><strong id="emptyTitle">No materials found</strong><span id="emptyMessage">Try another name or item code.</span></div>
       </div>
+
+      <!-- ONE-LINE ULTRA COMPACT BOTTOM BAR (Take / Return Material) -->
+      <div class="bottom-transaction-strip">
+        <div class="transaction-bar">
+          <div class="compact-switch">
+            <label><input type="radio" name="searchOpMode" value="take" checked> Take</label>
+            <label><input type="radio" name="searchOpMode" value="return"> Return</label>
+          </div>
+
+          <!-- Single-Line Take Form -->
+          <form id="searchTakeForm" style="display: contents;">
+            <div class="inline-field"><select name="userId" id="takeUserSelect" required style="width: 130px;"><option value="">User</option></select></div>
+            <div class="inline-field"><select name="materialId" id="takeMaterialSelect" required style="width: 190px;"><option value="">Product (Key/Name)</option></select></div>
+            <div class="inline-field"><input name="partCode" id="takePartCode" readonly placeholder="Part Code" style="width: 100px;"></div>
+            <div class="inline-field"><input name="quantity" id="takeQuantity" type="number" min="0.001" step="any" required placeholder="Qty" style="width: 65px;"></div>
+            <button class="compact-btn danger" type="submit">Allocate</button>
+          </form>
+
+          <!-- Single-Line Return Form -->
+          <form id="searchReturnForm" style="display: none;">
+            <div class="inline-field"><select name="userId" id="returnUserSelect" required style="width: 120px;"><option value="">User</option></select></div>
+            <div class="inline-field"><select name="materialSelectId" id="returnMaterialSelect" style="width: 150px;"><option value="">Product (Optional)</option></select></div>
+            <div class="inline-field"><input name="partNumber" id="returnPartNumber" required maxlength="100" placeholder="Part No." style="width: 95px;"></div>
+            <div class="inline-field"><input name="partCode" id="returnPartCode" required maxlength="100" placeholder="Part Code" style="width: 85px;"></div>
+            <div class="inline-field"><input name="quantity" type="number" min="0.001" step="any" required placeholder="Qty" style="width: 60px;"></div>
+            <div class="inline-field">
+              <select name="locationType" id="returnLocationType" style="width: 110px;">
+                <option value="rack">Cupboard Rack</option>
+                <option value="box">Box</option>
+                <option value="workbench">Workbench</option>
+              </select>
+            </div>
+            <div class="inline-field" id="returnCupboardField"><select name="cupboardId" id="returnCupboard" required disabled style="width: 110px;"><option value="">Cupboard</option></select></div>
+            <div class="inline-field" id="returnRackField"><select name="rackId" id="returnRack" required disabled style="width: 85px;"><option value="">Rack</option></select></div>
+            <div class="inline-field" id="returnBoxField" hidden><select name="boxId" id="returnBox" disabled style="width: 110px;"><option value="">Box</option></select></div>
+            <div class="inline-field" id="returnWorkbenchField" hidden><select name="workbenchId" id="returnWorkbench" disabled style="width: 120px;"><option value="">Workbench</option></select></div>
+            <button class="compact-btn success" type="submit">Return</button>
+          </form>
+        </div>
+        <p class="strip-status" id="searchStripStatus" role="status" aria-live="polite"></p>
+      </div>
     </section>
 
     <!-- Add & Remove Material Page -->
     <section class="catalog page-view" id="materialPage" hidden>
-      <div class="page-heading"><p>INVENTORY</p><h2>Take or Return Material (Fast Track)</h2></div>
-      
-      <div class="transaction-panel" style="margin-top: 0;">
-        <div class="operation-switch">
-          <label class="radio-pill">
-            <input type="radio" name="materialOpMode" value="take" checked>
-            <span>Take Material</span>
-          </label>
-          <label class="radio-pill">
-            <input type="radio" name="materialOpMode" value="return">
-            <span>Return Material</span>
-          </label>
-        </div>
-
-        <!-- Mat Tab Take Form -->
-        <form id="matTabTakeForm">
-          <div class="form-grid">
-            <label class="field">User
-              <select name="userId" id="matTakeUserSelect" required>
-                <option value="">Select User</option>
-              </select>
-            </label>
-            <label class="field">Product (Material)
-              <select name="materialId" id="matTakeMaterialSelect" required>
-                <option value="">Select Product</option>
-              </select>
-            </label>
-            <label class="field">Product Code
-              <input name="partCode" id="matTakePartCode" readonly placeholder="Auto-filled" style="background:#f4f7f5;">
-            </label>
-            <label class="field">Quantity
-              <input name="quantity" type="number" min="0.001" step="any" required placeholder="Quantity to take">
-            </label>
-          </div>
-          <div class="form-actions">
-            <button class="action-button danger-button" type="submit">Allocate to User</button>
-            <p class="form-status" id="matTabTakeStatus" role="status" aria-live="polite"></p>
-          </div>
-        </form>
-
-        <!-- Mat Tab Return Form -->
-        <form id="matTabReturnForm" hidden>
-          <div class="form-grid">
-            <label class="field">User
-              <select name="userId" id="matReturnUserSelect" required>
-                <option value="">Select User</option>
-              </select>
-            </label>
-            <label class="field">Product (Material)
-              <select name="materialSelectId" id="matReturnMaterialSelect">
-                <option value="">Choose Existing or Type Below</option>
-              </select>
-            </label>
-            <label class="field">Product Part Number
-              <input name="partNumber" id="matReturnPartNumber" required maxlength="100" placeholder="Part Number">
-            </label>
-            <label class="field">Product Part Code
-              <input name="partCode" id="matReturnPartCode" required maxlength="100" placeholder="Part Code">
-            </label>
-            <label class="field">Quantity
-              <input name="quantity" type="number" min="0.001" step="any" required placeholder="Quantity to return">
-            </label>
-            <label class="field">Destination Location Type
-              <select name="locationType" id="matReturnLocationType">
-                <option value="rack">Cupboard rack</option>
-                <option value="box">Box</option>
-                <option value="workbench">Workbench</option>
-              </select>
-            </label>
-            <label class="field" id="matReturnCupboardField">Cupboard
-              <select name="cupboardId" id="matReturnCupboard" required disabled>
-                <option value="">Choose a cupboard</option>
-              </select>
-            </label>
-            <label class="field" id="matReturnRackField">Rack
-              <select name="rackId" id="matReturnRack" required disabled>
-                <option value="">Choose a rack</option>
-              </select>
-            </label>
-            <label class="field" id="matReturnBoxField" hidden>Box
-              <select name="boxId" id="matReturnBox" disabled>
-                <option value="">Choose a box</option>
-              </select>
-            </label>
-            <label class="field" id="matReturnWorkbenchField" hidden>Workbench
-              <select name="workbenchId" id="matReturnWorkbench" disabled>
-                <option value="">Choose a workbench</option>
-              </select>
-            </label>
-          </div>
-          <div class="form-actions">
-            <button class="action-button success-button" type="submit">Return Material</button>
-            <p class="form-status" id="matTabReturnStatus" role="status" aria-live="polite"></p>
-          </div>
-        </form>
-      </div>
-
-      <div class="page-heading" style="margin-top: 30px;"><p>MANUAL INVENTORY</p><h2>Add New Material Stock</h2></div>
+      <div class="page-heading"><p>MANUAL INVENTORY</p><h2>Add Material Stock</h2></div>
       <form class="entry-panel" id="materialForm">
         <div class="form-grid">
           <label class="field">Part Number<input name="partNumber" required maxlength="100"></label>
@@ -595,6 +539,47 @@
           <p class="form-status" id="removeMaterialStatus" role="status" aria-live="polite"></p>
         </div>
       </form>
+
+      <!-- Bottom Quick Take / Return Strip for Add/Delete Material Tab -->
+      <div class="bottom-transaction-strip" style="margin-top: 35px;">
+        <div class="transaction-bar">
+          <div class="compact-switch">
+            <label><input type="radio" name="materialOpMode" value="take" checked> Take</label>
+            <label><input type="radio" name="materialOpMode" value="return"> Return</label>
+          </div>
+
+          <!-- Single-Line Take Form -->
+          <form id="matTabTakeForm" style="display: contents;">
+            <div class="inline-field"><select name="userId" id="matTakeUserSelect" required style="width: 130px;"><option value="">User</option></select></div>
+            <div class="inline-field"><select name="materialId" id="matTakeMaterialSelect" required style="width: 190px;"><option value="">Product (Key/Name)</option></select></div>
+            <div class="inline-field"><input name="partCode" id="matTakePartCode" readonly placeholder="Part Code" style="width: 100px;"></div>
+            <div class="inline-field"><input name="quantity" id="matTakeQuantity" type="number" min="0.001" step="any" required placeholder="Qty" style="width: 65px;"></div>
+            <button class="compact-btn danger" type="submit">Allocate</button>
+          </form>
+
+          <!-- Single-Line Return Form -->
+          <form id="matTabReturnForm" style="display: none;">
+            <div class="inline-field"><select name="userId" id="matReturnUserSelect" required style="width: 120px;"><option value="">User</option></select></div>
+            <div class="inline-field"><select name="materialSelectId" id="matReturnMaterialSelect" style="width: 150px;"><option value="">Product (Optional)</option></select></div>
+            <div class="inline-field"><input name="partNumber" id="matReturnPartNumber" required maxlength="100" placeholder="Part No." style="width: 95px;"></div>
+            <div class="inline-field"><input name="partCode" id="matReturnPartCode" required maxlength="100" placeholder="Part Code" style="width: 85px;"></div>
+            <div class="inline-field"><input name="quantity" type="number" min="0.001" step="any" required placeholder="Qty" style="width: 60px;"></div>
+            <div class="inline-field">
+              <select name="locationType" id="matReturnLocationType" style="width: 110px;">
+                <option value="rack">Cupboard Rack</option>
+                <option value="box">Box</option>
+                <option value="workbench">Workbench</option>
+              </select>
+            </div>
+            <div class="inline-field" id="matReturnCupboardField"><select name="cupboardId" id="matReturnCupboard" required disabled style="width: 110px;"><option value="">Cupboard</option></select></div>
+            <div class="inline-field" id="matReturnRackField"><select name="rackId" id="matReturnRack" required disabled style="width: 85px;"><option value="">Rack</option></select></div>
+            <div class="inline-field" id="matReturnBoxField" hidden><select name="boxId" id="matReturnBox" disabled style="width: 110px;"><option value="">Box</option></select></div>
+            <div class="inline-field" id="matReturnWorkbenchField" hidden><select name="workbenchId" id="matReturnWorkbench" disabled style="width: 120px;"><option value="">Workbench</option></select></div>
+            <button class="compact-btn success" type="submit">Return</button>
+          </form>
+        </div>
+        <p class="strip-status" id="matTabStripStatus" role="status" aria-live="polite"></p>
+      </div>
     </section>
 
     <!-- Storage Locations Page -->
@@ -918,7 +903,7 @@
     }
 
     // ==========================================
-    // 3. STORAGE & CUPBOARD / BOX / WORKBENCH ENGINE
+    // 3. STORAGE ENGINE
     // ==========================================
     async function loadStorage() {
       try {
@@ -1303,7 +1288,7 @@
 
       userSelects.forEach(select => {
         if (!select) return;
-        selectOptions(select, users, "Select User", u => u.id, u => `${u.name} (${u.email})`);
+        selectOptions(select, users, "User", u => u.id, u => `${u.name}`);
       });
     }
 
@@ -1363,7 +1348,7 @@
         selectOptions(
           sel, 
           products.filter(p => Number(p.quantity) > 0), 
-          "Select Product", 
+          "Product (Key/Name)", 
           p => p.id, 
           p => `${p.part_number} | ${p.part_code} (Qty: ${p.quantity})`
         );
@@ -1374,7 +1359,7 @@
         selectOptions(
           sel, 
           products, 
-          "Choose Existing or Type Below", 
+          "Product (Optional)", 
           p => p.id, 
           p => `${p.part_number} | ${p.part_code}`
         );
@@ -1500,7 +1485,7 @@
         }
 
         formEl.reset();
-        setFormStatus(statusEl, `Successfully returned ${returnQty} units of ${values.partNumber.trim()} to inventory.`);
+        setFormStatus(statusEl, `Returned ${returnQty} units of ${values.partNumber.trim()} to stock.`);
         await refreshInventory();
       } catch (err) {
         setFormStatus(statusEl, err.message, true);
@@ -1511,7 +1496,7 @@
     document.getElementById("searchTakeForm").addEventListener("submit", (e) => {
       e.preventDefault();
       const form = e.currentTarget;
-      handleTakeMaterial(form.materialId.value, form.quantity.value, document.getElementById("searchTakeStatus"), form);
+      handleTakeMaterial(form.materialId.value, form.quantity.value, document.getElementById("searchStripStatus"), form);
     });
 
     document.getElementById("searchReturnForm").addEventListener("submit", (e) => {
@@ -1524,7 +1509,7 @@
         document.getElementById("returnRack"),
         document.getElementById("returnBox"),
         document.getElementById("returnWorkbench"),
-        document.getElementById("searchReturnStatus"),
+        document.getElementById("searchStripStatus"),
         form
       );
     });
@@ -1533,7 +1518,7 @@
     document.getElementById("matTabTakeForm").addEventListener("submit", (e) => {
       e.preventDefault();
       const form = e.currentTarget;
-      handleTakeMaterial(form.materialId.value, form.quantity.value, document.getElementById("matTabTakeStatus"), form);
+      handleTakeMaterial(form.materialId.value, form.quantity.value, document.getElementById("matTabStripStatus"), form);
     });
 
     document.getElementById("matTabReturnForm").addEventListener("submit", (e) => {
@@ -1546,25 +1531,25 @@
         document.getElementById("matReturnRack"),
         document.getElementById("matReturnBox"),
         document.getElementById("matReturnWorkbench"),
-        document.getElementById("matTabReturnStatus"),
+        document.getElementById("matTabStripStatus"),
         form
       );
     });
 
-    // Toggle Modes (Take vs Return)
+    // Toggle Modes (Take vs Return in Single Line)
     document.querySelectorAll('input[name="searchOpMode"]').forEach(radio => {
       radio.addEventListener("change", (e) => {
         const isTake = e.target.value === "take";
-        document.getElementById("searchTakeForm").hidden = !isTake;
-        document.getElementById("searchReturnForm").hidden = isTake;
+        document.getElementById("searchTakeForm").style.display = isTake ? "contents" : "none";
+        document.getElementById("searchReturnForm").style.display = isTake ? "none" : "contents";
       });
     });
 
     document.querySelectorAll('input[name="materialOpMode"]').forEach(radio => {
       radio.addEventListener("change", (e) => {
         const isTake = e.target.value === "take";
-        document.getElementById("matTabTakeForm").hidden = !isTake;
-        document.getElementById("matTabReturnForm").hidden = isTake;
+        document.getElementById("matTabTakeForm").style.display = isTake ? "contents" : "none";
+        document.getElementById("matTabReturnForm").style.display = isTake ? "none" : "contents";
       });
     });
 
@@ -1818,7 +1803,6 @@
       tab.addEventListener("click", () => {
         const targetPageId = tab.dataset.page;
         
-        // Intercept protected tabs (Material, Storage, Users) if not authenticated
         const isProtected = targetPageId === "materialPage" || targetPageId === "storagePage" || targetPageId === "usersPage";
         if (isProtected && !isAuthenticated) {
           promptLogin(targetPageId);
