@@ -1887,8 +1887,7 @@
         const takeQty = parseInt(takeQuantity.value, 10);
         if (isNaN(takeQty) || takeQty < 1) throw new Error("Please enter a valid whole number quantity starting from 1.");
 
-        // MULTI-USER CONCURRENCY LOCK CHECK:
-        // Always query the live database immediately before allocating to verify current stock.
+        // Multi-User Concurrency Guard: Fetch real-time live stock
         let query = supabaseClient.from('materials').select('*');
         if (takeMaterialId.value) {
           query = query.eq('id', takeMaterialId.value);
@@ -1914,37 +1913,8 @@
           throw new Error(`Insufficient quantity available. Current live stock is ${currentLiveStock}. Please reduce requested quantity.`);
         }
 
-        // ATOMIC DEDUCTION ON INVENTORY:
-        // Deduct from materials inventory immediately with a safety filter (.gte('quantity', takeQty))
-        // to prevent race conditions when two users press Allocate at the exact same moment.
-        const remaining = currentLiveStock - takeQty;
-        if (remaining <= 0) {
-          const { data: delData, error: delErr } = await supabaseClient
-            .from('materials')
-            .delete()
-            .eq('id', item.id)
-            .gte('quantity', takeQty)
-            .select();
-          
-          if (delErr) throw delErr;
-          if (!delData || delData.length === 0) {
-            throw new Error(`Allocation Conflict: Another user just allocated the remaining stock of this item. Allocation denied.`);
-          }
-        } else {
-          const { data: updData, error: updErr } = await supabaseClient
-            .from('materials')
-            .update({ quantity: remaining })
-            .eq('id', item.id)
-            .gte('quantity', takeQty)
-            .select();
-
-          if (updErr) throw updErr;
-          if (!updData || updData.length === 0) {
-            throw new Error(`Allocation Conflict: Stock changed concurrently by another user. Allocation denied.`);
-          }
-        }
-
-        // CREATE OR UPDATE RECORD IN MATERIAL_ALLOCATIONS
+        // STEP 1: CREATE OR UPDATE RECORD IN MATERIAL_ALLOCATIONS FIRST
+        // Running this before updating materials inventory guarantees foreign key constraints remain intact.
         const { data: existingAlloc, error: allocSelectErr } = await supabaseClient
           .from('material_allocations')
           .select('*')
@@ -1976,7 +1946,7 @@
             .update(updatePayload)
             .eq('id', existingAlloc[0].id);
 
-          // Graceful fallback to avoid schema cache failure when location columns do not exist
+          // Fallback if schema lacks extra location columns
           if (allocUpdErr && (allocUpdErr.message.includes('column') || allocUpdErr.code === 'PGRST204')) {
             const fallbackUpdate = { quantity: updatedQty, updated_at: new Date() };
             const retryRes = await supabaseClient
@@ -2007,7 +1977,7 @@
             .insert([insertPayload])
             .select();
 
-          // Graceful fallback if database schema lacks location columns
+          // Fallback if schema lacks extra location columns
           if (allocInsErr && (allocInsErr.message.includes('column') || allocInsErr.code === 'PGRST204')) {
             const fallbackInsert = {
               user_id: userId,
@@ -2030,7 +2000,7 @@
           }
         }
 
-        // Cache original location in memory for reliable pre-fill on return
+        // Cache original location in memory
         if (activeAllocId) {
           allocationOriginMap.set(activeAllocId, {
             location_type: item.location_type,
@@ -2040,6 +2010,21 @@
             workbench_id: item.workbench_id,
             location_text: item.location_text
           });
+        }
+
+        // STEP 2: ATOMIC DEDUCTION ON INVENTORY
+        // Update remaining quantity to 0 instead of DELETE to preserve foreign key constraints
+        const remaining = currentLiveStock - takeQty;
+        const { data: updData, error: updErr } = await supabaseClient
+          .from('materials')
+          .update({ quantity: remaining })
+          .eq('id', item.id)
+          .gte('quantity', takeQty)
+          .select();
+
+        if (updErr) throw updErr;
+        if (!updData || updData.length === 0) {
+          throw new Error(`Allocation Conflict: Stock changed concurrently by another user. Allocation denied.`);
         }
 
         // RECORD AUDIT LOG
