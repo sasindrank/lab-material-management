@@ -118,7 +118,8 @@
     .page-view[hidden] { display: none !important; }
     
     .session-badge { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: var(--mono); color: var(--green-dark); background: var(--mint); padding: 5px 10px; border-radius: 4px; border: 1px solid #c2ded3; }
-    .logout-btn { background: transparent; border: 0; cursor: pointer; font-weight: bold; color: var(--search-button); padding: 0 4px; text-decoration: underline; font-size: 10px; }
+    .session-badge[hidden] { display: none !important; }
+    .logout-btn { background: transparent; border: 0; cursor: pointer; font-weight: bold; color: var(--search-button); padding: 0 4px; text-decoration: underline; font-size: 11px; }
 
     .kicker { margin: 0 0 7px; color: var(--green); font: 10px var(--mono); }
     .catalog { padding-top: 31px; }
@@ -188,34 +189,6 @@
     .empty { min-height: 175px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; color: #8b9992; text-align: center; }
     .empty[hidden] { display: none !important; }
     .empty-symbol { color: var(--green); font: 22px var(--mono); }
-    
-    /* Login Modal Styles */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(18, 77, 64, 0.45);
-      backdrop-filter: blur(4px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-    .modal-overlay[hidden] { display: none !important; }
-    .modal-card {
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 24px;
-      width: min(380px, 90%);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-    .modal-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--green-dark); }
-    .modal-card p { margin: 0 0 16px; color: var(--muted); font-size: 12px; }
-    .modal-card .field { margin-bottom: 14px; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
-    .btn-secondary { background: #eef2f0; border: 1px solid #ced6d1; border-radius: 4px; padding: 0 14px; height: 38px; cursor: pointer; font-size: 11px; font-weight: 600; }
-    .btn-secondary:hover { background: #e0e7e3; }
-    .modal-actions .action-button { height: 38px; min-width: 75px; }
 
     @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 850px) { .shell { padding: 0 5%; } .table-head, .product-list { min-width: 750px; } }
@@ -248,7 +221,7 @@
     </div>
   </div>
 
-  <!-- Main Application Shell (hidden until Supabase connected) -->
+  <!-- Main Application Shell -->
   <main class="shell" id="appShell" hidden>
     <header class="topbar">
       <!-- Dynamic Title: Switches to green when Supabase is connected -->
@@ -257,13 +230,14 @@
         <span id="labTitleText">LAB INVENTORY</span>
       </div>
       <div class="nav-wrapper">
+        <!-- Session badge: Shows remaining time and Logout button; hidden when session ends -->
         <div id="sessionIndicator" class="session-badge" hidden>
-          <span>Authenticated (<span id="sessionTimerText">30s</span>)</span>
+          <span id="sessionTimerText">30s</span>
           <button type="button" class="logout-btn" id="logoutButton">Log out</button>
         </div>
         <nav class="primary-nav" aria-label="Pages">
           <button class="page-tab active" type="button" data-page="searchPage">Search</button>
-          <button class="page-tab" type="button" data-page="materialPage">Add Material</button>
+          <button class="page-tab" type="button" data-page="materialPage">Add/Delete Material</button>
           <button class="page-tab" type="button" data-page="storagePage">Storage Locations</button>
         </nav>
       </div>
@@ -396,25 +370,6 @@
     </section>
   </main>
 
-  <!-- Login Dialog Modal -->
-  <div class="modal-overlay" id="authModal" hidden>
-    <div class="modal-card">
-      <h3>Authentication Required</h3>
-      <p>Enter the master password to access restricted inventory controls.</p>
-      <form id="authForm">
-        <label class="field">
-          Password
-          <input type="password" id="authPasswordInput" required placeholder="Enter password" autocomplete="current-password">
-        </label>
-        <p class="form-status error" id="authError" style="margin-bottom: 12px;"></p>
-        <div class="modal-actions">
-          <button type="button" class="btn-secondary" id="authCancelButton">Cancel</button>
-          <button type="submit" class="action-button">Unlock</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <script>
     // ==========================================
     // 1. SUPABASE CLIENT & CREDENTIALS
@@ -439,22 +394,15 @@
     const appShell = document.getElementById("appShell");
 
     // ==========================================
-    // AUTHENTICATION & INACTIVITY TIMEOUT
+    // INACTIVITY TIMEOUT & SESSION CONTROLS
     // ==========================================
-    const AUTH_PASSWORD = "FESTO";
     const TIMEOUT_SECONDS = 30;
 
-    let isAuthenticated = false;
-    let pendingTargetPage = null;
+    let isSessionActive = false;
     let activePageId = "searchPage";
     let remainingSeconds = TIMEOUT_SECONDS;
     let countdownIntervalId = null;
 
-    const authModal = document.getElementById("authModal");
-    const authForm = document.getElementById("authForm");
-    const authPasswordInput = document.getElementById("authPasswordInput");
-    const authError = document.getElementById("authError");
-    const authCancelButton = document.getElementById("authCancelButton");
     const sessionIndicator = document.getElementById("sessionIndicator");
     const sessionTimerText = document.getElementById("sessionTimerText");
     const logoutButton = document.getElementById("logoutButton");
@@ -464,19 +412,21 @@
     }
 
     function resetActivityTimer() {
-      if (!isAuthenticated) return;
+      if (!isSessionActive) return;
       remainingSeconds = TIMEOUT_SECONDS;
       updateTimerBadge();
     }
 
-    function startInactivityCountdown() {
-      stopInactivityCountdown();
+    function startSession() {
+      isSessionActive = true;
       remainingSeconds = TIMEOUT_SECONDS;
       updateTimerBadge();
+      sessionIndicator.hidden = false;
 
+      stopSessionCountdown();
       countdownIntervalId = setInterval(() => {
-        if (!isAuthenticated) {
-          stopInactivityCountdown();
+        if (!isSessionActive) {
+          stopSessionCountdown();
           return;
         }
 
@@ -484,81 +434,42 @@
         updateTimerBadge();
 
         if (remainingSeconds <= 0) {
-          logout();
-          alert("Session expired due to 30 seconds of inactivity.");
+          endSession();
         }
       }, 1000);
     }
 
-    function stopInactivityCountdown() {
+    function stopSessionCountdown() {
       if (countdownIntervalId) {
         clearInterval(countdownIntervalId);
         countdownIntervalId = null;
       }
     }
 
-    function loginSuccess() {
-      isAuthenticated = true;
-      authModal.hidden = true;
-      authPasswordInput.value = "";
-      authError.textContent = "";
-      sessionIndicator.hidden = false;
-      startInactivityCountdown();
-
-      if (pendingTargetPage) {
-        navigateTo(pendingTargetPage);
-        pendingTargetPage = null;
-      }
-    }
-
-    function logout() {
-      isAuthenticated = false;
-      stopInactivityCountdown();
-      sessionIndicator.hidden = true;
-      authModal.hidden = true;
-      pendingTargetPage = null;
+    function endSession() {
+      isSessionActive = false;
+      stopSessionCountdown();
+      sessionIndicator.hidden = true; // Hide logout button and timer when season is ended
 
       if (activePageId !== "searchPage") {
         navigateTo("searchPage");
       }
     }
 
-    function promptLogin(targetPage) {
-      pendingTargetPage = targetPage;
-      authModal.hidden = false;
-      authError.textContent = "";
-      authPasswordInput.value = "";
-      authPasswordInput.focus();
-    }
-
+    // Do not reset timer when cursor moves inside the Search tab
     window.addEventListener("mousemove", () => {
-      if (!isAuthenticated) return;
+      if (!isSessionActive) return;
       if (activePageId === "searchPage") return;
       resetActivityTimer();
     });
 
     window.addEventListener("keydown", () => {
-      if (isAuthenticated && activePageId !== "searchPage") {
+      if (isSessionActive && activePageId !== "searchPage") {
         resetActivityTimer();
       }
     });
 
-    authForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      if (authPasswordInput.value === AUTH_PASSWORD) {
-        loginSuccess();
-      } else {
-        authError.textContent = "Incorrect password. Please try again.";
-        authPasswordInput.select();
-      }
-    });
-
-    authCancelButton.addEventListener("click", () => {
-      authModal.hidden = true;
-      pendingTargetPage = null;
-    });
-
-    logoutButton.addEventListener("click", logout);
+    logoutButton.addEventListener("click", endSession);
 
     // DOM References
     const labTitleText = document.getElementById("labTitleText");
@@ -1074,7 +985,7 @@
     }
 
     // ==========================================
-    // 7. TAB NAVIGATION & PROTECTED ROUTING
+    // 7. TAB NAVIGATION & ROUTING
     // ==========================================
     async function navigateTo(targetPageId) {
       activePageId = targetPageId;
@@ -1087,21 +998,20 @@
         view.hidden = view.id !== targetPageId;
       });
 
+      // Starting session on restricted tabs
       if (targetPageId === "storagePage" || targetPageId === "materialPage") {
+        if (!isSessionActive) {
+          startSession();
+        } else {
+          resetActivityTimer();
+        }
         await loadStorage();
       }
     }
 
     document.querySelectorAll(".page-tab").forEach((tab) => {
       tab.addEventListener("click", () => {
-        const targetPageId = tab.dataset.page;
-        
-        if ((targetPageId === "materialPage" || targetPageId === "storagePage") && !isAuthenticated) {
-          promptLogin(targetPageId);
-          return;
-        }
-
-        navigateTo(targetPageId);
+        navigateTo(tab.dataset.page);
       });
     });
 
@@ -1133,30 +1043,24 @@
     // 8. STARTUP & BOOTSTRAP WORKFLOW
     // ==========================================
     async function initializeApplication() {
-      // Show loading spinner
       loadingState.hidden = false;
       errorState.hidden = true;
       initialOverlay.hidden = false;
       appShell.hidden = true;
 
       try {
-        // Test connection to Supabase
         await checkServerConnection();
 
-        // Populate initial cache
         await Promise.all([
           loadStorage(),
           refreshInventory()
         ]);
 
-        // Start real-time sync listeners
         setupContinuousSync();
 
-        // Successful connection: Hide landing loader, display inventory interface
         initialOverlay.hidden = true;
         appShell.hidden = false;
       } catch (err) {
-        // Connection error: Display error message on landing screen
         loadingState.hidden = true;
         errorState.hidden = false;
         errorMsgText.textContent = err.message || (typeof err === "string" ? err : JSON.stringify(err));
