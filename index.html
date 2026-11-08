@@ -170,21 +170,15 @@
     .form-status.error { color: #b55130; }
     .field[hidden] { display: none !important; }
 
-    /* Split layout for Add Material Page */
-    .mat-page-split {
-      display: grid;
-      grid-template-columns: minmax(0, 1.35fr) minmax(320px, 1fr);
-      gap: 24px;
-      align-items: start;
-    }
-    .inspector-panel {
+    /* Unified Storage & Inspector Panel Styles */
+    .unified-inspector-panel {
       border: 1px solid var(--line);
       border-radius: 4px;
       background: white;
       padding: 18px;
     }
-    .inspector-panel h3 { margin: 0 0 6px; font-size: 15px; color: var(--green-dark); }
-    .inspector-panel p { margin: 0 0 14px; font-size: 11px; color: var(--muted); }
+    .unified-inspector-panel h3 { margin: 0 0 6px; font-size: 15px; color: var(--green-dark); }
+    .unified-inspector-panel p { margin: 0 0 14px; font-size: 11px; color: var(--muted); }
     .inspector-pills { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
     .pill-btn {
       padding: 5px 12px;
@@ -204,7 +198,7 @@
     .inspector-content {
       border-top: 1px solid #edf1ee;
       padding-top: 12px;
-      max-height: 520px;
+      max-height: 560px;
       overflow-y: auto;
     }
     .inspector-item {
@@ -226,6 +220,12 @@
       color: var(--green-dark);
       display: flex;
       justify-content: space-between;
+      align-items: center;
+    }
+    .head-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     .rack-material-box {
       margin-top: 8px;
@@ -234,7 +234,22 @@
       border-left: 3px solid var(--green);
       border-radius: 2px;
     }
-    .rack-material-box h5 { margin: 0 0 4px; font-size: 11px; color: #3d4f48; }
+    .rack-material-box h5 {
+      margin: 0;
+      font-size: 11px;
+      color: #3d4f48;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .material-entry-pill {
+      font-size: 11px;
+      padding: 3px 0;
+      border-bottom: 1px dashed #e7ede9;
+    }
+    .material-entry-pill:last-child {
+      border-bottom: none;
+    }
 
     /* ==========================================
        MIDDLE RESULTS TABLE
@@ -268,6 +283,15 @@
     .product-row.selected-row {
       background: #e1f0e8 !important;
       outline: 1px solid var(--green);
+    }
+    .product-row.out-of-stock {
+      opacity: 0.55;
+      background: #fbfbfb;
+      cursor: not-allowed;
+    }
+    .product-row.out-of-stock:hover {
+      transform: none;
+      background: #fbfbfb;
     }
     .part-code { color: #718079; font: 10px var(--mono); }
     .location-cell { min-width: 0; overflow: hidden; color: #718079; text-overflow: ellipsis; white-space: nowrap; }
@@ -379,35 +403,81 @@
     }
     .strip-status.error { color: #b55130; }
 
-    .storage-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(250px, 1fr); gap: 22px; align-items: start; }
-    .storage-sections { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: start; }
+    /* Storage Layout */
+    .storage-layout {
+      display: grid;
+      grid-template-columns: minmax(360px, 480px) minmax(0, 1.4fr);
+      gap: 24px;
+      align-items: start;
+    }
+    .storage-sections { display: flex; flex-direction: column; gap: 14px; }
     .storage-section { display: grid; align-content: start; gap: 12px; padding: 15px; border: 1px solid var(--line); border-radius: 4px; background: rgba(255,255,255,.82); }
     .storage-status { grid-column: 1 / -1; }
-    .storage-form { display: grid; gap: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
-    .storage-form h3 { margin: 0; font-size: 13px; }
-    .storage-form .action-button { justify-self: start; }
+    .storage-form { display: grid; gap: 12px; }
+    .storage-form h3 { margin: 0; font-size: 13px; color: var(--green-dark); }
+    .storage-form .action-button { justify-self: start; height: 38px; min-width: 80px; }
     
-    .location-tree { min-height: 130px; }
-    .location-group { margin-bottom: 20px; }
-    .location-group > h3 { margin: 0 0 10px; font-size: 13px; }
-    .location-cupboard { margin-bottom: 11px; padding: 15px; border-left: 3px solid var(--green); background: rgba(255,255,255,.7); }
-    .location-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .location-row h3 { margin: 0; font-size: 13px; }
-    .location-delete { flex: 0 0 auto; padding: 5px 8px; border: 1px solid #e6c6bd; border-radius: 3px; background: #fffaf8; color: #a6442b; cursor: pointer; font-size: 10px; }
+    .location-delete {
+      padding: 3px 7px;
+      border: 1px solid #e6c6bd;
+      border-radius: 3px;
+      background: #fffaf8;
+      color: #a6442b;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 600;
+    }
     .location-delete:hover { border-color: #b74628; background: #fbede6; }
-    .location-rack { margin: 7px 0 0 14px; color: var(--muted); font-size: 11px; }
-    .location-box { margin: 8px 0 0 14px; padding: 9px 11px; border-left: 1px solid #b7c8be; }
-    .location-workbench { margin-bottom: 8px; padding: 10px 12px; border-left: 3px solid #d9633b; background: rgba(255,255,255,.7); }
     
-    /* Users Layout Styles */
-    .user-layout { display: grid; grid-template-columns: minmax(320px, 420px) minmax(0, 1.2fr); gap: 24px; align-items: start; }
+    /* Users Layout Styles - Re-ordered: List on Left, Compact Allocation Inspector on Right */
+    .user-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(320px, 440px);
+      gap: 24px;
+      align-items: start;
+    }
     .user-list-panel { border: 1px solid var(--line); border-radius: 4px; background: rgba(255,255,255,.82); padding: 18px; }
-    .user-table-head, .user-row { display: grid; grid-template-columns: minmax(130px, 1fr) minmax(160px, 1.4fr) 70px; align-items: center; column-gap: 12px; }
+    
+    /* User Row layout with Name, Email, and Delete option on the Right */
+    .user-table-head, .user-row {
+      display: grid;
+      grid-template-columns: minmax(130px, 1fr) minmax(160px, 1.3fr) 75px;
+      align-items: center;
+      column-gap: 12px;
+    }
     .user-table-head { min-height: 38px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); }
-    .user-row { min-height: 52px; border-bottom: 1px solid #eaf0eb; font-size: 11px; animation: appear .22s both; }
+    .user-row { min-height: 48px; border-bottom: 1px solid #eaf0eb; font-size: 11px; animation: appear .22s both; }
     .user-row:hover { background: rgba(229,242,236,.45); }
     .user-name { font-weight: 600; color: var(--ink); }
     .user-email { color: #53645e; font: 11px var(--mono); word-break: break-all; }
+    .user-actions { text-align: right; }
+
+    /* Compact User Allocation Inspector */
+    .compact-alloc-inspector {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: white;
+      padding: 16px;
+    }
+    .compact-alloc-inspector h3 { margin: 0 0 4px; font-size: 14px; color: var(--green-dark); }
+    .compact-alloc-inspector p { margin: 0 0 12px; font-size: 11px; color: var(--muted); }
+    .compact-alloc-list {
+      max-height: 480px;
+      overflow-y: auto;
+      border-top: 1px solid #edf1ee;
+      padding-top: 8px;
+    }
+    .compact-alloc-card {
+      padding: 8px 10px;
+      border-bottom: 1px solid #edf1ee;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 11px;
+    }
+    .compact-alloc-card:last-child { border-bottom: none; }
+    .compact-alloc-head { display: flex; justify-content: space-between; font-weight: 700; color: var(--green-dark); }
+    .compact-alloc-sub { font-size: 10px; color: var(--muted); }
 
     /* Unified Logs Table Styles (Allocated & Returned in the same view) */
     .log-filter-bar {
@@ -475,8 +545,7 @@
 
     @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 950px) {
-      .storage-sections { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .user-layout, .mat-page-split { grid-template-columns: 1fr; }
+      .storage-layout, .user-layout { grid-template-columns: 1fr; }
     }
     @media (max-width: 850px) {
       .shell { padding: 0 5% 40px; }
@@ -486,7 +555,7 @@
       .shell { padding: 0 18px 30px; }
       .topbar { flex-wrap: wrap; padding-top: 10px; }
       .primary-nav { width: 100%; height: 46px; gap: 0; }
-      .form-grid, .storage-layout, .storage-sections { grid-template-columns: minmax(0, 1fr); }
+      .form-grid { grid-template-columns: minmax(0, 1fr); }
     }
   </style>
 </head>
@@ -608,7 +677,7 @@
               <input name="quantity" id="returnQuantity" type="number" min="1" step="1" required placeholder="Quantity" style="width: 80px;">
             </div>
 
-            <!-- Return Location Selection Fields (Directly pre-filled with original location) -->
+            <!-- Return Location Selection Fields -->
             <div class="inline-field">
               <select name="locationType" id="returnLocationType" style="width: 110px;">
                 <option value="rack">Cupboard Rack</option>
@@ -643,164 +712,160 @@
       </div>
     </section>
 
-    <!-- Add & Remove Material Page with Split Inspector -->
+    <!-- Add & Delete Material Page -->
     <section class="catalog page-view" id="materialPage" hidden>
-      <div class="mat-page-split">
-        <div>
-          <div class="page-heading"><p>MANUAL INVENTORY</p><h2>Add Material Stock</h2></div>
-          <form class="entry-panel" id="materialForm">
-            <div class="form-grid">
-              <label class="field">Part Number<input name="partNumber" required maxlength="100"></label>
-              <label class="field">Part Code<input name="partCode" required maxlength="100"></label>
-              <label class="field">Quantity<input name="quantity" type="number" min="1" step="1" required></label>
-              <label class="field">Location type
-                <select name="locationType" id="locationType">
-                  <option value="rack">Cupboard rack</option>
-                  <option value="box">Box</option>
-                  <option value="workbench">Workbench</option>
-                </select>
-              </label>
-              <label class="field" id="materialCupboardField">Cupboard
-                <select name="cupboardId" id="materialCupboard" required disabled>
-                  <option value="">Choose a cupboard</option>
-                </select>
-              </label>
-              <label class="field" id="rackLocationField">Rack
-                <select name="rackId" id="materialRack" required disabled>
-                  <option value="">Choose a rack</option>
-                </select>
-              </label>
-              <label class="field" id="boxLocationField" hidden>Box
-                <select name="boxId" id="materialBox" disabled>
-                  <option value="">Choose a box</option>
-                </select>
-              </label>
-              <label class="field" id="workbenchLocationField" hidden>Workbench
-                <select name="workbenchId" id="materialWorkbench" disabled>
-                  <option value="">Choose a workbench</option>
-                </select>
-              </label>
-            </div>
-            <div class="form-actions">
-              <button class="action-button" type="submit">Save Material</button>
-              <p class="form-status" id="materialStatus" role="status" aria-live="polite"></p>
-            </div>
-          </form>
-
-          <div class="page-heading" style="margin-top: 30px"><p>MANUAL INVENTORY</p><h2>Delete Material Quantity</h2></div>
-          <form class="entry-panel" id="removeMaterialForm">
-            <div class="form-grid">
-              <label class="field">Part Number<input name="partNumber" required maxlength="100"></label>
-              <label class="field">Part Code<input name="partCode" required maxlength="100"></label>
-              <label class="field">Quantity to remove<input name="quantity" type="number" min="1" step="1" required></label>
-              <label class="field">Location type
-                <select name="locationType" id="removeLocationType">
-                  <option value="rack">Cupboard rack</option>
-                  <option value="box">Box</option>
-                  <option value="workbench">Workbench</option>
-                </select>
-              </label>
-              <label class="field" id="removeCupboardField">Cupboard
-                <select name="cupboardId" id="removeCupboard" required disabled>
-                  <option value="">Choose a cupboard</option>
-                </select>
-              </label>
-              <label class="field" id="removeRackField">Rack
-                <select name="rackId" id="removeRack" required disabled>
-                  <option value="">Choose a rack</option>
-                </select>
-              </label>
-              <label class="field" id="removeBoxField" hidden>Box
-                <select name="boxId" id="removeBox" disabled>
-                  <option value="">Choose a box</option>
-                </select>
-              </label>
-              <label class="field" id="removeWorkbenchField" hidden>Workbench
-                <select name="workbenchId" id="removeWorkbench" disabled>
-                  <option value="">Choose a workbench</option>
-                </select>
-              </label>
-            </div>
-            <div class="form-actions">
-              <button class="action-button danger-button" type="submit">Remove Quantity</button>
-              <p class="form-status" id="removeMaterialStatus" role="status" aria-live="polite"></p>
-            </div>
-          </form>
-        </div>
-
-        <!-- Right: Clickable Location Inspector -->
-        <div class="inspector-panel">
-          <h3>Location Contents Inspector</h3>
-          <p>Click any cupboard, box, or workbench to view stored materials.</p>
-          <div class="inspector-pills">
-            <button type="button" class="pill-btn active" data-filter="cupboard">Cupboards</button>
-            <button type="button" class="pill-btn" data-filter="box">Boxes</button>
-            <button type="button" class="pill-btn" data-filter="workbench">Workbenches</button>
+      <div style="max-width: 900px; margin: 0 auto; width: 100%;">
+        <div class="page-heading"><p>MANUAL INVENTORY</p><h2>Add Material Stock</h2></div>
+        <form class="entry-panel" id="materialForm">
+          <div class="form-grid">
+            <label class="field">Part Number<input name="partNumber" required maxlength="100"></label>
+            <label class="field">Part Code<input name="partCode" required maxlength="100"></label>
+            <label class="field">Quantity<input name="quantity" type="number" min="1" step="1" required></label>
+            <label class="field">Location type
+              <select name="locationType" id="locationType">
+                <option value="rack">Cupboard rack</option>
+                <option value="box">Box</option>
+                <option value="workbench">Workbench</option>
+              </select>
+            </label>
+            <label class="field" id="materialCupboardField">Cupboard
+              <select name="cupboardId" id="materialCupboard" required disabled>
+                <option value="">Choose a cupboard</option>
+              </select>
+            </label>
+            <label class="field" id="rackLocationField">Rack
+              <select name="rackId" id="materialRack" required disabled>
+                <option value="">Choose a rack</option>
+              </select>
+            </label>
+            <label class="field" id="boxLocationField" hidden>Box
+              <select name="boxId" id="materialBox" disabled>
+                <option value="">Choose a box</option>
+              </select>
+            </label>
+            <label class="field" id="workbenchLocationField" hidden>Workbench
+              <select name="workbenchId" id="materialWorkbench" disabled>
+                <option value="">Choose a workbench</option>
+              </select>
+            </label>
           </div>
-          <div class="inspector-content" id="inspectorContent" aria-live="polite"></div>
-        </div>
+          <div class="form-actions">
+            <button class="action-button" type="submit">Save Material</button>
+            <p class="form-status" id="materialStatus" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+
+        <div class="page-heading" style="margin-top: 36px"><p>MANUAL INVENTORY</p><h2>Delete Material Quantity</h2></div>
+        <form class="entry-panel" id="removeMaterialForm">
+          <div class="form-grid">
+            <label class="field">Part Number<input name="partNumber" required maxlength="100"></label>
+            <label class="field">Part Code<input name="partCode" required maxlength="100"></label>
+            <label class="field">Quantity to remove<input name="quantity" type="number" min="1" step="1" required></label>
+            <label class="field">Location type
+              <select name="locationType" id="removeLocationType">
+                <option value="rack">Cupboard rack</option>
+                <option value="box">Box</option>
+                <option value="workbench">Workbench</option>
+              </select>
+            </label>
+            <label class="field" id="removeCupboardField">Cupboard
+              <select name="cupboardId" id="removeCupboard" required disabled>
+                <option value="">Choose a cupboard</option>
+              </select>
+            </label>
+            <label class="field" id="removeRackField">Rack
+              <select name="rackId" id="removeRack" required disabled>
+                <option value="">Choose a rack</option>
+              </select>
+            </label>
+            <label class="field" id="removeBoxField" hidden>Box
+              <select name="boxId" id="removeBox" disabled>
+                <option value="">Choose a box</option>
+              </select>
+            </label>
+            <label class="field" id="removeWorkbenchField" hidden>Workbench
+              <select name="workbenchId" id="removeWorkbench" disabled>
+                <option value="">Choose a workbench</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="action-button danger-button" type="submit">Remove Quantity</button>
+            <p class="form-status" id="removeMaterialStatus" role="status" aria-live="polite"></p>
+          </div>
+        </form>
       </div>
     </section>
 
-    <!-- Storage Locations Page -->
+    <!-- Combined Storage Locations & Location Content Inspector Page -->
     <section class="catalog page-view" id="storagePage" hidden>
-      <div class="page-heading"><p>LOCATIONS</p><h2>Storage Locations</h2></div>
+      <div class="page-heading"><p>LOCATIONS &amp; AUDIT</p><h2>Storage Locations &amp; Material Inspector</h2></div>
       <div class="storage-layout">
+        <!-- Left: Quick Creation Forms for Locations -->
         <div class="storage-sections">
           <section class="storage-section">
-            <h3>Cupboards &amp; Racks</h3>
             <form class="storage-form" id="cupboardRackForm">
               <h3>Add Cupboard and Racks</h3>
-              <label class="field">Cupboard name<input name="name" placeholder="Cupboard 1" required maxlength="80"></label>
+              <label class="field">Cupboard name<input name="name" placeholder="e.g. Cupboard 1" required maxlength="80"></label>
               <label class="field">Number of racks<input name="rackCount" type="number" min="1" max="50" step="1" value="1" required></label>
               <button class="action-button" type="submit">Add Cupboard &amp; Racks</button>
             </form>
           </section>
           <section class="storage-section">
-            <h3>Boxes</h3>
             <form class="storage-form" id="boxForm">
               <h3>Add Box</h3>
-              <label class="field">Box name<input name="name" placeholder="Box 1" required maxlength="80"></label>
+              <label class="field">Box name<input name="name" placeholder="e.g. Box A" required maxlength="80"></label>
               <button class="action-button" type="submit">Add Box</button>
             </form>
           </section>
           <section class="storage-section">
-            <h3>Workbenches</h3>
             <form class="storage-form" id="workbenchForm">
               <h3>Add Workbench</h3>
-              <label class="field">Workbench name<input name="name" placeholder="Workbench 1" required maxlength="80"></label>
+              <label class="field">Workbench name<input name="name" placeholder="e.g. Workbench 1" required maxlength="80"></label>
               <button class="action-button" type="submit">Add Workbench</button>
             </form>
           </section>
           <p class="form-status storage-status" id="storageStatus" role="status" aria-live="polite"></p>
         </div>
-        <div class="location-tree" id="locationTree" aria-live="polite"></div>
+
+        <!-- Right: Combined Location Tree with Content Inspector and Deletion Controls -->
+        <div class="unified-inspector-panel">
+          <h3>Storage Location Content Inspector</h3>
+          <p>Click any location to inspect stored materials, or use Delete to remove the location.</p>
+          <div class="inspector-pills">
+            <button type="button" class="pill-btn active" data-filter="cupboard">Cupboards &amp; Racks</button>
+            <button type="button" class="pill-btn" data-filter="box">Boxes</button>
+            <button type="button" class="pill-btn" data-filter="workbench">Workbenches</button>
+          </div>
+          <div class="inspector-content" id="unifiedInspectorContent" aria-live="polite"></div>
+        </div>
       </div>
     </section>
 
-    <!-- Users Page with Current Allocations Inspector -->
+    <!-- Users Page: User Directory on Left, Compact Allocation Inspector on Right -->
     <section class="catalog page-view" id="usersPage" hidden>
-      <div class="page-heading"><p>ADMINISTRATION</p><h2>Manage Users</h2></div>
+      <div class="page-heading"><p>ADMINISTRATION</p><h2>Manage Users &amp; Allocations</h2></div>
       <div class="user-layout">
+        <!-- Left: Add User Form and Directory List -->
         <div>
           <form class="entry-panel" id="userForm">
-            <div class="field" style="margin-bottom: 14px;">
-              <label>User Name</label>
-              <input name="userName" required maxlength="100" placeholder="e.g. John Doe">
+            <div style="display: grid; grid-template-columns: 1fr 1.3fr auto; gap: 12px; align-items: end;">
+              <div class="field">
+                <label>User Name</label>
+                <input name="userName" required maxlength="100" placeholder="e.g. John Doe">
+              </div>
+              <div class="field">
+                <label>Email ID</label>
+                <input name="email" type="email" required maxlength="120" placeholder="user@company.com">
+              </div>
+              <button class="action-button" type="submit" style="height: 42px;">Add User</button>
             </div>
-            <div class="field" style="margin-bottom: 14px;">
-              <label>Email ID</label>
-              <input name="email" type="email" required maxlength="120" placeholder="user@company.com">
-            </div>
-            <div class="form-actions">
-              <button class="action-button" type="submit">Add User</button>
-              <p class="form-status" id="userStatus" role="status" aria-live="polite"></p>
-            </div>
+            <p class="form-status" id="userStatus" role="status" aria-live="polite" style="margin-top: 10px;"></p>
           </form>
 
           <div class="user-list-panel" style="margin-top: 20px;">
             <div class="user-table-head" aria-hidden="true">
-              <span>NAME</span>
+              <span>USER NAME</span>
               <span>EMAIL ID</span>
               <span style="text-align: right;">ACTION</span>
             </div>
@@ -813,23 +878,23 @@
           </div>
         </div>
 
-        <!-- Right: Current Allocated Products per User -->
-        <div class="inspector-panel">
+        <!-- Right: Compact User Material Allocation Inspector -->
+        <div class="compact-alloc-inspector">
           <h3>User Allocations Inspector</h3>
-          <p>Select a user to inspect all products currently allocated to them.</p>
-          <div class="field" style="margin-bottom: 14px;">
+          <p>Select a user to review items currently checked out by them.</p>
+          <div class="field" style="margin-bottom: 12px;">
             <select id="userAllocViewerSelect" style="width: 100%;">
               <option value="">Choose User to View Allocations</option>
             </select>
           </div>
-          <div id="userAllocViewerResults" class="inspector-content" aria-live="polite">
-            <p style="color:#718079;font-size:11px;">Select a user from the dropdown above to view checkout records.</p>
+          <div id="userAllocViewerResults" class="compact-alloc-list" aria-live="polite">
+            <p style="color:#718079;font-size:11px;">Select a user from the dropdown above to review allocated items.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Unified Logs Page (Both Allocated & Returned in the same table) -->
+    <!-- Unified Logs Page -->
     <section class="catalog page-view" id="logsPage" hidden>
       <div class="catalog-head">
         <div><p class="kicker">AUDIT TRAIL</p><h2>Activity Logs</h2></div>
@@ -838,7 +903,6 @@
         </div>
       </div>
 
-      <!-- Quick Action Filter to view Allocated, Returned, or All in the same page -->
       <div class="log-filter-bar">
         <label style="font-size:11px;font-weight:700;color:#52635d;">Filter Actions:</label>
         <select id="logActionFilter">
@@ -1118,7 +1182,7 @@
     const logActionFilter = document.getElementById("logActionFilter");
 
     // Inspector elements
-    const inspectorContent = document.getElementById("inspectorContent");
+    const unifiedInspectorContent = document.getElementById("unifiedInspectorContent");
 
     // ==========================================
     // 2. CONNECTION VERIFICATION & STATUS
@@ -1159,7 +1223,7 @@
     }
 
     // ==========================================
-    // 3. STORAGE & LOCATION ENGINE
+    // 3. STORAGE & COMBINED INSPECTOR ENGINE
     // ==========================================
     async function loadStorage() {
       try {
@@ -1184,103 +1248,14 @@
         storageBoxes = boxesRes.data || [];
         storageWorkbenches = workbenchesData;
 
-        renderStorage();
+        renderMaterialLocationOptions();
         renderRemoveLocationOptions();
         renderReturnLocationOptions();
-        renderLocationInspector();
+        renderCombinedStorageInspector();
         setConnectionVisuals(true);
       } catch (error) {
         setFormStatus(storageStatus, error.message, true);
         setConnectionVisuals(false);
-      }
-    }
-
-    function renderStorage() {
-      selectOptions(materialCupboard, storageTree, "Choose a cupboard", c => c.id, c => c.name);
-      renderMaterialLocationOptions();
-
-      const tree = document.getElementById("locationTree");
-      tree.replaceChildren();
-
-      if (!storageTree.length && !storageBoxes.length && !storageWorkbenches.length) {
-        const empty = document.createElement("p");
-        empty.className = "form-status";
-        empty.textContent = "No cupboards, boxes, or workbenches added yet.";
-        tree.append(empty);
-        return;
-      }
-
-      if (storageTree.length) {
-        const rackGroup = document.createElement("section");
-        rackGroup.className = "location-group";
-        const rackGroupHeading = document.createElement("h3");
-        rackGroupHeading.textContent = "Cupboards & Racks";
-        rackGroup.append(rackGroupHeading);
-
-        for (const cupboard of storageTree) {
-          const cupboardElement = document.createElement("section");
-          cupboardElement.className = "location-cupboard";
-          const cupboardRow = document.createElement("div");
-          cupboardRow.className = "location-row";
-          const cupboardTitle = document.createElement("h3");
-          cupboardTitle.textContent = cupboard.name;
-          cupboardRow.append(cupboardTitle, makeDeleteButton("cupboard", cupboard.id, cupboard.name));
-          cupboardElement.append(cupboardRow);
-
-          if (cupboard.racks.length) {
-            for (const rack of cupboard.racks) {
-              const rackElement = document.createElement("div");
-              rackElement.className = "location-rack location-row";
-              const rackName = document.createElement("span");
-              rackName.textContent = rack.name;
-              rackElement.append(rackName, makeDeleteButton("rack", rack.id, rack.name, cupboard.id));
-              cupboardElement.append(rackElement);
-            }
-          } else {
-            const noRacks = document.createElement("p");
-            noRacks.className = "form-status";
-            noRacks.textContent = "No racks in this cupboard.";
-            cupboardElement.append(noRacks);
-          }
-          rackGroup.append(cupboardElement);
-        }
-        tree.append(rackGroup);
-      }
-
-      if (storageBoxes.length) {
-        const boxGroup = document.createElement("section");
-        boxGroup.className = "location-group";
-        const boxGroupHeading = document.createElement("h3");
-        boxGroupHeading.textContent = "Boxes";
-        boxGroup.append(boxGroupHeading);
-
-        for (const box of storageBoxes) {
-          const boxElement = document.createElement("div");
-          boxElement.className = "location-box location-row";
-          const boxTitle = document.createElement("strong");
-          boxTitle.textContent = box.name;
-          boxElement.append(boxTitle, makeDeleteButton("box", box.id, box.name));
-          boxGroup.append(boxElement);
-        }
-        tree.append(boxGroup);
-      }
-
-      if (storageWorkbenches.length) {
-        const wbGroup = document.createElement("section");
-        wbGroup.className = "location-group";
-        const wbGroupHeading = document.createElement("h3");
-        wbGroupHeading.textContent = "Workbenches";
-        wbGroup.append(wbGroupHeading);
-
-        for (const wb of storageWorkbenches) {
-          const wbElement = document.createElement("div");
-          wbElement.className = "location-workbench location-row";
-          const wbTitle = document.createElement("strong");
-          wbTitle.textContent = wb.name;
-          wbElement.append(wbTitle, makeDeleteButton("workbench", wb.id, wb.name));
-          wbGroup.append(wbElement);
-        }
-        tree.append(wbGroup);
       }
     }
 
@@ -1293,8 +1268,136 @@
       button.dataset.deleteId = id;
       button.dataset.deleteName = name;
       if (cupboardId) button.dataset.cupboardId = cupboardId;
+      button.addEventListener("click", (e) => {
+        e.stopPropagation();
+        deleteLocation(button);
+      });
       return button;
     }
+
+    // Combined Location Inspector + Management (Storage Page)
+    function renderCombinedStorageInspector() {
+      selectOptions(materialCupboard, storageTree, "Choose a cupboard", c => c.id, c => c.name);
+
+      unifiedInspectorContent.replaceChildren();
+
+      let items = [];
+      if (activeInspectorFilter === "cupboard") items = storageTree;
+      else if (activeInspectorFilter === "box") items = storageBoxes;
+      else if (activeInspectorFilter === "workbench") items = storageWorkbenches;
+
+      if (!items.length) {
+        const p = document.createElement("p");
+        p.textContent = `No ${activeInspectorFilter === 'cupboard' ? 'cupboards' : activeInspectorFilter + 'es'} added yet. Use the form on the left to add one.`;
+        p.style.color = "var(--muted)";
+        unifiedInspectorContent.append(p);
+        return;
+      }
+
+      items.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "inspector-item" + (selectedInspectorLocationId === item.id ? " active" : "");
+
+        const head = document.createElement("div");
+        head.className = "inspector-item-head";
+
+        const titleSpan = document.createElement("span");
+        titleSpan.innerHTML = `<strong>${item.name}</strong> <span style="font-size:10px;font-weight:400;color:var(--muted);">&#9660; click to view stock</span>`;
+
+        const actions = document.createElement("div");
+        actions.className = "head-actions";
+
+        const delBtn = makeDeleteButton(activeInspectorFilter, item.id, item.name);
+        actions.append(delBtn);
+
+        head.append(titleSpan, actions);
+        card.append(head);
+
+        card.addEventListener("click", () => {
+          selectedInspectorLocationId = (selectedInspectorLocationId === item.id) ? null : item.id;
+          renderCombinedStorageInspector();
+        });
+
+        if (selectedInspectorLocationId === item.id) {
+          const detailContainer = document.createElement("div");
+          detailContainer.style.marginTop = "8px";
+
+          if (activeInspectorFilter === "cupboard") {
+            if (!item.racks || !item.racks.length) {
+              detailContainer.innerHTML = `<span style="font-size:11px;color:#718079;">No racks in this cupboard.</span>`;
+            } else {
+              item.racks.forEach(rack => {
+                const rackBox = document.createElement("div");
+                rackBox.className = "rack-material-box";
+
+                const rackHead = document.createElement("h5");
+                const rackNameSpan = document.createElement("span");
+                rackNameSpan.textContent = rack.name;
+
+                const rackDelBtn = makeDeleteButton("rack", rack.id, rack.name, item.id);
+                rackHead.append(rackNameSpan, rackDelBtn);
+                rackBox.append(rackHead);
+
+                const rackMaterials = products.filter(p => p.location_type === 'rack' && String(p.rack_id) === String(rack.id) && parseInt(p.quantity, 10) >= 1);
+                if (!rackMaterials.length) {
+                  const emptySpan = document.createElement("div");
+                  emptySpan.style.fontSize = "10px";
+                  emptySpan.style.color = "#8f9e97";
+                  emptySpan.style.marginTop = "4px";
+                  emptySpan.textContent = "(No materials stored on this rack)";
+                  rackBox.append(emptySpan);
+                } else {
+                  rackMaterials.forEach(m => {
+                    const rowDiv = document.createElement("div");
+                    rowDiv.className = "material-entry-pill";
+                    rowDiv.innerHTML = `<strong>${m.part_number}</strong> (${m.part_code}) - <em>${m.quantity} in stock</em>`;
+                    rackBox.append(rowDiv);
+                  });
+                }
+                detailContainer.append(rackBox);
+              });
+            }
+          } else if (activeInspectorFilter === "box") {
+            const boxMaterials = products.filter(p => p.location_type === 'box' && String(p.box_id) === String(item.id) && parseInt(p.quantity, 10) >= 1);
+            if (!boxMaterials.length) {
+              detailContainer.innerHTML = `<span style="font-size:11px;color:#718079;">(No materials stored in this box)</span>`;
+            } else {
+              boxMaterials.forEach(m => {
+                const rowDiv = document.createElement("div");
+                rowDiv.className = "material-entry-pill";
+                rowDiv.innerHTML = `<strong>${m.part_number}</strong> (${m.part_code}) - <em>${m.quantity} in stock</em>`;
+                detailContainer.append(rowDiv);
+              });
+            }
+          } else if (activeInspectorFilter === "workbench") {
+            const wbMaterials = products.filter(p => p.location_type === 'workbench' && String(p.workbench_id) === String(item.id) && parseInt(p.quantity, 10) >= 1);
+            if (!wbMaterials.length) {
+              detailContainer.innerHTML = `<span style="font-size:11px;color:#718079;">(No materials stored on this workbench)</span>`;
+            } else {
+              wbMaterials.forEach(m => {
+                const rowDiv = document.createElement("div");
+                rowDiv.className = "material-entry-pill";
+                rowDiv.innerHTML = `<strong>${m.part_number}</strong> (${m.part_code}) - <em>${m.quantity} in stock</em>`;
+                detailContainer.append(rowDiv);
+              });
+            }
+          }
+          card.append(detailContainer);
+        }
+
+        unifiedInspectorContent.append(card);
+      });
+    }
+
+    document.querySelectorAll(".pill-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".pill-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeInspectorFilter = btn.dataset.filter;
+        selectedInspectorLocationId = null;
+        renderCombinedStorageInspector();
+      });
+    });
 
     async function deleteLocation(button) {
       const { deleteType: type, deleteId: id, deleteName: name } = button.dataset;
@@ -1320,100 +1423,6 @@
         setFormStatus(storageStatus, error.message, true);
       }
     }
-
-    // ==========================================
-    // LOCATION CONTENT INSPECTOR (ADD/DELETE PAGE)
-    // ==========================================
-    function renderLocationInspector() {
-      inspectorContent.replaceChildren();
-
-      let items = [];
-      if (activeInspectorFilter === "cupboard") items = storageTree;
-      else if (activeInspectorFilter === "box") items = storageBoxes;
-      else if (activeInspectorFilter === "workbench") items = storageWorkbenches;
-
-      if (!items.length) {
-        const p = document.createElement("p");
-        p.textContent = `No ${activeInspectorFilter}s available. Add some in Storage Locations.`;
-        p.style.color = "var(--muted)";
-        inspectorContent.append(p);
-        return;
-      }
-
-      items.forEach(item => {
-        const card = document.createElement("div");
-        card.className = "inspector-item" + (selectedInspectorLocationId === item.id ? " active" : "");
-
-        const head = document.createElement("div");
-        head.className = "inspector-item-head";
-        head.innerHTML = `<span>${item.name}</span><span style="font-size:10px;font-weight:400;">&#9660; click to view</span>`;
-        card.append(head);
-
-        card.addEventListener("click", () => {
-          selectedInspectorLocationId = (selectedInspectorLocationId === item.id) ? null : item.id;
-          renderLocationInspector();
-        });
-
-        if (selectedInspectorLocationId === item.id) {
-          const detailContainer = document.createElement("div");
-          detailContainer.style.marginTop = "8px";
-
-          if (activeInspectorFilter === "cupboard") {
-            if (!item.racks || !item.racks.length) {
-              detailContainer.innerHTML = `<span style="font-size:11px;color:#718079;">No racks in this cupboard.</span>`;
-            } else {
-              item.racks.forEach(rack => {
-                const rackBox = document.createElement("div");
-                rackBox.className = "rack-material-box";
-                
-                const rackMaterials = products.filter(p => p.location_type === 'rack' && String(p.rack_id) === String(rack.id) && parseInt(p.quantity, 10) >= 1);
-                let matHtml = `<h5>${rack.name}</h5>`;
-                if (!rackMaterials.length) {
-                  matHtml += `<span style="font-size:10px;color:#8f9e97;">(Empty rack)</span>`;
-                } else {
-                  rackMaterials.forEach(m => {
-                    matHtml += `<div style="font-size:11px;padding:2px 0;"><strong>${m.part_number}</strong> (${m.part_code}) - <em>${m.quantity} in stock</em></div>`;
-                  });
-                }
-                rackBox.innerHTML = matHtml;
-                detailContainer.append(rackBox);
-              });
-            }
-          } else if (activeInspectorFilter === "box") {
-            const boxMaterials = products.filter(p => p.location_type === 'box' && String(p.box_id) === String(item.id) && parseInt(p.quantity, 10) >= 1);
-            if (!boxMaterials.length) {
-              detailContainer.innerHTML = `<span style="font-size:11px;color:#718079;">No materials stored in this box.</span>`;
-            } else {
-              boxMaterials.forEach(m => {
-                detailContainer.innerHTML += `<div style="font-size:11px;padding:3px 0;"><strong>${m.part_number}</strong> (${m.part_code}) - <em>${m.quantity} in stock</em></div>`;
-              });
-            }
-          } else if (activeInspectorFilter === "workbench") {
-            const wbMaterials = products.filter(p => p.location_type === 'workbench' && String(p.workbench_id) === String(item.id) && parseInt(p.quantity, 10) >= 1);
-            if (!wbMaterials.length) {
-              detailContainer.innerHTML = `<span style="font-size:11px;color:#718079;">No materials on this workbench.</span>`;
-            } else {
-              wbMaterials.forEach(m => {
-                detailContainer.innerHTML += `<div style="font-size:11px;padding:3px 0;"><strong>${m.part_number}</strong> (${m.part_code}) - <em>${m.quantity} in stock</em></div>`;
-              });
-            }
-          }
-          card.append(detailContainer);
-        }
-
-        inspectorContent.append(card);
-      });
-    }
-
-    document.querySelectorAll(".pill-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".pill-btn").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        activeInspectorFilter = btn.dataset.filter;
-        selectedInspectorLocationId = null;
-        renderLocationInspector();
-      });
-    });
 
     function renderMaterialLocationOptions() {
       const locType = locationType.value;
@@ -1598,8 +1607,9 @@
         emailSpan.className = "user-email";
         emailSpan.textContent = user.email;
 
+        // Delete button aligned neatly on the right side
         const actionDiv = document.createElement("div");
-        actionDiv.style.textAlign = "right";
+        actionDiv.className = "user-actions";
 
         const delBtn = document.createElement("button");
         delBtn.type = "button";
@@ -1619,10 +1629,10 @@
       selectOptions(userAllocViewerSelect, users, "Choose User to View Allocations", u => u.id, u => `${u.name} (${u.email})`);
     }
 
-    // Refresh allocation inspector inside Users Tab
+    // Compact user allocation inspector
     async function refreshUserAllocationsViewer(uId) {
       if (!uId) {
-        userAllocViewerResults.innerHTML = `<p style="color:#718079;font-size:11px;">Select a user from the dropdown above to view checkout records.</p>`;
+        userAllocViewerResults.innerHTML = `<p style="color:#718079;font-size:11px;">Select a user from the dropdown above to review allocated items.</p>`;
         return;
       }
 
@@ -1645,13 +1655,16 @@
 
         allocs.forEach(a => {
           const locText = a.location_text || allocationOriginMap.get(a.id)?.location_text || "Storage";
-          const row = document.createElement("div");
-          row.style.padding = "8px 10px";
-          row.style.borderBottom = "1px solid #edf1ee";
-          row.innerHTML = `<div style="font-weight:700;color:var(--green-dark);">${a.part_number}</div>
-                           <div style="font-size:10px;color:var(--muted);">${a.part_code} &bull; Allocated Quantity: <strong>${a.quantity}</strong></div>
-                           <div style="font-size:10px;color:var(--green);margin-top:2px;">Original Location: ${locText}</div>`;
-          userAllocViewerResults.append(row);
+          const card = document.createElement("div");
+          card.className = "compact-alloc-card";
+          card.innerHTML = `
+            <div class="compact-alloc-head">
+              <span>${a.part_number}</span>
+              <span style="color:var(--orange);">Qty: ${a.quantity}</span>
+            </div>
+            <div class="compact-alloc-sub">${a.part_code} &bull; Origin: ${locText}</div>
+          `;
+          userAllocViewerResults.append(card);
         });
       } catch (err) {
         userAllocViewerResults.innerHTML = `<p style="color:#b91c1c;font-size:11px;">Error loading user allocations: ${err.message}</p>`;
@@ -1757,7 +1770,6 @@
         returnPartNumber.value = item.part_number;
         returnQuantity.value = item.quantity;
 
-        // Resolve original location parameters from item or in-memory map or current product catalogue
         const cachedOrigin = allocationOriginMap.get(item.id);
         const refProduct = products.find(p => 
           p.part_number.trim().toLowerCase() === item.part_number.trim().toLowerCase() &&
@@ -1770,7 +1782,6 @@
         const targetBox = item.box_id || cachedOrigin?.box_id || refProduct?.box_id;
         const targetWb = item.workbench_id || cachedOrigin?.workbench_id || refProduct?.workbench_id;
 
-        // Automatically load the original storage location into the return selectors
         returnLocationType.value = targetLocType;
         renderReturnLocationOptions();
 
@@ -1822,7 +1833,7 @@
 
       const availQty = parseInt(product.quantity, 10);
       if (isNaN(availQty) || availQty <= 0) {
-        setFormStatus(globalStripStatus, `Material "${product.part_number}" is currently already allocated or out of stock. It cannot be admitted into allocation until returned.`, true);
+        setFormStatus(globalStripStatus, `Material "${product.part_number}" is out of stock. It cannot be allocated until returned.`, true);
         return;
       }
 
@@ -1878,7 +1889,6 @@
         const takeQty = parseInt(takeQuantity.value, 10);
         if (isNaN(takeQty) || takeQty < 1) throw new Error("Please enter a valid whole number quantity starting from 1.");
 
-        // Multi-User Concurrency Guard: Fetch real-time live stock
         let query = supabaseClient.from('materials').select('*');
         if (takeMaterialId.value) {
           query = query.eq('id', takeMaterialId.value);
@@ -1905,7 +1915,6 @@
         }
 
         // STEP 1: CREATE OR UPDATE RECORD IN MATERIAL_ALLOCATIONS FIRST
-        // Running this before updating materials inventory guarantees foreign key constraints remain intact.
         const { data: existingAlloc, error: allocSelectErr } = await supabaseClient
           .from('material_allocations')
           .select('*')
@@ -1937,7 +1946,6 @@
             .update(updatePayload)
             .eq('id', existingAlloc[0].id);
 
-          // Fallback if schema lacks extra location columns
           if (allocUpdErr && (allocUpdErr.message.includes('column') || allocUpdErr.code === 'PGRST204')) {
             const fallbackUpdate = { quantity: updatedQty, updated_at: new Date() };
             const retryRes = await supabaseClient
@@ -1968,7 +1976,6 @@
             .insert([insertPayload])
             .select();
 
-          // Fallback if schema lacks extra location columns
           if (allocInsErr && (allocInsErr.message.includes('column') || allocInsErr.code === 'PGRST204')) {
             const fallbackInsert = {
               user_id: userId,
@@ -2003,8 +2010,7 @@
           });
         }
 
-        // STEP 2: ATOMIC DEDUCTION ON INVENTORY
-        // Update remaining quantity to 0 instead of DELETE to preserve foreign key constraints
+        // STEP 2: ATOMIC DEDUCTION ON INVENTORY (Deducts stock down to 0)
         const remaining = currentLiveStock - takeQty;
         const { data: updData, error: updErr } = await supabaseClient
           .from('materials')
@@ -2024,10 +2030,8 @@
         const userName = takeUserSelect.selectedOptions[0]?.text || "User";
         setFormStatus(globalStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userName}.`);
 
-        // Reset fields
         resetTakeForm();
 
-        // Refresh synchronized views
         await refreshInventory();
         await loadLogs();
         if (userAllocViewerSelect.value === userId) {
@@ -2135,7 +2139,6 @@
 
         setFormStatus(globalStripStatus, `Returned ${returnQty} units of "${allocItem.part_number}" to ${locationText}.`);
         
-        // Reset fields
         resetReturnForm();
 
         await refreshInventory();
@@ -2218,7 +2221,6 @@
     logActionFilter.addEventListener("change", renderLogs);
 
     exportLogsButton.addEventListener("click", () => {
-      const inStockMaterials = products.filter(p => parseInt(p.quantity, 10) >= 1);
       if (!activityLogs.length) return alert("No logs available to export.");
       const rows = activityLogs.map(l => ({
         "User": l.user_name,
@@ -2373,12 +2375,12 @@
         if (error) throw error;
         products = data || [];
         
-        // Count only materials that have at least 1 unit in stock
+        // Count only in-stock parts (>= 1)
         const inStockCount = products.filter(p => parseInt(p.quantity, 10) >= 1).length;
         document.getElementById("itemCount").textContent = `${inStockCount} PARTS`;
         
         render();
-        renderLocationInspector();
+        renderCombinedStorageInspector();
         setConnectionVisuals(true);
       } catch (err) {
         workbookStatus.textContent = "Error fetching catalog: " + err.message;
@@ -2438,7 +2440,7 @@
     function render() {
       const query = submittedQuery?.toLocaleLowerCase();
 
-      // Filter only products with minimum quantity of 1 (hide any with 0 quantity left)
+      // Only display items with a minimum quantity of 1 (items with 0 are completely omitted)
       const matching = query
         ? products.filter(p => {
             const qty = parseInt(p.quantity, 10);
@@ -2459,7 +2461,7 @@
       } else if (matching.length === 0) {
         emptyState.hidden = false;
         document.getElementById("emptyTitle").textContent = "No materials found";
-        document.getElementById("emptyMessage").textContent = "Try another part number or part code (materials fully allocated are not shown).";
+        document.getElementById("emptyMessage").textContent = "Try another part number or part code (items with 0 stock are hidden).";
       } else {
         emptyState.hidden = true;
       }
@@ -2534,11 +2536,6 @@
     returnLocationType.addEventListener("change", renderReturnLocationOptions);
     returnCupboard.addEventListener("change", renderReturnLocationOptions);
 
-    document.getElementById("locationTree").addEventListener("click", event => {
-      const btn = event.target.closest("[data-delete-type]");
-      if (btn) deleteLocation(btn);
-    });
-
     searchInput.addEventListener("input", () => {
       if (!searchInput.value) {
         submittedQuery = null;
@@ -2553,7 +2550,7 @@
       render();
     });
 
-    // Excel Export for Search Catalog (Only active in-stock products)
+    // Excel Export for Search Catalog (In-stock parts only)
     exportButton.addEventListener("click", () => {
       const activeProducts = products.filter(p => parseInt(p.quantity, 10) >= 1);
       if (!activeProducts.length) return alert("No materials available to export.");
