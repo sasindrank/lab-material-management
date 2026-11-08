@@ -39,12 +39,11 @@
     button, input, select { font: inherit; }
     button { color: inherit; }
     
-    /* Layout configured to allow middle area to expand fully while reserving space for fixed bottom bar */
     .shell {
       width: min(1440px, 100%);
       min-height: 100vh;
       margin: auto;
-      padding: 0 7% 75px; /* bottom padding reserves clearance for docked bar */
+      padding: 0 7% 40px;
       background: rgba(248,250,248,.94);
       display: flex;
       flex-direction: column;
@@ -138,7 +137,7 @@
     h2 { margin: 0; font-size: 22px; }
     .catalog-meta { display: flex; align-items: center; gap: 8px; padding-bottom: 2px; color: #75827d; font: 9px var(--mono); }
     
-    .controls { display: flex; gap: 9px; margin-bottom: 12px; }
+    .controls { display: flex; gap: 9px; margin-bottom: 12px; width: 100%; }
     .search { height: 49px; min-width: 0; flex: 1; display: flex; align-items: center; gap: 11px; padding: 0 14px; border: 1px solid #dce4df; border-radius: 4px; background: white; color: #728079; }
     .search:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px rgba(23,110,89,.08); }
     .search-icon { font-size: 18px; }
@@ -172,12 +171,13 @@
     .field[hidden] { display: none !important; }
 
     /* ==========================================
-       FULL MIDDLE SEARCH TABLE EXPANSION
+       MIDDLE RESULTS TABLE
        ========================================== */
     .table-scroll {
       flex: 1;
       overflow-x: auto;
-      min-height: 340px;
+      min-height: 320px;
+      width: 100%;
     }
     .table-head, .product-row {
       display: grid;
@@ -187,7 +187,7 @@
     }
     .table-head { min-height: 42px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); }
     .product-row {
-      min-height: 54px;
+      min-height: 52px;
       border-bottom: 1px solid #eaf0eb;
       font-size: 11px;
       animation: appear .22s both;
@@ -206,32 +206,27 @@
     .part-code { color: #718079; font: 10px var(--mono); }
     .location-cell { min-width: 0; overflow: hidden; color: #718079; text-overflow: ellipsis; white-space: nowrap; }
     .quantity-cell strong { font: 13px var(--mono); font-weight: 500; }
-    .empty { min-height: 220px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; color: #8b9992; text-align: center; }
+    .empty { min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; color: #8b9992; text-align: center; }
     .empty[hidden] { display: none !important; }
     .empty-symbol { color: var(--green); font: 22px var(--mono); }
 
     /* ==========================================
-       DOCKED BROWSER BOTTOM-EDGE TRANSACTION STRIP
+       MATCHED-WIDTH IN-FLOW BOTTOM TRANSACTION STRIP
+       Matches search controls start & end boundary
        ========================================== */
-    .docked-bottom-bar {
-      position: fixed;
-      left: 0;
-      bottom: 0;
+    .aligned-bottom-bar {
       width: 100%;
-      background: rgba(255, 255, 255, 0.98);
-      backdrop-filter: blur(8px);
-      border-top: 1px solid #cedcd3;
-      box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.07);
-      padding: 6px 16px;
-      z-index: 800;
+      margin-top: 22px;
+      background: white;
+      border: 1px solid #dce4df;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      padding: 7px 12px;
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 3px;
     }
     .transaction-bar {
-      max-width: 1440px;
-      margin: 0 auto;
-      width: 100%;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -272,7 +267,7 @@
       flex-shrink: 0;
     }
     .inline-field input, .inline-field select {
-      height: 32px;
+      height: 34px;
       padding: 0 8px;
       border: 1px solid #ced9d3;
       border-radius: 4px;
@@ -292,7 +287,7 @@
     .inline-field[hidden] { display: none !important; }
 
     .compact-btn {
-      height: 32px;
+      height: 34px;
       padding: 0 14px;
       font-size: 10px;
       font-weight: 700;
@@ -311,12 +306,10 @@
     .compact-btn.success:hover { background: #15803d; }
 
     .strip-status {
-      max-width: 1440px;
-      margin: 0 auto;
-      width: 100%;
       font-size: 10px;
       color: var(--green);
       min-height: 14px;
+      margin: 0;
       padding-left: 2px;
     }
     .strip-status.error { color: #b55130; }
@@ -383,9 +376,9 @@
 
     @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 950px) { .storage-sections { grid-template-columns: repeat(2, minmax(0, 1fr)); } .user-layout { grid-template-columns: 1fr; } }
-    @media (max-width: 850px) { .shell { padding: 0 5% 75px; } .table-head, .product-list, .user-table-head, .user-row { min-width: 600px; } }
+    @media (max-width: 850px) { .shell { padding: 0 5% 40px; } .table-head, .product-list, .user-table-head, .user-row { min-width: 600px; } }
     @media (max-width: 600px) {
-      .shell { padding: 0 18px 75px; }
+      .shell { padding: 0 18px 30px; }
       .topbar { flex-wrap: wrap; padding-top: 10px; }
       .primary-nav { width: 100%; height: 46px; gap: 0; }
       .form-grid, .storage-layout, .storage-sections { grid-template-columns: minmax(0, 1fr); }
@@ -416,13 +409,11 @@
   <!-- Main Application Shell -->
   <main class="shell" id="appShell" hidden>
     <header class="topbar">
-      <!-- Dynamic Title: Switches to green when Supabase is connected -->
       <div class="brand">
         <span class="brand-mark" id="brandMark" aria-hidden="true">L</span>
         <span id="labTitleText">LAB INVENTORY</span>
       </div>
       <div class="nav-wrapper">
-        <!-- Session badge: Shows remaining time and Logout button; hidden when session ends -->
         <div id="sessionIndicator" class="session-badge" hidden>
           <span id="sessionTimerText">30s</span>
           <button type="button" class="logout-btn" id="logoutButton">Log out</button>
@@ -446,6 +437,7 @@
         </div>
       </div>
 
+      <!-- Search Controls Bar -->
       <div class="controls">
         <label class="search">
           <span class="search-icon" aria-hidden="true">&#128269;</span>
@@ -456,11 +448,88 @@
       </div>
       <p class="workbook-status" id="workbookStatus" role="status" aria-live="polite"></p>
 
-      <!-- Complete Middle Page: Search Results Table -->
+      <!-- Middle Page: Complete Results Table View -->
       <div class="table-scroll">
         <div class="table-head" aria-hidden="true"><span>PART NUMBER</span><span>PART CODE</span><span>QUANTITY</span><span>LOCATION</span></div>
         <div class="product-list" id="productList" aria-live="polite"></div>
         <div class="empty" id="emptyState" hidden><span class="empty-symbol" aria-hidden="true">/</span><strong id="emptyTitle">No materials found</strong><span id="emptyMessage">Try another name or item code.</span></div>
+      </div>
+
+      <!-- IN-FLOW BOTTOM BAR (Same width and alignment as Search Bar) -->
+      <div class="aligned-bottom-bar" id="alignedBottomBar">
+        <div class="transaction-bar">
+          <div class="compact-switch">
+            <label><input type="radio" name="globalOpMode" value="take" checked> Take</label>
+            <label><input type="radio" name="globalOpMode" value="return"> Return</label>
+          </div>
+
+          <!-- Single-Line Take Form: Part Number and Part Code individual auto-populated fields, quantity entered by customer -->
+          <form id="globalTakeForm" style="display: contents;">
+            <input type="hidden" id="takeMaterialId" name="materialId">
+            <div class="inline-field">
+              <select name="userId" id="takeUserSelect" required style="width: 130px;">
+                <option value="">User</option>
+              </select>
+            </div>
+            <div class="inline-field">
+              <input name="partNumber" id="takePartNumber" readonly placeholder="Part Number (Click row)" style="width: 190px;">
+            </div>
+            <div class="inline-field">
+              <input name="partCode" id="takePartCode" readonly placeholder="Part Code" style="width: 130px;">
+            </div>
+            <div class="inline-field">
+              <input name="quantity" id="takeQuantity" type="number" min="0.001" step="any" required placeholder="Quantity" style="width: 90px;">
+            </div>
+            <button class="compact-btn danger" type="submit">Allocate</button>
+          </form>
+
+          <!-- Single-Line Return Form -->
+          <form id="globalReturnForm" style="display: none;">
+            <div class="inline-field">
+              <select name="userId" id="returnUserSelect" required style="width: 120px;">
+                <option value="">User</option>
+              </select>
+            </div>
+            <div class="inline-field">
+              <input name="partNumber" id="returnPartNumber" required maxlength="100" placeholder="Part Number" style="width: 140px;">
+            </div>
+            <div class="inline-field">
+              <input name="partCode" id="returnPartCode" required maxlength="100" placeholder="Part Code" style="width: 120px;">
+            </div>
+            <div class="inline-field">
+              <input name="quantity" id="returnQuantity" type="number" min="0.001" step="any" required placeholder="Quantity" style="width: 80px;">
+            </div>
+            <div class="inline-field">
+              <select name="locationType" id="returnLocationType" style="width: 110px;">
+                <option value="rack">Cupboard Rack</option>
+                <option value="box">Box</option>
+                <option value="workbench">Workbench</option>
+              </select>
+            </div>
+            <div class="inline-field" id="returnCupboardField">
+              <select name="cupboardId" id="returnCupboard" required disabled style="width: 110px;">
+                <option value="">Cupboard</option>
+              </select>
+            </div>
+            <div class="inline-field" id="returnRackField">
+              <select name="rackId" id="returnRack" required disabled style="width: 85px;">
+                <option value="">Rack</option>
+              </select>
+            </div>
+            <div class="inline-field" id="returnBoxField" hidden>
+              <select name="boxId" id="returnBox" disabled style="width: 110px;">
+                <option value="">Box</option>
+              </select>
+            </div>
+            <div class="inline-field" id="returnWorkbenchField" hidden>
+              <select name="workbenchId" id="returnWorkbench" disabled style="width: 115px;">
+                <option value="">Workbench</option>
+              </select>
+            </div>
+            <button class="compact-btn success" type="submit">Return</button>
+          </form>
+        </div>
+        <p class="strip-status" id="globalStripStatus" role="status" aria-live="polite"></p>
       </div>
     </section>
 
@@ -619,91 +688,6 @@
     </section>
   </main>
 
-  <!-- ==========================================
-       DOCKED BROWSER BOTTOM-EDGE STRIP (SINGLE LINE)
-       ========================================== -->
-  <aside class="docked-bottom-bar" id="dockedBottomBar" hidden>
-    <div class="transaction-bar">
-      <div class="compact-switch">
-        <label><input type="radio" name="globalOpMode" value="take" checked> Take</label>
-        <label><input type="radio" name="globalOpMode" value="return"> Return</label>
-      </div>
-
-      <!-- Single-Line Take / Allocate Form -->
-      <form id="globalTakeForm" style="display: contents;">
-        <div class="inline-field">
-          <select name="userId" id="takeUserSelect" required style="width: 140px;">
-            <option value="">Choose User</option>
-          </select>
-        </div>
-        <div class="inline-field">
-          <select name="materialId" id="takeMaterialSelect" required style="width: 220px;">
-            <option value="">Product (Key/Name)</option>
-          </select>
-        </div>
-        <div class="inline-field">
-          <input name="partCode" id="takePartCode" readonly placeholder="Part Code" style="width: 110px;">
-        </div>
-        <div class="inline-field">
-          <input name="quantity" id="takeQuantity" type="number" min="0.001" step="any" required placeholder="Qty" style="width: 70px;">
-        </div>
-        <button class="compact-btn danger" type="submit">Allocate</button>
-      </form>
-
-      <!-- Single-Line Return Form -->
-      <form id="globalReturnForm" style="display: none;">
-        <div class="inline-field">
-          <select name="userId" id="returnUserSelect" required style="width: 130px;">
-            <option value="">Choose User</option>
-          </select>
-        </div>
-        <div class="inline-field">
-          <select name="materialSelectId" id="returnMaterialSelect" style="width: 170px;">
-            <option value="">Product (Key/Name)</option>
-          </select>
-        </div>
-        <div class="inline-field">
-          <input name="partNumber" id="returnPartNumber" required maxlength="100" placeholder="Part No." style="width: 105px;">
-        </div>
-        <div class="inline-field">
-          <input name="partCode" id="returnPartCode" required maxlength="100" placeholder="Part Code" style="width: 95px;">
-        </div>
-        <div class="inline-field">
-          <input name="quantity" id="returnQuantity" type="number" min="0.001" step="any" required placeholder="Qty" style="width: 65px;">
-        </div>
-        <div class="inline-field">
-          <select name="locationType" id="returnLocationType" style="width: 115px;">
-            <option value="rack">Cupboard Rack</option>
-            <option value="box">Box</option>
-            <option value="workbench">Workbench</option>
-          </select>
-        </div>
-        <div class="inline-field" id="returnCupboardField">
-          <select name="cupboardId" id="returnCupboard" required disabled style="width: 115px;">
-            <option value="">Cupboard</option>
-          </select>
-        </div>
-        <div class="inline-field" id="returnRackField">
-          <select name="rackId" id="returnRack" required disabled style="width: 90px;">
-            <option value="">Rack</option>
-          </select>
-        </div>
-        <div class="inline-field" id="returnBoxField" hidden>
-          <select name="boxId" id="returnBox" disabled style="width: 115px;">
-            <option value="">Box</option>
-          </select>
-        </div>
-        <div class="inline-field" id="returnWorkbenchField" hidden>
-          <select name="workbenchId" id="returnWorkbench" disabled style="width: 125px;">
-            <option value="">Workbench</option>
-          </select>
-        </div>
-        <button class="compact-btn success" type="submit">Return</button>
-      </form>
-    </div>
-    <p class="strip-status" id="globalStripStatus" role="status" aria-live="polite"></p>
-  </aside>
-
   <!-- Login Dialog Modal -->
   <div class="modal-overlay" id="authModal" hidden>
     <div class="modal-card">
@@ -747,7 +731,6 @@
     const errorMsgText = document.getElementById("errorMsgText");
     const retryButton = document.getElementById("retryButton");
     const appShell = document.getElementById("appShell");
-    const dockedBottomBar = document.getElementById("dockedBottomBar");
 
     // ==========================================
     // AUTHENTICATION & SESSION TIMEOUT (30s)
@@ -914,16 +897,16 @@
     const usersList = document.getElementById("usersList");
     const emptyUsers = document.getElementById("emptyUsers");
 
-    // Docked Bar Elements
+    // In-Flow Bottom Bar Elements
     const globalTakeForm = document.getElementById("globalTakeForm");
     const globalReturnForm = document.getElementById("globalReturnForm");
     const takeUserSelect = document.getElementById("takeUserSelect");
-    const takeMaterialSelect = document.getElementById("takeMaterialSelect");
+    const takeMaterialId = document.getElementById("takeMaterialId");
+    const takePartNumber = document.getElementById("takePartNumber");
     const takePartCode = document.getElementById("takePartCode");
     const takeQuantity = document.getElementById("takeQuantity");
 
     const returnUserSelect = document.getElementById("returnUserSelect");
-    const returnMaterialSelect = document.getElementById("returnMaterialSelect");
     const returnPartNumber = document.getElementById("returnPartNumber");
     const returnPartCode = document.getElementById("returnPartCode");
     const returnQuantity = document.getElementById("returnQuantity");
@@ -1193,7 +1176,7 @@
 
       returnCupboardField.hidden = locType !== "rack";
       returnRackField.hidden = locType !== "rack";
-      returnBoxField.hidden = locType !== "box";
+      boxLocationField.hidden = locType !== "box";
       returnWorkbenchField.hidden = locType !== "workbench";
 
       returnCupboard.required = locType === "rack";
@@ -1380,43 +1363,10 @@
     }
 
     // ==========================================
-    // 6. MATERIAL SELECTION & AUTO-FILL
+    // 6. CLICK-TO-POPULATE SEARCH ROW SELECTION
     // ==========================================
-    function populateMaterialDropdowns() {
-      selectOptions(
-        takeMaterialSelect, 
-        products.filter(p => Number(p.quantity) > 0), 
-        "Product (Key/Name)", 
-        p => p.id, 
-        p => `${p.part_number} | ${p.part_code} (Qty: ${p.quantity})`
-      );
-
-      selectOptions(
-        returnMaterialSelect, 
-        products, 
-        "Product (Optional)", 
-        p => p.id, 
-        p => `${p.part_number} | ${p.part_code}`
-      );
-    }
-
-    // Auto-fill Part Code when dropdown is changed manually
-    takeMaterialSelect.addEventListener("change", (e) => {
-      const p = products.find(item => String(item.id) === String(e.target.value));
-      takePartCode.value = p ? p.part_code : "";
-    });
-
-    returnMaterialSelect.addEventListener("change", (e) => {
-      const p = products.find(item => String(item.id) === String(e.target.value));
-      if (p) {
-        returnPartNumber.value = p.part_number;
-        returnPartCode.value = p.part_code;
-      }
-    });
-
-    // CLICK-TO-POPULATE: Auto-populates clicked search row into the bottom allocate/return strip
     function onProductRowClicked(product) {
-      // Highlight the active selected row in the search table
+      // Highlight the active selected row in the search results
       document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
       const clickedRow = document.querySelector(`.product-row[data-row-id="${product.id}"]`);
       if (clickedRow) clickedRow.classList.add("selected-row");
@@ -1424,25 +1374,24 @@
       const isTakeMode = document.querySelector('input[name="globalOpMode"]:checked').value === "take";
 
       if (isTakeMode) {
-        // Auto-select in Take / Allocate Form
-        takeMaterialSelect.value = product.id;
+        // Individual option fields populated for part number and part code
+        takeMaterialId.value = product.id;
+        takePartNumber.value = product.part_number;
         takePartCode.value = product.part_code;
 
-        // If User is already selected, bring focus right into Quantity for quick entry
-        if (takeUserSelect.value) {
-          takeQuantity.focus();
-          setFormStatus(globalStripStatus, `Selected ${product.part_number}. Enter quantity to allocate.`);
-        } else {
-          takeUserSelect.focus();
-          setFormStatus(globalStripStatus, `Selected ${product.part_number}. Please choose user.`);
-        }
+        // Quantity is NOT populated; left blank for customer to enter
+        takeQuantity.value = "";
+        takeQuantity.focus();
+
+        setFormStatus(globalStripStatus, `Selected "${product.part_number}". Available stock: ${product.quantity}. Please enter quantity.`);
       } else {
-        // Auto-populate in Return Form
-        returnMaterialSelect.value = product.id;
+        // Auto-populate in Return mode
         returnPartNumber.value = product.part_number;
         returnPartCode.value = product.part_code;
+        returnQuantity.value = "";
         returnQuantity.focus();
-        setFormStatus(globalStripStatus, `Loaded ${product.part_number} for return. Specify quantity and location.`);
+
+        setFormStatus(globalStripStatus, `Selected "${product.part_number}". Enter quantity and destination to return.`);
       }
     }
 
@@ -1452,14 +1401,14 @@
     globalTakeForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       try {
-        const materialId = takeMaterialSelect.value;
+        const materialId = takeMaterialId.value;
         const item = products.find(p => String(p.id) === String(materialId));
-        if (!item) throw new Error("Please select or click a product from the list.");
+        if (!item) throw new Error("Please click or select a product from the search results table.");
 
         const takeQty = Number(takeQuantity.value);
-        if (takeQty <= 0) throw new Error("Quantity must be greater than 0.");
+        if (takeQty <= 0 || isNaN(takeQty)) throw new Error("Please enter a valid quantity greater than 0.");
         if (takeQty > Number(item.quantity)) {
-          throw new Error(`Insufficient quantity. Only ${item.quantity} units available.`);
+          throw new Error(`Insufficient quantity. Current stock is ${item.quantity}.`);
         }
 
         const remaining = Number(item.quantity) - takeQty;
@@ -1473,7 +1422,7 @@
 
         const userName = takeUserSelect.selectedOptions[0]?.text || "User";
         takeQuantity.value = "";
-        setFormStatus(globalStripStatus, `Allocated ${takeQty} of ${item.part_number} to ${userName}.`);
+        setFormStatus(globalStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userName}.`);
         await refreshInventory();
       } catch (err) {
         setFormStatus(globalStripStatus, err.message, true);
@@ -1484,7 +1433,7 @@
       e.preventDefault();
       try {
         const returnQty = Number(returnQuantity.value);
-        if (returnQty <= 0) throw new Error("Quantity must be greater than 0.");
+        if (returnQty <= 0 || isNaN(returnQty)) throw new Error("Please enter a valid quantity greater than 0.");
 
         const values = Object.fromEntries(new FormData(globalReturnForm).entries());
 
@@ -1545,7 +1494,7 @@
         }
 
         returnQuantity.value = "";
-        setFormStatus(globalStripStatus, `Returned ${returnQty} of ${values.partNumber.trim()} to stock.`);
+        setFormStatus(globalStripStatus, `Returned ${returnQty} units of "${values.partNumber.trim()}" to stock.`);
         await refreshInventory();
       } catch (err) {
         setFormStatus(globalStripStatus, err.message, true);
@@ -1696,7 +1645,6 @@
         document.getElementById("itemCount").textContent = `${products.length} PRODUCTS`;
         
         render();
-        populateMaterialDropdowns();
         setConnectionVisuals(true);
       } catch (err) {
         workbookStatus.textContent = "Error fetching catalog: " + err.message;
@@ -1771,7 +1719,7 @@
           makeCell("location-cell", product.location_text)
         );
         
-        // Connect click event to auto-populate the bottom allocate/return inputs
+        // Clicking row populates individual Part Number and Part Code without filling quantity
         row.addEventListener("click", () => onProductRowClicked(product));
 
         productList.append(row);
@@ -1798,11 +1746,6 @@
       document.querySelectorAll(".page-view").forEach(view => {
         view.hidden = view.id !== targetPageId;
       });
-
-      // Show the bottom transaction bar on Search & Material pages
-      if (dockedBottomBar) {
-        dockedBottomBar.hidden = !(targetPageId === "searchPage" || targetPageId === "materialPage");
-      }
 
       if (targetPageId === "storagePage" || targetPageId === "materialPage") {
         await loadStorage();
@@ -1860,7 +1803,6 @@
       errorState.hidden = true;
       initialOverlay.hidden = false;
       appShell.hidden = true;
-      dockedBottomBar.hidden = true;
 
       try {
         await checkServerConnection();
@@ -1875,7 +1817,6 @@
 
         initialOverlay.hidden = true;
         appShell.hidden = false;
-        dockedBottomBar.hidden = false;
       } catch (err) {
         loadingState.hidden = true;
         errorState.hidden = false;
