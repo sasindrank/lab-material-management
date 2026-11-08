@@ -179,6 +179,16 @@
     .location-box { margin: 8px 0 0 14px; padding: 9px 11px; border-left: 1px solid #b7c8be; }
     .location-workbench { margin-bottom: 8px; padding: 10px 12px; border-left: 3px solid #d9633b; background: rgba(255,255,255,.7); }
     
+    /* Users Layout Styles */
+    .user-layout { display: grid; grid-template-columns: minmax(320px, 420px) minmax(0, 1fr); gap: 24px; align-items: start; }
+    .user-list-panel { border: 1px solid var(--line); border-radius: 4px; background: rgba(255,255,255,.82); padding: 18px; }
+    .user-table-head, .user-row { display: grid; grid-template-columns: minmax(130px, 1fr) minmax(160px, 1.4fr) 70px; align-items: center; column-gap: 12px; }
+    .user-table-head { min-height: 38px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); }
+    .user-row { min-height: 52px; border-bottom: 1px solid #eaf0eb; font-size: 11px; animation: appear .22s both; }
+    .user-row:hover { background: rgba(229,242,236,.45); }
+    .user-name { font-weight: 600; color: var(--ink); }
+    .user-email { color: #53645e; font: 11px var(--mono); word-break: break-all; }
+
     .table-scroll { overflow-x: auto; }
     .table-head, .product-row { display: grid; grid-template-columns: minmax(180px, 1.5fr) minmax(150px, 1.2fr) minmax(110px, .8fr) minmax(190px, 1.5fr); align-items: center; column-gap: 11px; }
     .table-head { min-height: 42px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); }
@@ -222,8 +232,8 @@
     .modal-actions .action-button { height: 38px; min-width: 75px; }
 
     @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 950px) { .storage-sections { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (max-width: 850px) { .shell { padding: 0 5%; } .table-head, .product-list { min-width: 750px; } }
+    @media (max-width: 950px) { .storage-sections { grid-template-columns: repeat(2, minmax(0, 1fr)); } .user-layout { grid-template-columns: 1fr; } }
+    @media (max-width: 850px) { .shell { padding: 0 5%; } .table-head, .product-list, .user-table-head, .user-row { min-width: 600px; } }
     @media (max-width: 600px) {
       .shell { padding: 0 18px; }
       .topbar { flex-wrap: wrap; padding-top: 10px; }
@@ -271,6 +281,7 @@
           <button class="page-tab active" type="button" data-page="searchPage">Search</button>
           <button class="page-tab" type="button" data-page="materialPage">Add/Delete Material</button>
           <button class="page-tab" type="button" data-page="storagePage">Storage Locations</button>
+          <button class="page-tab" type="button" data-page="usersPage">Users</button>
         </nav>
       </div>
     </header>
@@ -420,6 +431,41 @@
         <div class="location-tree" id="locationTree" aria-live="polite"></div>
       </div>
     </section>
+
+    <!-- Users Page -->
+    <section class="catalog page-view" id="usersPage" hidden>
+      <div class="page-heading"><p>ADMINISTRATION</p><h2>Manage Users</h2></div>
+      <div class="user-layout">
+        <form class="entry-panel" id="userForm">
+          <div class="field" style="margin-bottom: 14px;">
+            <label>User Name</label>
+            <input name="userName" required maxlength="100" placeholder="e.g. John Doe">
+          </div>
+          <div class="field" style="margin-bottom: 14px;">
+            <label>Email ID</label>
+            <input name="email" type="email" required maxlength="120" placeholder="user@company.com">
+          </div>
+          <div class="form-actions">
+            <button class="action-button" type="submit">Add User</button>
+            <p class="form-status" id="userStatus" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+
+        <div class="user-list-panel">
+          <div class="user-table-head" aria-hidden="true">
+            <span>NAME</span>
+            <span>EMAIL ID</span>
+            <span style="text-align: right;">ACTION</span>
+          </div>
+          <div id="usersList" aria-live="polite"></div>
+          <div class="empty" id="emptyUsers" hidden>
+            <span class="empty-symbol" aria-hidden="true">&#9786;</span>
+            <strong>No users added yet</strong>
+            <span>Fill out the form on the left to add a user.</span>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- Login Dialog Modal -->
@@ -452,6 +498,7 @@
 
     // Global State
     let products = [];
+    let users = [];
     let submittedQuery = null;
     let storageTree = [];
     let storageBoxes = [];
@@ -557,7 +604,7 @@
       authPasswordInput.focus();
     }
 
-    // Reset countdown on mouse movement only in authenticated tabs
+    // Reset timer on mouse movement only in authenticated tabs
     window.addEventListener("mousemove", () => {
       if (!isAuthenticated) return;
       if (activePageId === "searchPage") return;
@@ -625,6 +672,12 @@
 
     const storageStatus = document.getElementById("storageStatus");
 
+    // Users elements
+    const userForm = document.getElementById("userForm");
+    const userStatus = document.getElementById("userStatus");
+    const usersList = document.getElementById("usersList");
+    const emptyUsers = document.getElementById("emptyUsers");
+
     // ==========================================
     // 2. CONNECTION VERIFICATION & COLOR SHIFT
     // ==========================================
@@ -678,7 +731,6 @@
         if (cupboardsRes.error) throw cupboardsRes.error;
         if (racksRes.error) throw racksRes.error;
         if (boxesRes.error) throw boxesRes.error;
-        // If table workbenches doesn't exist yet, handle gracefully
         const workbenchesData = workbenchesRes.error ? [] : (workbenchesRes.data || []);
 
         const racks = racksRes.data || [];
@@ -946,7 +998,100 @@
     });
 
     // ==========================================
-    // 5. MATERIAL OPERATIONS (SAVE & REMOVE)
+    // 5. USER MANAGEMENT ENGINE
+    // ==========================================
+    async function loadUsers() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('users')
+          .select('*')
+          .order('name', { ascending: true });
+
+        if (error) throw error;
+        users = data || [];
+        renderUsers();
+      } catch (error) {
+        setFormStatus(userStatus, error.message, true);
+      }
+    }
+
+    function renderUsers() {
+      usersList.replaceChildren();
+
+      if (!users.length) {
+        emptyUsers.hidden = false;
+        return;
+      }
+
+      emptyUsers.hidden = true;
+
+      for (const user of users) {
+        const row = document.createElement("article");
+        row.className = "user-row";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "user-name";
+        nameSpan.textContent = user.name;
+
+        const emailSpan = document.createElement("span");
+        emailSpan.className = "user-email";
+        emailSpan.textContent = user.email;
+
+        const actionDiv = document.createElement("div");
+        actionDiv.style.textAlign = "right";
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "location-delete";
+        delBtn.textContent = "Delete";
+        delBtn.addEventListener("click", () => deleteUser(user.id, user.name));
+
+        actionDiv.append(delBtn);
+        row.append(nameSpan, emailSpan, actionDiv);
+        usersList.append(row);
+      }
+    }
+
+    userForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const name = userForm.userName.value.trim();
+      const email = userForm.email.value.trim().toLowerCase();
+
+      try {
+        const { error } = await supabaseClient
+          .from('users')
+          .insert([{ name, email }]);
+
+        if (error) throw error;
+
+        userForm.reset();
+        setFormStatus(userStatus, `User "${name}" added successfully.`);
+        await loadUsers();
+      } catch (error) {
+        setFormStatus(userStatus, error.message, true);
+      }
+    });
+
+    async function deleteUser(id, name) {
+      if (!window.confirm(`Delete user "${name}"?`)) return;
+
+      try {
+        const { error } = await supabaseClient
+          .from('users')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+
+        setFormStatus(userStatus, `User "${name}" removed.`);
+        await loadUsers();
+      } catch (error) {
+        setFormStatus(userStatus, error.message, true);
+      }
+    }
+
+    // ==========================================
+    // 6. MATERIAL OPERATIONS (SAVE & REMOVE)
     // ==========================================
     materialForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -1069,7 +1214,7 @@
     });
 
     // ==========================================
-    // 6. INVENTORY LIST & SEARCH
+    // 7. INVENTORY LIST & SEARCH
     // ==========================================
     async function refreshInventory() {
       try {
@@ -1106,6 +1251,11 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'boxes' }, () => { loadStorage(); })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'racks' }, () => { loadStorage(); })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'workbenches' }, () => { loadStorage(); })
+        .subscribe();
+
+      supabaseClient
+        .channel('public:users')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, () => { loadUsers(); })
         .subscribe();
 
       setInterval(() => {
@@ -1165,7 +1315,7 @@
     }
 
     // ==========================================
-    // 7. TAB NAVIGATION & PROTECTED ROUTING
+    // 8. TAB NAVIGATION & PROTECTED ROUTING
     // ==========================================
     async function navigateTo(targetPageId) {
       activePageId = targetPageId;
@@ -1180,6 +1330,8 @@
 
       if (targetPageId === "storagePage" || targetPageId === "materialPage") {
         await loadStorage();
+      } else if (targetPageId === "usersPage") {
+        await loadUsers();
       }
     }
 
@@ -1187,8 +1339,9 @@
       tab.addEventListener("click", () => {
         const targetPageId = tab.dataset.page;
         
-        // Intercept protected tabs if not authenticated
-        if ((targetPageId === "materialPage" || targetPageId === "storagePage") && !isAuthenticated) {
+        // Intercept protected tabs (Material, Storage, Users) if not authenticated
+        const isProtected = targetPageId === "materialPage" || targetPageId === "storagePage" || targetPageId === "usersPage";
+        if (isProtected && !isAuthenticated) {
           promptLogin(targetPageId);
           return;
         }
@@ -1222,7 +1375,7 @@
     });
 
     // ==========================================
-    // 8. STARTUP & BOOTSTRAP WORKFLOW
+    // 9. STARTUP & BOOTSTRAP WORKFLOW
     // ==========================================
     async function initializeApplication() {
       loadingState.hidden = false;
@@ -1235,6 +1388,7 @@
 
         await Promise.all([
           loadStorage(),
+          loadUsers(),
           refreshInventory()
         ]);
 
