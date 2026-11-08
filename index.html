@@ -284,15 +284,6 @@
       background: #e1f0e8 !important;
       outline: 1px solid var(--green);
     }
-    .product-row.out-of-stock {
-      opacity: 0.55;
-      background: #fbfbfb;
-      cursor: not-allowed;
-    }
-    .product-row.out-of-stock:hover {
-      transform: none;
-      background: #fbfbfb;
-    }
     .part-code { color: #718079; font: 10px var(--mono); }
     .location-cell { min-width: 0; overflow: hidden; color: #718079; text-overflow: ellipsis; white-space: nowrap; }
     .quantity-cell strong { font: 13px var(--mono); font-weight: 500; }
@@ -429,57 +420,81 @@
     }
     .location-delete:hover { border-color: #b74628; background: #fbede6; }
     
-    /* Users Layout Styles - Re-ordered: List on Left, Compact Allocation Inspector on Right */
-    .user-layout {
+    /* ==========================================
+       USERS PAGE: TOP SPLIT + BOTTOM ALLOCATIONS
+       ========================================== */
+    .user-top-split {
       display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(320px, 440px);
-      gap: 24px;
+      grid-template-columns: minmax(320px, 420px) minmax(0, 1.4fr);
+      gap: 20px;
       align-items: start;
+      margin-bottom: 24px;
     }
-    .user-list-panel { border: 1px solid var(--line); border-radius: 4px; background: rgba(255,255,255,.82); padding: 18px; }
-    
-    /* User Row layout with Name, Email, and Delete option on the Right */
+    .user-list-panel {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: rgba(255,255,255,.85);
+      padding: 16px;
+    }
     .user-table-head, .user-row {
       display: grid;
-      grid-template-columns: minmax(130px, 1fr) minmax(160px, 1.3fr) 75px;
+      grid-template-columns: minmax(130px, 1fr) minmax(160px, 1.4fr) 70px;
       align-items: center;
       column-gap: 12px;
     }
-    .user-table-head { min-height: 38px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); }
-    .user-row { min-height: 48px; border-bottom: 1px solid #eaf0eb; font-size: 11px; animation: appear .22s both; }
+    .user-table-head { min-height: 36px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); }
+    .user-row { min-height: 44px; border-bottom: 1px solid #eaf0eb; font-size: 11px; animation: appear .22s both; }
     .user-row:hover { background: rgba(229,242,236,.45); }
     .user-name { font-weight: 600; color: var(--ink); }
     .user-email { color: #53645e; font: 11px var(--mono); word-break: break-all; }
     .user-actions { text-align: right; }
 
-    /* Compact User Allocation Inspector */
-    .compact-alloc-inspector {
+    /* Bottom: Material Allocation Inspector Table View */
+    .user-bottom-allocations {
       border: 1px solid var(--line);
       border-radius: 4px;
       background: white;
-      padding: 16px;
+      padding: 18px;
     }
-    .compact-alloc-inspector h3 { margin: 0 0 4px; font-size: 14px; color: var(--green-dark); }
-    .compact-alloc-inspector p { margin: 0 0 12px; font-size: 11px; color: var(--muted); }
-    .compact-alloc-list {
-      max-height: 480px;
-      overflow-y: auto;
-      border-top: 1px solid #edf1ee;
-      padding-top: 8px;
-    }
-    .compact-alloc-card {
-      padding: 8px 10px;
-      border-bottom: 1px solid #edf1ee;
+    .user-bottom-allocations-head {
       display: flex;
-      flex-direction: column;
-      gap: 2px;
-      font-size: 11px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
     }
-    .compact-alloc-card:last-child { border-bottom: none; }
-    .compact-alloc-head { display: flex; justify-content: space-between; font-weight: 700; color: var(--green-dark); }
-    .compact-alloc-sub { font-size: 10px; color: var(--muted); }
+    .user-bottom-allocations-head h3 {
+      margin: 0;
+      font-size: 15px;
+      color: var(--green-dark);
+    }
+    .user-bottom-allocations-head p {
+      margin: 2px 0 0;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .user-alloc-table-head, .user-alloc-row {
+      display: grid;
+      grid-template-columns: minmax(160px, 1.5fr) minmax(130px, 1.2fr) 90px minmax(160px, 1.5fr) minmax(170px, 1.4fr);
+      align-items: center;
+      column-gap: 12px;
+    }
+    .user-alloc-table-head {
+      min-height: 38px;
+      border-bottom: 1px solid var(--line);
+      color: #89968f;
+      font: 9px var(--mono);
+    }
+    .user-alloc-row {
+      min-height: 48px;
+      border-bottom: 1px solid #eaf0eb;
+      font-size: 11px;
+      animation: appear .22s both;
+    }
+    .user-alloc-row:hover { background: rgba(229,242,236,.35); }
 
-    /* Unified Logs Table Styles (Allocated & Returned in the same view) */
+    /* Unified Logs Table Styles */
     .log-filter-bar {
       display: flex;
       align-items: center;
@@ -545,11 +560,11 @@
 
     @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 950px) {
-      .storage-layout, .user-layout { grid-template-columns: 1fr; }
+      .storage-layout, .user-top-split { grid-template-columns: 1fr; }
     }
     @media (max-width: 850px) {
       .shell { padding: 0 5% 40px; }
-      .table-head, .product-list, .user-table-head, .user-row, .log-table-head, .log-row { min-width: 700px; }
+      .table-head, .product-list, .user-table-head, .user-row, .log-table-head, .log-row, .user-alloc-table-head, .user-alloc-row { min-width: 700px; }
     }
     @media (max-width: 600px) {
       .shell { padding: 0 18px 30px; }
@@ -797,11 +812,11 @@
       </div>
     </section>
 
-    <!-- Combined Storage Locations & Location Content Inspector Page -->
+    <!-- Combined Storage Locations & Content Inspector Page -->
     <section class="catalog page-view" id="storagePage" hidden>
       <div class="page-heading"><p>LOCATIONS &amp; AUDIT</p><h2>Storage Locations &amp; Material Inspector</h2></div>
       <div class="storage-layout">
-        <!-- Left: Quick Creation Forms for Locations -->
+        <!-- Left: Location Addition Forms -->
         <div class="storage-sections">
           <section class="storage-section">
             <form class="storage-form" id="cupboardRackForm">
@@ -828,7 +843,7 @@
           <p class="form-status storage-status" id="storageStatus" role="status" aria-live="polite"></p>
         </div>
 
-        <!-- Right: Combined Location Tree with Content Inspector and Deletion Controls -->
+        <!-- Right: Combined Location Inspector + Management -->
         <div class="unified-inspector-panel">
           <h3>Storage Location Content Inspector</h3>
           <p>Click any location to inspect stored materials, or use Delete to remove the location.</p>
@@ -842,53 +857,65 @@
       </div>
     </section>
 
-    <!-- Users Page: User Directory on Left, Compact Allocation Inspector on Right -->
+    <!-- Users Page: Re-arranged Layout -->
     <section class="catalog page-view" id="usersPage" hidden>
       <div class="page-heading"><p>ADMINISTRATION</p><h2>Manage Users &amp; Allocations</h2></div>
-      <div class="user-layout">
-        <!-- Left: Add User Form and Directory List -->
-        <div>
-          <form class="entry-panel" id="userForm">
-            <div style="display: grid; grid-template-columns: 1fr 1.3fr auto; gap: 12px; align-items: end;">
-              <div class="field">
-                <label>User Name</label>
-                <input name="userName" required maxlength="100" placeholder="e.g. John Doe">
-              </div>
-              <div class="field">
-                <label>Email ID</label>
-                <input name="email" type="email" required maxlength="120" placeholder="user@company.com">
-              </div>
-              <button class="action-button" type="submit" style="height: 42px;">Add User</button>
-            </div>
-            <p class="form-status" id="userStatus" role="status" aria-live="polite" style="margin-top: 10px;"></p>
-          </form>
+      
+      <!-- Top Section: Add User Form on Left, Registered Users on Right -->
+      <div class="user-top-split">
+        <form class="entry-panel" id="userForm">
+          <h3 style="margin: 0 0 12px; font-size: 14px; color: var(--green-dark);">Add New User</h3>
+          <div class="field" style="margin-bottom: 12px;">
+            <label>User Name</label>
+            <input name="userName" required maxlength="100" placeholder="e.g. John Doe">
+          </div>
+          <div class="field" style="margin-bottom: 16px;">
+            <label>Email ID</label>
+            <input name="email" type="email" required maxlength="120" placeholder="user@company.com">
+          </div>
+          <button class="action-button" type="submit" style="width: 100%; height: 40px;">Create User</button>
+          <p class="form-status" id="userStatus" role="status" aria-live="polite" style="margin-top: 8px;"></p>
+        </form>
 
-          <div class="user-list-panel" style="margin-top: 20px;">
-            <div class="user-table-head" aria-hidden="true">
-              <span>USER NAME</span>
-              <span>EMAIL ID</span>
-              <span style="text-align: right;">ACTION</span>
-            </div>
-            <div id="usersList" aria-live="polite"></div>
-            <div class="empty" id="emptyUsers" hidden>
-              <span class="empty-symbol" aria-hidden="true">&#9786;</span>
-              <strong>No users added yet</strong>
-              <span>Fill out the form above to add a user.</span>
-            </div>
+        <div class="user-list-panel">
+          <div class="user-table-head" aria-hidden="true">
+            <span>USER NAME</span>
+            <span>EMAIL ID</span>
+            <span style="text-align: right;">ACTION</span>
+          </div>
+          <div id="usersList" aria-live="polite"></div>
+          <div class="empty" id="emptyUsers" hidden>
+            <span class="empty-symbol" aria-hidden="true">&#9786;</span>
+            <strong>No users added yet</strong>
+            <span>Add users via the form to manage accounts.</span>
           </div>
         </div>
+      </div>
 
-        <!-- Right: Compact User Material Allocation Inspector -->
-        <div class="compact-alloc-inspector">
-          <h3>User Allocations Inspector</h3>
-          <p>Select a user to review items currently checked out by them.</p>
-          <div class="field" style="margin-bottom: 12px;">
-            <select id="userAllocViewerSelect" style="width: 100%;">
+      <!-- Bottom Section: User-Specific Material Allocation Inspector -->
+      <div class="user-bottom-allocations">
+        <div class="user-bottom-allocations-head">
+          <div>
+            <h3>Material Allocation Inspector</h3>
+            <p>Select a user to view all materials currently allocated to them with checkout timestamps.</p>
+          </div>
+          <div class="field" style="min-width: 260px; margin: 0;">
+            <select id="userAllocViewerSelect">
               <option value="">Choose User to View Allocations</option>
             </select>
           </div>
-          <div id="userAllocViewerResults" class="compact-alloc-list" aria-live="polite">
-            <p style="color:#718079;font-size:11px;">Select a user from the dropdown above to review allocated items.</p>
+        </div>
+
+        <div class="table-scroll" style="min-height: 180px;">
+          <div class="user-alloc-table-head" aria-hidden="true">
+            <span>PART NUMBER</span>
+            <span>PART CODE</span>
+            <span>QTY</span>
+            <span>LOCATION</span>
+            <span>ALLOCATED DATE &amp; TIME</span>
+          </div>
+          <div id="userAllocViewerResults" aria-live="polite">
+            <p style="color:#718079;font-size:11px;padding: 16px 0;">Select a user from the dropdown above to view checkout records.</p>
           </div>
         </div>
       </div>
@@ -1275,7 +1302,6 @@
       return button;
     }
 
-    // Combined Location Inspector + Management (Storage Page)
     function renderCombinedStorageInspector() {
       selectOptions(materialCupboard, storageTree, "Choose a cupboard", c => c.id, c => c.name);
 
@@ -1607,7 +1633,7 @@
         emailSpan.className = "user-email";
         emailSpan.textContent = user.email;
 
-        // Delete button aligned neatly on the right side
+        // Delete option placed on the right
         const actionDiv = document.createElement("div");
         actionDiv.className = "user-actions";
 
@@ -1629,10 +1655,10 @@
       selectOptions(userAllocViewerSelect, users, "Choose User to View Allocations", u => u.id, u => `${u.name} (${u.email})`);
     }
 
-    // Compact user allocation inspector
+    // Material Allocation Inspector (Bottom of Users Page)
     async function refreshUserAllocationsViewer(uId) {
       if (!uId) {
-        userAllocViewerResults.innerHTML = `<p style="color:#718079;font-size:11px;">Select a user from the dropdown above to review allocated items.</p>`;
+        userAllocViewerResults.innerHTML = `<p style="color:#718079;font-size:11px;padding: 16px 0;">Select a user from the dropdown above to view checkout records.</p>`;
         return;
       }
 
@@ -1642,32 +1668,35 @@
           .select('*')
           .eq('user_id', uId)
           .gt('quantity', 0)
-          .order('part_number', { ascending: true });
+          .order('created_at', { ascending: false });
 
         if (error) throw error;
         const allocs = data || [];
 
         userAllocViewerResults.replaceChildren();
         if (!allocs.length) {
-          userAllocViewerResults.innerHTML = `<p style="font-size:11px;color:#718079;">This user currently has 0 checked-out materials.</p>`;
+          userAllocViewerResults.innerHTML = `<p style="font-size:11px;color:#718079;padding: 16px 0;">This user currently has 0 checked-out materials.</p>`;
           return;
         }
 
         allocs.forEach(a => {
           const locText = a.location_text || allocationOriginMap.get(a.id)?.location_text || "Storage";
-          const card = document.createElement("div");
-          card.className = "compact-alloc-card";
-          card.innerHTML = `
-            <div class="compact-alloc-head">
-              <span>${a.part_number}</span>
-              <span style="color:var(--orange);">Qty: ${a.quantity}</span>
-            </div>
-            <div class="compact-alloc-sub">${a.part_code} &bull; Origin: ${locText}</div>
+          const timeStamp = a.created_at || a.updated_at;
+          const dateStr = timeStamp ? new Date(timeStamp).toLocaleString() : "-";
+
+          const row = document.createElement("article");
+          row.className = "user-alloc-row";
+          row.innerHTML = `
+            <span><strong>${a.part_number}</strong></span>
+            <span class="part-code">${a.part_code}</span>
+            <span><strong>${a.quantity}</strong></span>
+            <span class="location-cell">${locText}</span>
+            <span style="font-size:10px;color:var(--muted);">${dateStr}</span>
           `;
-          userAllocViewerResults.append(card);
+          userAllocViewerResults.append(row);
         });
       } catch (err) {
-        userAllocViewerResults.innerHTML = `<p style="color:#b91c1c;font-size:11px;">Error loading user allocations: ${err.message}</p>`;
+        userAllocViewerResults.innerHTML = `<p style="color:#b91c1c;font-size:11px;padding: 16px 0;">Error loading user allocations: ${err.message}</p>`;
       }
     }
 
@@ -2010,7 +2039,7 @@
           });
         }
 
-        // STEP 2: ATOMIC DEDUCTION ON INVENTORY (Deducts stock down to 0)
+        // STEP 2: ATOMIC DEDUCTION ON INVENTORY
         const remaining = currentLiveStock - takeQty;
         const { data: updData, error: updErr } = await supabaseClient
           .from('materials')
@@ -2164,7 +2193,7 @@
     });
 
     // ==========================================
-    // 8. UNIFIED LOGS ENGINE (Allocated & Returned in One Table)
+    // 8. UNIFIED LOGS ENGINE
     // ==========================================
     async function loadLogs() {
       try {
@@ -2375,7 +2404,6 @@
         if (error) throw error;
         products = data || [];
         
-        // Count only in-stock parts (>= 1)
         const inStockCount = products.filter(p => parseInt(p.quantity, 10) >= 1).length;
         document.getElementById("itemCount").textContent = `${inStockCount} PARTS`;
         
@@ -2440,7 +2468,6 @@
     function render() {
       const query = submittedQuery?.toLocaleLowerCase();
 
-      // Only display items with a minimum quantity of 1 (items with 0 are completely omitted)
       const matching = query
         ? products.filter(p => {
             const qty = parseInt(p.quantity, 10);
