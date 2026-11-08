@@ -269,6 +269,15 @@
       background: #e1f0e8 !important;
       outline: 1px solid var(--green);
     }
+    .product-row.out-of-stock {
+      opacity: 0.55;
+      background: #fbfbfb;
+      cursor: not-allowed;
+    }
+    .product-row.out-of-stock:hover {
+      transform: none;
+      background: #fbfbfb;
+    }
     .part-code { color: #718079; font: 10px var(--mono); }
     .location-cell { min-width: 0; overflow: hidden; color: #718079; text-overflow: ellipsis; white-space: nowrap; }
     .quantity-cell strong { font: 13px var(--mono); font-weight: 500; }
@@ -586,7 +595,7 @@
             <div class="inline-field">
               <input name="quantity" id="takeQuantity" type="number" min="1" step="1" required placeholder="Quantity" style="width: 90px;">
             </div>
-            <button class="compact-btn danger" type="submit">Allocate</button>
+            <button class="compact-btn danger" type="submit" id="allocateSubmitBtn">Allocate</button>
           </form>
 
           <!-- Single-Line Return Form -->
@@ -908,7 +917,7 @@
     let activeInspectorFilter = "cupboard";
     let selectedInspectorLocationId = null;
 
-    // Local in-memory mapping to remember checkout origin without schema alterations
+    // In-memory mapping to remember checkout origin locations
     const allocationOriginMap = new Map();
 
     // Screen Overlays
@@ -1094,6 +1103,7 @@
     const takePartNumber = document.getElementById("takePartNumber");
     const takePartCode = document.getElementById("takePartCode");
     const takeQuantity = document.getElementById("takeQuantity");
+    const allocateSubmitBtn = document.getElementById("allocateSubmitBtn");
 
     const returnUserSelect = document.getElementById("returnUserSelect");
     const returnAllocatedPartCodeSelect = document.getElementById("returnAllocatedPartCodeSelect");
@@ -1819,6 +1829,12 @@
 
       if (!isTakeMode) return;
 
+      const availQty = parseInt(product.quantity, 10);
+      if (isNaN(availQty) || availQty <= 0) {
+        setFormStatus(globalStripStatus, `Material "${product.part_number}" is currently already allocated or out of stock. It cannot be admitted into allocation until returned.`, true);
+        return;
+      }
+
       document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
       const clickedRow = document.querySelector(`.product-row[data-row-id="${product.id}"]`);
       if (clickedRow) clickedRow.classList.add("selected-row");
@@ -1858,6 +1874,8 @@
 
     globalTakeForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+      allocateSubmitBtn.disabled = true;
+
       try {
         const userId = takeUserSelect.value;
         if (!userId) throw new Error("Please select a user to allocate this material to.");
@@ -1866,20 +1884,67 @@
         const pCode = takePartCode.value.trim();
         if (!pNum || !pCode) throw new Error("Please provide both Part Number and Part Code.");
 
-        let item = products.find(p => p.part_number.toLowerCase() === pNum.toLowerCase() && p.part_code.toLowerCase() === pCode.toLowerCase());
-        if (!item && takeMaterialId.value) {
-          item = products.find(p => String(p.id) === String(takeMaterialId.value));
-        }
-
-        if (!item) throw new Error(`Material "${pNum}" with code "${pCode}" was not found in catalog.`);
-
         const takeQty = parseInt(takeQuantity.value, 10);
         if (isNaN(takeQty) || takeQty < 1) throw new Error("Please enter a valid whole number quantity starting from 1.");
-        if (takeQty > parseInt(item.quantity, 10)) {
-          throw new Error(`Insufficient quantity. Current stock is ${item.quantity}.`);
+
+        // MULTI-USER CONCURRENCY LOCK CHECK:
+        // Always query the live database immediately before allocating to verify current stock.
+        let query = supabaseClient.from('materials').select('*');
+        if (takeMaterialId.value) {
+          query = query.eq('id', takeMaterialId.value);
+        } else {
+          query = query.ilike('part_number', pNum).ilike('part_code', pCode);
         }
 
-        // 1. UPDATE OR INSERT INTO MATERIAL_ALLOCATIONS
+        const { data: liveItemData, error: fetchErr } = await query.limit(1);
+        if (fetchErr) throw new Error("Verification failed: " + fetchErr.message);
+
+        const item = liveItemData && liveItemData.length > 0 ? liveItemData[0] : null;
+
+        if (!item) {
+          throw new Error(`This material is unavailable or has already been allocated by another user.`);
+        }
+
+        const currentLiveStock = parseInt(item.quantity, 10);
+        if (currentLiveStock < 1 || isNaN(currentLiveStock)) {
+          throw new Error(`Cannot allocate: This item has 0 quantity available. Another user has already admitted it into allocation.`);
+        }
+
+        if (takeQty > currentLiveStock) {
+          throw new Error(`Insufficient quantity available. Current live stock is ${currentLiveStock}. Please reduce requested quantity.`);
+        }
+
+        // ATOMIC DEDUCTION ON INVENTORY:
+        // Deduct from materials inventory immediately with a safety filter (.gte('quantity', takeQty))
+        // to prevent race conditions when two users press Allocate at the exact same moment.
+        const remaining = currentLiveStock - takeQty;
+        if (remaining <= 0) {
+          const { data: delData, error: delErr } = await supabaseClient
+            .from('materials')
+            .delete()
+            .eq('id', item.id)
+            .gte('quantity', takeQty)
+            .select();
+          
+          if (delErr) throw delErr;
+          if (!delData || delData.length === 0) {
+            throw new Error(`Allocation Conflict: Another user just allocated the remaining stock of this item. Allocation denied.`);
+          }
+        } else {
+          const { data: updData, error: updErr } = await supabaseClient
+            .from('materials')
+            .update({ quantity: remaining })
+            .eq('id', item.id)
+            .gte('quantity', takeQty)
+            .select();
+
+          if (updErr) throw updErr;
+          if (!updData || updData.length === 0) {
+            throw new Error(`Allocation Conflict: Stock changed concurrently by another user. Allocation denied.`);
+          }
+        }
+
+        // CREATE OR UPDATE RECORD IN MATERIAL_ALLOCATIONS
         const { data: existingAlloc, error: allocSelectErr } = await supabaseClient
           .from('material_allocations')
           .select('*')
@@ -1887,7 +1952,7 @@
           .eq('part_number', item.part_number)
           .eq('part_code', item.part_code);
 
-        if (allocSelectErr) throw new Error("Failed checking allocations: " + allocSelectErr.message);
+        if (allocSelectErr) console.warn("Failed checking allocation table:", allocSelectErr.message);
 
         let activeAllocId = null;
 
@@ -1921,7 +1986,7 @@
             allocUpdErr = retryRes.error;
           }
 
-          if (allocUpdErr) throw new Error("Failed updating allocation record: " + allocUpdErr.message);
+          if (allocUpdErr) throw new Error("Failed updating user allocation: " + allocUpdErr.message);
         } else {
           let insertPayload = {
             user_id: userId,
@@ -1959,7 +2024,7 @@
             insertedData = retryRes.data;
           }
 
-          if (allocInsErr) throw new Error("Failed creating allocation record: " + allocInsErr.message);
+          if (allocInsErr) throw new Error("Failed creating user allocation: " + allocInsErr.message);
           if (insertedData && insertedData[0]) {
             activeAllocId = insertedData[0].id;
           }
@@ -1977,17 +2042,7 @@
           });
         }
 
-        // 2. DEDUCT OR DELETE FROM MATERIALS INVENTORY AFTER ALLOCATION SUCCEEDS
-        const remaining = parseInt(item.quantity, 10) - takeQty;
-        if (remaining <= 0) {
-          const { error: delErr } = await supabaseClient.from('materials').delete().eq('id', item.id);
-          if (delErr) throw delErr;
-        } else {
-          const { error: updErr } = await supabaseClient.from('materials').update({ quantity: remaining }).eq('id', item.id);
-          if (updErr) throw updErr;
-        }
-
-        // 3. RECORD AUDIT LOG
+        // RECORD AUDIT LOG
         await recordActivityLog(userId, "ALLOCATED", item.part_number, item.part_code, takeQty, item.location_text || "Storage");
 
         const userName = takeUserSelect.selectedOptions[0]?.text || "User";
@@ -2004,6 +2059,9 @@
         }
       } catch (err) {
         setFormStatus(globalStripStatus, err.message, true);
+        await refreshInventory();
+      } finally {
+        allocateSubmitBtn.disabled = false;
       }
     });
 
@@ -2422,13 +2480,17 @@
       }
 
       for (const product of matching) {
+        const qty = parseInt(product.quantity, 10);
+        const isOutOfStock = isNaN(qty) || qty <= 0;
+
         const row = document.createElement("article");
-        row.className = "product-row";
+        row.className = "product-row" + (isOutOfStock ? " out-of-stock" : "");
         row.dataset.rowId = product.id;
+        
         row.append(
           makeCell("", product.part_number),
           makeCell("part-code", product.part_code),
-          makeCell("quantity-cell", product.quantity),
+          makeCell("quantity-cell", isOutOfStock ? "Allocated (0)" : String(qty)),
           makeCell("location-cell", product.location_text)
         );
         
