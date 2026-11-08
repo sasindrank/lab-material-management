@@ -957,7 +957,7 @@
       </div>
     </section>
 
-    <!-- Add & Delete Material Page (Tightened Geometry: Rectangles Wrapped Directly Around Fields & Buttons) -->
+    <!-- Add & Delete Material Page -->
     <section class="catalog page-view" id="materialPage" hidden>
       <div class="page-heading">
         <p>MANUAL INVENTORY</p>
@@ -1053,7 +1053,7 @@
       </div>
     </section>
 
-    <!-- Combined Storage Locations & Content Inspector Page (Fitted Rectangles, No Dead Space, Dedicated Action Buttons) -->
+    <!-- Combined Storage Locations & Content Inspector Page -->
     <section class="catalog page-view" id="storagePage" hidden>
       <div class="page-heading">
         <p>LOCATIONS &amp; AUDIT</p>
@@ -1061,7 +1061,7 @@
       </div>
 
       <div class="storage-layout">
-        <!-- Left: Stacked Add Location Forms (Tight rectangle bounds, parameters above, action buttons below) -->
+        <!-- Left: Stacked Add Location Forms -->
         <div class="storage-sections">
           <!-- Add Cupboard and Racks -->
           <section class="storage-section">
@@ -1264,7 +1264,7 @@
     const appShell = document.getElementById("appShell");
 
     // ==========================================
-    // AUTHENTICATION & SESSION TIMEOUT (30s)
+    // AUTHENTICATION & ACCURATE WALL-CLOCK TIMEOUT (30s)
     // ==========================================
     const AUTH_PASSWORD = "festo";
     const TIMEOUT_SECONDS = 30;
@@ -1272,7 +1272,7 @@
     let isAuthenticated = false;
     let pendingTargetPage = null;
     let activePageId = "searchPage";
-    let remainingSeconds = TIMEOUT_SECONDS;
+    let sessionDeadline = 0; // Absolute wall-clock timestamp (Date.now() + ms)
     let countdownIntervalId = null;
 
     const authModal = document.getElementById("authModal");
@@ -1284,34 +1284,44 @@
     const sessionTimerText = document.getElementById("sessionTimerText");
     const logoutButton = document.getElementById("logoutButton");
 
+    function getRemainingSeconds() {
+      if (!sessionDeadline) return 0;
+      const diff = Math.ceil((sessionDeadline - Date.now()) / 1000);
+      return diff > 0 ? diff : 0;
+    }
+
     function updateTimerBadge() {
-      sessionTimerText.textContent = `${remainingSeconds}s`;
+      const remaining = getRemainingSeconds();
+      sessionTimerText.textContent = `${remaining}s`;
     }
 
     function resetActivityTimer() {
       if (!isAuthenticated) return;
-      remainingSeconds = TIMEOUT_SECONDS;
+      sessionDeadline = Date.now() + (TIMEOUT_SECONDS * 1000);
       updateTimerBadge();
+    }
+
+    function checkSessionTimeout() {
+      if (!isAuthenticated) {
+        stopInactivityCountdown();
+        return;
+      }
+
+      const remaining = getRemainingSeconds();
+      updateTimerBadge();
+
+      if (remaining <= 0) {
+        logout();
+      }
     }
 
     function startInactivityCountdown() {
       stopInactivityCountdown();
-      remainingSeconds = TIMEOUT_SECONDS;
+      sessionDeadline = Date.now() + (TIMEOUT_SECONDS * 1000);
       updateTimerBadge();
 
-      countdownIntervalId = setInterval(() => {
-        if (!isAuthenticated) {
-          stopInactivityCountdown();
-          return;
-        }
-
-        remainingSeconds--;
-        updateTimerBadge();
-
-        if (remainingSeconds <= 0) {
-          logout();
-        }
-      }, 1000);
+      // Poll frequently so tab waking triggers instant logout if time elapsed
+      countdownIntervalId = setInterval(checkSessionTimeout, 500);
     }
 
     function stopInactivityCountdown() {
@@ -1319,6 +1329,7 @@
         clearInterval(countdownIntervalId);
         countdownIntervalId = null;
       }
+      sessionDeadline = 0;
     }
 
     function loginSuccess() {
@@ -1355,17 +1366,37 @@
       authPasswordInput.focus();
     }
 
-    window.addEventListener("mousemove", () => {
-      if (!isAuthenticated) return;
-      if (activePageId === "searchPage") return;
-      resetActivityTimer();
-    });
-
-    window.addEventListener("keydown", () => {
-      if (isAuthenticated && activePageId !== "searchPage") {
-        resetActivityTimer();
+    // Handles tab switching, minimization, or locking: executes instant check upon return
+    document.addEventListener("visibilitychange", () => {
+      if (isAuthenticated) {
+        checkSessionTimeout();
       }
     });
+
+    window.addEventListener("focus", () => {
+      if (isAuthenticated) {
+        checkSessionTimeout();
+      }
+    });
+
+    // Scoped activity filter: only reset if cursor/key is inside the 4 protected views
+    function handleScopedActivity(event) {
+      if (!isAuthenticated) return;
+
+      const protectedPages = ['materialPage', 'storagePage', 'usersPage', 'logsPage'];
+      
+      // If we are currently viewing the search page, ignore mouse/key movements
+      if (!protectedPages.includes(activePageId)) return;
+
+      const activeElement = document.getElementById(activePageId);
+      if (activeElement && activeElement.contains(event.target)) {
+        resetActivityTimer();
+      }
+    }
+
+    window.addEventListener("mousemove", handleScopedActivity, { passive: true });
+    window.addEventListener("keydown", handleScopedActivity, { passive: true });
+    window.addEventListener("mousedown", handleScopedActivity, { passive: true });
 
     authForm.addEventListener("submit", (e) => {
       e.preventDefault();
