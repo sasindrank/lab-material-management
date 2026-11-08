@@ -703,8 +703,7 @@
       border-color: var(--green);
     }
 
-    /* 7-column layout matching exact prompt specification:
-       username, part code, part number, quantity, allocated or returned, allocated time, returned time */
+    /* 7-column layout: username, part code, part number, quantity, allocated or returned, allocated time, returned time */
     .log-table-head, .log-row {
       display: grid;
       grid-template-columns: minmax(130px, 1.2fr) minmax(105px, 1fr) minmax(130px, 1.2fr) 75px 115px minmax(140px, 1.3fr) minmax(140px, 1.3fr);
@@ -1161,7 +1160,7 @@
       </div>
     </section>
 
-    <!-- Combined Lifecycle Logs Page with Date Range Filters -->
+    <!-- Lifecycle Logs Page -->
     <section class="catalog page-view" id="logsPage" hidden>
       <div class="catalog-head">
         <div><p class="kicker">AUDIT TRAIL</p><h2>Material Activity Logs</h2></div>
@@ -1522,6 +1521,30 @@
       if (entries.some((entry) => String(getValue(entry)) === String(previousValue))) {
         select.value = previousValue;
       }
+    }
+
+    // Helper to generate AutoFilter & column widths in SheetJS
+    function prepareExcelWorksheet(jsonRows) {
+      const ws = XLSX.utils.json_to_sheet(jsonRows);
+      if (ws['!ref']) {
+        // Enable AutoFilter by default
+        ws['!autofilter'] = { ref: ws['!ref'] };
+
+        // Auto-size columns nicely based on content
+        const headers = Object.keys(jsonRows[0] || {});
+        ws['!cols'] = headers.map(key => {
+          let maxLen = key.length;
+          jsonRows.forEach(row => {
+            const val = row[key];
+            if (val !== null && val !== undefined) {
+              const strLen = String(val).length;
+              if (strLen > maxLen) maxLen = strLen;
+            }
+          });
+          return { wch: Math.min(Math.max(maxLen + 3, 12), 45) };
+        });
+      }
+      return ws;
     }
 
     // ==========================================
@@ -2158,7 +2181,6 @@
 
       for (const table of uniqueTables) {
         try {
-          // Attempt 1: Full payload
           const payload = {
             user_id: userId,
             user_name: userName,
@@ -2177,7 +2199,7 @@
             return;
           }
 
-          // Attempt 2: If user_id constraint failed (e.g., non-uuid or foreign key constraint)
+          // Fallback if foreign key / UUID constraint fails on user_id
           if (res.error.message?.includes('violates foreign key') || res.error.message?.includes('invalid input syntax for type uuid')) {
             delete payload.user_id;
             res = await supabaseClient.from(table).insert([payload]);
@@ -2187,7 +2209,7 @@
             }
           }
         } catch (e) {
-          // try next table candidate
+          // Continue to next table candidate
         }
       }
     }
@@ -2199,7 +2221,6 @@
 
       for (const table of uniqueTables) {
         try {
-          // Find the active Allocated row for this user and part
           let query = supabaseClient
             .from(table)
             .select('id, quantity, user_id, part_code, status')
@@ -2216,7 +2237,6 @@
 
           if (!findErr && openLogs && openLogs.length > 0) {
             const openLogId = openLogs[0].id;
-            // Update the SAME line: status to Return and returned_time to now
             const updateRes = await supabaseClient
               .from(table)
               .update({
@@ -2231,11 +2251,11 @@
             }
           }
         } catch (e) {
-          // try next table
+          // Try next table
         }
       }
 
-      // If no active allocation row was found, insert a returned entry
+      // If no open allocation log was found, insert a standalone returned row
       try {
         await supabaseClient.from(ACTIVE_LOG_TABLE).insert([{
           user_id: userId,
@@ -2564,7 +2584,7 @@
             return;
           }
         } catch (err) {
-          // continue checking
+          // Continue checking
         }
       }
       renderLogs();
@@ -2643,8 +2663,38 @@
       renderLogs();
     });
 
+    // ==========================================
+    // 8. ENHANCED EXCEL EXPORTS (WITH DEFAULT AUTOFILTER)
+    // ==========================================
+    exportButton.addEventListener("click", () => {
+      const activeProducts = products.filter(p => parseInt(p.quantity, 10) >= 1);
+      if (!activeProducts.length) return alert("No materials available to export.");
+
+      // If user typed a search term, export currently filtered items, otherwise export all active
+      const query = searchInput.value.trim().toLowerCase();
+      const exportList = query
+        ? activeProducts.filter(p => p.part_number.toLowerCase().includes(query) || p.part_code.toLowerCase().includes(query))
+        : activeProducts;
+
+      if (!exportList.length) return alert("No matching materials found for your search term to export.");
+
+      const rows = exportList.map(p => ({
+        "Part Number": p.part_number,
+        "Part Code": p.part_code,
+        "Quantity": parseInt(p.quantity, 10) || 0,
+        "Location Type": p.location_type ? p.location_type.toUpperCase() : "STORAGE",
+        "Location Details": p.location_text || "-"
+      }));
+
+      const ws = prepareExcelWorksheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Material Inventory");
+      XLSX.writeFile(wb, "Lab_Material_Inventory.xlsx");
+    });
+
     exportLogsButton.addEventListener("click", () => {
       if (!activityLogs.length) return alert("No logs available to export.");
+
       const rows = activityLogs.map(l => {
         const isReturn = (l.status || l.action || '').toLowerCase().startsWith('return');
         const rawAllocTime = l.allocated_time || (l.status?.toUpperCase() === 'ALLOCATED' ? l.created_at : null);
@@ -2654,21 +2704,21 @@
           "Username": l.user_name || "User",
           "Part Code": l.part_code || "-",
           "Part Number": l.part_number || "-",
-          "Quantity": l.quantity || 1,
+          "Quantity": parseInt(l.quantity, 10) || 1,
           "Allocated or Returned": isReturn ? "Return" : "Allocated",
           "Allocated Time": rawAllocTime ? new Date(rawAllocTime).toLocaleString() : "-",
           "Returned Time": rawReturnTime ? new Date(rawReturnTime).toLocaleString() : "-"
         };
       });
 
-      const ws = XLSX.utils.json_to_sheet(rows);
+      const ws = prepareExcelWorksheet(rows);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Material Logs");
       XLSX.writeFile(wb, "Material_Activity_Logs.xlsx");
     });
 
     // ==========================================
-    // 8. MANUAL ADD/DELETE
+    // 9. MANUAL ADD/DELETE
     // ==========================================
     materialForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -2796,7 +2846,7 @@
     });
 
     // ==========================================
-    // 9. INVENTORY & REALTIME
+    // 10. INVENTORY & REALTIME
     // ==========================================
     async function refreshInventory() {
       try {
@@ -2920,7 +2970,7 @@
     }
 
     // ==========================================
-    // 10. NAVIGATION & ROUTING
+    // 11. NAVIGATION & ROUTING
     // ==========================================
     async function navigateTo(targetPageId) {
       activePageId = targetPageId;
@@ -2978,24 +3028,8 @@
       render();
     });
 
-    exportButton.addEventListener("click", () => {
-      const activeProducts = products.filter(p => parseInt(p.quantity, 10) >= 1);
-      if (!activeProducts.length) return alert("No materials available to export.");
-      const rows = activeProducts.map(p => ({
-        "Part Number": p.part_number,
-        "Part Code": p.part_code,
-        "Quantity": p.quantity,
-        "Location Type": p.location_type,
-        "Location Details": p.location_text
-      }));
-      const ws = XLSX.utils.json_to_sheet(rows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Material Inventory");
-      XLSX.writeFile(wb, "Lab_Material_Inventory.xlsx");
-    });
-
     // ==========================================
-    // 11. BOOTSTRAP INITIALIZATION
+    // 12. BOOTSTRAP INITIALIZATION
     // ==========================================
     async function initializeApplication() {
       loadingState.hidden = false;
