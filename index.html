@@ -395,7 +395,6 @@
         updateTimerBadge();
 
         if (remainingSeconds <= 0) {
-          // If the page is currently in the search tab, or if user was idle in protected tabs
           logout();
           alert("Session expired due to 30 seconds of inactivity.");
         }
@@ -430,7 +429,6 @@
       authModal.hidden = true;
       pendingTargetPage = null;
 
-      // Always switch back to Search on logout if currently on a protected tab
       if (activePageId !== "searchPage") {
         navigateTo("searchPage");
       }
@@ -444,17 +442,14 @@
       authPasswordInput.focus();
     }
 
-    // Only detect mouse movement when outside the search tab
     window.addEventListener("mousemove", () => {
       if (!isAuthenticated) return;
       if (activePageId === "searchPage") {
-        // Do not reset timer when cursor moves while in Search tab
-        return;
+        return; // Don't reset if mouse moves inside Search tab
       }
       resetActivityTimer();
     });
 
-    // Also reset timer on active keystrokes inside protected tabs
     window.addEventListener("keydown", () => {
       if (isAuthenticated && activePageId !== "searchPage") {
         resetActivityTimer();
@@ -909,6 +904,52 @@
       }
     }
 
+    // ==========================================
+    // REALTIME & CONTINUOUS BACKGROUND SYNC
+    // ==========================================
+    function setupContinuousSync() {
+      // 1. Supabase WebSocket Real-Time Listener (instant updates on insert, update, delete)
+      supabaseClient
+        .channel('public:materials')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'materials' },
+          () => {
+            refreshInventory();
+          }
+        )
+        .subscribe((status) => {
+          if (status === 'SUBSCRIBED') {
+            console.log('Realtime sync connected for materials table.');
+          }
+        });
+
+      // Also listen to storage changes if boxes/racks get deleted
+      supabaseClient
+        .channel('public:locations')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'cupboards' },
+          () => { loadStorage(); }
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'boxes' },
+          () => { loadStorage(); }
+        )
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'racks' },
+          () => { loadStorage(); }
+        )
+        .subscribe();
+
+      // 2. Continuous Background Polling interval (every 4 seconds) as a network/fallback guarantee
+      setInterval(() => {
+        refreshInventory();
+      }, 4000);
+    }
+
     function makeCell(className, text) {
       const cell = document.createElement("span");
       cell.className = className;
@@ -983,7 +1024,6 @@
       tab.addEventListener("click", () => {
         const targetPageId = tab.dataset.page;
         
-        // If clicking on Add Material or Storage Locations and not logged in, prompt password
         if ((targetPageId === "materialPage" || targetPageId === "storagePage") && !isAuthenticated) {
           promptLogin(targetPageId);
           return;
@@ -1024,6 +1064,7 @@
       await checkServerConnection();
       await loadStorage();
       await refreshInventory();
+      setupContinuousSync();
     });
   </script>
 </body>
