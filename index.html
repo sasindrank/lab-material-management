@@ -190,6 +190,36 @@
     .empty[hidden] { display: none !important; }
     .empty-symbol { color: var(--green); font: 22px var(--mono); }
 
+    /* ==========================================
+       LOGIN DIALOG MODAL
+       ========================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(18, 77, 64, 0.45);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay[hidden] { display: none !important; }
+    .modal-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 24px;
+      width: min(380px, 90%);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .modal-card h3 { margin: 0 0 8px; font-size: 16px; color: var(--green-dark); }
+    .modal-card p { margin: 0 0 16px; color: var(--muted); font-size: 12px; }
+    .modal-card .field { margin-bottom: 14px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .btn-secondary { background: #eef2f0; border: 1px solid #ced6d1; border-radius: 4px; padding: 0 14px; height: 38px; cursor: pointer; font-size: 11px; font-weight: 600; }
+    .btn-secondary:hover { background: #e0e7e3; }
+    .modal-actions .action-button { height: 38px; min-width: 75px; }
+
     @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 850px) { .shell { padding: 0 5%; } .table-head, .product-list { min-width: 750px; } }
     @media (max-width: 600px) {
@@ -370,6 +400,25 @@
     </section>
   </main>
 
+  <!-- Login Dialog Modal -->
+  <div class="modal-overlay" id="authModal" hidden>
+    <div class="modal-card">
+      <h3>Authentication Required</h3>
+      <p>Enter the password to access inventory controls.</p>
+      <form id="authForm">
+        <label class="field">
+          Password
+          <input type="password" id="authPasswordInput" required placeholder="Enter password" autocomplete="current-password">
+        </label>
+        <p class="form-status error" id="authError" style="margin-bottom: 12px;"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="authCancelButton">Cancel</button>
+          <button type="submit" class="action-button">Unlock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     // ==========================================
     // 1. SUPABASE CLIENT & CREDENTIALS
@@ -394,15 +443,22 @@
     const appShell = document.getElementById("appShell");
 
     // ==========================================
-    // INACTIVITY TIMEOUT & SESSION CONTROLS
+    // AUTHENTICATION & SESSION TIMEOUT (30s)
     // ==========================================
+    const AUTH_PASSWORD = "festo";
     const TIMEOUT_SECONDS = 30;
 
-    let isSessionActive = false;
+    let isAuthenticated = false;
+    let pendingTargetPage = null;
     let activePageId = "searchPage";
     let remainingSeconds = TIMEOUT_SECONDS;
     let countdownIntervalId = null;
 
+    const authModal = document.getElementById("authModal");
+    const authForm = document.getElementById("authForm");
+    const authPasswordInput = document.getElementById("authPasswordInput");
+    const authError = document.getElementById("authError");
+    const authCancelButton = document.getElementById("authCancelButton");
     const sessionIndicator = document.getElementById("sessionIndicator");
     const sessionTimerText = document.getElementById("sessionTimerText");
     const logoutButton = document.getElementById("logoutButton");
@@ -412,21 +468,19 @@
     }
 
     function resetActivityTimer() {
-      if (!isSessionActive) return;
+      if (!isAuthenticated) return;
       remainingSeconds = TIMEOUT_SECONDS;
       updateTimerBadge();
     }
 
-    function startSession() {
-      isSessionActive = true;
+    function startInactivityCountdown() {
+      stopInactivityCountdown();
       remainingSeconds = TIMEOUT_SECONDS;
       updateTimerBadge();
-      sessionIndicator.hidden = false;
 
-      stopSessionCountdown();
       countdownIntervalId = setInterval(() => {
-        if (!isSessionActive) {
-          stopSessionCountdown();
+        if (!isAuthenticated) {
+          stopInactivityCountdown();
           return;
         }
 
@@ -434,42 +488,81 @@
         updateTimerBadge();
 
         if (remainingSeconds <= 0) {
-          endSession();
+          logout();
         }
       }, 1000);
     }
 
-    function stopSessionCountdown() {
+    function stopInactivityCountdown() {
       if (countdownIntervalId) {
         clearInterval(countdownIntervalId);
         countdownIntervalId = null;
       }
     }
 
-    function endSession() {
-      isSessionActive = false;
-      stopSessionCountdown();
-      sessionIndicator.hidden = true; // Hide logout button and timer when season is ended
+    function loginSuccess() {
+      isAuthenticated = true;
+      authModal.hidden = true;
+      authPasswordInput.value = "";
+      authError.textContent = "";
+      sessionIndicator.hidden = false;
+      startInactivityCountdown();
+
+      if (pendingTargetPage) {
+        navigateTo(pendingTargetPage);
+        pendingTargetPage = null;
+      }
+    }
+
+    function logout() {
+      isAuthenticated = false;
+      stopInactivityCountdown();
+      sessionIndicator.hidden = true; // Hide time and logout button
+      authModal.hidden = true;
+      pendingTargetPage = null;
 
       if (activePageId !== "searchPage") {
         navigateTo("searchPage");
       }
     }
 
-    // Do not reset timer when cursor moves inside the Search tab
+    function promptLogin(targetPage) {
+      pendingTargetPage = targetPage;
+      authModal.hidden = false;
+      authError.textContent = "";
+      authPasswordInput.value = "";
+      authPasswordInput.focus();
+    }
+
+    // Reset countdown on mouse movement only in authenticated tabs (ignored on Search tab)
     window.addEventListener("mousemove", () => {
-      if (!isSessionActive) return;
+      if (!isAuthenticated) return;
       if (activePageId === "searchPage") return;
       resetActivityTimer();
     });
 
     window.addEventListener("keydown", () => {
-      if (isSessionActive && activePageId !== "searchPage") {
+      if (isAuthenticated && activePageId !== "searchPage") {
         resetActivityTimer();
       }
     });
 
-    logoutButton.addEventListener("click", endSession);
+    authForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (authPasswordInput.value.trim().toLowerCase() === AUTH_PASSWORD) {
+        loginSuccess();
+      } else {
+        authError.textContent = "Incorrect password. Please try again.";
+        authPasswordInput.select();
+      }
+    });
+
+    authCancelButton.addEventListener("click", () => {
+      authModal.hidden = true;
+      pendingTargetPage = null;
+    });
+
+    logoutButton.addEventListener("click", logout);
 
     // DOM References
     const labTitleText = document.getElementById("labTitleText");
@@ -517,7 +610,8 @@
       const { error } = await supabaseClient.from('cupboards').select('id', { count: 'exact', head: true });
       if (error) throw error;
       setConnectionVisuals(true);
-      workbookStatus.textContent = "Connected to Supabase live database.";
+      // Removed connection info from search view
+      workbookStatus.textContent = "";
       workbookStatus.classList.remove("error");
     }
 
@@ -985,7 +1079,7 @@
     }
 
     // ==========================================
-    // 7. TAB NAVIGATION & ROUTING
+    // 7. TAB NAVIGATION & PROTECTED ROUTING
     // ==========================================
     async function navigateTo(targetPageId) {
       activePageId = targetPageId;
@@ -998,20 +1092,22 @@
         view.hidden = view.id !== targetPageId;
       });
 
-      // Starting session on restricted tabs
       if (targetPageId === "storagePage" || targetPageId === "materialPage") {
-        if (!isSessionActive) {
-          startSession();
-        } else {
-          resetActivityTimer();
-        }
         await loadStorage();
       }
     }
 
     document.querySelectorAll(".page-tab").forEach((tab) => {
       tab.addEventListener("click", () => {
-        navigateTo(tab.dataset.page);
+        const targetPageId = tab.dataset.page;
+        
+        // Intercept protected tabs if not logged in
+        if ((targetPageId === "materialPage" || targetPageId === "storagePage") && !isAuthenticated) {
+          promptLogin(targetPageId);
+          return;
+        }
+
+        navigateTo(targetPageId);
       });
     });
 
