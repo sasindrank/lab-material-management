@@ -143,8 +143,8 @@
       flex-shrink: 0;
     }
     
-    .brand { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 800; cursor: pointer; }
-    .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 4px; background: #dc2626; color: white; font-size: 16px; transition: background-color 0.3s; }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 800; cursor: pointer; user-select: none; }
+    .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 4px; background: #dc2626; color: white; font-size: 16px; transition: background-color 0.3s; cursor: pointer; }
     #labTitleText { color: #dc2626; transition: color 0.3s; }
     #labTitleText.connected { color: #16a34a !important; }
     .brand-mark.connected { background-color: #16a34a !important; }
@@ -154,6 +154,7 @@
     .page-tab { position: relative; padding: 0 14px; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 600; }
     .page-tab:hover, .page-tab.active { color: var(--green-dark); }
     .page-tab.active::after { position: absolute; right: 12px; bottom: 0; left: 12px; height: 2px; background: var(--orange); content: ""; }
+    .page-tab[hidden] { display: none !important; }
     .page-view[hidden] { display: none !important; }
     
     .session-badge { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: var(--mono); color: var(--green-dark); background: var(--mint); padding: 4px 8px; border-radius: 4px; border: 1px solid #c2ded3; }
@@ -668,7 +669,7 @@
 
     /* ==========================================
        SAME-ROW LIFECYCLE LOGS
-       ========================================== */
+       ========================================= */
     .log-filter-bar {
       display: flex;
       align-items: center;
@@ -815,7 +816,8 @@
   <!-- Shell -->
   <main class="shell" id="appShell" hidden>
     <header class="topbar">
-      <div class="brand">
+      <!-- Clicking the 'L' logo acts as the secret trigger to open the password prompt -->
+      <div class="brand" id="secretBrandTrigger" title="Lab Inventory">
         <span class="brand-mark" id="brandMark" aria-hidden="true">L</span>
         <span id="labTitleText">LAB INVENTORY</span>
       </div>
@@ -824,12 +826,13 @@
           <span id="sessionTimerText">30s</span>
           <button type="button" class="logout-btn" id="logoutButton">Log out</button>
         </div>
+        <!-- Secretly hidden tabs: Add/Delete Material, Storage Locations, Users, Logs -->
         <nav class="primary-nav" aria-label="Pages">
           <button class="page-tab active" type="button" data-page="searchPage">Search</button>
-          <button class="page-tab" type="button" data-page="materialPage">Add/Delete Material</button>
-          <button class="page-tab" type="button" data-page="storagePage">Storage Locations</button>
-          <button class="page-tab" type="button" data-page="usersPage">Users</button>
-          <button class="page-tab" type="button" data-page="logsPage">Logs</button>
+          <button class="page-tab admin-tab" type="button" data-page="materialPage" hidden>Add/Delete Material</button>
+          <button class="page-tab admin-tab" type="button" data-page="storagePage" hidden>Storage Locations</button>
+          <button class="page-tab admin-tab" type="button" data-page="usersPage" hidden>Users</button>
+          <button class="page-tab admin-tab" type="button" data-page="logsPage" hidden>Logs</button>
         </nav>
       </div>
     </header>
@@ -840,7 +843,7 @@
         <div><p class="kicker">DIRECTORY</p><h2>Material catalog</h2></div>
         <div class="catalog-actions">
           <!-- Displays total available quantity stock next to Export Excel -->
-          <div class="catalog-meta"><span id="itemCount">0 TOTAL QTY</span></div>
+          <div class="catalog-meta"><span id="itemCount">0 IN STOCK</span></div>
           <button class="action-button" id="exportButton" type="button">Export Excel</button>
         </div>
       </div>
@@ -1161,7 +1164,7 @@
       </div>
     </section>
 
-    <!-- Combined Lifecycle Logs Page with Date Range Filters -->
+    <!-- Lifecycle Logs Page -->
     <section class="catalog page-view" id="logsPage" hidden>
       <div class="catalog-head">
         <div><p class="kicker">AUDIT TRAIL</p><h2>Material Activity Logs</h2></div>
@@ -1340,11 +1343,19 @@
       authPasswordInput.value = "";
       authError.textContent = "";
       sessionIndicator.hidden = false;
+
+      // SECRET UNLOCK: Show hidden admin navigation tabs
+      document.querySelectorAll(".admin-tab").forEach(tab => {
+        tab.hidden = false;
+      });
+
       startInactivityCountdown();
 
       if (pendingTargetPage) {
         navigateTo(pendingTargetPage);
         pendingTargetPage = null;
+      } else {
+        navigateTo("materialPage");
       }
     }
 
@@ -1354,6 +1365,11 @@
       sessionIndicator.hidden = true;
       authModal.hidden = true;
       pendingTargetPage = null;
+
+      // SECRET LOCK: Hide all admin navigation tabs
+      document.querySelectorAll(".admin-tab").forEach(tab => {
+        tab.hidden = true;
+      });
 
       if (activePageId !== "searchPage") {
         navigateTo("searchPage");
@@ -1411,6 +1427,7 @@
     // DOM References
     const labTitleText = document.getElementById("labTitleText");
     const brandMark = document.getElementById("brandMark");
+    const secretBrandTrigger = document.getElementById("secretBrandTrigger");
     const searchInput = document.getElementById("searchInput");
     const clearButton = document.getElementById("clearButton");
     const productList = document.getElementById("productList");
@@ -1488,6 +1505,23 @@
     const clearLogDatesBtn = document.getElementById("clearLogDatesBtn");
 
     const unifiedInspectorContent = document.getElementById("unifiedInspectorContent");
+
+    // Secret Access Trigger 1: Clicking the top-left Logo/Brand
+    secretBrandTrigger.addEventListener("click", () => {
+      if (!isAuthenticated) {
+        promptLogin("materialPage");
+      }
+    });
+
+    // Secret Access Trigger 2: Keyboard shortcut (Ctrl + Shift + A)
+    window.addEventListener("keydown", (e) => {
+      if (e.ctrlKey && e.shiftKey && (e.key === "A" || e.key === "a")) {
+        e.preventDefault();
+        if (!isAuthenticated) {
+          promptLogin("materialPage");
+        }
+      }
+    });
 
     function setConnectionVisuals(isConnected) {
       if (isConnected) {
