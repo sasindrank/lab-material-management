@@ -2118,21 +2118,20 @@
       }
     }
 
-    // SEARCH BAR DROPDOWNS: Exclude guest accounts completely
+    // SEARCH BAR DROPDOWNS: Exclude guest accounts and display ONLY the user's name
     function populateUserDropdowns() {
       const nonGuestUsers = users.filter(u => !isGuestEmail(u.email));
-      selectOptions(takeUserSelect, nonGuestUsers, "Select Registered User", u => u.id, u => `${u.name} (${u.email})`);
-      selectOptions(returnUserSelect, nonGuestUsers, "Select Registered User", u => u.id, u => `${u.name} (${u.email})`);
-      selectOptions(userAllocViewerSelect, users, "Choose User to View Allocations", u => u.id, u => `${u.name} ${isGuestEmail(u.email) ? '[Guest]' : '(' + u.email + ')'}`);
+      selectOptions(takeUserSelect, nonGuestUsers, "Select Registered User", u => u.id, u => u.name);
+      selectOptions(returnUserSelect, nonGuestUsers, "Select Registered User", u => u.id, u => u.name);
+      selectOptions(userAllocViewerSelect, users, "Choose User to View Allocations", u => u.id, u => u.name);
     }
 
     function populateDatalists() {
       userSuggestionsList.replaceChildren();
-      // Only suggest registered users in autocomplete
+      // Only suggest registered user names in autocomplete
       users.filter(u => !isGuestEmail(u.email)).forEach(u => {
         const opt = document.createElement("option");
         opt.value = u.name;
-        opt.label = u.email;
         userSuggestionsList.append(opt);
       });
 
@@ -2853,7 +2852,7 @@
         const takeQty = parseInt(takeQuantity.value, 10);
         if (isNaN(takeQty) || takeQty < 1) throw new Error("Please enter a valid whole number quantity starting from 1.");
 
-        const userName = takeUserSelect.selectedOptions[0]?.text.split('(')[0].trim() || "User";
+        const userName = takeUserSelect.selectedOptions[0]?.text || "User";
         const item = await executeMaterialAllocation(userId, userName, pNum, pCode, takeQty, takeMaterialId.value);
 
         setFormStatus(globalStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userName}.`);
@@ -2884,7 +2883,7 @@
           throw new Error(`Cannot return ${returnQty}. User is only allocated ${allocItem.quantity}.`);
         }
 
-        const userName = returnUserSelect.selectedOptions[0]?.text.split('(')[0].trim() || "User";
+        const userName = returnUserSelect.selectedOptions[0]?.text || "User";
         const locConfig = {
           locationType: returnLocationType.value,
           cupboardId: returnCupboard.value,
