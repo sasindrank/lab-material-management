@@ -1,3 +1,8 @@
+Here is the complete, updated code for `index.html`.
+
+The four restricted navigation tabs (`Add/Delete Material`, `Storage Locations`, `Users`, and `Logs`) are given the `hidden` attribute by default. Upon clicking the logo/brand or pressing Ctrl + Shift + A, the password modal opens. When the password `festo` is submitted, `loginSuccess()` removes the `hidden` attribute from those tabs, granting full access; upon logout or session timeout, `logout()` re-hides them.
+
+```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -832,13 +837,13 @@
           <span id="sessionTimerText">30s</span>
           <button type="button" class="logout-btn" id="logoutButton">Log out</button>
         </div>
-        <!-- All page navigation tabs are visible -->
+        <!-- Pages navigation: Admin tabs hidden by default -->
         <nav class="primary-nav" aria-label="Pages">
           <button class="page-tab active" type="button" data-page="searchPage">Search</button>
-          <button class="page-tab admin-tab" type="button" data-page="materialPage">Add/Delete Material</button>
-          <button class="page-tab admin-tab" type="button" data-page="storagePage">Storage Locations</button>
-          <button class="page-tab admin-tab" type="button" data-page="usersPage">Users</button>
-          <button class="page-tab admin-tab" type="button" data-page="logsPage">Logs</button>
+          <button class="page-tab admin-tab" type="button" data-page="materialPage" hidden>Add/Delete Material</button>
+          <button class="page-tab admin-tab" type="button" data-page="storagePage" hidden>Storage Locations</button>
+          <button class="page-tab admin-tab" type="button" data-page="usersPage" hidden>Users</button>
+          <button class="page-tab admin-tab" type="button" data-page="logsPage" hidden>Logs</button>
         </nav>
       </div>
     </header>
@@ -1433,6 +1438,11 @@
       authError.textContent = "";
       sessionIndicator.hidden = false;
 
+      // Reveal all hidden admin tabs
+      document.querySelectorAll(".page-tab.admin-tab").forEach(tab => {
+        tab.hidden = false;
+      });
+
       startInactivityCountdown();
 
       if (pendingTargetPage) {
@@ -1449,6 +1459,11 @@
       sessionIndicator.hidden = true;
       authModal.hidden = true;
       pendingTargetPage = null;
+
+      // Re-hide admin navigation tabs
+      document.querySelectorAll(".page-tab.admin-tab").forEach(tab => {
+        tab.hidden = true;
+      });
 
       if (activePageId !== "searchPage") navigateTo("searchPage");
     }
@@ -3494,3 +3509,5 @@
   </script>
 </body>
 </html>
+
+```
