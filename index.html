@@ -1,12 +1,3 @@
-Here is the complete, updated `index.html` with all the requested modifications:
-
-### Summary of Changes:
-
-1. **Dynamic Guest Account Creation**: When allocating to an unregistered manual user on the user page, a temporary guest profile is generated with the pattern `...@guest.lab` (marked with `is_guest = true`).
-2. **Exclude Guests from Search Selection**: The Search page's registered user dropdown (`takeUserSelect` and `returnUserSelect`) filters out any guest accounts (`!u.email.endsWith('@guest.lab')`), ensuring only official registered members are displayed.
-3. **Auto-Cleanup on Return**: When material is returned, the system checks whether the user is a guest user and whether they have any other remaining active allocations. If they have no remaining allocations, the temporary guest account is automatically deleted from the database.
-
-```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -841,12 +832,13 @@ Here is the complete, updated `index.html` with all the requested modifications:
           <span id="sessionTimerText">30s</span>
           <button type="button" class="logout-btn" id="logoutButton">Log out</button>
         </div>
+        <!-- All page navigation tabs are visible -->
         <nav class="primary-nav" aria-label="Pages">
           <button class="page-tab active" type="button" data-page="searchPage">Search</button>
-          <button class="page-tab admin-tab" type="button" data-page="materialPage" hidden>Add/Delete Material</button>
-          <button class="page-tab admin-tab" type="button" data-page="storagePage" hidden>Storage Locations</button>
-          <button class="page-tab admin-tab" type="button" data-page="usersPage" hidden>Users</button>
-          <button class="page-tab admin-tab" type="button" data-page="logsPage" hidden>Logs</button>
+          <button class="page-tab admin-tab" type="button" data-page="materialPage">Add/Delete Material</button>
+          <button class="page-tab admin-tab" type="button" data-page="storagePage">Storage Locations</button>
+          <button class="page-tab admin-tab" type="button" data-page="usersPage">Users</button>
+          <button class="page-tab admin-tab" type="button" data-page="logsPage">Logs</button>
         </nav>
       </div>
     </header>
@@ -888,7 +880,7 @@ Here is the complete, updated `index.html` with all the requested modifications:
         </div>
       </div>
 
-      <!-- Bottom Bar on Search Page: Guest users excluded from dropdown selection -->
+      <!-- Bottom Bar on Search Page: Excludes guest accounts -->
       <div class="aligned-bottom-bar" id="alignedBottomBar">
         <div class="transaction-bar">
           <div class="compact-switch">
@@ -1190,12 +1182,11 @@ Here is the complete, updated `index.html` with all the requested modifications:
               <label><input type="radio" name="userPageOpMode" value="return"> Return</label>
             </div>
 
-            <!-- Datalists for suggestions -->
             <datalist id="userSuggestionsList"></datalist>
             <datalist id="partNumberSuggestionsList"></datalist>
             <datalist id="partCodeSuggestionsList"></datalist>
 
-            <!-- User Page Allocate Form (Auto-creates guest email for non-registered users) -->
+            <!-- User Page Allocate Form -->
             <form id="userPageTakeForm" style="display: contents;">
               <div class="inline-field">
                 <input list="userSuggestionsList" name="userManual" id="userTakeUserInput" required placeholder="User Name (any name)" style="width: 160px;">
@@ -1212,7 +1203,7 @@ Here is the complete, updated `index.html` with all the requested modifications:
               <button class="compact-btn danger" type="submit" id="userAllocateSubmitBtn">Allocate</button>
             </form>
 
-            <!-- User Page Return Form (Deletes guest users upon complete return) -->
+            <!-- User Page Return Form -->
             <form id="userPageReturnForm" style="display: none;">
               <div class="inline-field">
                 <input list="userSuggestionsList" name="userManual" id="userReturnUserInput" required placeholder="User Name" style="width: 140px;">
@@ -1442,10 +1433,6 @@ Here is the complete, updated `index.html` with all the requested modifications:
       authError.textContent = "";
       sessionIndicator.hidden = false;
 
-      document.querySelectorAll(".admin-tab").forEach(tab => {
-        tab.hidden = false;
-      });
-
       startInactivityCountdown();
 
       if (pendingTargetPage) {
@@ -1462,10 +1449,6 @@ Here is the complete, updated `index.html` with all the requested modifications:
       sessionIndicator.hidden = true;
       authModal.hidden = true;
       pendingTargetPage = null;
-
-      document.querySelectorAll(".admin-tab").forEach(tab => {
-        tab.hidden = true;
-      });
 
       if (activePageId !== "searchPage") navigateTo("searchPage");
     }
@@ -2088,7 +2071,7 @@ Here is the complete, updated `index.html` with all the requested modifications:
     function renderUsers() {
       usersList.replaceChildren();
 
-      // Filter out auto-generated guests from official list view
+      // Only display regular, official users in the table view
       const regularUsers = users.filter(u => !isGuestEmail(u.email));
 
       if (!regularUsers.length) {
@@ -2159,13 +2142,12 @@ Here is the complete, updated `index.html` with all the requested modifications:
       });
     }
 
-    // Automatically create user with a unique guest mail ID when manual non-registered user allocates
+    // Dynamically register a guest user with unique guest email when allocating
     async function resolveOrCreateGuestUser(inputName) {
       if (!inputName) return null;
       const clean = inputName.trim();
       const cleanLower = clean.toLowerCase();
 
-      // Check if user already exists (registered or existing active guest)
       let matched = users.find(u => 
         u.name.toLowerCase() === cleanLower || 
         u.email.toLowerCase() === cleanLower ||
@@ -2174,7 +2156,6 @@ Here is the complete, updated `index.html` with all the requested modifications:
 
       if (matched) return matched;
 
-      // Auto-create a temporary guest user with guest mail id
       try {
         const guestUid = Math.random().toString(36).substring(2, 7);
         const sanitized = cleanLower.replace(/[^a-z0-9]/g, '') || 'guest';
@@ -2198,14 +2179,13 @@ Here is the complete, updated `index.html` with all the requested modifications:
       return { id: null, name: clean, email: "" };
     }
 
-    // Deletes temporary guest user once their last material is returned
+    // Deletes guest user if all active material allocations have reached 0
     async function cleanupGuestUserIfDone(userId) {
       if (!userId) return;
       const userObj = users.find(u => String(u.id) === String(userId));
       if (!userObj || !isGuestEmail(userObj.email)) return;
 
       try {
-        // Verify user has zero remaining allocations
         const { data: remainingAllocs, error } = await supabaseClient
           .from('material_allocations')
           .select('id')
@@ -2550,7 +2530,7 @@ Here is the complete, updated `index.html` with all the requested modifications:
       userPageAllocations = [];
     }
 
-    // Synchronize clicked row item to BOTH Search and User page allocation inputs
+    // Sync part number & code to both search and user page allocation fields
     function onProductRowClicked(product) {
       const availQty = parseInt(product.quantity, 10);
       if (isNaN(availQty) || availQty <= 0) {
@@ -2836,7 +2816,7 @@ Here is the complete, updated `index.html` with all the requested modifications:
 
       await recordReturnUpdateLog(userId, userName, allocItem.part_code, allocItem.part_number, returnQty);
 
-      // AUTO-DELETE GUEST: If user is a temporary guest and all items are returned, remove their account
+      // Auto-cleanup dynamic guest user
       await cleanupGuestUserIfDone(userId);
 
       await refreshInventory();
@@ -2915,7 +2895,7 @@ Here is the complete, updated `index.html` with all the requested modifications:
       }
     });
 
-    // Submit: Users Page Allocate (Creates dynamic guest user with guest email)
+    // Submit: Users Page Allocate
     userPageTakeForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       userAllocateSubmitBtn.disabled = true;
@@ -2943,7 +2923,7 @@ Here is the complete, updated `index.html` with all the requested modifications:
       }
     });
 
-    // Submit: Users Page Return (Cleans up guest user if all items are returned)
+    // Submit: Users Page Return
     userPageReturnForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       userReturnSubmitBtn.disabled = true;
@@ -3514,5 +3494,3 @@ Here is the complete, updated `index.html` with all the requested modifications:
   </script>
 </body>
 </html>
-
-```
