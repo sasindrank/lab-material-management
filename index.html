@@ -13,7 +13,7 @@
       color-scheme: light;
       --ink: #172a27;
       --muted: #73817d;
-      --line: #e2e9e4;
+      --line: #dbe4df;
       --paper: #f8faf8;
       --green: #176e59;
       --green-dark: #124d40;
@@ -213,8 +213,9 @@
       flex-direction: column;
       padding: 10px 14px 8px;
       border: 1px solid var(--line);
-      border-radius: 4px;
+      border-radius: 6px;
       background: rgba(255,255,255,.9);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
     }
     .material-compact-panel .form-grid {
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -238,7 +239,14 @@
       flex-shrink: 0;
     }
 
-    .entry-panel { width: 100%; padding: 14px; border: 1px solid var(--line); border-radius: 4px; background: rgba(255,255,255,.82); }
+    .entry-panel {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
     .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .field { display: flex; min-width: 0; flex-direction: column; gap: 4px; color: #53645e; font-size: 11px; font-weight: 600; }
     .field input, .field select { width: 100%; height: 34px; padding: 0 9px; border: 1px solid #dce4df; border-radius: 4px; outline: none; background: white; color: var(--ink); font-size: 11px; font-weight: 400; }
@@ -270,8 +278,8 @@
       flex-direction: column;
       padding: 8px 12px 7px;
       border: 1px solid var(--line);
-      border-radius: 4px;
-      background: rgba(255,255,255,.85);
+      border-radius: 6px;
+      background: rgba(255,255,255,.9);
     }
     .storage-status {
       min-height: 14px;
@@ -302,7 +310,7 @@
 
     .unified-inspector-panel {
       border: 1px solid var(--line);
-      border-radius: 4px;
+      border-radius: 6px;
       background: white;
       padding: 12px 14px;
       display: flex;
@@ -310,6 +318,7 @@
       min-height: 0;
       overflow: hidden;
       height: 100%;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
     .unified-inspector-panel h3 { margin: 0 0 3px; font-size: 14px; color: var(--green-dark); flex-shrink: 0; }
     .unified-inspector-panel p { margin: 0 0 8px; font-size: 10.5px; color: var(--muted); flex-shrink: 0; }
@@ -444,18 +453,18 @@
       margin-top: 8px;
       background: white;
       border: 1px solid #dce4df;
-      border-radius: 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-      padding: 5px 8px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      padding: 8px 12px;
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 3px;
       flex-shrink: 0;
     }
     .transaction-bar {
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 8px;
       flex-wrap: nowrap;
       overflow-x: auto;
       white-space: nowrap;
@@ -468,7 +477,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding-right: 8px;
+      padding-right: 10px;
       border-right: 1px solid #d5ded9;
       flex-shrink: 0;
     }
@@ -552,30 +561,32 @@
     }
     .location-delete:hover { border-color: #b74628; background: #fbede6; }
     
-    /* Users Page */
+    /* ==========================================
+       USERS PAGE - SEPARATED & SPACED PANELS
+       ========================================= */
     .user-page-container {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 14px;
       min-height: 0;
-      overflow: hidden;
-      padding-bottom: 2px;
+      overflow-y: auto;
+      padding-bottom: 8px;
     }
     .user-top-split {
       display: grid;
-      grid-template-columns: minmax(280px, 360px) minmax(0, 1.4fr);
+      grid-template-columns: minmax(320px, 390px) minmax(0, 1.4fr);
       gap: 16px;
       align-items: stretch;
-      height: 200px;
-      min-height: 200px;
+      min-height: 220px;
       flex-shrink: 0;
     }
-    .user-list-panel {
+    .user-card-panel {
       border: 1px solid var(--line);
-      border-radius: 4px;
-      background: rgba(255,255,255,.85);
-      padding: 10px 14px;
+      border-radius: 6px;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      padding: 14px 16px;
       display: flex;
       flex-direction: column;
       min-height: 0;
@@ -610,13 +621,14 @@
 
     .user-bottom-allocations {
       border: 1px solid var(--line);
-      border-radius: 4px;
-      background: white;
-      padding: 10px 14px;
+      border-radius: 6px;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      padding: 14px 16px;
       display: flex;
       flex-direction: column;
       flex: 1;
-      min-height: 0;
+      min-height: 180px;
       overflow: hidden;
     }
     .user-bottom-allocations-head {
@@ -625,7 +637,7 @@
       justify-content: space-between;
       gap: 14px;
       flex-wrap: wrap;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       flex-shrink: 0;
     }
     .user-bottom-allocations-head h3 {
@@ -667,9 +679,7 @@
     }
     .user-alloc-row:hover { background: rgba(229,242,236,.35); }
 
-    /* ==========================================
-       SAME-ROW LIFECYCLE LOGS
-       ========================================= */
+    /* Lifecycle Logs Page */
     .log-filter-bar {
       display: flex;
       align-items: center;
@@ -680,7 +690,7 @@
       background: white;
       padding: 8px 12px;
       border: 1px solid var(--line);
-      border-radius: 4px;
+      border-radius: 6px;
     }
     .log-filter-bar label {
       font-size: 11px;
@@ -704,7 +714,6 @@
       border-color: var(--green);
     }
 
-    /* 7-column layout: username, part code, part number, quantity, allocated or returned, allocated time, returned time */
     .log-table-head, .log-row {
       display: grid;
       grid-template-columns: minmax(130px, 1.2fr) minmax(105px, 1fr) minmax(130px, 1.2fr) 75px 115px minmax(140px, 1.3fr) minmax(140px, 1.3fr);
@@ -875,20 +884,20 @@
         </div>
       </div>
 
-      <!-- Bottom Bar on Search Page -->
+      <!-- Bottom Bar on Search Page: Renamed Take -> Allocate -->
       <div class="aligned-bottom-bar" id="alignedBottomBar">
         <div class="transaction-bar">
           <div class="compact-switch">
-            <label><input type="radio" name="globalOpMode" value="take" checked> Take</label>
+            <label><input type="radio" name="globalOpMode" value="allocate" checked> Allocate</label>
             <label><input type="radio" name="globalOpMode" value="return"> Return</label>
           </div>
 
-          <!-- Take Form -->
+          <!-- Allocate Form -->
           <form id="globalTakeForm" style="display: contents;">
             <input type="hidden" id="takeMaterialId" name="materialId">
             <div class="inline-field">
-              <select name="userId" id="takeUserSelect" required style="width: 130px;">
-                <option value="">Choose User</option>
+              <select name="userId" id="takeUserSelect" required style="width: 140px;">
+                <option value="">Select Registered User</option>
               </select>
             </div>
             <div class="inline-field">
@@ -906,8 +915,8 @@
           <!-- Return Form -->
           <form id="globalReturnForm" style="display: none;">
             <div class="inline-field">
-              <select name="userId" id="returnUserSelect" required style="width: 120px;">
-                <option value="">Choose User</option>
+              <select name="userId" id="returnUserSelect" required style="width: 140px;">
+                <option value="">Select Registered User</option>
               </select>
             </div>
             <div class="inline-field">
@@ -1102,19 +1111,21 @@
       </div>
     </section>
 
-    <!-- Users Page -->
+    <!-- Users Page: Beautifully Separated and Boxed Layout -->
     <section class="catalog page-view" id="usersPage" hidden>
-      <div class="page-heading"><p>ADMINISTRATION</p><h2>Manage Users &amp; Allocations</h2></div>
+      <div class="page-heading"><p>ADMINISTRATION</p><h2>Manage Users &amp; Material Allocations</h2></div>
       
       <div class="user-page-container">
+        <!-- Top Split: Add User (Left) & User Directory List (Right) -->
         <div class="user-top-split">
-          <form class="entry-panel" id="userForm">
-            <h3 style="margin: 0 0 8px; font-size: 13px; color: var(--green-dark);">Add New User</h3>
+          <form class="user-card-panel" id="userForm">
+            <h3 style="margin: 0 0 4px; font-size: 13px; color: var(--green-dark);">Add New User</h3>
+            <p style="margin: 0 0 10px; font-size: 10px; color: var(--muted);">Register a lab member to populate in the search selection list.</p>
             <div class="field" style="margin-bottom: 8px;">
               <label>User Name</label>
               <input name="userName" required maxlength="100" placeholder="e.g. John Doe">
             </div>
-            <div class="field" style="margin-bottom: 10px;">
+            <div class="field" style="margin-bottom: 12px;">
               <label>Email ID</label>
               <input name="email" type="email" required maxlength="120" placeholder="user@company.com">
             </div>
@@ -1122,7 +1133,11 @@
             <p class="form-status" id="userStatus" role="status" aria-live="polite" style="margin-top: 5px;"></p>
           </form>
 
-          <div class="user-list-panel">
+          <div class="user-card-panel">
+            <div style="margin-bottom: 6px;">
+              <h3 style="margin: 0; font-size: 13px; color: var(--green-dark);">Registered Lab Users</h3>
+              <p style="margin: 2px 0 0; font-size: 10px; color: var(--muted);">Registered accounts for standard user-select dropdowns.</p>
+            </div>
             <div class="user-table-head" aria-hidden="true">
               <span>USER NAME</span>
               <span>EMAIL ID</span>
@@ -1137,11 +1152,12 @@
           </div>
         </div>
 
+        <!-- Middle: Material Allocation Inspector Box -->
         <div class="user-bottom-allocations">
           <div class="user-bottom-allocations-head">
             <div>
               <h3>Material Allocation Inspector</h3>
-              <p>Select a user to view all materials currently allocated to them with checkout timestamps.</p>
+              <p>Select a user to view currently checked-out materials with checkout timestamps.</p>
             </div>
             <div class="field" style="min-width: 250px; margin: 0;">
               <select id="userAllocViewerSelect">
@@ -1162,11 +1178,11 @@
           </div>
         </div>
 
-        <!-- NEW: Material Allocate / Return Bar on Users Page -->
+        <!-- Bottom: User Page Allocate / Return Section (Unregistered acceptance) -->
         <div class="aligned-bottom-bar" id="userAlignedBottomBar">
           <div class="transaction-bar">
             <div class="compact-switch">
-              <label><input type="radio" name="userPageOpMode" value="take" checked> Take</label>
+              <label><input type="radio" name="userPageOpMode" value="allocate" checked> Allocate</label>
               <label><input type="radio" name="userPageOpMode" value="return"> Return</label>
             </div>
 
@@ -1175,31 +1191,31 @@
             <datalist id="partNumberSuggestionsList"></datalist>
             <datalist id="partCodeSuggestionsList"></datalist>
 
-            <!-- User Page Take Form -->
+            <!-- User Page Allocate Form (No registration needed) -->
             <form id="userPageTakeForm" style="display: contents;">
               <div class="inline-field">
-                <input list="userSuggestionsList" name="userManual" id="userTakeUserInput" required placeholder="User Name / Email" style="width: 140px;">
+                <input list="userSuggestionsList" name="userManual" id="userTakeUserInput" required placeholder="User Name (any name)" style="width: 160px;">
               </div>
               <div class="inline-field">
-                <input list="partNumberSuggestionsList" name="partNumber" id="userTakePartNumber" required maxlength="100" placeholder="Part Number" style="width: 160px;">
+                <input list="partNumberSuggestionsList" name="partNumber" id="userTakePartNumber" required maxlength="100" placeholder="Part Number" style="width: 170px;">
               </div>
               <div class="inline-field">
                 <input list="partCodeSuggestionsList" name="partCode" id="userTakePartCode" required maxlength="100" placeholder="Part Code" style="width: 120px;">
               </div>
               <div class="inline-field">
-                <input name="quantity" id="userTakeQuantity" type="number" min="1" step="1" required placeholder="Quantity" style="width: 80px;">
+                <input name="quantity" id="userTakeQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 75px;">
               </div>
               <button class="compact-btn danger" type="submit" id="userAllocateSubmitBtn">Allocate</button>
             </form>
 
-            <!-- User Page Return Form (Manual & Auto-fill on user input) -->
+            <!-- User Page Return Form (Auto-fills Part Code, Number, Location & Qty when user name matches) -->
             <form id="userPageReturnForm" style="display: none;">
               <div class="inline-field">
-                <input list="userSuggestionsList" name="userManual" id="userReturnUserInput" required placeholder="User Name / Email" style="width: 130px;">
+                <input list="userSuggestionsList" name="userManual" id="userReturnUserInput" required placeholder="User Name" style="width: 140px;">
               </div>
               <div class="inline-field">
-                <select name="allocationSelect" id="userReturnAllocatedSelect" required style="width: 160px;">
-                  <option value="">Allocated Part</option>
+                <select name="allocationSelect" id="userReturnAllocatedSelect" style="width: 170px;">
+                  <option value="">Allocated Items</option>
                 </select>
               </div>
               <div class="inline-field">
@@ -1209,11 +1225,11 @@
                 <input name="partCode" id="userReturnPartCode" placeholder="Part Code" style="width: 110px;">
               </div>
               <div class="inline-field">
-                <input name="quantity" id="userReturnQuantity" type="number" min="1" step="1" required placeholder="Quantity" style="width: 70px;">
+                <input name="quantity" id="userReturnQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 65px;">
               </div>
 
               <div class="inline-field">
-                <select name="locationType" id="userReturnLocationType" style="width: 100px;">
+                <select name="locationType" id="userReturnLocationType" style="width: 105px;">
                   <option value="rack">Cupboard Rack</option>
                   <option value="box">Box</option>
                   <option value="workbench">Workbench</option>
@@ -1341,10 +1357,7 @@
     let activeInspectorFilter = "cupboard";
     let selectedInspectorLocationId = null;
 
-    // Supabase Logs Table Candidate Resolution
     let ACTIVE_LOG_TABLE = "material_logs";
-
-    // Cache original locations
     const allocationOriginMap = new Map();
 
     // DOM Elements
@@ -1409,7 +1422,6 @@
       stopInactivityCountdown();
       sessionDeadline = Date.now() + (TIMEOUT_SECONDS * 1000);
       updateTimerBadge();
-
       countdownIntervalId = setInterval(checkSessionTimeout, 500);
     }
 
@@ -1428,7 +1440,6 @@
       authError.textContent = "";
       sessionIndicator.hidden = false;
 
-      // SECRET UNLOCK: Show hidden admin navigation tabs
       document.querySelectorAll(".admin-tab").forEach(tab => {
         tab.hidden = false;
       });
@@ -1450,7 +1461,6 @@
       authModal.hidden = true;
       pendingTargetPage = null;
 
-      // SECRET LOCK: Hide all admin navigation tabs
       document.querySelectorAll(".admin-tab").forEach(tab => {
         tab.hidden = true;
       });
@@ -1554,7 +1564,7 @@
     const userAllocViewerSelect = document.getElementById("userAllocViewerSelect");
     const userAllocViewerResults = document.getElementById("userAllocViewerResults");
 
-    // Take / Return Bottom Bar on Search Page
+    // Search Page Bottom Bar
     const globalTakeForm = document.getElementById("globalTakeForm");
     const globalReturnForm = document.getElementById("globalReturnForm");
     const takeUserSelect = document.getElementById("takeUserSelect");
@@ -1579,7 +1589,7 @@
     const returnWorkbenchField = document.getElementById("returnWorkbenchField");
     const globalStripStatus = document.getElementById("globalStripStatus");
 
-    // NEW: User Page Bottom Bar Controls
+    // Users Page Bottom Bar
     const userPageTakeForm = document.getElementById("userPageTakeForm");
     const userPageReturnForm = document.getElementById("userPageReturnForm");
     const userTakeUserInput = document.getElementById("userTakeUserInput");
@@ -1607,7 +1617,7 @@
     const partNumberSuggestionsList = document.getElementById("partNumberSuggestionsList");
     const partCodeSuggestionsList = document.getElementById("partCodeSuggestionsList");
 
-    // Logs & Date Range Pickers
+    // Logs & Date Pickers
     const logList = document.getElementById("logList");
     const emptyLogs = document.getElementById("emptyLogs");
     const exportLogsButton = document.getElementById("exportLogsButton");
@@ -1618,20 +1628,14 @@
 
     const unifiedInspectorContent = document.getElementById("unifiedInspectorContent");
 
-    // Secret Access Trigger 1: Clicking the top-left Logo/Brand
     secretBrandTrigger.addEventListener("click", () => {
-      if (!isAuthenticated) {
-        promptLogin("materialPage");
-      }
+      if (!isAuthenticated) promptLogin("materialPage");
     });
 
-    // Secret Access Trigger 2: Keyboard shortcut (Ctrl + Shift + A)
     window.addEventListener("keydown", (e) => {
       if (e.ctrlKey && e.shiftKey && (e.key === "A" || e.key === "a")) {
         e.preventDefault();
-        if (!isAuthenticated) {
-          promptLogin("materialPage");
-        }
+        if (!isAuthenticated) promptLogin("materialPage");
       }
     });
 
@@ -1671,7 +1675,6 @@
       }
     }
 
-    // Helper to generate AutoFilter & column widths in SheetJS
     function prepareExcelWorksheet(jsonRows) {
       const ws = XLSX.utils.json_to_sheet(jsonRows);
       if (ws['!ref']) {
@@ -1693,7 +1696,7 @@
     }
 
     // ==========================================
-    // 3. STORAGE & COMBINED INSPECTOR
+    // 2. STORAGE & INSPECTOR
     // ==========================================
     async function loadStorage() {
       try {
@@ -1748,7 +1751,6 @@
 
     function renderCombinedStorageInspector() {
       selectOptions(materialCupboard, storageTree, "Choose Cupboard", c => c.id, c => c.name);
-
       unifiedInspectorContent.replaceChildren();
 
       let items = [];
@@ -1993,7 +1995,6 @@
       userReturnWorkbench.disabled = locType !== "workbench" || !storageWorkbenches.length;
     }
 
-    // Forms for Storage
     document.getElementById("cupboardRackForm").addEventListener("submit", async (event) => {
       event.preventDefault();
       const form = event.currentTarget;
@@ -2060,7 +2061,7 @@
     });
 
     // ==========================================
-    // 4. USER MANAGEMENT & VIEWER
+    // 3. USER MANAGEMENT & RESOLVER
     // ==========================================
     async function loadUsers() {
       try {
@@ -2117,8 +2118,8 @@
     }
 
     function populateUserDropdowns() {
-      selectOptions(takeUserSelect, users, "Choose User", u => u.id, u => u.name);
-      selectOptions(returnUserSelect, users, "Choose User", u => u.id, u => u.name);
+      selectOptions(takeUserSelect, users, "Select Registered User", u => u.id, u => `${u.name} (${u.email})`);
+      selectOptions(returnUserSelect, users, "Select Registered User", u => u.id, u => `${u.name} (${u.email})`);
       selectOptions(userAllocViewerSelect, users, "Choose User to View Allocations", u => u.id, u => `${u.name} (${u.email})`);
     }
 
@@ -2145,6 +2146,42 @@
         opt.value = pc;
         partCodeSuggestionsList.append(opt);
       });
+    }
+
+    // Resolves registered user or automatically registers a dynamic guest user to prevent DB constraint failure
+    async function resolveOrCreateUser(inputNameOrEmail) {
+      if (!inputNameOrEmail) return null;
+      const clean = inputNameOrEmail.trim();
+      const cleanLower = clean.toLowerCase();
+
+      let matched = users.find(u => 
+        u.name.toLowerCase() === cleanLower || 
+        u.email.toLowerCase() === cleanLower ||
+        String(u.id) === clean
+      );
+
+      if (matched) return matched;
+
+      // Auto-create guest user record so database UUID/foreign keys don't fail
+      try {
+        const sanitizedEmail = `${cleanLower.replace(/[^a-z0-9]/g, '') || 'user'}@guest.lab`;
+        const { data: newUser, error } = await supabaseClient
+          .from('users')
+          .insert([{ name: clean, email: sanitizedEmail }])
+          .select()
+          .single();
+
+        if (!error && newUser) {
+          users.push(newUser);
+          populateUserDropdowns();
+          populateDatalists();
+          return newUser;
+        }
+      } catch (err) {
+        console.warn("Could not create dynamic user:", err);
+      }
+
+      return { id: null, name: clean, email: "" };
     }
 
     async function refreshUserAllocationsViewer(uId) {
@@ -2233,19 +2270,8 @@
       }
     }
 
-    // Helper: Find user object by manual input text (name or email)
-    function resolveUserFromInput(userInputVal) {
-      if (!userInputVal) return null;
-      const clean = userInputVal.trim().toLowerCase();
-      return users.find(u => 
-        u.name.toLowerCase() === clean || 
-        u.email.toLowerCase() === clean ||
-        String(u.id) === clean
-      ) || null;
-    }
-
     // ==========================================
-    // 5. ALLOCATION DROPDOWNS & AUTOFILL (SEARCH & USER PAGE)
+    // 4. ALLOCATION FETCH & AUTO-POPULATION
     // ==========================================
     async function loadAllocationsForUser(userId) {
       if (!userId) {
@@ -2277,34 +2303,39 @@
       }
     }
 
-    // Fetch allocations for User Page Return form
-    async function loadAllocationsForUserPage(userId) {
-      if (!userId) {
+    // Load allocations for manual typed user (by ID or exact name search)
+    async function loadAllocationsForUserPageByQuery(userIdentifier, userNameFallback = "") {
+      if (!userIdentifier && !userNameFallback) {
         userPageAllocations = [];
-        selectOptions(userReturnAllocatedSelect, [], "Allocated Part", a => a.id, a => `${a.part_code} - ${a.part_number}`);
+        selectOptions(userReturnAllocatedSelect, [], "Allocated Items", a => a.id, a => `${a.part_code} - ${a.part_number}`);
         return;
       }
 
       try {
-        const { data, error } = await supabaseClient
-          .from('material_allocations')
-          .select('*')
-          .eq('user_id', userId)
-          .gt('quantity', 0)
-          .order('part_code', { ascending: true });
+        let query = supabaseClient.from('material_allocations').select('*').gt('quantity', 0);
+        if (userIdentifier) {
+          query = query.eq('user_id', userIdentifier);
+        }
 
+        const { data, error } = await query;
         if (error) throw error;
         userPageAllocations = data || [];
 
         selectOptions(
           userReturnAllocatedSelect,
           userPageAllocations,
-          userPageAllocations.length ? "Select Allocated Part" : "No Allocated Parts Found",
+          userPageAllocations.length ? "Select Allocated Item" : "No Open Allocations",
           a => a.id,
           a => `${a.part_code} | ${a.part_number} (Qty: ${a.quantity})`
         );
+
+        // AUTO-POPULATE: If allocations exist, immediately prefill Part Code, Number, Location & Qty
+        if (userPageAllocations.length > 0) {
+          userReturnAllocatedSelect.value = userPageAllocations[0].id;
+          applyUserPageAllocationSelection(userPageAllocations[0]);
+        }
       } catch (err) {
-        setFormStatus(userPageStripStatus, `Failed loading user allocations: ${err.message}`, true);
+        setFormStatus(userPageStripStatus, `Failed loading allocations: ${err.message}`, true);
       }
     }
 
@@ -2360,16 +2391,14 @@
             returnCupboard.value = targetCupboard;
             renderReturnLocationOptions();
           }
-          if (targetRack) {
-            returnRack.value = targetRack;
-          }
+          if (targetRack) returnRack.value = targetRack;
         } else if (targetLocType === "box" && targetBox) {
           returnBox.value = targetBox;
         } else if (targetLocType === "workbench" && targetWb) {
           returnWorkbench.value = targetWb;
         }
 
-        setFormStatus(globalStripStatus, `Loaded "${item.part_number}". Target location set to original location.`);
+        setFormStatus(globalStripStatus, `Loaded "${item.part_number}". Target location set.`);
       } else {
         returnPartNumber.value = "";
         returnQuantity.value = "";
@@ -2377,7 +2406,7 @@
       }
     });
 
-    // Auto-fill logic for User Page Return
+    // Automatically populate part code, part number, location and quantity on Users Page
     function applyUserPageAllocationSelection(item) {
       if (!item) {
         userReturnPartNumber.value = "";
@@ -2411,16 +2440,14 @@
           userReturnCupboard.value = targetCupboard;
           renderUserReturnLocationOptions();
         }
-        if (targetRack) {
-          userReturnRack.value = targetRack;
-        }
+        if (targetRack) userReturnRack.value = targetRack;
       } else if (targetLocType === "box" && targetBox) {
         userReturnBox.value = targetBox;
       } else if (targetLocType === "workbench" && targetWb) {
         userReturnWorkbench.value = targetWb;
       }
 
-      setFormStatus(userPageStripStatus, `Auto-updated: ${item.part_number} (${item.part_code}), Qty: ${item.quantity}, Location set.`);
+      setFormStatus(userPageStripStatus, `Auto-populated: ${item.part_number} (${item.part_code}) with original location.`);
     }
 
     userReturnAllocatedSelect.addEventListener("change", (e) => {
@@ -2429,52 +2456,28 @@
       applyUserPageAllocationSelection(item);
     });
 
-    // When typing user manually in Return on the Users Page
-    async function handleUserReturnUserManualChange() {
-      const matchedUser = resolveUserFromInput(userReturnUserInput.value);
-      if (matchedUser) {
-        await loadAllocationsForUserPage(matchedUser.id);
-        if (userPageAllocations.length === 1) {
-          userReturnAllocatedSelect.value = userPageAllocations[0].id;
-          applyUserPageAllocationSelection(userPageAllocations[0]);
-        }
-      } else {
+    // Auto-populates when user enters or finishes typing their name
+    async function onUserReturnInputMatch() {
+      const val = userReturnUserInput.value.trim();
+      if (!val) {
         userPageAllocations = [];
-        userReturnAllocatedSelect.replaceChildren(new Option("Allocated Part", ""));
+        userReturnAllocatedSelect.replaceChildren(new Option("Allocated Items", ""));
         applyUserPageAllocationSelection(null);
+        return;
       }
-    }
 
-    userReturnUserInput.addEventListener("change", handleUserReturnUserManualChange);
-    userReturnUserInput.addEventListener("input", () => {
-      const matchedUser = resolveUserFromInput(userReturnUserInput.value);
+      const matchedUser = users.find(u => u.name.toLowerCase() === val.toLowerCase() || u.email.toLowerCase() === val.toLowerCase());
       if (matchedUser) {
-        handleUserReturnUserManualChange();
-      }
-    });
-
-    // Auto-detect if user manually typed part code or part number in User Return form
-    function autoDetectAllocationByCodeOrNumber() {
-      if (!userPageAllocations.length) return;
-      const pCode = userReturnPartCode.value.trim().toLowerCase();
-      const pNum = userReturnPartNumber.value.trim().toLowerCase();
-
-      let match = null;
-      if (pCode) {
-        match = userPageAllocations.find(a => a.part_code.toLowerCase() === pCode);
-      }
-      if (!match && pNum) {
-        match = userPageAllocations.find(a => a.part_number.toLowerCase() === pNum);
-      }
-
-      if (match) {
-        userReturnAllocatedSelect.value = match.id;
-        applyUserPageAllocationSelection(match);
+        await loadAllocationsForUserPageByQuery(matchedUser.id, matchedUser.name);
       }
     }
 
-    userReturnPartCode.addEventListener("change", autoDetectAllocationByCodeOrNumber);
-    userReturnPartNumber.addEventListener("change", autoDetectAllocationByCodeOrNumber);
+    userReturnUserInput.addEventListener("change", onUserReturnInputMatch);
+    userReturnUserInput.addEventListener("input", () => {
+      const val = userReturnUserInput.value.trim().toLowerCase();
+      const exactMatch = users.find(u => u.name.toLowerCase() === val || u.email.toLowerCase() === val);
+      if (exactMatch) onUserReturnInputMatch();
+    });
 
     function resetTakeForm() {
       takeUserSelect.value = "";
@@ -2504,8 +2507,7 @@
 
     function resetUserPageReturnForm() {
       userReturnUserInput.value = "";
-      userReturnAllocatedSelect.replaceChildren(new Option("Allocated Part", ""));
-      userReturnAllocatedSelect.disabled = true;
+      userReturnAllocatedSelect.replaceChildren(new Option("Allocated Items", ""));
       userReturnPartNumber.value = "";
       userReturnPartCode.value = "";
       userReturnQuantity.value = "";
@@ -2513,10 +2515,8 @@
       userPageAllocations = [];
     }
 
+    // CLICKING SEARCHED ITEM: Synchronizes part code & number to BOTH Search & User Page
     function onProductRowClicked(product) {
-      const isTakeMode = document.querySelector('input[name="globalOpMode"]:checked').value === "take";
-      if (!isTakeMode) return;
-
       const availQty = parseInt(product.quantity, 10);
       if (isNaN(availQty) || availQty <= 0) {
         setFormStatus(globalStripStatus, `Material "${product.part_number}" is out of stock.`, true);
@@ -2527,17 +2527,23 @@
       const clickedRow = document.querySelector(`.product-row[data-row-id="${product.id}"]`);
       if (clickedRow) clickedRow.classList.add("selected-row");
 
+      // Update Search Page bottom bar
       takeMaterialId.value = product.id;
       takePartNumber.value = product.part_number;
       takePartCode.value = product.part_code;
+
+      // Update Users Page bottom allocation fields as requested
+      userTakePartNumber.value = product.part_number;
+      userTakePartCode.value = product.part_code;
+
       takeQuantity.value = "";
       takeQuantity.focus();
 
-      setFormStatus(globalStripStatus, `Selected "${product.part_number}". Available stock: ${product.quantity}.`);
+      setFormStatus(globalStripStatus, `Selected "${product.part_number}". Available: ${product.quantity}. Updated on Search & Users page.`);
     }
 
     // ==========================================
-    // 6. RECORD & UPDATE SINGLE-LINE LOGS
+    // 5. AUDIT LOGGING & STATUS PERSISTENCE
     // ==========================================
     async function recordAllocationLog(userId, userName, partCode, partNumber, quantity, locationText) {
       const nowIso = new Date().toISOString();
@@ -2573,7 +2579,7 @@
             }
           }
         } catch (e) {
-          // Continue to next table candidate
+          // Continue
         }
       }
     }
@@ -2593,9 +2599,7 @@
             .order('allocated_time', { ascending: false })
             .limit(1);
 
-          if (userId) {
-            query = query.eq('user_id', userId);
-          }
+          if (userId) query = query.eq('user_id', userId);
 
           const { data: openLogs, error: findErr } = await query;
 
@@ -2615,11 +2619,10 @@
             }
           }
         } catch (e) {
-          // Try next table
+          // Continue
         }
       }
 
-      // If no open allocation log was found, insert a standalone returned row
       try {
         await supabaseClient.from(ACTIVE_LOG_TABLE).insert([{
           user_id: userId,
@@ -2636,7 +2639,9 @@
       }
     }
 
-    // SHARED ALLOCATION EXECUTION LOGIC
+    // ==========================================
+    // 6. ALLOCATION & RETURN LOGIC
+    // ==========================================
     async function executeMaterialAllocation(userId, userName, pNum, pCode, takeQty, matId = null) {
       let query = supabaseClient.from('materials').select('*');
       if (matId) {
@@ -2649,25 +2654,15 @@
       if (fetchErr) throw new Error("Verification failed: " + fetchErr.message);
 
       const item = liveItemData && liveItemData.length > 0 ? liveItemData[0] : null;
-      if (!item) {
-        throw new Error(`This material is unavailable or has not been registered in inventory.`);
-      }
+      if (!item) throw new Error(`Material "${pNum}" (${pCode}) not found in inventory.`);
 
       const currentLiveStock = parseInt(item.quantity, 10);
-      if (currentLiveStock < 1 || isNaN(currentLiveStock)) {
-        throw new Error(`Cannot allocate: This item has 0 quantity available.`);
-      }
+      if (currentLiveStock < 1 || isNaN(currentLiveStock)) throw new Error(`Cannot allocate: 0 quantity available.`);
+      if (takeQty > currentLiveStock) throw new Error(`Insufficient stock. Current live stock is ${currentLiveStock}.`);
 
-      if (takeQty > currentLiveStock) {
-        throw new Error(`Insufficient quantity available. Current live stock is ${currentLiveStock}.`);
-      }
-
-      const { data: existingAlloc } = await supabaseClient
-        .from('material_allocations')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('part_number', item.part_number)
-        .eq('part_code', item.part_code);
+      let allocQuery = supabaseClient.from('material_allocations').select('*').eq('part_number', item.part_number).eq('part_code', item.part_code);
+      if (userId) allocQuery = allocQuery.eq('user_id', userId);
+      const { data: existingAlloc } = await allocQuery;
 
       let activeAllocId = null;
 
@@ -2686,21 +2681,11 @@
           updated_at: new Date()
         };
 
-        let { error: allocUpdErr } = await supabaseClient
-          .from('material_allocations')
-          .update(updatePayload)
-          .eq('id', existingAlloc[0].id);
+        let { error: allocUpdErr } = await supabaseClient.from('material_allocations').update(updatePayload).eq('id', existingAlloc[0].id);
 
-        if (allocUpdErr && (allocUpdErr.message.includes('column') || allocUpdErr.code === 'PGRST204')) {
-          const fallbackUpdate = { quantity: updatedQty, updated_at: new Date() };
-          const retryRes = await supabaseClient
-            .from('material_allocations')
-            .update(fallbackUpdate)
-            .eq('id', existingAlloc[0].id);
-          allocUpdErr = retryRes.error;
+        if (allocUpdErr) {
+          await supabaseClient.from('material_allocations').update({ quantity: updatedQty, updated_at: new Date() }).eq('id', existingAlloc[0].id);
         }
-
-        if (allocUpdErr) throw new Error("Failed updating user allocation: " + allocUpdErr.message);
       } else {
         let insertPayload = {
           user_id: userId,
@@ -2716,31 +2701,14 @@
           location_text: item.location_text
         };
 
-        let { data: insertedData, error: allocInsErr } = await supabaseClient
-          .from('material_allocations')
-          .insert([insertPayload])
-          .select();
-
-        if (allocInsErr && (allocInsErr.message.includes('column') || allocInsErr.code === 'PGRST204')) {
-          const fallbackInsert = {
-            user_id: userId,
-            material_id: item.id,
-            part_number: item.part_number,
-            part_code: item.part_code,
-            quantity: takeQty
-          };
-          const retryRes = await supabaseClient
-            .from('material_allocations')
-            .insert([fallbackInsert])
-            .select();
-          allocInsErr = retryRes.error;
-          insertedData = retryRes.data;
+        let { data: insertedData, error: allocInsErr } = await supabaseClient.from('material_allocations').insert([insertPayload]).select();
+        if (allocInsErr) {
+          const fallback = { user_id: userId, material_id: item.id, part_number: item.part_number, part_code: item.part_code, quantity: takeQty };
+          const retry = await supabaseClient.from('material_allocations').insert([fallback]).select();
+          insertedData = retry.data;
         }
 
-        if (allocInsErr) throw new Error("Failed creating user allocation: " + allocInsErr.message);
-        if (insertedData && insertedData[0]) {
-          activeAllocId = insertedData[0].id;
-        }
+        if (insertedData && insertedData[0]) activeAllocId = insertedData[0].id;
       }
 
       if (activeAllocId) {
@@ -2762,9 +2730,8 @@
         .gte('quantity', takeQty)
         .select();
 
-      if (updErr) throw updErr;
-      if (!updData || updData.length === 0) {
-        throw new Error(`Allocation Conflict: Stock changed concurrently by another user.`);
+      if (updErr || !updData || updData.length === 0) {
+        throw new Error(`Allocation Conflict: Stock changed concurrently.`);
       }
 
       await recordAllocationLog(userId, userName, item.part_code, item.part_number, takeQty, item.location_text || "Storage");
@@ -2777,7 +2744,6 @@
       return item;
     }
 
-    // SHARED RETURN EXECUTION LOGIC
     async function executeMaterialReturn(userId, userName, allocItem, returnQty, locConfig) {
       const targetLocationType = (locConfig.locationType || '').trim().toLowerCase();
       let locationText = "";
@@ -2795,19 +2761,16 @@
         if (!cupboardId || !rackId) throw new Error("Please select both a cupboard and a rack.");
       } else if (targetLocationType === "box") {
         boxId = locConfig.boxId || null;
-        const bName = locConfig.boxName || "Box";
-        locationText = `Box: ${bName}`;
+        locationText = `Box: ${locConfig.boxName || 'Box'}`;
         if (!boxId) throw new Error("Please select a target box.");
       } else if (targetLocationType === "workbench") {
         workbenchId = locConfig.workbenchId || null;
-        const wName = locConfig.workbenchName || "Workbench";
-        locationText = `Workbench: ${wName}`;
+        locationText = `Workbench: ${locConfig.workbenchName || 'Workbench'}`;
         if (!workbenchId) throw new Error("Please select a target workbench.");
       } else {
         throw new Error("Invalid location type selected.");
       }
 
-      // Restock in materials table
       const existingAtDestination = products.find(p => 
         p.part_number.trim().toLowerCase() === allocItem.part_number.trim().toLowerCase() &&
         p.part_code.trim().toLowerCase() === allocItem.part_code.trim().toLowerCase() &&
@@ -2819,13 +2782,9 @@
 
       if (existingAtDestination) {
         const updatedQty = parseInt(existingAtDestination.quantity, 10) + returnQty;
-        const { error: updateErr } = await supabaseClient
-          .from('materials')
-          .update({ quantity: updatedQty, updated_at: new Date() })
-          .eq('id', existingAtDestination.id);
-        if (updateErr) throw updateErr;
+        await supabaseClient.from('materials').update({ quantity: updatedQty, updated_at: new Date() }).eq('id', existingAtDestination.id);
       } else {
-        const insertPayload = {
+        await supabaseClient.from('materials').insert([{
           part_number: allocItem.part_number.trim(),
           part_code: allocItem.part_code.trim(),
           quantity: returnQty,
@@ -2835,20 +2794,15 @@
           box_id: boxId,
           workbench_id: workbenchId,
           location_text: locationText
-        };
-        const { error: insertErr } = await supabaseClient.from('materials').insert([insertPayload]);
-        if (insertErr) throw insertErr;
+        }]);
       }
 
-      // Deduct from allocations table
       const remainingAlloc = parseInt(allocItem.quantity, 10) - returnQty;
       if (remainingAlloc <= 0) {
-        const { error: allocDelErr } = await supabaseClient.from('material_allocations').delete().eq('id', allocItem.id);
-        if (allocDelErr) throw allocDelErr;
+        await supabaseClient.from('material_allocations').delete().eq('id', allocItem.id);
         allocationOriginMap.delete(allocItem.id);
       } else {
-        const { error: allocUpdErr } = await supabaseClient.from('material_allocations').update({ quantity: remainingAlloc, updated_at: new Date() }).eq('id', allocItem.id);
-        if (allocUpdErr) throw allocUpdErr;
+        await supabaseClient.from('material_allocations').update({ quantity: remainingAlloc, updated_at: new Date() }).eq('id', allocItem.id);
       }
 
       await recordReturnUpdateLog(userId, userName, allocItem.part_code, allocItem.part_number, returnQty);
@@ -2861,16 +2815,14 @@
       return locationText;
     }
 
-    // ------------------------------------------
-    // Submit Handlers: Search Page
-    // ------------------------------------------
+    // Submit: Search Page Allocate
     globalTakeForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       allocateSubmitBtn.disabled = true;
 
       try {
         const userId = takeUserSelect.value;
-        if (!userId) throw new Error("Please select a user to allocate this material to.");
+        if (!userId) throw new Error("Please select a registered user from the list.");
 
         const pNum = takePartNumber.value.trim();
         const pCode = takePartCode.value.trim();
@@ -2879,7 +2831,7 @@
         const takeQty = parseInt(takeQuantity.value, 10);
         if (isNaN(takeQty) || takeQty < 1) throw new Error("Please enter a valid whole number quantity starting from 1.");
 
-        const userName = takeUserSelect.selectedOptions[0]?.text || "User";
+        const userName = takeUserSelect.selectedOptions[0]?.text.split('(')[0].trim() || "User";
         const item = await executeMaterialAllocation(userId, userName, pNum, pCode, takeQty, takeMaterialId.value);
 
         setFormStatus(globalStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userName}.`);
@@ -2892,14 +2844,15 @@
       }
     });
 
+    // Submit: Search Page Return
     globalReturnForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       try {
         const userId = returnUserSelect.value;
-        if (!userId) throw new Error("Please select a user returning the material.");
+        if (!userId) throw new Error("Please select a registered user returning the material.");
 
         const returnQty = parseInt(returnQuantity.value, 10);
-        if (isNaN(returnQty) || returnQty < 1) throw new Error("Please enter a valid whole number quantity starting from 1.");
+        if (isNaN(returnQty) || returnQty < 1) throw new Error("Please enter a valid quantity starting from 1.");
 
         const allocId = returnAllocatedPartCodeSelect.value;
         const allocItem = userAllocations.find(a => String(a.id) === String(allocId));
@@ -2909,7 +2862,7 @@
           throw new Error(`Cannot return ${returnQty}. User is only allocated ${allocItem.quantity}.`);
         }
 
-        const userName = returnUserSelect.selectedOptions[0]?.text || "User";
+        const userName = returnUserSelect.selectedOptions[0]?.text.split('(')[0].trim() || "User";
         const locConfig = {
           locationType: returnLocationType.value,
           cupboardId: returnCupboard.value,
@@ -2930,25 +2883,23 @@
       }
     });
 
-    // ------------------------------------------
-    // Submit Handlers: Users Page (Manual inputs + auto-fill)
-    // ------------------------------------------
+    // Submit: Users Page Allocate (Accepts ANY user without registration)
     userPageTakeForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       userAllocateSubmitBtn.disabled = true;
 
       try {
-        const userObj = resolveUserFromInput(userTakeUserInput.value);
-        if (!userObj) {
-          throw new Error(`User "${userTakeUserInput.value}" not found. Please select or enter an existing user.`);
-        }
+        const rawUser = userTakeUserInput.value.trim();
+        if (!rawUser) throw new Error("Please enter a user name.");
+
+        const userObj = await resolveOrCreateUser(rawUser);
 
         const pNum = userTakePartNumber.value.trim();
         const pCode = userTakePartCode.value.trim();
-        if (!pNum || !pCode) throw new Error("Please enter both Part Number and Part Code manually.");
+        if (!pNum || !pCode) throw new Error("Please enter both Part Number and Part Code.");
 
         const takeQty = parseInt(userTakeQuantity.value, 10);
-        if (isNaN(takeQty) || takeQty < 1) throw new Error("Please enter a valid whole number quantity starting from 1.");
+        if (isNaN(takeQty) || takeQty < 1) throw new Error("Please enter a valid quantity starting from 1.");
 
         const item = await executeMaterialAllocation(userObj.id, userObj.name, pNum, pCode, takeQty);
         setFormStatus(userPageStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userObj.name}.`);
@@ -2960,23 +2911,23 @@
       }
     });
 
+    // Submit: Users Page Return (Accepts ANY user without registration)
     userPageReturnForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       userReturnSubmitBtn.disabled = true;
 
       try {
-        const userObj = resolveUserFromInput(userReturnUserInput.value);
-        if (!userObj) {
-          throw new Error(`User "${userReturnUserInput.value}" not found. Enter an existing user.`);
-        }
+        const rawUser = userReturnUserInput.value.trim();
+        if (!rawUser) throw new Error("Please enter the user name.");
+
+        const userObj = await resolveOrCreateUser(rawUser);
 
         const returnQty = parseInt(userReturnQuantity.value, 10);
-        if (isNaN(returnQty) || returnQty < 1) throw new Error("Please enter a valid whole number quantity starting from 1.");
+        if (isNaN(returnQty) || returnQty < 1) throw new Error("Please enter a valid whole number quantity.");
 
         const pNum = userReturnPartNumber.value.trim();
         const pCode = userReturnPartCode.value.trim();
 
-        // Check if selected from dropdown or match from allocations
         let allocItem = null;
         if (userReturnAllocatedSelect.value) {
           allocItem = userPageAllocations.find(a => String(a.id) === String(userReturnAllocatedSelect.value));
@@ -2993,7 +2944,7 @@
         }
 
         if (returnQty > parseInt(allocItem.quantity, 10)) {
-          throw new Error(`Cannot return ${returnQty}. User "${userObj.name}" is only allocated ${allocItem.quantity}.`);
+          throw new Error(`Cannot return ${returnQty}. Allocated quantity is ${allocItem.quantity}.`);
         }
 
         const locConfig = {
@@ -3021,9 +2972,9 @@
     // Operation mode toggles
     document.querySelectorAll('input[name="globalOpMode"]').forEach(radio => {
       radio.addEventListener("change", (e) => {
-        const isTake = e.target.value === "take";
-        globalTakeForm.style.display = isTake ? "contents" : "none";
-        globalReturnForm.style.display = isTake ? "none" : "contents";
+        const isAlloc = e.target.value === "allocate";
+        globalTakeForm.style.display = isAlloc ? "contents" : "none";
+        globalReturnForm.style.display = isAlloc ? "none" : "contents";
         globalStripStatus.textContent = "";
 
         resetTakeForm();
@@ -3033,9 +2984,9 @@
 
     document.querySelectorAll('input[name="userPageOpMode"]').forEach(radio => {
       radio.addEventListener("change", (e) => {
-        const isTake = e.target.value === "take";
-        userPageTakeForm.style.display = isTake ? "contents" : "none";
-        userPageReturnForm.style.display = isTake ? "none" : "contents";
+        const isAlloc = e.target.value === "allocate";
+        userPageTakeForm.style.display = isAlloc ? "contents" : "none";
+        userPageReturnForm.style.display = isAlloc ? "none" : "contents";
         userPageStripStatus.textContent = "";
 
         resetUserPageTakeForm();
@@ -3044,7 +2995,7 @@
     });
 
     // ==========================================
-    // 7. FETCH & DISPLAY SINGLE-ROW LIFECYCLE LOGS
+    // 7. LIFECYCLE AUDIT LOGS
     // ==========================================
     async function loadLogs() {
       const candidateTables = [ACTIVE_LOG_TABLE, "material_logs", "material_lifecycle_logs", "inventory_logs"];
@@ -3067,9 +3018,7 @@
             renderLogs();
             return;
           }
-        } catch (err) {
-          // Continue checking
-        }
+        } catch (err) {}
       }
       renderLogs();
     }
@@ -3086,9 +3035,7 @@
         const isReturn = itemStatus.toLowerCase().startsWith('return');
         const normalizedStatus = isReturn ? 'Return' : 'Allocated';
 
-        if (statusFilter !== "ALL" && normalizedStatus !== statusFilter) {
-          return false;
-        }
+        if (statusFilter !== "ALL" && normalizedStatus !== statusFilter) return false;
 
         const dateStamp = item.allocated_time || item.created_at || item.returned_time;
         if (dateStamp) {
@@ -3146,7 +3093,7 @@
     });
 
     // ==========================================
-    // 8. ENHANCED EXCEL EXPORTS
+    // 8. EXCEL EXPORTS
     // ==========================================
     exportButton.addEventListener("click", () => {
       const activeProducts = products.filter(p => parseInt(p.quantity, 10) >= 1);
@@ -3199,7 +3146,7 @@
     });
 
     // ==========================================
-    // 9. MANUAL ADD/DELETE
+    // 9. MANUAL ADD & REMOVE
     // ==========================================
     materialForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -3243,13 +3190,9 @@
 
         if (existingItem) {
           const updatedQty = parseInt(existingItem.quantity, 10) + addQty;
-          const { error } = await supabaseClient
-            .from('materials')
-            .update({ quantity: updatedQty, updated_at: new Date() })
-            .eq('id', existingItem.id);
-          if (error) throw error;
+          await supabaseClient.from('materials').update({ quantity: updatedQty, updated_at: new Date() }).eq('id', existingItem.id);
         } else {
-          const { error } = await supabaseClient.from('materials').insert([{
+          await supabaseClient.from('materials').insert([{
             part_number: values.partNumber.trim(),
             part_code: values.partCode.trim(),
             quantity: addQty,
@@ -3260,7 +3203,6 @@
             workbench_id: workbenchId,
             location_text: locationText
           }]);
-          if (error) throw error;
         }
 
         materialForm.reset();
@@ -3278,7 +3220,7 @@
       const removeQty = parseInt(values.quantity, 10);
 
       if (isNaN(removeQty) || removeQty < 1) {
-        setFormStatus(removeMaterialStatus, "Please enter a valid whole number quantity starting from 1.", true);
+        setFormStatus(removeMaterialStatus, "Please enter a valid whole number quantity.", true);
         return;
       }
 
@@ -3296,25 +3238,19 @@
           (values.locationType !== 'workbench' || String(p.workbench_id) === String(workbenchId))
         );
 
-        if (!item) {
-          throw new Error("No material found matching this part number, code, and location.");
-        }
+        if (!item) throw new Error("No material found matching this part number, code, and location.");
 
         const currentQty = parseInt(item.quantity, 10);
-        if (removeQty > currentQty) {
-          throw new Error(`Cannot remove ${removeQty}. Current stock is ${currentQty}.`);
-        }
+        if (removeQty > currentQty) throw new Error(`Cannot remove ${removeQty}. Current stock is ${currentQty}.`);
 
         if (!window.confirm(`Deduct ${removeQty} from ${item.part_number} at ${item.location_text}?`)) return;
 
         const remaining = currentQty - removeQty;
         if (remaining <= 0) {
-          const { error } = await supabaseClient.from('materials').delete().eq('id', item.id);
-          if (error) throw error;
-          setFormStatus(removeMaterialStatus, "Quantity is now 0; item removed from inventory.");
+          await supabaseClient.from('materials').delete().eq('id', item.id);
+          setFormStatus(removeMaterialStatus, "Quantity reached 0; item removed from inventory.");
         } else {
-          const { error } = await supabaseClient.from('materials').update({ quantity: remaining }).eq('id', item.id);
-          if (error) throw error;
+          await supabaseClient.from('materials').update({ quantity: remaining }).eq('id', item.id);
           setFormStatus(removeMaterialStatus, `Quantity deducted. ${remaining} units remaining.`);
         }
 
@@ -3327,7 +3263,7 @@
     });
 
     // ==========================================
-    // 10. INVENTORY & REALTIME
+    // 10. REAL-TIME SYNC & RENDERING
     // ==========================================
     async function refreshInventory() {
       try {
@@ -3375,15 +3311,9 @@
       supabaseClient
         .channel('public:material_allocations')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'material_allocations' }, () => {
-          if (returnUserSelect.value) {
-            loadAllocationsForUser(returnUserSelect.value);
-          }
-          if (userReturnUserInput.value) {
-            handleUserReturnUserManualChange();
-          }
-          if (userAllocViewerSelect.value) {
-            refreshUserAllocationsViewer(userAllocViewerSelect.value);
-          }
+          if (returnUserSelect.value) loadAllocationsForUser(returnUserSelect.value);
+          if (userReturnUserInput.value) onUserReturnInputMatch();
+          if (userAllocViewerSelect.value) refreshUserAllocationsViewer(userAllocViewerSelect.value);
         })
         .subscribe();
 
@@ -3392,9 +3322,7 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: ACTIVE_LOG_TABLE }, () => { loadLogs(); })
         .subscribe();
 
-      setInterval(() => {
-        refreshInventory();
-      }, 4000);
+      setInterval(() => { refreshInventory(); }, 4000);
     }
 
     function makeCell(className, text) {
@@ -3458,7 +3386,7 @@
     }
 
     // ==========================================
-    // 11. NAVIGATION & ROUTING
+    // 11. NAVIGATION & INITIALIZATION
     // ==========================================
     async function navigateTo(targetPageId) {
       activePageId = targetPageId;
@@ -3483,13 +3411,11 @@
     document.querySelectorAll(".page-tab").forEach((tab) => {
       tab.addEventListener("click", () => {
         const targetPageId = tab.dataset.page;
-        
         const isProtected = targetPageId === "materialPage" || targetPageId === "storagePage" || targetPageId === "usersPage" || targetPageId === "logsPage";
         if (isProtected && !isAuthenticated) {
           promptLogin(targetPageId);
           return;
         }
-
         navigateTo(targetPageId);
       });
     });
@@ -3519,9 +3445,6 @@
       render();
     });
 
-    // ==========================================
-    // 12. BOOTSTRAP INITIALIZATION
-    // ==========================================
     async function initializeApplication() {
       loadingState.hidden = false;
       errorState.hidden = true;
