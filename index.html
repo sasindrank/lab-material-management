@@ -1,3 +1,12 @@
+Here is the complete, updated `index.html` with all the requested modifications:
+
+### Summary of Changes:
+
+1. **Dynamic Guest Account Creation**: When allocating to an unregistered manual user on the user page, a temporary guest profile is generated with the pattern `...@guest.lab` (marked with `is_guest = true`).
+2. **Exclude Guests from Search Selection**: The Search page's registered user dropdown (`takeUserSelect` and `returnUserSelect`) filters out any guest accounts (`!u.email.endsWith('@guest.lab')`), ensuring only official registered members are displayed.
+3. **Auto-Cleanup on Return**: When material is returned, the system checks whether the user is a guest user and whether they have any other remaining active allocations. If they have no remaining allocations, the temporary guest account is automatically deleted from the database.
+
+```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -561,9 +570,7 @@
     }
     .location-delete:hover { border-color: #b74628; background: #fbede6; }
     
-    /* ==========================================
-       USERS PAGE - SEPARATED & SPACED PANELS
-       ========================================= */
+    /* Users Page */
     .user-page-container {
       flex: 1;
       display: flex;
@@ -825,7 +832,6 @@
   <!-- Shell -->
   <main class="shell" id="appShell" hidden>
     <header class="topbar">
-      <!-- Clicking the 'L' logo acts as the secret trigger to open the password prompt -->
       <div class="brand" id="secretBrandTrigger" title="Lab Inventory">
         <span class="brand-mark" id="brandMark" aria-hidden="true">L</span>
         <span id="labTitleText">LAB INVENTORY</span>
@@ -835,7 +841,6 @@
           <span id="sessionTimerText">30s</span>
           <button type="button" class="logout-btn" id="logoutButton">Log out</button>
         </div>
-        <!-- Secretly hidden tabs: Add/Delete Material, Storage Locations, Users, Logs -->
         <nav class="primary-nav" aria-label="Pages">
           <button class="page-tab active" type="button" data-page="searchPage">Search</button>
           <button class="page-tab admin-tab" type="button" data-page="materialPage" hidden>Add/Delete Material</button>
@@ -851,7 +856,6 @@
       <div class="catalog-head">
         <div><p class="kicker">DIRECTORY</p><h2>Material catalog</h2></div>
         <div class="catalog-actions">
-          <!-- Displays total available quantity stock next to Export Excel -->
           <div class="catalog-meta"><span id="itemCount">0 IN STOCK</span></div>
           <button class="action-button" id="exportButton" type="button">Export Excel</button>
         </div>
@@ -884,7 +888,7 @@
         </div>
       </div>
 
-      <!-- Bottom Bar on Search Page: Renamed Take -> Allocate -->
+      <!-- Bottom Bar on Search Page: Guest users excluded from dropdown selection -->
       <div class="aligned-bottom-bar" id="alignedBottomBar">
         <div class="transaction-bar">
           <div class="compact-switch">
@@ -1111,12 +1115,12 @@
       </div>
     </section>
 
-    <!-- Users Page: Beautifully Separated and Boxed Layout -->
+    <!-- Users Page -->
     <section class="catalog page-view" id="usersPage" hidden>
       <div class="page-heading"><p>ADMINISTRATION</p><h2>Manage Users &amp; Material Allocations</h2></div>
       
       <div class="user-page-container">
-        <!-- Top Split: Add User (Left) & User Directory List (Right) -->
+        <!-- Top Split: Add User & User Directory List -->
         <div class="user-top-split">
           <form class="user-card-panel" id="userForm">
             <h3 style="margin: 0 0 4px; font-size: 13px; color: var(--green-dark);">Add New User</h3>
@@ -1178,7 +1182,7 @@
           </div>
         </div>
 
-        <!-- Bottom: User Page Allocate / Return Section (Unregistered acceptance) -->
+        <!-- Bottom: User Page Allocate / Return Section -->
         <div class="aligned-bottom-bar" id="userAlignedBottomBar">
           <div class="transaction-bar">
             <div class="compact-switch">
@@ -1186,12 +1190,12 @@
               <label><input type="radio" name="userPageOpMode" value="return"> Return</label>
             </div>
 
-            <!-- Datalists for manual typing suggestions -->
+            <!-- Datalists for suggestions -->
             <datalist id="userSuggestionsList"></datalist>
             <datalist id="partNumberSuggestionsList"></datalist>
             <datalist id="partCodeSuggestionsList"></datalist>
 
-            <!-- User Page Allocate Form (No registration needed) -->
+            <!-- User Page Allocate Form (Auto-creates guest email for non-registered users) -->
             <form id="userPageTakeForm" style="display: contents;">
               <div class="inline-field">
                 <input list="userSuggestionsList" name="userManual" id="userTakeUserInput" required placeholder="User Name (any name)" style="width: 160px;">
@@ -1208,7 +1212,7 @@
               <button class="compact-btn danger" type="submit" id="userAllocateSubmitBtn">Allocate</button>
             </form>
 
-            <!-- User Page Return Form (Auto-fills Part Code, Number, Location & Qty when user name matches) -->
+            <!-- User Page Return Form (Deletes guest users upon complete return) -->
             <form id="userPageReturnForm" style="display: none;">
               <div class="inline-field">
                 <input list="userSuggestionsList" name="userManual" id="userReturnUserInput" required placeholder="User Name" style="width: 140px;">
@@ -1272,7 +1276,7 @@
         </div>
       </div>
 
-      <!-- Filter Controls: Status Filter & From / To Date Filter -->
+      <!-- Filter Controls -->
       <div class="log-filter-bar">
         <label>
           Filter Status:
@@ -1413,9 +1417,7 @@
       const remaining = getRemainingSeconds();
       updateTimerBadge();
 
-      if (remaining <= 0) {
-        logout();
-      }
+      if (remaining <= 0) logout();
     }
 
     function startInactivityCountdown() {
@@ -1465,9 +1467,7 @@
         tab.hidden = true;
       });
 
-      if (activePageId !== "searchPage") {
-        navigateTo("searchPage");
-      }
+      if (activePageId !== "searchPage") navigateTo("searchPage");
     }
 
     function promptLogin(targetPage) {
@@ -2061,8 +2061,13 @@
     });
 
     // ==========================================
-    // 3. USER MANAGEMENT & RESOLVER
+    // 3. USER MANAGEMENT & GUEST RESOLVER
     // ==========================================
+    function isGuestEmail(email) {
+      if (!email) return false;
+      return email.toLowerCase().endsWith('@guest.lab');
+    }
+
     async function loadUsers() {
       try {
         const { data, error } = await supabaseClient
@@ -2083,14 +2088,17 @@
     function renderUsers() {
       usersList.replaceChildren();
 
-      if (!users.length) {
+      // Filter out auto-generated guests from official list view
+      const regularUsers = users.filter(u => !isGuestEmail(u.email));
+
+      if (!regularUsers.length) {
         emptyUsers.hidden = false;
         return;
       }
 
       emptyUsers.hidden = true;
 
-      for (const user of users) {
+      for (const user of regularUsers) {
         const row = document.createElement("article");
         row.className = "user-row";
 
@@ -2117,15 +2125,18 @@
       }
     }
 
+    // SEARCH BAR DROPDOWNS: Exclude guest accounts completely
     function populateUserDropdowns() {
-      selectOptions(takeUserSelect, users, "Select Registered User", u => u.id, u => `${u.name} (${u.email})`);
-      selectOptions(returnUserSelect, users, "Select Registered User", u => u.id, u => `${u.name} (${u.email})`);
-      selectOptions(userAllocViewerSelect, users, "Choose User to View Allocations", u => u.id, u => `${u.name} (${u.email})`);
+      const nonGuestUsers = users.filter(u => !isGuestEmail(u.email));
+      selectOptions(takeUserSelect, nonGuestUsers, "Select Registered User", u => u.id, u => `${u.name} (${u.email})`);
+      selectOptions(returnUserSelect, nonGuestUsers, "Select Registered User", u => u.id, u => `${u.name} (${u.email})`);
+      selectOptions(userAllocViewerSelect, users, "Choose User to View Allocations", u => u.id, u => `${u.name} ${isGuestEmail(u.email) ? '[Guest]' : '(' + u.email + ')'}`);
     }
 
     function populateDatalists() {
       userSuggestionsList.replaceChildren();
-      users.forEach(u => {
+      // Only suggest registered users in autocomplete
+      users.filter(u => !isGuestEmail(u.email)).forEach(u => {
         const opt = document.createElement("option");
         opt.value = u.name;
         opt.label = u.email;
@@ -2148,12 +2159,13 @@
       });
     }
 
-    // Resolves registered user or automatically registers a dynamic guest user to prevent DB constraint failure
-    async function resolveOrCreateUser(inputNameOrEmail) {
-      if (!inputNameOrEmail) return null;
-      const clean = inputNameOrEmail.trim();
+    // Automatically create user with a unique guest mail ID when manual non-registered user allocates
+    async function resolveOrCreateGuestUser(inputName) {
+      if (!inputName) return null;
+      const clean = inputName.trim();
       const cleanLower = clean.toLowerCase();
 
+      // Check if user already exists (registered or existing active guest)
       let matched = users.find(u => 
         u.name.toLowerCase() === cleanLower || 
         u.email.toLowerCase() === cleanLower ||
@@ -2162,26 +2174,53 @@
 
       if (matched) return matched;
 
-      // Auto-create guest user record so database UUID/foreign keys don't fail
+      // Auto-create a temporary guest user with guest mail id
       try {
-        const sanitizedEmail = `${cleanLower.replace(/[^a-z0-9]/g, '') || 'user'}@guest.lab`;
+        const guestUid = Math.random().toString(36).substring(2, 7);
+        const sanitized = cleanLower.replace(/[^a-z0-9]/g, '') || 'guest';
+        const guestEmail = `${sanitized}.${guestUid}@guest.lab`;
+
         const { data: newUser, error } = await supabaseClient
           .from('users')
-          .insert([{ name: clean, email: sanitizedEmail }])
+          .insert([{ name: clean, email: guestEmail }])
           .select()
           .single();
 
         if (!error && newUser) {
           users.push(newUser);
           populateUserDropdowns();
-          populateDatalists();
           return newUser;
         }
       } catch (err) {
-        console.warn("Could not create dynamic user:", err);
+        console.warn("Could not create dynamic guest user:", err);
       }
 
       return { id: null, name: clean, email: "" };
+    }
+
+    // Deletes temporary guest user once their last material is returned
+    async function cleanupGuestUserIfDone(userId) {
+      if (!userId) return;
+      const userObj = users.find(u => String(u.id) === String(userId));
+      if (!userObj || !isGuestEmail(userObj.email)) return;
+
+      try {
+        // Verify user has zero remaining allocations
+        const { data: remainingAllocs, error } = await supabaseClient
+          .from('material_allocations')
+          .select('id')
+          .eq('user_id', userId)
+          .gt('quantity', 0);
+
+        if (!error && (!remainingAllocs || remainingAllocs.length === 0)) {
+          await supabaseClient.from('users').delete().eq('id', userId);
+          users = users.filter(u => String(u.id) !== String(userId));
+          populateUserDropdowns();
+          renderUsers();
+        }
+      } catch (err) {
+        console.warn("Guest user cleanup error:", err);
+      }
     }
 
     async function refreshUserAllocationsViewer(uId) {
@@ -2303,7 +2342,6 @@
       }
     }
 
-    // Load allocations for manual typed user (by ID or exact name search)
     async function loadAllocationsForUserPageByQuery(userIdentifier, userNameFallback = "") {
       if (!userIdentifier && !userNameFallback) {
         userPageAllocations = [];
@@ -2329,7 +2367,6 @@
           a => `${a.part_code} | ${a.part_number} (Qty: ${a.quantity})`
         );
 
-        // AUTO-POPULATE: If allocations exist, immediately prefill Part Code, Number, Location & Qty
         if (userPageAllocations.length > 0) {
           userReturnAllocatedSelect.value = userPageAllocations[0].id;
           applyUserPageAllocationSelection(userPageAllocations[0]);
@@ -2406,7 +2443,6 @@
       }
     });
 
-    // Automatically populate part code, part number, location and quantity on Users Page
     function applyUserPageAllocationSelection(item) {
       if (!item) {
         userReturnPartNumber.value = "";
@@ -2456,7 +2492,6 @@
       applyUserPageAllocationSelection(item);
     });
 
-    // Auto-populates when user enters or finishes typing their name
     async function onUserReturnInputMatch() {
       const val = userReturnUserInput.value.trim();
       if (!val) {
@@ -2515,7 +2550,7 @@
       userPageAllocations = [];
     }
 
-    // CLICKING SEARCHED ITEM: Synchronizes part code & number to BOTH Search & User Page
+    // Synchronize clicked row item to BOTH Search and User page allocation inputs
     function onProductRowClicked(product) {
       const availQty = parseInt(product.quantity, 10);
       if (isNaN(availQty) || availQty <= 0) {
@@ -2527,12 +2562,10 @@
       const clickedRow = document.querySelector(`.product-row[data-row-id="${product.id}"]`);
       if (clickedRow) clickedRow.classList.add("selected-row");
 
-      // Update Search Page bottom bar
       takeMaterialId.value = product.id;
       takePartNumber.value = product.part_number;
       takePartCode.value = product.part_code;
 
-      // Update Users Page bottom allocation fields as requested
       userTakePartNumber.value = product.part_number;
       userTakePartCode.value = product.part_code;
 
@@ -2578,9 +2611,7 @@
               return;
             }
           }
-        } catch (e) {
-          // Continue
-        }
+        } catch (e) {}
       }
     }
 
@@ -2618,9 +2649,7 @@
               return;
             }
           }
-        } catch (e) {
-          // Continue
-        }
+        } catch (e) {}
       }
 
       try {
@@ -2807,6 +2836,9 @@
 
       await recordReturnUpdateLog(userId, userName, allocItem.part_code, allocItem.part_number, returnQty);
 
+      // AUTO-DELETE GUEST: If user is a temporary guest and all items are returned, remove their account
+      await cleanupGuestUserIfDone(userId);
+
       await refreshInventory();
       await loadLogs();
       if (userAllocViewerSelect.value === userId) {
@@ -2883,7 +2915,7 @@
       }
     });
 
-    // Submit: Users Page Allocate (Accepts ANY user without registration)
+    // Submit: Users Page Allocate (Creates dynamic guest user with guest email)
     userPageTakeForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       userAllocateSubmitBtn.disabled = true;
@@ -2892,7 +2924,7 @@
         const rawUser = userTakeUserInput.value.trim();
         if (!rawUser) throw new Error("Please enter a user name.");
 
-        const userObj = await resolveOrCreateUser(rawUser);
+        const userObj = await resolveOrCreateGuestUser(rawUser);
 
         const pNum = userTakePartNumber.value.trim();
         const pCode = userTakePartCode.value.trim();
@@ -2911,7 +2943,7 @@
       }
     });
 
-    // Submit: Users Page Return (Accepts ANY user without registration)
+    // Submit: Users Page Return (Cleans up guest user if all items are returned)
     userPageReturnForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       userReturnSubmitBtn.disabled = true;
@@ -2920,7 +2952,7 @@
         const rawUser = userReturnUserInput.value.trim();
         if (!rawUser) throw new Error("Please enter the user name.");
 
-        const userObj = await resolveOrCreateUser(rawUser);
+        const userObj = await resolveOrCreateGuestUser(rawUser);
 
         const returnQty = parseInt(userReturnQuantity.value, 10);
         if (isNaN(returnQty) || returnQty < 1) throw new Error("Please enter a valid whole number quantity.");
@@ -3482,3 +3514,5 @@
   </script>
 </body>
 </html>
+
+```
