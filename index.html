@@ -557,18 +557,18 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 10px;
       min-height: 0;
       overflow: hidden;
-      padding-bottom: 4px;
+      padding-bottom: 2px;
     }
     .user-top-split {
       display: grid;
       grid-template-columns: minmax(280px, 360px) minmax(0, 1.4fr);
       gap: 16px;
       align-items: stretch;
-      height: 220px;
-      min-height: 220px;
+      height: 200px;
+      min-height: 200px;
       flex-shrink: 0;
     }
     .user-list-panel {
@@ -612,7 +612,7 @@
       border: 1px solid var(--line);
       border-radius: 4px;
       background: white;
-      padding: 12px 16px;
+      padding: 10px 14px;
       display: flex;
       flex-direction: column;
       flex: 1;
@@ -625,7 +625,7 @@
       justify-content: space-between;
       gap: 14px;
       flex-wrap: wrap;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       flex-shrink: 0;
     }
     .user-bottom-allocations-head h3 {
@@ -645,8 +645,8 @@
       column-gap: 12px;
     }
     .user-alloc-table-head {
-      min-height: 32px;
-      height: 32px;
+      min-height: 30px;
+      height: 30px;
       border-bottom: 1px solid var(--line);
       color: #89968f;
       font: 9px var(--mono);
@@ -660,7 +660,7 @@
       padding-right: 4px;
     }
     .user-alloc-row {
-      min-height: 40px;
+      min-height: 38px;
       border-bottom: 1px solid #eaf0eb;
       font-size: 11px;
       animation: appear .22s both;
@@ -875,7 +875,7 @@
         </div>
       </div>
 
-      <!-- Bottom Bar -->
+      <!-- Bottom Bar on Search Page -->
       <div class="aligned-bottom-bar" id="alignedBottomBar">
         <div class="transaction-bar">
           <div class="compact-switch">
@@ -1161,6 +1161,89 @@
             <p style="color:#718079;font-size:11px;padding: 16px 0;">Select a user from the dropdown above to view checkout records.</p>
           </div>
         </div>
+
+        <!-- NEW: Material Allocate / Return Bar on Users Page -->
+        <div class="aligned-bottom-bar" id="userAlignedBottomBar">
+          <div class="transaction-bar">
+            <div class="compact-switch">
+              <label><input type="radio" name="userPageOpMode" value="take" checked> Take</label>
+              <label><input type="radio" name="userPageOpMode" value="return"> Return</label>
+            </div>
+
+            <!-- Datalists for manual typing suggestions -->
+            <datalist id="userSuggestionsList"></datalist>
+            <datalist id="partNumberSuggestionsList"></datalist>
+            <datalist id="partCodeSuggestionsList"></datalist>
+
+            <!-- User Page Take Form -->
+            <form id="userPageTakeForm" style="display: contents;">
+              <div class="inline-field">
+                <input list="userSuggestionsList" name="userManual" id="userTakeUserInput" required placeholder="User Name / Email" style="width: 140px;">
+              </div>
+              <div class="inline-field">
+                <input list="partNumberSuggestionsList" name="partNumber" id="userTakePartNumber" required maxlength="100" placeholder="Part Number" style="width: 160px;">
+              </div>
+              <div class="inline-field">
+                <input list="partCodeSuggestionsList" name="partCode" id="userTakePartCode" required maxlength="100" placeholder="Part Code" style="width: 120px;">
+              </div>
+              <div class="inline-field">
+                <input name="quantity" id="userTakeQuantity" type="number" min="1" step="1" required placeholder="Quantity" style="width: 80px;">
+              </div>
+              <button class="compact-btn danger" type="submit" id="userAllocateSubmitBtn">Allocate</button>
+            </form>
+
+            <!-- User Page Return Form (Manual & Auto-fill on user input) -->
+            <form id="userPageReturnForm" style="display: none;">
+              <div class="inline-field">
+                <input list="userSuggestionsList" name="userManual" id="userReturnUserInput" required placeholder="User Name / Email" style="width: 130px;">
+              </div>
+              <div class="inline-field">
+                <select name="allocationSelect" id="userReturnAllocatedSelect" required style="width: 160px;">
+                  <option value="">Allocated Part</option>
+                </select>
+              </div>
+              <div class="inline-field">
+                <input name="partNumber" id="userReturnPartNumber" placeholder="Part Number" style="width: 140px;">
+              </div>
+              <div class="inline-field">
+                <input name="partCode" id="userReturnPartCode" placeholder="Part Code" style="width: 110px;">
+              </div>
+              <div class="inline-field">
+                <input name="quantity" id="userReturnQuantity" type="number" min="1" step="1" required placeholder="Quantity" style="width: 70px;">
+              </div>
+
+              <div class="inline-field">
+                <select name="locationType" id="userReturnLocationType" style="width: 100px;">
+                  <option value="rack">Cupboard Rack</option>
+                  <option value="box">Box</option>
+                  <option value="workbench">Workbench</option>
+                </select>
+              </div>
+              <div class="inline-field" id="userReturnCupboardField">
+                <select name="cupboardId" id="userReturnCupboard" required style="width: 100px;">
+                  <option value="">Cupboard</option>
+                </select>
+              </div>
+              <div class="inline-field" id="userReturnRackField">
+                <select name="rackId" id="userReturnRack" required style="width: 80px;">
+                  <option value="">Rack</option>
+                </select>
+              </div>
+              <div class="inline-field" id="userReturnBoxField" hidden>
+                <select name="boxId" id="userReturnBox" style="width: 100px;">
+                  <option value="">Box</option>
+                </select>
+              </div>
+              <div class="inline-field" id="userReturnWorkbenchField" hidden>
+                <select name="workbenchId" id="userReturnWorkbench" style="width: 105px;">
+                  <option value="">Workbench</option>
+                </select>
+              </div>
+              <button class="compact-btn success" type="submit" id="userReturnSubmitBtn">Return</button>
+            </form>
+          </div>
+          <p class="strip-status" id="userPageStripStatus" role="status" aria-live="polite"></p>
+        </div>
       </div>
     </section>
 
@@ -1249,6 +1332,7 @@
     let products = [];
     let users = [];
     let userAllocations = [];
+    let userPageAllocations = [];
     let activityLogs = [];
     let submittedQuery = null;
     let storageTree = [];
@@ -1470,7 +1554,7 @@
     const userAllocViewerSelect = document.getElementById("userAllocViewerSelect");
     const userAllocViewerResults = document.getElementById("userAllocViewerResults");
 
-    // Take / Return Bottom Bar
+    // Take / Return Bottom Bar on Search Page
     const globalTakeForm = document.getElementById("globalTakeForm");
     const globalReturnForm = document.getElementById("globalReturnForm");
     const takeUserSelect = document.getElementById("takeUserSelect");
@@ -1494,6 +1578,34 @@
     const returnBoxField = document.getElementById("returnBoxField");
     const returnWorkbenchField = document.getElementById("returnWorkbenchField");
     const globalStripStatus = document.getElementById("globalStripStatus");
+
+    // NEW: User Page Bottom Bar Controls
+    const userPageTakeForm = document.getElementById("userPageTakeForm");
+    const userPageReturnForm = document.getElementById("userPageReturnForm");
+    const userTakeUserInput = document.getElementById("userTakeUserInput");
+    const userTakePartNumber = document.getElementById("userTakePartNumber");
+    const userTakePartCode = document.getElementById("userTakePartCode");
+    const userTakeQuantity = document.getElementById("userTakeQuantity");
+    const userAllocateSubmitBtn = document.getElementById("userAllocateSubmitBtn");
+
+    const userReturnUserInput = document.getElementById("userReturnUserInput");
+    const userReturnAllocatedSelect = document.getElementById("userReturnAllocatedSelect");
+    const userReturnPartNumber = document.getElementById("userReturnPartNumber");
+    const userReturnPartCode = document.getElementById("userReturnPartCode");
+    const userReturnQuantity = document.getElementById("userReturnQuantity");
+    const userReturnLocationType = document.getElementById("userReturnLocationType");
+    const userReturnCupboard = document.getElementById("userReturnCupboard");
+    const userReturnRack = document.getElementById("userReturnRack");
+    const userReturnBox = document.getElementById("userReturnBox");
+    const userReturnWorkbench = document.getElementById("userReturnWorkbench");
+    const userReturnCupboardField = document.getElementById("userReturnCupboardField");
+    const userReturnRackField = document.getElementById("userReturnRackField");
+    const userReturnBoxField = document.getElementById("userReturnBoxField");
+    const userReturnWorkbenchField = document.getElementById("userReturnWorkbenchField");
+    const userPageStripStatus = document.getElementById("userPageStripStatus");
+    const userSuggestionsList = document.getElementById("userSuggestionsList");
+    const partNumberSuggestionsList = document.getElementById("partNumberSuggestionsList");
+    const partCodeSuggestionsList = document.getElementById("partCodeSuggestionsList");
 
     // Logs & Date Range Pickers
     const logList = document.getElementById("logList");
@@ -1542,6 +1654,7 @@
     }
 
     function setFormStatus(element, message, isError = false) {
+      if (!element) return;
       element.textContent = message;
       element.classList.toggle("error", isError);
     }
@@ -1562,10 +1675,7 @@
     function prepareExcelWorksheet(jsonRows) {
       const ws = XLSX.utils.json_to_sheet(jsonRows);
       if (ws['!ref']) {
-        // Enable AutoFilter by default across the table headers
         ws['!autofilter'] = { ref: ws['!ref'] };
-
-        // Auto-size columns nicely based on content
         const headers = Object.keys(jsonRows[0] || {});
         ws['!cols'] = headers.map(key => {
           let maxLen = key.length;
@@ -1611,6 +1721,7 @@
         renderMaterialLocationOptions();
         renderRemoveLocationOptions();
         renderReturnLocationOptions();
+        renderUserReturnLocationOptions();
         renderCombinedStorageInspector();
         setConnectionVisuals(true);
       } catch (error) {
@@ -1857,6 +1968,31 @@
       returnWorkbench.disabled = locType !== "workbench" || !storageWorkbenches.length;
     }
 
+    function renderUserReturnLocationOptions() {
+      const locType = userReturnLocationType.value;
+      const cupboard = storageTree.find((item) => String(item.id) === String(userReturnCupboard.value));
+
+      userReturnCupboardField.hidden = locType !== "rack";
+      userReturnRackField.hidden = locType !== "rack";
+      userReturnBoxField.hidden = locType !== "box";
+      userReturnWorkbenchField.hidden = locType !== "workbench";
+
+      userReturnCupboard.required = locType === "rack";
+      userReturnRack.required = locType === "rack";
+      userReturnBox.required = locType === "box";
+      userReturnWorkbench.required = locType === "workbench";
+
+      selectOptions(userReturnCupboard, storageTree, "Cupboard", c => c.id, c => c.name);
+      selectOptions(userReturnRack, cupboard?.racks || [], "Rack", r => r.id, r => r.name);
+      selectOptions(userReturnBox, storageBoxes, "Box", b => b.id, b => b.name);
+      selectOptions(userReturnWorkbench, storageWorkbenches, "Workbench", w => w.id, w => w.name);
+
+      userReturnCupboard.disabled = locType !== "rack" || !storageTree.length;
+      userReturnRack.disabled = locType !== "rack" || !cupboard?.racks.length;
+      userReturnBox.disabled = locType !== "box" || !storageBoxes.length;
+      userReturnWorkbench.disabled = locType !== "workbench" || !storageWorkbenches.length;
+    }
+
     // Forms for Storage
     document.getElementById("cupboardRackForm").addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -1937,6 +2073,7 @@
         users = data || [];
         renderUsers();
         populateUserDropdowns();
+        populateDatalists();
       } catch (error) {
         setFormStatus(userStatus, error.message, true);
       }
@@ -1983,6 +2120,31 @@
       selectOptions(takeUserSelect, users, "Choose User", u => u.id, u => u.name);
       selectOptions(returnUserSelect, users, "Choose User", u => u.id, u => u.name);
       selectOptions(userAllocViewerSelect, users, "Choose User to View Allocations", u => u.id, u => `${u.name} (${u.email})`);
+    }
+
+    function populateDatalists() {
+      userSuggestionsList.replaceChildren();
+      users.forEach(u => {
+        const opt = document.createElement("option");
+        opt.value = u.name;
+        opt.label = u.email;
+        userSuggestionsList.append(opt);
+      });
+
+      partNumberSuggestionsList.replaceChildren();
+      partCodeSuggestionsList.replaceChildren();
+      const uniquePN = [...new Set(products.map(p => p.part_number))];
+      const uniquePC = [...new Set(products.map(p => p.part_code))];
+      uniquePN.forEach(pn => {
+        const opt = document.createElement("option");
+        opt.value = pn;
+        partNumberSuggestionsList.append(opt);
+      });
+      uniquePC.forEach(pc => {
+        const opt = document.createElement("option");
+        opt.value = pc;
+        partCodeSuggestionsList.append(opt);
+      });
     }
 
     async function refreshUserAllocationsViewer(uId) {
@@ -2071,8 +2233,19 @@
       }
     }
 
+    // Helper: Find user object by manual input text (name or email)
+    function resolveUserFromInput(userInputVal) {
+      if (!userInputVal) return null;
+      const clean = userInputVal.trim().toLowerCase();
+      return users.find(u => 
+        u.name.toLowerCase() === clean || 
+        u.email.toLowerCase() === clean ||
+        String(u.id) === clean
+      ) || null;
+    }
+
     // ==========================================
-    // 5. ALLOCATION DROPDOWNS & AUTOFILL
+    // 5. ALLOCATION DROPDOWNS & AUTOFILL (SEARCH & USER PAGE)
     // ==========================================
     async function loadAllocationsForUser(userId) {
       if (!userId) {
@@ -2104,6 +2277,37 @@
       }
     }
 
+    // Fetch allocations for User Page Return form
+    async function loadAllocationsForUserPage(userId) {
+      if (!userId) {
+        userPageAllocations = [];
+        selectOptions(userReturnAllocatedSelect, [], "Allocated Part", a => a.id, a => `${a.part_code} - ${a.part_number}`);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('material_allocations')
+          .select('*')
+          .eq('user_id', userId)
+          .gt('quantity', 0)
+          .order('part_code', { ascending: true });
+
+        if (error) throw error;
+        userPageAllocations = data || [];
+
+        selectOptions(
+          userReturnAllocatedSelect,
+          userPageAllocations,
+          userPageAllocations.length ? "Select Allocated Part" : "No Allocated Parts Found",
+          a => a.id,
+          a => `${a.part_code} | ${a.part_number} (Qty: ${a.quantity})`
+        );
+      } catch (err) {
+        setFormStatus(userPageStripStatus, `Failed loading user allocations: ${err.message}`, true);
+      }
+    }
+
     returnUserSelect.addEventListener("change", (e) => {
       loadAllocationsForUser(e.target.value);
       returnPartNumber.value = "";
@@ -2118,6 +2322,15 @@
       returnRack.value = "";
       returnBox.value = "";
       returnWorkbench.value = "";
+    }
+
+    function resetUserReturnLocationFields() {
+      userReturnLocationType.value = "rack";
+      renderUserReturnLocationOptions();
+      userReturnCupboard.value = "";
+      userReturnRack.value = "";
+      userReturnBox.value = "";
+      userReturnWorkbench.value = "";
     }
 
     returnAllocatedPartCodeSelect.addEventListener("change", (e) => {
@@ -2164,6 +2377,105 @@
       }
     });
 
+    // Auto-fill logic for User Page Return
+    function applyUserPageAllocationSelection(item) {
+      if (!item) {
+        userReturnPartNumber.value = "";
+        userReturnPartCode.value = "";
+        userReturnQuantity.value = "";
+        resetUserReturnLocationFields();
+        return;
+      }
+
+      userReturnPartNumber.value = item.part_number;
+      userReturnPartCode.value = item.part_code;
+      userReturnQuantity.value = item.quantity;
+
+      const cachedOrigin = allocationOriginMap.get(item.id);
+      const refProduct = products.find(p => 
+        p.part_number.trim().toLowerCase() === item.part_number.trim().toLowerCase() &&
+        p.part_code.trim().toLowerCase() === item.part_code.trim().toLowerCase()
+      );
+
+      const targetLocType = item.location_type || cachedOrigin?.location_type || refProduct?.location_type || "rack";
+      const targetCupboard = item.cupboard_id || cachedOrigin?.cupboard_id || refProduct?.cupboard_id;
+      const targetRack = item.rack_id || cachedOrigin?.rack_id || refProduct?.rack_id;
+      const targetBox = item.box_id || cachedOrigin?.box_id || refProduct?.box_id;
+      const targetWb = item.workbench_id || cachedOrigin?.workbench_id || refProduct?.workbench_id;
+
+      userReturnLocationType.value = targetLocType;
+      renderUserReturnLocationOptions();
+
+      if (targetLocType === "rack") {
+        if (targetCupboard) {
+          userReturnCupboard.value = targetCupboard;
+          renderUserReturnLocationOptions();
+        }
+        if (targetRack) {
+          userReturnRack.value = targetRack;
+        }
+      } else if (targetLocType === "box" && targetBox) {
+        userReturnBox.value = targetBox;
+      } else if (targetLocType === "workbench" && targetWb) {
+        userReturnWorkbench.value = targetWb;
+      }
+
+      setFormStatus(userPageStripStatus, `Auto-updated: ${item.part_number} (${item.part_code}), Qty: ${item.quantity}, Location set.`);
+    }
+
+    userReturnAllocatedSelect.addEventListener("change", (e) => {
+      const allocId = e.target.value;
+      const item = userPageAllocations.find(a => String(a.id) === String(allocId));
+      applyUserPageAllocationSelection(item);
+    });
+
+    // When typing user manually in Return on the Users Page
+    async function handleUserReturnUserManualChange() {
+      const matchedUser = resolveUserFromInput(userReturnUserInput.value);
+      if (matchedUser) {
+        await loadAllocationsForUserPage(matchedUser.id);
+        if (userPageAllocations.length === 1) {
+          userReturnAllocatedSelect.value = userPageAllocations[0].id;
+          applyUserPageAllocationSelection(userPageAllocations[0]);
+        }
+      } else {
+        userPageAllocations = [];
+        userReturnAllocatedSelect.replaceChildren(new Option("Allocated Part", ""));
+        applyUserPageAllocationSelection(null);
+      }
+    }
+
+    userReturnUserInput.addEventListener("change", handleUserReturnUserManualChange);
+    userReturnUserInput.addEventListener("input", () => {
+      const matchedUser = resolveUserFromInput(userReturnUserInput.value);
+      if (matchedUser) {
+        handleUserReturnUserManualChange();
+      }
+    });
+
+    // Auto-detect if user manually typed part code or part number in User Return form
+    function autoDetectAllocationByCodeOrNumber() {
+      if (!userPageAllocations.length) return;
+      const pCode = userReturnPartCode.value.trim().toLowerCase();
+      const pNum = userReturnPartNumber.value.trim().toLowerCase();
+
+      let match = null;
+      if (pCode) {
+        match = userPageAllocations.find(a => a.part_code.toLowerCase() === pCode);
+      }
+      if (!match && pNum) {
+        match = userPageAllocations.find(a => a.part_number.toLowerCase() === pNum);
+      }
+
+      if (match) {
+        userReturnAllocatedSelect.value = match.id;
+        applyUserPageAllocationSelection(match);
+      }
+    }
+
+    userReturnPartCode.addEventListener("change", autoDetectAllocationByCodeOrNumber);
+    userReturnPartNumber.addEventListener("change", autoDetectAllocationByCodeOrNumber);
+
     function resetTakeForm() {
       takeUserSelect.value = "";
       takeMaterialId.value = "";
@@ -2181,6 +2493,24 @@
       returnQuantity.value = "";
       resetReturnLocationFields();
       userAllocations = [];
+    }
+
+    function resetUserPageTakeForm() {
+      userTakeUserInput.value = "";
+      userTakePartNumber.value = "";
+      userTakePartCode.value = "";
+      userTakeQuantity.value = "";
+    }
+
+    function resetUserPageReturnForm() {
+      userReturnUserInput.value = "";
+      userReturnAllocatedSelect.replaceChildren(new Option("Allocated Part", ""));
+      userReturnAllocatedSelect.disabled = true;
+      userReturnPartNumber.value = "";
+      userReturnPartCode.value = "";
+      userReturnQuantity.value = "";
+      resetUserReturnLocationFields();
+      userPageAllocations = [];
     }
 
     function onProductRowClicked(product) {
@@ -2306,6 +2636,234 @@
       }
     }
 
+    // SHARED ALLOCATION EXECUTION LOGIC
+    async function executeMaterialAllocation(userId, userName, pNum, pCode, takeQty, matId = null) {
+      let query = supabaseClient.from('materials').select('*');
+      if (matId) {
+        query = query.eq('id', matId);
+      } else {
+        query = query.ilike('part_number', pNum).ilike('part_code', pCode);
+      }
+
+      const { data: liveItemData, error: fetchErr } = await query.limit(1);
+      if (fetchErr) throw new Error("Verification failed: " + fetchErr.message);
+
+      const item = liveItemData && liveItemData.length > 0 ? liveItemData[0] : null;
+      if (!item) {
+        throw new Error(`This material is unavailable or has not been registered in inventory.`);
+      }
+
+      const currentLiveStock = parseInt(item.quantity, 10);
+      if (currentLiveStock < 1 || isNaN(currentLiveStock)) {
+        throw new Error(`Cannot allocate: This item has 0 quantity available.`);
+      }
+
+      if (takeQty > currentLiveStock) {
+        throw new Error(`Insufficient quantity available. Current live stock is ${currentLiveStock}.`);
+      }
+
+      const { data: existingAlloc } = await supabaseClient
+        .from('material_allocations')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('part_number', item.part_number)
+        .eq('part_code', item.part_code);
+
+      let activeAllocId = null;
+
+      if (existingAlloc && existingAlloc.length > 0) {
+        activeAllocId = existingAlloc[0].id;
+        const updatedQty = parseInt(existingAlloc[0].quantity, 10) + takeQty;
+        
+        let updatePayload = {
+          quantity: updatedQty,
+          location_type: item.location_type || existingAlloc[0].location_type,
+          cupboard_id: item.cupboard_id || existingAlloc[0].cupboard_id,
+          rack_id: item.rack_id || existingAlloc[0].rack_id,
+          box_id: item.box_id || existingAlloc[0].box_id,
+          workbench_id: item.workbench_id || existingAlloc[0].workbench_id,
+          location_text: item.location_text || existingAlloc[0].location_text,
+          updated_at: new Date()
+        };
+
+        let { error: allocUpdErr } = await supabaseClient
+          .from('material_allocations')
+          .update(updatePayload)
+          .eq('id', existingAlloc[0].id);
+
+        if (allocUpdErr && (allocUpdErr.message.includes('column') || allocUpdErr.code === 'PGRST204')) {
+          const fallbackUpdate = { quantity: updatedQty, updated_at: new Date() };
+          const retryRes = await supabaseClient
+            .from('material_allocations')
+            .update(fallbackUpdate)
+            .eq('id', existingAlloc[0].id);
+          allocUpdErr = retryRes.error;
+        }
+
+        if (allocUpdErr) throw new Error("Failed updating user allocation: " + allocUpdErr.message);
+      } else {
+        let insertPayload = {
+          user_id: userId,
+          material_id: item.id,
+          part_number: item.part_number,
+          part_code: item.part_code,
+          quantity: takeQty,
+          location_type: item.location_type,
+          cupboard_id: item.cupboard_id,
+          rack_id: item.rack_id,
+          box_id: item.box_id,
+          workbench_id: item.workbench_id,
+          location_text: item.location_text
+        };
+
+        let { data: insertedData, error: allocInsErr } = await supabaseClient
+          .from('material_allocations')
+          .insert([insertPayload])
+          .select();
+
+        if (allocInsErr && (allocInsErr.message.includes('column') || allocInsErr.code === 'PGRST204')) {
+          const fallbackInsert = {
+            user_id: userId,
+            material_id: item.id,
+            part_number: item.part_number,
+            part_code: item.part_code,
+            quantity: takeQty
+          };
+          const retryRes = await supabaseClient
+            .from('material_allocations')
+            .insert([fallbackInsert])
+            .select();
+          allocInsErr = retryRes.error;
+          insertedData = retryRes.data;
+        }
+
+        if (allocInsErr) throw new Error("Failed creating user allocation: " + allocInsErr.message);
+        if (insertedData && insertedData[0]) {
+          activeAllocId = insertedData[0].id;
+        }
+      }
+
+      if (activeAllocId) {
+        allocationOriginMap.set(activeAllocId, {
+          location_type: item.location_type,
+          cupboard_id: item.cupboard_id,
+          rack_id: item.rack_id,
+          box_id: item.box_id,
+          workbench_id: item.workbench_id,
+          location_text: item.location_text
+        });
+      }
+
+      const remaining = currentLiveStock - takeQty;
+      const { data: updData, error: updErr } = await supabaseClient
+        .from('materials')
+        .update({ quantity: remaining })
+        .eq('id', item.id)
+        .gte('quantity', takeQty)
+        .select();
+
+      if (updErr) throw updErr;
+      if (!updData || updData.length === 0) {
+        throw new Error(`Allocation Conflict: Stock changed concurrently by another user.`);
+      }
+
+      await recordAllocationLog(userId, userName, item.part_code, item.part_number, takeQty, item.location_text || "Storage");
+
+      await refreshInventory();
+      await loadLogs();
+      if (userAllocViewerSelect.value === userId) {
+        await refreshUserAllocationsViewer(userId);
+      }
+      return item;
+    }
+
+    // SHARED RETURN EXECUTION LOGIC
+    async function executeMaterialReturn(userId, userName, allocItem, returnQty, locConfig) {
+      const targetLocationType = (locConfig.locationType || '').trim().toLowerCase();
+      let locationText = "";
+      let cupboardId = null;
+      let rackId = null;
+      let boxId = null;
+      let workbenchId = null;
+
+      if (targetLocationType === "rack") {
+        cupboardId = locConfig.cupboardId || null;
+        rackId = locConfig.rackId || null;
+        const cName = locConfig.cupboardName || "Cupboard";
+        const rName = locConfig.rackName || "Rack";
+        locationText = `${cName} / ${rName}`;
+        if (!cupboardId || !rackId) throw new Error("Please select both a cupboard and a rack.");
+      } else if (targetLocationType === "box") {
+        boxId = locConfig.boxId || null;
+        const bName = locConfig.boxName || "Box";
+        locationText = `Box: ${bName}`;
+        if (!boxId) throw new Error("Please select a target box.");
+      } else if (targetLocationType === "workbench") {
+        workbenchId = locConfig.workbenchId || null;
+        const wName = locConfig.workbenchName || "Workbench";
+        locationText = `Workbench: ${wName}`;
+        if (!workbenchId) throw new Error("Please select a target workbench.");
+      } else {
+        throw new Error("Invalid location type selected.");
+      }
+
+      // Restock in materials table
+      const existingAtDestination = products.find(p => 
+        p.part_number.trim().toLowerCase() === allocItem.part_number.trim().toLowerCase() &&
+        p.part_code.trim().toLowerCase() === allocItem.part_code.trim().toLowerCase() &&
+        p.location_type === targetLocationType &&
+        (targetLocationType !== 'rack' || String(p.rack_id) === String(rackId)) &&
+        (targetLocationType !== 'box' || String(p.box_id) === String(boxId)) &&
+        (targetLocationType !== 'workbench' || String(p.workbench_id) === String(workbenchId))
+      );
+
+      if (existingAtDestination) {
+        const updatedQty = parseInt(existingAtDestination.quantity, 10) + returnQty;
+        const { error: updateErr } = await supabaseClient
+          .from('materials')
+          .update({ quantity: updatedQty, updated_at: new Date() })
+          .eq('id', existingAtDestination.id);
+        if (updateErr) throw updateErr;
+      } else {
+        const insertPayload = {
+          part_number: allocItem.part_number.trim(),
+          part_code: allocItem.part_code.trim(),
+          quantity: returnQty,
+          location_type: targetLocationType,
+          cupboard_id: cupboardId,
+          rack_id: rackId,
+          box_id: boxId,
+          workbench_id: workbenchId,
+          location_text: locationText
+        };
+        const { error: insertErr } = await supabaseClient.from('materials').insert([insertPayload]);
+        if (insertErr) throw insertErr;
+      }
+
+      // Deduct from allocations table
+      const remainingAlloc = parseInt(allocItem.quantity, 10) - returnQty;
+      if (remainingAlloc <= 0) {
+        const { error: allocDelErr } = await supabaseClient.from('material_allocations').delete().eq('id', allocItem.id);
+        if (allocDelErr) throw allocDelErr;
+        allocationOriginMap.delete(allocItem.id);
+      } else {
+        const { error: allocUpdErr } = await supabaseClient.from('material_allocations').update({ quantity: remainingAlloc, updated_at: new Date() }).eq('id', allocItem.id);
+        if (allocUpdErr) throw allocUpdErr;
+      }
+
+      await recordReturnUpdateLog(userId, userName, allocItem.part_code, allocItem.part_number, returnQty);
+
+      await refreshInventory();
+      await loadLogs();
+      if (userAllocViewerSelect.value === userId) {
+        await refreshUserAllocationsViewer(userId);
+      }
+      return locationText;
+    }
+
+    // ------------------------------------------
+    // Submit Handlers: Search Page
+    // ------------------------------------------
     globalTakeForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       allocateSubmitBtn.disabled = true;
@@ -2321,150 +2879,11 @@
         const takeQty = parseInt(takeQuantity.value, 10);
         if (isNaN(takeQty) || takeQty < 1) throw new Error("Please enter a valid whole number quantity starting from 1.");
 
-        let query = supabaseClient.from('materials').select('*');
-        if (takeMaterialId.value) {
-          query = query.eq('id', takeMaterialId.value);
-        } else {
-          query = query.ilike('part_number', pNum).ilike('part_code', pCode);
-        }
-
-        const { data: liveItemData, error: fetchErr } = await query.limit(1);
-        if (fetchErr) throw new Error("Verification failed: " + fetchErr.message);
-
-        const item = liveItemData && liveItemData.length > 0 ? liveItemData[0] : null;
-
-        if (!item) {
-          throw new Error(`This material is unavailable or has already been allocated.`);
-        }
-
-        const currentLiveStock = parseInt(item.quantity, 10);
-        if (currentLiveStock < 1 || isNaN(currentLiveStock)) {
-          throw new Error(`Cannot allocate: This item has 0 quantity available.`);
-        }
-
-        if (takeQty > currentLiveStock) {
-          throw new Error(`Insufficient quantity available. Current live stock is ${currentLiveStock}.`);
-        }
-
-        const { data: existingAlloc } = await supabaseClient
-          .from('material_allocations')
-          .select('*')
-          .eq('user_id', userId)
-          .eq('part_number', item.part_number)
-          .eq('part_code', item.part_code);
-
-        let activeAllocId = null;
-
-        if (existingAlloc && existingAlloc.length > 0) {
-          activeAllocId = existingAlloc[0].id;
-          const updatedQty = parseInt(existingAlloc[0].quantity, 10) + takeQty;
-          
-          let updatePayload = {
-            quantity: updatedQty,
-            location_type: item.location_type || existingAlloc[0].location_type,
-            cupboard_id: item.cupboard_id || existingAlloc[0].cupboard_id,
-            rack_id: item.rack_id || existingAlloc[0].rack_id,
-            box_id: item.box_id || existingAlloc[0].box_id,
-            workbench_id: item.workbench_id || existingAlloc[0].workbench_id,
-            location_text: item.location_text || existingAlloc[0].location_text,
-            updated_at: new Date()
-          };
-
-          let { error: allocUpdErr } = await supabaseClient
-            .from('material_allocations')
-            .update(updatePayload)
-            .eq('id', existingAlloc[0].id);
-
-          if (allocUpdErr && (allocUpdErr.message.includes('column') || allocUpdErr.code === 'PGRST204')) {
-            const fallbackUpdate = { quantity: updatedQty, updated_at: new Date() };
-            const retryRes = await supabaseClient
-              .from('material_allocations')
-              .update(fallbackUpdate)
-              .eq('id', existingAlloc[0].id);
-            allocUpdErr = retryRes.error;
-          }
-
-          if (allocUpdErr) throw new Error("Failed updating user allocation: " + allocUpdErr.message);
-        } else {
-          let insertPayload = {
-            user_id: userId,
-            material_id: item.id,
-            part_number: item.part_number,
-            part_code: item.part_code,
-            quantity: takeQty,
-            location_type: item.location_type,
-            cupboard_id: item.cupboard_id,
-            rack_id: item.rack_id,
-            box_id: item.box_id,
-            workbench_id: item.workbench_id,
-            location_text: item.location_text
-          };
-
-          let { data: insertedData, error: allocInsErr } = await supabaseClient
-            .from('material_allocations')
-            .insert([insertPayload])
-            .select();
-
-          if (allocInsErr && (allocInsErr.message.includes('column') || allocInsErr.code === 'PGRST204')) {
-            const fallbackInsert = {
-              user_id: userId,
-              material_id: item.id,
-              part_number: item.part_number,
-              part_code: item.part_code,
-              quantity: takeQty
-            };
-            const retryRes = await supabaseClient
-              .from('material_allocations')
-              .insert([fallbackInsert])
-              .select();
-            allocInsErr = retryRes.error;
-            insertedData = retryRes.data;
-          }
-
-          if (allocInsErr) throw new Error("Failed creating user allocation: " + allocInsErr.message);
-          if (insertedData && insertedData[0]) {
-            activeAllocId = insertedData[0].id;
-          }
-        }
-
-        if (activeAllocId) {
-          allocationOriginMap.set(activeAllocId, {
-            location_type: item.location_type,
-            cupboard_id: item.cupboard_id,
-            rack_id: item.rack_id,
-            box_id: item.box_id,
-            workbench_id: item.workbench_id,
-            location_text: item.location_text
-          });
-        }
-
-        const remaining = currentLiveStock - takeQty;
-        const { data: updData, error: updErr } = await supabaseClient
-          .from('materials')
-          .update({ quantity: remaining })
-          .eq('id', item.id)
-          .gte('quantity', takeQty)
-          .select();
-
-        if (updErr) throw updErr;
-        if (!updData || updData.length === 0) {
-          throw new Error(`Allocation Conflict: Stock changed concurrently by another user.`);
-        }
-
         const userName = takeUserSelect.selectedOptions[0]?.text || "User";
-
-        // Insert new single-line lifecycle log
-        await recordAllocationLog(userId, userName, item.part_code, item.part_number, takeQty, item.location_text || "Storage");
+        const item = await executeMaterialAllocation(userId, userName, pNum, pCode, takeQty, takeMaterialId.value);
 
         setFormStatus(globalStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userName}.`);
-
         resetTakeForm();
-
-        await refreshInventory();
-        await loadLogs();
-        if (userAllocViewerSelect.value === userId) {
-          await refreshUserAllocationsViewer(userId);
-        }
       } catch (err) {
         setFormStatus(globalStripStatus, err.message, true);
         await refreshInventory();
@@ -2490,97 +2909,116 @@
           throw new Error(`Cannot return ${returnQty}. User is only allocated ${allocItem.quantity}.`);
         }
 
-        const targetLocationType = (returnLocationType.value || '').trim().toLowerCase();
-        let locationText = "";
-        let cupboardId = null;
-        let rackId = null;
-        let boxId = null;
-        let workbenchId = null;
-
-        if (targetLocationType === "rack") {
-          cupboardId = returnCupboard.value || null;
-          rackId = returnRack.value || null;
-          const cName = returnCupboard.selectedOptions[0]?.text || "Cupboard";
-          const rName = returnRack.selectedOptions[0]?.text || "Rack";
-          locationText = `${cName} / ${rName}`;
-          if (!cupboardId || !rackId) throw new Error("Please select both a cupboard and a rack.");
-        } else if (targetLocationType === "box") {
-          boxId = returnBox.value || null;
-          const bName = returnBox.selectedOptions[0]?.text || "Box";
-          locationText = `Box: ${bName}`;
-          if (!boxId) throw new Error("Please select a target box.");
-        } else if (targetLocationType === "workbench") {
-          workbenchId = returnWorkbench.value || null;
-          const wName = returnWorkbench.selectedOptions[0]?.text || "Workbench";
-          locationText = `Workbench: ${wName}`;
-          if (!workbenchId) throw new Error("Please select a target workbench.");
-        } else {
-          throw new Error("Invalid location type selected.");
-        }
-
-        // Restock
-        const existingAtDestination = products.find(p => 
-          p.part_number.trim().toLowerCase() === allocItem.part_number.trim().toLowerCase() &&
-          p.part_code.trim().toLowerCase() === allocItem.part_code.trim().toLowerCase() &&
-          p.location_type === targetLocationType &&
-          (targetLocationType !== 'rack' || String(p.rack_id) === String(rackId)) &&
-          (targetLocationType !== 'box' || String(p.box_id) === String(boxId)) &&
-          (targetLocationType !== 'workbench' || String(p.workbench_id) === String(workbenchId))
-        );
-
-        if (existingAtDestination) {
-          const updatedQty = parseInt(existingAtDestination.quantity, 10) + returnQty;
-          const { error: updateErr } = await supabaseClient
-            .from('materials')
-            .update({ quantity: updatedQty, updated_at: new Date() })
-            .eq('id', existingAtDestination.id);
-          if (updateErr) throw updateErr;
-        } else {
-          const insertPayload = {
-            part_number: allocItem.part_number.trim(),
-            part_code: allocItem.part_code.trim(),
-            quantity: returnQty,
-            location_type: targetLocationType,
-            cupboard_id: cupboardId,
-            rack_id: rackId,
-            box_id: boxId,
-            workbench_id: workbenchId,
-            location_text: locationText
-          };
-          const { error: insertErr } = await supabaseClient.from('materials').insert([insertPayload]);
-          if (insertErr) throw insertErr;
-        }
-
-        // Deduct returned quantity from allocations
-        const remainingAlloc = parseInt(allocItem.quantity, 10) - returnQty;
-        if (remainingAlloc <= 0) {
-          const { error: allocDelErr } = await supabaseClient.from('material_allocations').delete().eq('id', allocItem.id);
-          if (allocDelErr) throw allocDelErr;
-          allocationOriginMap.delete(allocItem.id);
-        } else {
-          const { error: allocUpdErr } = await supabaseClient.from('material_allocations').update({ quantity: remainingAlloc, updated_at: new Date() }).eq('id', allocItem.id);
-          if (allocUpdErr) throw allocUpdErr;
-        }
-
         const userName = returnUserSelect.selectedOptions[0]?.text || "User";
+        const locConfig = {
+          locationType: returnLocationType.value,
+          cupboardId: returnCupboard.value,
+          cupboardName: returnCupboard.selectedOptions[0]?.text,
+          rackId: returnRack.value,
+          rackName: returnRack.selectedOptions[0]?.text,
+          boxId: returnBox.value,
+          boxName: returnBox.selectedOptions[0]?.text,
+          workbenchId: returnWorkbench.value,
+          workbenchName: returnWorkbench.selectedOptions[0]?.text
+        };
 
-        // Update the SAME row from Allocated to Return and update returned_time
-        await recordReturnUpdateLog(userId, userName, allocItem.part_code, allocItem.part_number, returnQty);
-
+        const locationText = await executeMaterialReturn(userId, userName, allocItem, returnQty, locConfig);
         setFormStatus(globalStripStatus, `Returned ${returnQty} units of "${allocItem.part_number}" to ${locationText}.`);
-        
         resetReturnForm();
-
-        await refreshInventory();
-        await loadLogs();
-        if (userAllocViewerSelect.value === userId) {
-          await refreshUserAllocationsViewer(userId);
-        }
       } catch (err) {
         setFormStatus(globalStripStatus, err.message, true);
       }
     });
 
+    // ------------------------------------------
+    // Submit Handlers: Users Page (Manual inputs + auto-fill)
+    // ------------------------------------------
+    userPageTakeForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      userAllocateSubmitBtn.disabled = true;
+
+      try {
+        const userObj = resolveUserFromInput(userTakeUserInput.value);
+        if (!userObj) {
+          throw new Error(`User "${userTakeUserInput.value}" not found. Please select or enter an existing user.`);
+        }
+
+        const pNum = userTakePartNumber.value.trim();
+        const pCode = userTakePartCode.value.trim();
+        if (!pNum || !pCode) throw new Error("Please enter both Part Number and Part Code manually.");
+
+        const takeQty = parseInt(userTakeQuantity.value, 10);
+        if (isNaN(takeQty) || takeQty < 1) throw new Error("Please enter a valid whole number quantity starting from 1.");
+
+        const item = await executeMaterialAllocation(userObj.id, userObj.name, pNum, pCode, takeQty);
+        setFormStatus(userPageStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userObj.name}.`);
+        resetUserPageTakeForm();
+      } catch (err) {
+        setFormStatus(userPageStripStatus, err.message, true);
+      } finally {
+        userAllocateSubmitBtn.disabled = false;
+      }
+    });
+
+    userPageReturnForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      userReturnSubmitBtn.disabled = true;
+
+      try {
+        const userObj = resolveUserFromInput(userReturnUserInput.value);
+        if (!userObj) {
+          throw new Error(`User "${userReturnUserInput.value}" not found. Enter an existing user.`);
+        }
+
+        const returnQty = parseInt(userReturnQuantity.value, 10);
+        if (isNaN(returnQty) || returnQty < 1) throw new Error("Please enter a valid whole number quantity starting from 1.");
+
+        const pNum = userReturnPartNumber.value.trim();
+        const pCode = userReturnPartCode.value.trim();
+
+        // Check if selected from dropdown or match from allocations
+        let allocItem = null;
+        if (userReturnAllocatedSelect.value) {
+          allocItem = userPageAllocations.find(a => String(a.id) === String(userReturnAllocatedSelect.value));
+        }
+        if (!allocItem && pCode) {
+          allocItem = userPageAllocations.find(a => a.part_code.toLowerCase() === pCode.toLowerCase());
+        }
+        if (!allocItem && pNum) {
+          allocItem = userPageAllocations.find(a => a.part_number.toLowerCase() === pNum.toLowerCase());
+        }
+
+        if (!allocItem) {
+          throw new Error(`No allocated material found for user "${userObj.name}" matching ${pCode || pNum || 'selected part'}.`);
+        }
+
+        if (returnQty > parseInt(allocItem.quantity, 10)) {
+          throw new Error(`Cannot return ${returnQty}. User "${userObj.name}" is only allocated ${allocItem.quantity}.`);
+        }
+
+        const locConfig = {
+          locationType: userReturnLocationType.value,
+          cupboardId: userReturnCupboard.value,
+          cupboardName: userReturnCupboard.selectedOptions[0]?.text,
+          rackId: userReturnRack.value,
+          rackName: userReturnRack.selectedOptions[0]?.text,
+          boxId: userReturnBox.value,
+          boxName: userReturnBox.selectedOptions[0]?.text,
+          workbenchId: userReturnWorkbench.value,
+          workbenchName: userReturnWorkbench.selectedOptions[0]?.text
+        };
+
+        const locationText = await executeMaterialReturn(userObj.id, userObj.name, allocItem, returnQty, locConfig);
+        setFormStatus(userPageStripStatus, `Returned ${returnQty} units of "${allocItem.part_number}" to ${locationText}.`);
+        resetUserPageReturnForm();
+      } catch (err) {
+        setFormStatus(userPageStripStatus, err.message, true);
+      } finally {
+        userReturnSubmitBtn.disabled = false;
+      }
+    });
+
+    // Operation mode toggles
     document.querySelectorAll('input[name="globalOpMode"]').forEach(radio => {
       radio.addEventListener("change", (e) => {
         const isTake = e.target.value === "take";
@@ -2590,6 +3028,18 @@
 
         resetTakeForm();
         resetReturnForm();
+      });
+    });
+
+    document.querySelectorAll('input[name="userPageOpMode"]').forEach(radio => {
+      radio.addEventListener("change", (e) => {
+        const isTake = e.target.value === "take";
+        userPageTakeForm.style.display = isTake ? "contents" : "none";
+        userPageReturnForm.style.display = isTake ? "none" : "contents";
+        userPageStripStatus.textContent = "";
+
+        resetUserPageTakeForm();
+        resetUserPageReturnForm();
       });
     });
 
@@ -2627,9 +3077,9 @@
     function renderLogs() {
       logList.replaceChildren();
 
-      const statusFilter = logActionFilter.value; // 'ALL', 'Allocated', 'Return'
-      const fromDateVal = logFromDateFilter.value; // YYYY-MM-DD
-      const toDateVal = logToDateFilter.value;     // YYYY-MM-DD
+      const statusFilter = logActionFilter.value;
+      const fromDateVal = logFromDateFilter.value;
+      const toDateVal = logToDateFilter.value;
 
       const filtered = activityLogs.filter(item => {
         const itemStatus = (item.status || item.action || 'Allocated').trim();
@@ -2640,7 +3090,6 @@
           return false;
         }
 
-        // Date filter checking against allocated_time or created_at
         const dateStamp = item.allocated_time || item.created_at || item.returned_time;
         if (dateStamp) {
           const itemDay = new Date(dateStamp).toISOString().split('T')[0];
@@ -2667,7 +3116,6 @@
         const displayStatus = isReturn ? 'Return' : 'Allocated';
         const badgeClass = isReturn ? 'returned' : 'allocated';
 
-        // Extract dates cleanly
         const rawAllocTime = log.allocated_time || (rawStatus.toUpperCase() === 'ALLOCATED' ? log.created_at : null);
         const rawReturnTime = log.returned_time || (rawStatus.toUpperCase() === 'RETURNED' ? log.created_at : null);
 
@@ -2698,13 +3146,12 @@
     });
 
     // ==========================================
-    // 8. ENHANCED EXCEL EXPORTS (WITH DEFAULT AUTOFILTER)
+    // 8. ENHANCED EXCEL EXPORTS
     // ==========================================
     exportButton.addEventListener("click", () => {
       const activeProducts = products.filter(p => parseInt(p.quantity, 10) >= 1);
       if (!activeProducts.length) return alert("No materials available to export.");
 
-      // If user typed a search term, export currently filtered items, otherwise export all active
       const query = searchInput.value.trim().toLowerCase();
       const exportList = query
         ? activeProducts.filter(p => p.part_number.toLowerCase().includes(query) || p.part_code.toLowerCase().includes(query))
@@ -2888,17 +3335,16 @@
         if (error) throw error;
         products = data || [];
         
-        // Sum total quantity of available parts
         const totalUnits = products.reduce((acc, p) => {
           const q = parseInt(p.quantity, 10);
           return acc + (isNaN(q) || q < 1 ? 0 : q);
         }, 0);
 
-        // Update the badge text near the export excel button
         document.getElementById("itemCount").textContent = `${totalUnits} IN STOCK`;
         
         render();
         renderCombinedStorageInspector();
+        populateDatalists();
         setConnectionVisuals(true);
       } catch (err) {
         workbookStatus.textContent = "Error fetching catalog: " + err.message;
@@ -2932,13 +3378,15 @@
           if (returnUserSelect.value) {
             loadAllocationsForUser(returnUserSelect.value);
           }
+          if (userReturnUserInput.value) {
+            handleUserReturnUserManualChange();
+          }
           if (userAllocViewerSelect.value) {
             refreshUserAllocationsViewer(userAllocViewerSelect.value);
           }
         })
         .subscribe();
 
-      // Listen to real-time changes on logs table
       supabaseClient
         .channel('public:logs_realtime_sync')
         .on('postgres_changes', { event: '*', schema: 'public', table: ACTIVE_LOG_TABLE }, () => { loadLogs(); })
@@ -3053,6 +3501,9 @@
 
     returnLocationType.addEventListener("change", renderReturnLocationOptions);
     returnCupboard.addEventListener("change", renderReturnLocationOptions);
+
+    userReturnLocationType.addEventListener("change", renderUserReturnLocationOptions);
+    userReturnCupboard.addEventListener("change", renderUserReturnLocationOptions);
 
     searchInput.addEventListener("input", () => {
       if (!searchInput.value) {
