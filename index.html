@@ -904,7 +904,7 @@
             <input type="hidden" id="takeMaterialId" name="materialId">
             <div class="inline-field">
               <select name="userId" id="takeUserSelect" required style="width: 140px;">
-                <option value="">Select Registered User</option>
+                <option value="">Select User</option>
               </select>
             </div>
             <div class="inline-field">
@@ -923,7 +923,7 @@
           <form id="globalReturnForm" style="display: none;">
             <div class="inline-field">
               <select name="userId" id="returnUserSelect" required style="width: 140px;">
-                <option value="">Select Registered User</option>
+                <option value="">Select User</option>
               </select>
             </div>
             <div class="inline-field">
@@ -1200,7 +1200,7 @@
             <!-- User Page Allocate Form -->
             <form id="userPageTakeForm" style="display: contents;">
               <div class="inline-field">
-                <input list="userSuggestionsList" name="userManual" id="userTakeUserInput" required placeholder="User Name (any name)" style="width: 160px;">
+                <input list="userSuggestionsList" name="userManual" id="userTakeUserInput" required placeholder="User Name" style="width: 160px;">
               </div>
               <div class="inline-field">
                 <input list="partNumberSuggestionsList" name="partNumber" id="userTakePartNumber" required maxlength="100" placeholder="Part Number" style="width: 170px;">
@@ -2132,8 +2132,8 @@
     // SEARCH BAR DROPDOWNS: Exclude guest accounts and display ONLY the user's name
     function populateUserDropdowns() {
       const nonGuestUsers = users.filter(u => !isGuestEmail(u.email));
-      selectOptions(takeUserSelect, nonGuestUsers, "Select Registered User", u => u.id, u => u.name);
-      selectOptions(returnUserSelect, nonGuestUsers, "Select Registered User", u => u.id, u => u.name);
+      selectOptions(takeUserSelect, nonGuestUsers, "Select User", u => u.id, u => u.name);
+      selectOptions(returnUserSelect, nonGuestUsers, "Select User", u => u.id, u => u.name);
       selectOptions(userAllocViewerSelect, users, "Choose User to View Allocations", u => u.id, u => u.name);
     }
 
@@ -2854,7 +2854,7 @@
 
       try {
         const userId = takeUserSelect.value;
-        if (!userId) throw new Error("Please select a registered user from the list.");
+        if (!userId) throw new Error("Please select a user from the list.");
 
         const pNum = takePartNumber.value.trim();
         const pCode = takePartCode.value.trim();
@@ -2881,7 +2881,7 @@
       e.preventDefault();
       try {
         const userId = returnUserSelect.value;
-        if (!userId) throw new Error("Please select a registered user returning the material.");
+        if (!userId) throw new Error("Please select a user returning the material.");
 
         const returnQty = parseInt(returnQuantity.value, 10);
         if (isNaN(returnQty) || returnQty < 1) throw new Error("Please enter a valid quantity starting from 1.");
