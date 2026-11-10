@@ -310,7 +310,7 @@
       margin-top: 4px;
     }
 
-    /* Fixed Storage Inspector Box */
+    /* Storage Content Inspector */
     .unified-inspector-panel {
       border: 1px solid var(--line);
       border-radius: 6px;
@@ -565,7 +565,7 @@
     }
     .location-delete:hover { border-color: #b74628; background: #fbede6; }
     
-    /* Users Page Container & Fixed Size Layouts */
+    /* Users Page Container */
     .user-page-container {
       flex: 1;
       display: flex;
@@ -636,7 +636,7 @@
       accent-color: var(--green);
     }
 
-    /* Fixed Material Allocation Inspector Box */
+    /* User Allocations Box */
     .user-bottom-allocations {
       border: 1px solid var(--line);
       border-radius: 6px;
@@ -734,9 +734,10 @@
       border-color: var(--green);
     }
 
+    /* Single-Line Unified Layout */
     .log-table-head, .log-row {
       display: grid;
-      grid-template-columns: minmax(115px, 1.1fr) minmax(95px, 0.9fr) minmax(115px, 1.1fr) 55px 155px minmax(125px, 1.1fr) minmax(125px, 1.1fr) minmax(130px, 1.1fr);
+      grid-template-columns: minmax(120px, 1.2fr) minmax(95px, 0.9fr) minmax(120px, 1.2fr) 55px 150px minmax(135px, 1.2fr) minmax(135px, 1.2fr) minmax(140px, 1.2fr);
       align-items: center;
       column-gap: 10px;
     }
@@ -871,7 +872,6 @@
           <span id="sessionTimerText">30s</span>
           <button type="button" class="logout-btn" id="logoutButton">Log out</button>
         </div>
-        <!-- Pages navigation -->
         <nav class="primary-nav" aria-label="Pages">
           <button class="page-tab active" type="button" data-page="searchPage">Search</button>
           <button class="page-tab admin-tab" type="button" data-page="materialPage" hidden>Add/Delete Material</button>
@@ -1309,7 +1309,6 @@
         </div>
       </div>
 
-      <!-- Filter Controls -->
       <div class="log-filter-bar">
         <label>
           Filter Status:
@@ -2691,77 +2690,91 @@
         payload.user_id = userId;
       }
 
-      let { error } = await supabaseClient.from(ACTIVE_LOG_TABLE).insert([payload]);
+      const { error } = await supabaseClient.from(ACTIVE_LOG_TABLE).insert([payload]);
       if (error && error.message?.includes('user_id')) {
         delete payload.user_id;
         await supabaseClient.from(ACTIVE_LOG_TABLE).insert([payload]);
       }
     }
 
-    // Finds the open allocation row and updates it to Pending Return Verification on that same row
+    // Direct Database Query: Finds the active allocation row and updates it on THAT SAME ROW
     async function recordReturnPendingLog(userId, userName, partCode, partNumber, quantityReturned, locConfig) {
       const nowIso = new Date().toISOString();
 
-      // Find the most recent active allocation row matching this part and user
-      let matchedLog = activityLogs.find(l => 
-        l.part_code?.trim().toLowerCase() === partCode.trim().toLowerCase() &&
-        (l.status || '').toLowerCase().startsWith('alloc') &&
-        (
-          (userId && l.user_id === userId) ||
-          (userName && l.user_name?.toLowerCase() === userName.toLowerCase())
-        )
-      );
-
-      // If not matched by user, find by part code
-      if (!matchedLog) {
-        matchedLog = activityLogs.find(l => 
-          l.part_code?.trim().toLowerCase() === partCode.trim().toLowerCase() &&
-          (l.status || '').toLowerCase().startsWith('alloc')
-        );
-      }
-
-      const updateData = {
-        status: "Pending Return Verification",
-        pending_return_time: nowIso,
-        location_text: locConfig.locationText || "Storage",
-        location_type: locConfig.locationType || "rack"
-      };
-
-      if (locConfig.cupboardId) updateData.cupboard_id = locConfig.cupboardId;
-      if (locConfig.rackId) updateData.rack_id = locConfig.rackId;
-      if (locConfig.boxId) updateData.box_id = locConfig.boxId;
-      if (locConfig.workbenchId) updateData.workbench_id = locConfig.workbenchId;
-
-      if (matchedLog && matchedLog.id) {
-        let { error } = await supabaseClient
+      try {
+        // Query the active open row directly from the database table
+        let query = supabaseClient
           .from(ACTIVE_LOG_TABLE)
-          .update(updateData)
-          .eq('id', matchedLog.id);
+          .select('id, quantity, user_id, user_name, part_code, status')
+          .eq('part_code', partCode)
+          .ilike('status', 'Allocated%')
+          .order('allocated_time', { ascending: false })
+          .limit(1);
 
-        if (error) {
-          // Fallback if specific location foreign keys fail
-          await supabaseClient
-            .from(ACTIVE_LOG_TABLE)
-            .update({
-              status: "Pending Return Verification",
-              pending_return_time: nowIso,
-              location_text: locConfig.locationText || "Storage"
-            })
-            .eq('id', matchedLog.id);
+        if (userId && typeof userId === "string" && userId.length >= 32) {
+          query = query.eq('user_id', userId);
         }
-      } else {
-        // Fallback create unified row if no prior allocation found
-        const newPayload = {
-          user_name: userName || "User",
-          part_code: partCode,
-          part_number: partNumber,
-          quantity: quantityReturned,
+
+        const { data: openLogs, error: findErr } = await query;
+
+        let targetRowId = null;
+        if (!findErr && openLogs && openLogs.length > 0) {
+          targetRowId = openLogs[0].id;
+        } else {
+          // Try matching by user_name
+          const { data: nameLogs } = await supabaseClient
+            .from(ACTIVE_LOG_TABLE)
+            .select('id')
+            .eq('part_code', partCode)
+            .eq('user_name', userName)
+            .ilike('status', 'Allocated%')
+            .order('allocated_time', { ascending: false })
+            .limit(1);
+
+          if (nameLogs && nameLogs.length > 0) {
+            targetRowId = nameLogs[0].id;
+          }
+        }
+
+        const updateData = {
           status: "Pending Return Verification",
-          allocated_time: null,
           pending_return_time: nowIso,
-          location_text: locConfig.locationText || "Storage"
+          location_text: locConfig.locationText || "Storage",
+          location_type: locConfig.locationType || "rack"
         };
-        await supabaseClient.from(ACTIVE_LOG_TABLE).insert([newPayload]);
+
+        if (targetRowId) {
+          const { error: updErr } = await supabaseClient
+            .from(ACTIVE_LOG_TABLE)
+            .update(updateData)
+            .eq('id', targetRowId);
+
+          if (updErr) {
+            // Retry without optional columns
+            await supabaseClient
+              .from(ACTIVE_LOG_TABLE)
+              .update({
+                status: "Pending Return Verification",
+                pending_return_time: nowIso,
+                location_text: locConfig.locationText || "Storage"
+              })
+              .eq('id', targetRowId);
+          }
+        } else {
+          // If no prior allocation existed, create one unified row
+          await supabaseClient.from(ACTIVE_LOG_TABLE).insert([{
+            user_name: userName || "User",
+            part_code: partCode,
+            part_number: partNumber,
+            quantity: quantityReturned,
+            status: "Pending Return Verification",
+            allocated_time: null,
+            pending_return_time: nowIso,
+            location_text: locConfig.locationText || "Storage"
+          }]);
+        }
+      } catch (err) {
+        console.error("Return log update failure:", err);
       }
     }
 
@@ -2996,6 +3009,7 @@
         await supabaseClient.from('material_allocations').update({ quantity: remainingAlloc, updated_at: new Date() }).eq('id', allocItem.id);
       }
 
+      // Record return as Pending Return Verification on that same row
       await recordReturnPendingLog(userId, userName, allocItem.part_code, allocItem.part_number, returnQty, {
         locationType: targetLocationType,
         cupboardId: cupboardId,
