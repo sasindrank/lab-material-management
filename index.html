@@ -262,6 +262,7 @@
       align-items: stretch;
       flex: 1;
       min-height: 0;
+      max-height: 520px;
       overflow: hidden;
     }
     .storage-sections {
@@ -269,8 +270,9 @@
       flex-direction: column;
       gap: 10px;
       min-height: 0;
-      overflow: hidden;
+      overflow-y: auto;
       justify-content: flex-start;
+      padding-right: 4px;
     }
     .storage-section {
       flex: 0 0 auto;
@@ -308,6 +310,7 @@
       margin-top: 4px;
     }
 
+    /* Fixed Storage Inspector Box */
     .unified-inspector-panel {
       border: 1px solid var(--line);
       border-radius: 6px;
@@ -316,6 +319,7 @@
       display: flex;
       flex-direction: column;
       min-height: 0;
+      max-height: 520px;
       overflow: hidden;
       height: 100%;
       box-shadow: 0 1px 4px rgba(0,0,0,0.04);
@@ -561,7 +565,7 @@
     }
     .location-delete:hover { border-color: #b74628; background: #fbede6; }
     
-    /* Users Page */
+    /* Users Page Container & Fixed Size Layouts */
     .user-page-container {
       flex: 1;
       display: flex;
@@ -576,7 +580,8 @@
       grid-template-columns: minmax(320px, 390px) minmax(0, 1.4fr);
       gap: 16px;
       align-items: stretch;
-      min-height: 220px;
+      height: 280px;
+      max-height: 280px;
       flex-shrink: 0;
     }
     .user-card-panel {
@@ -588,6 +593,7 @@
       display: flex;
       flex-direction: column;
       min-height: 0;
+      height: 100%;
       overflow: hidden;
     }
     #usersList {
@@ -617,6 +623,7 @@
     .user-email { color: #53645e; font: 11px var(--mono); word-break: break-all; }
     .user-actions { text-align: right; }
 
+    /* Fixed Material Allocation Inspector Box */
     .user-bottom-allocations {
       border: 1px solid var(--line);
       border-radius: 6px;
@@ -625,8 +632,10 @@
       padding: 14px 16px;
       display: flex;
       flex-direction: column;
-      flex: 1;
-      min-height: 180px;
+      height: 240px;
+      max-height: 240px;
+      min-height: 200px;
+      flex-shrink: 0;
       overflow: hidden;
     }
     .user-bottom-allocations-head {
@@ -677,7 +686,7 @@
     }
     .user-alloc-row:hover { background: rgba(229,242,236,.35); }
 
-    /* Lifecycle Logs Page */
+    /* Lifecycle Logs Page & Fixed Scroll Box */
     .log-filter-bar {
       display: flex;
       align-items: center;
@@ -778,8 +787,10 @@
 
     @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 950px) {
-      .storage-layout { grid-template-columns: 1fr; overflow-y: auto; }
-      .user-top-split { grid-template-columns: 1fr; height: auto; }
+      .storage-layout { grid-template-columns: 1fr; max-height: none; overflow-y: auto; }
+      .unified-inspector-panel { max-height: 400px; }
+      .user-top-split { grid-template-columns: 1fr; height: auto; max-height: none; }
+      .user-card-panel { height: 260px; max-height: 260px; }
       body { height: auto; overflow: auto; }
       .shell { height: auto; overflow: visible; }
       .material-split-layout { overflow: visible; }
@@ -1291,7 +1302,7 @@
         <button type="button" class="btn-secondary" id="clearLogDatesBtn">Clear Dates</button>
       </div>
 
-      <div class="table-scroll">
+      <div class="table-scroll" style="max-height: 520px; overflow-y: hidden;">
         <div class="log-table-head" aria-hidden="true">
           <span>USER NAME</span>
           <span>PART CODE</span>
