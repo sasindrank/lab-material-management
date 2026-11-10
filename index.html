@@ -604,9 +604,9 @@
     }
     .user-table-head, .user-row {
       display: grid;
-      grid-template-columns: minmax(130px, 1fr) minmax(160px, 1.4fr) 70px;
+      grid-template-columns: minmax(110px, 1fr) minmax(140px, 1.2fr) 90px 60px;
       align-items: center;
-      column-gap: 12px;
+      column-gap: 10px;
     }
     .user-table-head {
       min-height: 30px;
@@ -622,6 +622,19 @@
     .user-name { font-weight: 600; color: var(--ink); }
     .user-email { color: #53645e; font: 11px var(--mono); word-break: break-all; }
     .user-actions { text-align: right; }
+    .verifier-toggle-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      cursor: pointer;
+      color: var(--green-dark);
+      font-weight: 600;
+    }
+    .verifier-toggle-label input[type="checkbox"] {
+      cursor: pointer;
+      accent-color: var(--green);
+    }
 
     /* Fixed Material Allocation Inspector Box */
     .user-bottom-allocations {
@@ -723,7 +736,7 @@
 
     .log-table-head, .log-row {
       display: grid;
-      grid-template-columns: minmax(120px, 1.1fr) minmax(95px, 0.9fr) minmax(120px, 1.1fr) 60px 145px minmax(130px, 1.1fr) minmax(130px, 1.1fr) minmax(110px, 1fr);
+      grid-template-columns: minmax(115px, 1.1fr) minmax(95px, 0.9fr) minmax(115px, 1.1fr) 55px 150px minmax(125px, 1.1fr) minmax(125px, 1.1fr) minmax(120px, 1fr);
       align-items: center;
       column-gap: 10px;
     }
@@ -768,10 +781,11 @@
       font-size: 10px;
       font-weight: 700;
       transition: background-color 0.15s;
+      white-space: nowrap;
     }
     .verify-btn:hover { background: #16a34a; color: white; }
 
-    /* Modal */
+    /* Modals */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -788,13 +802,13 @@
       border: 1px solid var(--line);
       border-radius: 6px;
       padding: 20px;
-      width: min(380px, 90%);
+      width: min(400px, 92%);
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
     .modal-card h3 { margin: 0 0 6px; font-size: 15px; color: var(--green-dark); }
     .modal-card p { margin: 0 0 14px; color: var(--muted); font-size: 11px; }
     .modal-card .field { margin-bottom: 12px; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
     .btn-secondary { background: #eef2f0; border: 1px solid #ced6d1; border-radius: 4px; padding: 0 12px; height: 30px; cursor: pointer; font-size: 11px; font-weight: 600; }
     .btn-secondary:hover { background: #e0e7e3; }
     .modal-actions .action-button { height: 34px; min-width: 75px; }
@@ -811,7 +825,7 @@
     }
     @media (max-width: 850px) {
       .shell { padding: 0 4% 16px; }
-      .table-head, .product-list, .user-table-head, .user-row, .log-table-head, .log-row, .user-alloc-table-head, .user-alloc-row { min-width: 920px; }
+      .table-head, .product-list, .user-table-head, .user-row, .log-table-head, .log-row, .user-alloc-table-head, .user-alloc-row { min-width: 940px; }
       .material-compact-panel .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 600px) {
@@ -1146,9 +1160,14 @@
               <label>User Name</label>
               <input name="userName" required maxlength="100" placeholder="e.g. John Doe">
             </div>
-            <div class="field" style="margin-bottom: 12px;">
+            <div class="field" style="margin-bottom: 8px;">
               <label>Email ID</label>
               <input name="email" type="email" required maxlength="120" placeholder="user@company.com">
+            </div>
+            <div style="margin-bottom: 12px;">
+              <label class="verifier-toggle-label">
+                <input type="checkbox" id="userFormIsVerifier"> Can Verify Returned Items
+              </label>
             </div>
             <button class="action-button" type="submit" style="width: 100%; height: 34px;">Create User</button>
             <p class="form-status" id="userStatus" role="status" aria-live="polite" style="margin-top: 5px;"></p>
@@ -1157,11 +1176,12 @@
           <div class="user-card-panel">
             <div style="margin-bottom: 6px;">
               <h3 style="margin: 0; font-size: 13px; color: var(--green-dark);">Registered Lab Users</h3>
-              <p style="margin: 2px 0 0; font-size: 10px; color: var(--muted);">Registered accounts for standard user-select dropdowns.</p>
+              <p style="margin: 2px 0 0; font-size: 10px; color: var(--muted);">Toggle verifiers who can sign off returned inventory.</p>
             </div>
             <div class="user-table-head" aria-hidden="true">
               <span>USER NAME</span>
               <span>EMAIL ID</span>
+              <span style="text-align: center;">VERIFIER?</span>
               <span style="text-align: right;">ACTION</span>
             </div>
             <div id="usersList" aria-live="polite"></div>
@@ -1299,7 +1319,7 @@
           <select id="logActionFilter">
             <option value="ALL">All Records</option>
             <option value="Allocated">Only Allocated</option>
-            <option value="Pending">Pending Return Verification</option>
+            <option value="Pending">Pending Verification</option>
             <option value="Return">Verified Returns</option>
           </select>
         </label>
@@ -1326,13 +1346,13 @@
           <span>STATUS</span>
           <span>ALLOCATED TIME</span>
           <span>RETURN / PENDING TIME</span>
-          <span>VERIFICATION / ACTION</span>
+          <span>SIGN-OFF &amp; VERIFY</span>
         </div>
         <div id="logList" aria-live="polite"></div>
         <div class="empty" id="emptyLogs" hidden>
           <span class="empty-symbol" aria-hidden="true">&#9776;</span>
           <strong>No matching activity records found</strong>
-          <span>Allocated materials, returns awaiting inspection, and sign-offs will appear here.</span>
+          <span>Allocated materials, returns awaiting physical inspection, and verified returns appear here.</span>
         </div>
       </div>
     </section>
@@ -1352,6 +1372,27 @@
         <div class="modal-actions">
           <button type="button" class="btn-secondary" id="authCancelButton">Cancel</button>
           <button type="submit" class="action-button">Unlock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Verifier Selector Modal -->
+  <div class="modal-overlay" id="verifierModal" hidden>
+    <div class="modal-card">
+      <h3>Sign Off &amp; Verify Return</h3>
+      <p>Select the supervisor/authorized user verifying physical placement on the shelf.</p>
+      <form id="verifierForm">
+        <div class="field">
+          <label>Authorized Verifier</label>
+          <select id="modalVerifierSelect" required>
+            <option value="">Select Verifying Person</option>
+          </select>
+        </div>
+        <p class="form-status error" id="verifierModalError" style="margin-top: 4px;"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="verifierCancelButton">Cancel</button>
+          <button type="submit" class="action-button success-button">Confirm &amp; Update Stock</button>
         </div>
       </form>
     </div>
@@ -1382,6 +1423,9 @@
     let ACTIVE_LOG_TABLE = "material_logs";
     const allocationOriginMap = new Map();
 
+    // Verification Modal State
+    let pendingVerificationLogId = null;
+
     // DOM Elements
     const initialOverlay = document.getElementById("initialOverlay");
     const loadingState = document.getElementById("loadingState");
@@ -1389,6 +1433,14 @@
     const errorMsgText = document.getElementById("errorMsgText");
     const retryButton = document.getElementById("retryButton");
     const appShell = document.getElementById("appShell");
+
+    // Verifier Modal Elements
+    const verifierModal = document.getElementById("verifierModal");
+    const verifierForm = document.getElementById("verifierForm");
+    const modalVerifierSelect = document.getElementById("modalVerifierSelect");
+    const verifierModalError = document.getElementById("verifierModalError");
+    const verifierCancelButton = document.getElementById("verifierCancelButton");
+    const userFormIsVerifier = document.getElementById("userFormIsVerifier");
 
     // AUTHENTICATION
     const AUTH_PASSWORD = "festo";
@@ -2108,6 +2160,22 @@
       }
     }
 
+    async function toggleUserVerifierStatus(userId, isVerifier) {
+      try {
+        const { error } = await supabaseClient
+          .from('users')
+          .update({ is_verifier: isVerifier })
+          .eq('id', userId);
+
+        if (error) throw error;
+        const target = users.find(u => String(u.id) === String(userId));
+        if (target) target.is_verifier = isVerifier;
+        setFormStatus(userStatus, "Verifier status updated.");
+      } catch (err) {
+        setFormStatus(userStatus, "Error updating verifier: " + err.message, true);
+      }
+    }
+
     function renderUsers() {
       usersList.replaceChildren();
 
@@ -2132,6 +2200,17 @@
         emailSpan.className = "user-email";
         emailSpan.textContent = user.email;
 
+        const verifierCell = document.createElement("div");
+        verifierCell.style.textAlign = "center";
+        const vCheckbox = document.createElement("input");
+        vCheckbox.type = "checkbox";
+        vCheckbox.checked = !!user.is_verifier;
+        vCheckbox.title = "Authorize user to verify physical returns";
+        vCheckbox.addEventListener("change", (e) => {
+          toggleUserVerifierStatus(user.id, e.target.checked);
+        });
+        verifierCell.append(vCheckbox);
+
         const actionDiv = document.createElement("div");
         actionDiv.className = "user-actions";
 
@@ -2142,7 +2221,7 @@
         delBtn.addEventListener("click", () => deleteUser(user.id, user.name));
 
         actionDiv.append(delBtn);
-        row.append(nameSpan, emailSpan, actionDiv);
+        row.append(nameSpan, emailSpan, verifierCell, actionDiv);
         usersList.append(row);
       }
     }
@@ -2198,7 +2277,7 @@
 
         const { data: newUser, error } = await supabaseClient
           .from('users')
-          .insert([{ name: clean, email: guestEmail }])
+          .insert([{ name: clean, email: guestEmail, is_verifier: false }])
           .select()
           .single();
 
@@ -2289,13 +2368,22 @@
       event.preventDefault();
       const name = userForm.userName.value.trim();
       const email = userForm.email.value.trim().toLowerCase();
+      const isVerifier = userFormIsVerifier.checked;
 
       try {
         const { error } = await supabaseClient
           .from('users')
-          .insert([{ name, email }]);
+          .insert([{ name, email, is_verifier: isVerifier }]);
 
-        if (error) throw error;
+        if (error) {
+          // Fallback if column is not yet migrated
+          if (error.message && error.message.includes("is_verifier")) {
+            const fallback = await supabaseClient.from('users').insert([{ name, email }]);
+            if (fallback.error) throw fallback.error;
+          } else {
+            throw error;
+          }
+        }
 
         userForm.reset();
         setFormStatus(userStatus, `User "${name}" added successfully.`);
@@ -2628,8 +2716,7 @@
       }
     }
 
-    // Records the return action initially as "Pending Return Verification"
-    async function recordReturnPendingLog(userId, userName, partCode, partNumber, quantityReturned, locationText) {
+    async function recordReturnPendingLog(userId, userName, partCode, partNumber, quantityReturned, locConfig) {
       const nowIso = new Date().toISOString();
       const candidateTables = [ACTIVE_LOG_TABLE, "material_logs", "material_lifecycle_logs", "inventory_logs"];
       const uniqueTables = [...new Set(candidateTables)];
@@ -2655,7 +2742,12 @@
               .update({
                 status: "Pending Return Verification",
                 pending_return_time: nowIso,
-                location_text: locationText || "Storage"
+                location_text: locConfig.locationText || "Storage",
+                location_type: locConfig.locationType,
+                cupboard_id: locConfig.cupboardId,
+                rack_id: locConfig.rackId,
+                box_id: locConfig.boxId,
+                workbench_id: locConfig.workbenchId
               })
               .eq('id', openLogId);
 
@@ -2667,7 +2759,7 @@
         } catch (e) {}
       }
 
-      // Standalone pending log fallback
+      // Standalone pending log insertion fallback
       try {
         await supabaseClient.from(ACTIVE_LOG_TABLE).insert([{
           user_id: userId,
@@ -2678,37 +2770,110 @@
           status: "Pending Return Verification",
           allocated_time: null,
           pending_return_time: nowIso,
-          location_text: locationText || "Storage"
+          location_text: locConfig.locationText || "Storage",
+          location_type: locConfig.locationType,
+          cupboard_id: locConfig.cupboardId,
+          rack_id: locConfig.rackId,
+          box_id: locConfig.boxId,
+          workbench_id: locConfig.workbenchId
         }]);
       } catch (err) {
         console.warn("Could not insert standalone pending return log:", err);
       }
     }
 
-    // Manager / Admin Sign-off for physical shelf placement
-    async function verifyAndSignOffReturn(logId) {
-      if (!isAuthenticated) {
-        promptLogin("logsPage");
+    // Modal Trigger: Opens selection of registered authorized verifiers
+    function openVerifierModal(logId) {
+      pendingVerificationLogId = logId;
+      verifierModalError.textContent = "";
+
+      const verifierUsers = users.filter(u => !isGuestEmail(u.email) && u.is_verifier === true);
+      const candidateList = verifierUsers.length ? verifierUsers : users.filter(u => !isGuestEmail(u.email));
+
+      modalVerifierSelect.replaceChildren(new Option("Select Verifying Person", ""));
+      candidateList.forEach(u => {
+        const opt = document.createElement("option");
+        opt.value = u.name;
+        opt.textContent = `${u.name} (${u.email})`;
+        modalVerifierSelect.append(opt);
+      });
+
+      verifierModal.hidden = false;
+    }
+
+    verifierCancelButton.addEventListener("click", () => {
+      verifierModal.hidden = true;
+      pendingVerificationLogId = null;
+    });
+
+    // Form submit: completes return, updates log, replenishes physical material catalog
+    verifierForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const verifierName = modalVerifierSelect.value;
+      if (!verifierName) {
+        verifierModalError.textContent = "Please choose an authorized verifier from the list.";
+        return;
+      }
+
+      const logItem = activityLogs.find(l => String(l.id) === String(pendingVerificationLogId));
+      if (!logItem) {
+        verifierModalError.textContent = "Log record could not be found.";
         return;
       }
 
       try {
-        const nowIso = new Date().toISOString();
-        const { error } = await supabaseClient
-          .from(ACTIVE_LOG_TABLE)
-          .update({
-            status: "Return",
-            returned_time: nowIso,
-            verified_by: "Lab Supervisor"
-          })
-          .eq('id', logId);
+        const returnQty = parseInt(logItem.quantity, 10) || 1;
+        const targetLocationType = (logItem.location_type || 'rack').toLowerCase();
+        const cupboardId = logItem.cupboard_id || null;
+        const rackId = logItem.rack_id || null;
+        const boxId = logItem.box_id || null;
+        const workbenchId = logItem.workbench_id || null;
+        const locationText = logItem.location_text || "Storage";
 
-        if (error) throw error;
+        // 1. Replenish or Insert into Materials List
+        let existingAtDestination = products.find(p => 
+          p.part_number.trim().toLowerCase() === logItem.part_number.trim().toLowerCase() &&
+          p.part_code.trim().toLowerCase() === logItem.part_code.trim().toLowerCase() &&
+          p.location_type === targetLocationType &&
+          (targetLocationType !== 'rack' || String(p.rack_id) === String(rackId)) &&
+          (targetLocationType !== 'box' || String(p.box_id) === String(boxId)) &&
+          (targetLocationType !== 'workbench' || String(p.workbench_id) === String(workbenchId))
+        );
+
+        if (existingAtDestination) {
+          const updatedQty = parseInt(existingAtDestination.quantity, 10) + returnQty;
+          await supabaseClient.from('materials').update({ quantity: updatedQty, updated_at: new Date() }).eq('id', existingAtDestination.id);
+        } else {
+          await supabaseClient.from('materials').insert([{
+            part_number: logItem.part_number.trim(),
+            part_code: logItem.part_code.trim(),
+            quantity: returnQty,
+            location_type: targetLocationType,
+            cupboard_id: cupboardId,
+            rack_id: rackId,
+            box_id: boxId,
+            workbench_id: workbenchId,
+            location_text: locationText
+          }]);
+        }
+
+        // 2. Update Log to Returned with Verifier Name & Timestamp
+        const nowIso = new Date().toISOString();
+        await supabaseClient.from(ACTIVE_LOG_TABLE).update({
+          status: "Return",
+          returned_time: nowIso,
+          verified_by: verifierName
+        }).eq('id', logItem.id);
+
+        verifierModal.hidden = true;
+        pendingVerificationLogId = null;
+
+        await refreshInventory();
         await loadLogs();
       } catch (err) {
-        alert("Failed to confirm sign-off: " + err.message);
+        verifierModalError.textContent = err.message || "Failed verifying return.";
       }
-    }
+    });
 
     // ==========================================
     // 6. ALLOCATION & RETURN LOGIC
@@ -2815,6 +2980,7 @@
       return item;
     }
 
+    // Material return: removes/deducts checkout allocation and sets log to Pending Verification
     async function executeMaterialReturn(userId, userName, allocItem, returnQty, locConfig) {
       const targetLocationType = (locConfig.locationType || '').trim().toLowerCase();
       let locationText = "";
@@ -2842,32 +3008,7 @@
         throw new Error("Invalid location type selected.");
       }
 
-      const existingAtDestination = products.find(p => 
-        p.part_number.trim().toLowerCase() === allocItem.part_number.trim().toLowerCase() &&
-        p.part_code.trim().toLowerCase() === allocItem.part_code.trim().toLowerCase() &&
-        p.location_type === targetLocationType &&
-        (targetLocationType !== 'rack' || String(p.rack_id) === String(rackId)) &&
-        (targetLocationType !== 'box' || String(p.box_id) === String(boxId)) &&
-        (targetLocationType !== 'workbench' || String(p.workbench_id) === String(workbenchId))
-      );
-
-      if (existingAtDestination) {
-        const updatedQty = parseInt(existingAtDestination.quantity, 10) + returnQty;
-        await supabaseClient.from('materials').update({ quantity: updatedQty, updated_at: new Date() }).eq('id', existingAtDestination.id);
-      } else {
-        await supabaseClient.from('materials').insert([{
-          part_number: allocItem.part_number.trim(),
-          part_code: allocItem.part_code.trim(),
-          quantity: returnQty,
-          location_type: targetLocationType,
-          cupboard_id: cupboardId,
-          rack_id: rackId,
-          box_id: boxId,
-          workbench_id: workbenchId,
-          location_text: locationText
-        }]);
-      }
-
+      // Deduct from allocation checkout list
       const remainingAlloc = parseInt(allocItem.quantity, 10) - returnQty;
       if (remainingAlloc <= 0) {
         await supabaseClient.from('material_allocations').delete().eq('id', allocItem.id);
@@ -2876,12 +3017,18 @@
         await supabaseClient.from('material_allocations').update({ quantity: remainingAlloc, updated_at: new Date() }).eq('id', allocItem.id);
       }
 
-      // Mark status as Pending Return Verification
-      await recordReturnPendingLog(userId, userName, allocItem.part_code, allocItem.part_number, returnQty, locationText);
+      // Create or update log entry with "Pending Return Verification" & target location metadata
+      await recordReturnPendingLog(userId, userName, allocItem.part_code, allocItem.part_number, returnQty, {
+        locationType: targetLocationType,
+        cupboardId: cupboardId,
+        rackId: rackId,
+        boxId: boxId,
+        workbenchId: workbenchId,
+        locationText: locationText
+      });
 
       await cleanupGuestUserIfDone(userId);
 
-      await refreshInventory();
       await loadLogs();
       if (userAllocViewerSelect.value === userId) {
         await refreshUserAllocationsViewer(userId);
@@ -3159,13 +3306,9 @@
 
         let actionHtml = '';
         if (isPending) {
-          if (isAuthenticated) {
-            actionHtml = `<button class="verify-btn" type="button" data-log-id="${log.id}">Verify &amp; Sign Off</button>`;
-          } else {
-            actionHtml = `<span style="font-size:10px;color:#b45309;">Awaiting Sign-off</span>`;
-          }
+          actionHtml = `<button class="verify-btn" type="button" data-log-id="${log.id}">Verify &amp; Sign Off</button>`;
         } else if (isReturn) {
-          actionHtml = `<span style="font-size:10px;color:#15803d;">✓ ${log.verified_by || 'Verified'}</span>`;
+          actionHtml = `<span style="font-size:10px;color:#15803d;font-weight:600;">✓ ${log.verified_by || 'Verified'}</span>`;
         } else {
           actionHtml = `<span style="font-size:10px;color:var(--muted);">-</span>`;
         }
@@ -3185,7 +3328,7 @@
         if (vBtn) {
           vBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            verifyAndSignOffReturn(log.id);
+            openVerifierModal(log.id);
           });
         }
 
