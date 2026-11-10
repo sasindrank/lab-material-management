@@ -58,21 +58,10 @@
     }
     .shell[hidden] { display: none !important; }
 
-    *::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    *::-webkit-scrollbar-track {
-      background: #f1f5f2;
-      border-radius: 4px;
-    }
-    *::-webkit-scrollbar-thumb {
-      background: #b6c6bd;
-      border-radius: 4px;
-    }
-    *::-webkit-scrollbar-thumb:hover {
-      background: #8e9f96;
-    }
+    *::-webkit-scrollbar { width: 6px; height: 6px; }
+    *::-webkit-scrollbar-track { background: #f1f5f2; border-radius: 4px; }
+    *::-webkit-scrollbar-thumb { background: #b6c6bd; border-radius: 4px; }
+    *::-webkit-scrollbar-thumb:hover { background: #8e9f96; }
 
     /* Loading Overlay */
     .initial-overlay {
@@ -149,7 +138,7 @@
     #labTitleText.connected { color: #16a34a !important; }
     .brand-mark.connected { background-color: #16a34a !important; }
 
-    .nav-wrapper { display: flex; align-items: center; gap: 16px; }
+    .nav-wrapper { display: flex; align-items: center; gap: 12px; }
     .primary-nav { display: flex; align-items: stretch; gap: 6px; height: 54px; }
     .page-tab { position: relative; padding: 0 14px; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 600; }
     .page-tab:hover, .page-tab.active { color: var(--green-dark); }
@@ -160,6 +149,20 @@
     .session-badge { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: var(--mono); color: var(--green-dark); background: var(--mint); padding: 4px 8px; border-radius: 4px; border: 1px solid #c2ded3; }
     .session-badge[hidden] { display: none !important; }
     .logout-btn { background: transparent; border: 0; cursor: pointer; font-weight: bold; color: var(--search-button); padding: 0 4px; text-decoration: underline; font-size: 11px; }
+
+    .user-auth-links { display: flex; align-items: center; gap: 8px; }
+    .auth-nav-btn {
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--green-dark);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .auth-nav-btn:hover { background: var(--mint); border-color: var(--green); }
 
     .kicker { margin: 0 0 3px; color: var(--green); font: 10px var(--mono); }
     .catalog {
@@ -217,36 +220,11 @@
       background: rgba(255,255,255,.9);
       box-shadow: 0 1px 3px rgba(0,0,0,0.03);
     }
-    .material-compact-panel .form-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 6px 10px;
-    }
-    .material-compact-panel .field {
-      gap: 3px;
-      font-size: 10px;
-    }
-    .material-compact-panel .field input,
-    .material-compact-panel .field select {
-      height: 28px;
-      padding: 0 8px;
-      font-size: 11px;
-    }
-    .material-compact-panel .form-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-top: 6px;
-      flex-shrink: 0;
-    }
+    .material-compact-panel .form-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px 10px; }
+    .material-compact-panel .field { gap: 3px; font-size: 10px; }
+    .material-compact-panel .field input, .material-compact-panel .field select { height: 28px; padding: 0 8px; font-size: 11px; }
+    .material-compact-panel .form-actions { display: flex; align-items: center; gap: 12px; margin-top: 6px; flex-shrink: 0; }
 
-    .entry-panel {
-      width: 100%;
-      padding: 14px 16px;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      background: #ffffff;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    }
     .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .field { display: flex; min-width: 0; flex-direction: column; gap: 4px; color: #53645e; font-size: 11px; font-weight: 600; }
     .field input, .field select { width: 100%; height: 34px; padding: 0 9px; border: 1px solid #dce4df; border-radius: 4px; outline: none; background: white; color: var(--ink); font-size: 11px; font-weight: 400; }
@@ -283,32 +261,13 @@
       border-radius: 6px;
       background: rgba(255,255,255,.9);
     }
-    .storage-status {
-      min-height: 14px;
-      flex-shrink: 0;
-      margin: 2px 0 0;
-    }
-    .storage-form {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+    .storage-status { min-height: 14px; flex-shrink: 0; margin: 2px 0 0; }
+    .storage-form { display: flex; flex-direction: column; gap: 4px; }
     .storage-form h3 { margin: 0 0 2px; font-size: 12px; color: var(--green-dark); }
     .storage-form .field { gap: 2px; font-size: 10px; }
     .storage-form .field input { height: 26px; padding: 0 8px; font-size: 11px; }
-    .storage-inline-inputs {
-      display: grid;
-      grid-template-columns: 1fr 100px;
-      gap: 8px;
-    }
-    .storage-small-btn {
-      height: 24px !important;
-      min-width: max-content !important;
-      font-size: 9.5px !important;
-      padding: 0 9px !important;
-      align-self: flex-start;
-      margin-top: 4px;
-    }
+    .storage-inline-inputs { display: grid; grid-template-columns: 1fr 100px; gap: 8px; }
+    .storage-small-btn { height: 24px !important; min-width: max-content !important; font-size: 9.5px !important; padding: 0 9px !important; align-self: flex-start; margin-top: 4px; }
 
     /* Storage Content Inspector */
     .unified-inspector-panel {
@@ -337,113 +296,25 @@
       cursor: pointer;
       color: #43544d;
     }
-    .pill-btn.active {
-      background: var(--green-dark);
-      color: white;
-      border-color: var(--green-dark);
-    }
-    .inspector-content {
-      border-top: 1px solid #edf1ee;
-      padding-top: 8px;
-      flex: 1;
-      overflow-y: auto;
-      min-height: 0;
-      padding-right: 4px;
-    }
-    .inspector-item {
-      padding: 7px 10px;
-      margin-bottom: 6px;
-      border: 1px solid #e1ebe5;
-      border-radius: 4px;
-      background: #fafdfb;
-      cursor: pointer;
-      transition: all .15s;
-    }
-    .inspector-item:hover, .inspector-item.active {
-      border-color: var(--green);
-      background: var(--mint);
-    }
-    .inspector-item-head {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--green-dark);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .pill-btn.active { background: var(--green-dark); color: white; border-color: var(--green-dark); }
+    .inspector-content { border-top: 1px solid #edf1ee; padding-top: 8px; flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
+    .inspector-item { padding: 7px 10px; margin-bottom: 6px; border: 1px solid #e1ebe5; border-radius: 4px; background: #fafdfb; cursor: pointer; transition: all .15s; }
+    .inspector-item:hover, .inspector-item.active { border-color: var(--green); background: var(--mint); }
+    .inspector-item-head { font-size: 11px; font-weight: 700; color: var(--green-dark); display: flex; justify-content: space-between; align-items: center; }
     .head-actions { display: flex; align-items: center; gap: 8px; }
-    .rack-material-box {
-      margin-top: 6px;
-      padding: 6px 8px;
-      background: white;
-      border-left: 3px solid var(--green);
-      border-radius: 2px;
-    }
-    .rack-material-box h5 {
-      margin: 0;
-      font-size: 10px;
-      color: #3d4f48;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .material-entry-pill {
-      font-size: 10px;
-      padding: 2px 0;
-      border-bottom: 1px dashed #e7ede9;
-    }
-    .material-entry-pill:last-child {
-      border-bottom: none;
-    }
+    .rack-material-box { margin-top: 6px; padding: 6px 8px; background: white; border-left: 3px solid var(--green); border-radius: 2px; }
+    .rack-material-box h5 { margin: 0; font-size: 10px; color: #3d4f48; display: flex; justify-content: space-between; align-items: center; }
+    .material-entry-pill { font-size: 10px; padding: 2px 0; border-bottom: 1px dashed #e7ede9; }
+    .material-entry-pill:last-child { border-bottom: none; }
 
     /* Result Table */
-    .table-scroll {
-      flex: 1;
-      overflow-x: auto;
-      overflow-y: hidden;
-      min-height: 0;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-    .table-head, .product-row {
-      display: grid;
-      grid-template-columns: minmax(180px, 1.5fr) minmax(150px, 1.2fr) minmax(110px, .8fr) minmax(190px, 1.5fr);
-      align-items: center;
-      column-gap: 11px;
-    }
-    .table-head {
-      min-height: 36px;
-      height: 36px;
-      border-bottom: 1px solid var(--line);
-      color: #89968f;
-      font: 9px var(--mono);
-      flex-shrink: 0;
-      padding-right: 8px;
-    }
-    .product-list {
-      flex: 1;
-      overflow-y: auto;
-      min-height: 0;
-      padding-right: 4px;
-    }
-    .product-row {
-      min-height: 44px;
-      border-bottom: 1px solid #eaf0eb;
-      font-size: 11px;
-      animation: appear .22s both;
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.15s, transform 0.1s;
-    }
-    .product-row:hover {
-      background: rgba(229,242,236,.65);
-      transform: translateX(2px);
-    }
-    .product-row.selected-row {
-      background: #e1f0e8 !important;
-      outline: 1px solid var(--green);
-    }
+    .table-scroll { flex: 1; overflow-x: auto; overflow-y: hidden; min-height: 0; width: 100%; display: flex; flex-direction: column; }
+    .table-head, .product-row { display: grid; grid-template-columns: minmax(180px, 1.5fr) minmax(150px, 1.2fr) minmax(110px, .8fr) minmax(190px, 1.5fr); align-items: center; column-gap: 11px; }
+    .table-head { min-height: 36px; height: 36px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; padding-right: 8px; }
+    .product-list { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
+    .product-row { min-height: 44px; border-bottom: 1px solid #eaf0eb; font-size: 11px; animation: appear .22s both; cursor: pointer; user-select: none; transition: background-color 0.15s, transform 0.1s; }
+    .product-row:hover { background: rgba(229,242,236,.65); transform: translateX(2px); }
+    .product-row.selected-row { background: #e1f0e8 !important; outline: 1px solid var(--green); }
     .part-code { color: #718079; font: 10px var(--mono); }
     .location-cell { min-width: 0; overflow: hidden; color: #718079; text-overflow: ellipsis; white-space: nowrap; }
     .quantity-cell strong { font: 13px var(--mono); font-weight: 500; }
@@ -494,17 +365,9 @@
       color: #3b4d46;
       cursor: pointer;
     }
-    .compact-switch input[type="radio"] {
-      margin: 0;
-      accent-color: var(--green);
-      cursor: pointer;
-    }
+    .compact-switch input[type="radio"] { margin: 0; accent-color: var(--green); cursor: pointer; }
 
-    .inline-field {
-      display: inline-flex;
-      align-items: center;
-      flex-shrink: 0;
-    }
+    .inline-field { display: inline-flex; align-items: center; flex-shrink: 0; }
     .inline-field input, .inline-field select {
       height: 30px;
       padding: 0 8px;
@@ -515,14 +378,8 @@
       font-size: 11px;
       outline: none;
     }
-    .inline-field input:focus, .inline-field select:focus {
-      border-color: var(--green);
-      box-shadow: 0 0 0 2px rgba(23,110,89,.15);
-    }
-    .inline-field input[readonly] {
-      background: #f2f7f4;
-      color: #556660;
-    }
+    .inline-field input:focus, .inline-field select:focus { border-color: var(--green); box-shadow: 0 0 0 2px rgba(23,110,89,.15); }
+    .inline-field input[readonly] { background: #f2f7f4; color: #556660; }
     .inline-field[hidden] { display: none !important; }
 
     .compact-btn {
@@ -544,13 +401,7 @@
     .compact-btn.success { background: #16a34a; border-color: #16a34a; }
     .compact-btn.success:hover { background: #15803d; }
 
-    .strip-status {
-      font-size: 9.5px;
-      color: var(--green);
-      min-height: 12px;
-      margin: 0;
-      padding-left: 2px;
-    }
+    .strip-status { font-size: 9.5px; color: var(--green); min-height: 12px; margin: 0; padding-left: 2px; }
     .strip-status.error { color: #b55130; }
 
     .location-delete {
@@ -580,8 +431,8 @@
       grid-template-columns: minmax(320px, 390px) minmax(0, 1.4fr);
       gap: 16px;
       align-items: stretch;
-      height: 280px;
-      max-height: 280px;
+      height: 330px;
+      max-height: 330px;
       flex-shrink: 0;
     }
     .user-card-panel {
@@ -596,17 +447,12 @@
       height: 100%;
       overflow: hidden;
     }
-    #usersList {
-      flex: 1;
-      overflow-y: auto;
-      min-height: 0;
-      padding-right: 4px;
-    }
+    #usersList { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
     .user-table-head, .user-row {
       display: grid;
-      grid-template-columns: minmax(110px, 1fr) minmax(140px, 1.2fr) 90px 60px;
+      grid-template-columns: minmax(100px, 1fr) minmax(130px, 1.2fr) 65px 70px 55px;
       align-items: center;
-      column-gap: 10px;
+      column-gap: 8px;
     }
     .user-table-head {
       min-height: 30px;
@@ -620,21 +466,10 @@
     .user-row { min-height: 36px; border-bottom: 1px solid #eaf0eb; font-size: 11px; animation: appear .22s both; }
     .user-row:hover { background: rgba(229,242,236,.45); }
     .user-name { font-weight: 600; color: var(--ink); }
-    .user-email { color: #53645e; font: 11px var(--mono); word-break: break-all; }
+    .user-email { color: #53645e; font: 10.5px var(--mono); word-break: break-all; }
     .user-actions { text-align: right; }
-    .verifier-toggle-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 10px;
-      cursor: pointer;
-      color: var(--green-dark);
-      font-weight: 600;
-    }
-    .verifier-toggle-label input[type="checkbox"] {
-      cursor: pointer;
-      accent-color: var(--green);
-    }
+    .verifier-toggle-label { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; cursor: pointer; color: var(--green-dark); font-weight: 600; }
+    .verifier-toggle-label input[type="checkbox"] { cursor: pointer; accent-color: var(--green); }
 
     /* User Allocations Box */
     .user-bottom-allocations {
@@ -660,16 +495,8 @@
       margin-bottom: 8px;
       flex-shrink: 0;
     }
-    .user-bottom-allocations-head h3 {
-      margin: 0;
-      font-size: 13px;
-      color: var(--green-dark);
-    }
-    .user-bottom-allocations-head p {
-      margin: 2px 0 0;
-      font-size: 10.5px;
-      color: var(--muted);
-    }
+    .user-bottom-allocations-head h3 { margin: 0; font-size: 13px; color: var(--green-dark); }
+    .user-bottom-allocations-head p { margin: 2px 0 0; font-size: 10.5px; color: var(--muted); }
     .user-alloc-table-head, .user-alloc-row {
       display: grid;
       grid-template-columns: minmax(160px, 1.5fr) minmax(130px, 1.2fr) 90px minmax(160px, 1.5fr) minmax(170px, 1.4fr);
@@ -685,18 +512,8 @@
       flex-shrink: 0;
       padding-right: 6px;
     }
-    #userAllocViewerResults {
-      flex: 1;
-      overflow-y: auto;
-      min-height: 0;
-      padding-right: 4px;
-    }
-    .user-alloc-row {
-      min-height: 38px;
-      border-bottom: 1px solid #eaf0eb;
-      font-size: 11px;
-      animation: appear .22s both;
-    }
+    #userAllocViewerResults { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
+    .user-alloc-row { min-height: 38px; border-bottom: 1px solid #eaf0eb; font-size: 11px; animation: appear .22s both; }
     .user-alloc-row:hover { background: rgba(229,242,236,.35); }
 
     /* Lifecycle Logs Page */
@@ -712,14 +529,7 @@
       border: 1px solid var(--line);
       border-radius: 6px;
     }
-    .log-filter-bar label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #52635d;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .log-filter-bar label { font-size: 11px; font-weight: 700; color: #52635d; display: inline-flex; align-items: center; gap: 6px; }
     .log-filter-bar select, .log-filter-bar input[type="date"] {
       height: 30px;
       padding: 0 8px;
@@ -730,32 +540,16 @@
       outline: none;
       color: var(--ink);
     }
-    .log-filter-bar select:focus, .log-filter-bar input[type="date"]:focus {
-      border-color: var(--green);
-    }
+    .log-filter-bar select:focus, .log-filter-bar input[type="date"]:focus { border-color: var(--green); }
 
-    /* Single-Line Unified Layout */
     .log-table-head, .log-row {
       display: grid;
       grid-template-columns: minmax(120px, 1.2fr) minmax(95px, 0.9fr) minmax(120px, 1.2fr) 55px 150px minmax(135px, 1.2fr) minmax(135px, 1.2fr) minmax(140px, 1.2fr);
       align-items: center;
       column-gap: 10px;
     }
-    .log-table-head {
-      min-height: 34px;
-      height: 34px;
-      border-bottom: 1px solid var(--line);
-      color: #89968f;
-      font: 9px var(--mono);
-      flex-shrink: 0;
-      padding-right: 6px;
-    }
-    #logList {
-      flex: 1;
-      overflow-y: auto;
-      min-height: 0;
-      padding-right: 4px;
-    }
+    .log-table-head { min-height: 34px; height: 34px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; padding-right: 6px; }
+    #logList { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
     .log-row { min-height: 42px; border-bottom: 1px solid #eaf0eb; font-size: 11px; animation: appear .22s both; }
     .log-row:hover { background: rgba(229,242,236,.3); }
     .log-badge {
@@ -803,39 +597,34 @@
       border: 1px solid var(--line);
       border-radius: 6px;
       padding: 20px;
-      width: min(400px, 92%);
+      width: min(420px, 92%);
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
     .modal-card h3 { margin: 0 0 6px; font-size: 15px; color: var(--green-dark); }
     .modal-card p { margin: 0 0 14px; color: var(--muted); font-size: 11px; }
     .modal-card .field { margin-bottom: 12px; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
-    .btn-secondary { background: #eef2f0; border: 1px solid #ced6d1; border-radius: 4px; padding: 0 12px; height: 30px; cursor: pointer; font-size: 11px; font-weight: 600; }
+    .btn-secondary { background: #eef2f0; border: 1px solid #ced6d1; border-radius: 4px; padding: 0 12px; height: 32px; cursor: pointer; font-size: 11px; font-weight: 600; }
     .btn-secondary:hover { background: #e0e7e3; }
-    .modal-actions .action-button { height: 34px; min-width: 75px; }
+    .modal-actions .action-button { height: 32px; min-width: 80px; }
+
+    .otp-input {
+      letter-spacing: 6px;
+      font-size: 18px !important;
+      text-align: center;
+      font-weight: bold;
+      font-family: var(--mono);
+    }
 
     @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 950px) {
       .storage-layout { grid-template-columns: 1fr; max-height: none; overflow-y: auto; }
       .unified-inspector-panel { max-height: 400px; }
       .user-top-split { grid-template-columns: 1fr; height: auto; max-height: none; }
-      .user-card-panel { height: 260px; max-height: 260px; }
+      .user-card-panel { height: 300px; max-height: 300px; }
       body { height: auto; overflow: auto; }
       .shell { height: auto; overflow: visible; }
       .material-split-layout { overflow: visible; }
-    }
-    @media (max-width: 850px) {
-      .shell { padding: 0 4% 16px; }
-      .table-head, .product-list, .user-table-head, .user-row, .log-table-head, .log-row, .user-alloc-table-head, .user-alloc-row { min-width: 960px; }
-      .material-compact-panel .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (max-width: 600px) {
-      .shell { padding: 0 12px 14px; }
-      .topbar { flex-wrap: wrap; height: auto; min-height: 85px; padding-top: 8px; }
-      .primary-nav { width: 100%; height: 38px; gap: 0; }
-      .form-grid { grid-template-columns: minmax(0, 1fr); }
-      .material-compact-panel .form-grid { grid-template-columns: minmax(0, 1fr); }
-      .storage-inline-inputs { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -868,6 +657,11 @@
         <span id="labTitleText">LAB INVENTORY</span>
       </div>
       <div class="nav-wrapper">
+        <div class="user-auth-links">
+          <button type="button" class="auth-nav-btn" id="openRegisterModalBtn">Register</button>
+          <button type="button" class="auth-nav-btn" id="openResetModalBtn">Forgot Password?</button>
+        </div>
+
         <div id="sessionIndicator" class="session-badge" hidden>
           <span id="sessionTimerText">30s</span>
           <button type="button" class="logout-btn" id="logoutButton">Log out</button>
@@ -991,7 +785,7 @@
                 <option value="">Workbench</option>
               </select>
             </div>
-            <button class="compact-btn success" type="submit">Return</button>
+            <button class="compact-btn success" type="submit" id="returnSubmitBtn">Return</button>
           </form>
         </div>
         <p class="strip-status" id="globalStripStatus" role="status" aria-live="polite"></p>
@@ -1150,42 +944,48 @@
       
       <div class="user-page-container">
         <div class="user-top-split">
+          <!-- Manual User Allocation Form -->
           <form class="user-card-panel" id="userForm">
-            <h3 style="margin: 0 0 4px; font-size: 13px; color: var(--green-dark);">Add New User</h3>
-            <p style="margin: 0 0 10px; font-size: 10px; color: var(--muted);">Register a lab member to populate in the selection list.</p>
-            <div class="field" style="margin-bottom: 8px;">
+            <h3 style="margin: 0 0 4px; font-size: 13px; color: var(--green-dark);">Manual User Allocation</h3>
+            <p style="margin: 0 0 8px; font-size: 10px; color: var(--muted);">Manually enroll lab members with verification access.</p>
+            <div class="field" style="margin-bottom: 6px;">
               <label>User Name</label>
               <input name="userName" required maxlength="100" placeholder="e.g. John Doe">
             </div>
-            <div class="field" style="margin-bottom: 8px;">
+            <div class="field" style="margin-bottom: 6px;">
               <label>Email ID</label>
               <input name="email" type="email" required maxlength="120" placeholder="user@company.com">
             </div>
-            <div style="margin-bottom: 12px;">
+            <div class="field" style="margin-bottom: 6px;">
+              <label>Initial Password</label>
+              <input name="initialPassword" type="password" required maxlength="50" placeholder="Set user password">
+            </div>
+            <div style="margin-bottom: 10px;">
               <label class="verifier-toggle-label">
                 <input type="checkbox" id="userFormIsVerifier"> Can Verify Returned Items
               </label>
             </div>
-            <button class="action-button" type="submit" style="width: 100%; height: 34px;">Create User</button>
+            <button class="action-button" type="submit" style="width: 100%; height: 32px;">Create &amp; Verify User</button>
             <p class="form-status" id="userStatus" role="status" aria-live="polite" style="margin-top: 5px;"></p>
           </form>
 
           <div class="user-card-panel">
             <div style="margin-bottom: 6px;">
               <h3 style="margin: 0; font-size: 13px; color: var(--green-dark);">Registered Lab Users</h3>
-              <p style="margin: 2px 0 0; font-size: 10px; color: var(--muted);">Toggle verifiers who can sign off physical returns.</p>
+              <p style="margin: 2px 0 0; font-size: 10px; color: var(--muted);">View user verification status and toggle return sign-off privileges.</p>
             </div>
             <div class="user-table-head" aria-hidden="true">
               <span>USER NAME</span>
               <span>EMAIL ID</span>
-              <span style="text-align: center;">VERIFIER?</span>
+              <span style="text-align: center;">VERIFIED</span>
+              <span style="text-align: center;">VERIFIER</span>
               <span style="text-align: right;">ACTION</span>
             </div>
             <div id="usersList" aria-live="polite"></div>
             <div class="empty" id="emptyUsers" hidden>
               <span class="empty-symbol" aria-hidden="true">&#9786;</span>
               <strong>No users added yet</strong>
-              <span>Add users via the form to manage accounts.</span>
+              <span>Add users via manual creation or self-registration.</span>
             </div>
           </div>
         </div>
@@ -1231,7 +1031,7 @@
             <!-- User Page Allocate Form -->
             <form id="userPageTakeForm" style="display: contents;">
               <div class="inline-field">
-                <input list="userSuggestionsList" name="userManual" id="userTakeUserInput" required placeholder="User Name" style="width: 160px;">
+                <input list="userSuggestionsList" name="userManual" id="userTakeUserInput" required placeholder="User Name / Email" style="width: 160px;">
               </div>
               <div class="inline-field">
                 <input list="partNumberSuggestionsList" name="partNumber" id="userTakePartNumber" required maxlength="100" placeholder="Part Number" style="width: 170px;">
@@ -1248,7 +1048,7 @@
             <!-- User Page Return Form -->
             <form id="userPageReturnForm" style="display: none;">
               <div class="inline-field">
-                <input list="userSuggestionsList" name="userManual" id="userReturnUserInput" required placeholder="User Name" style="width: 140px;">
+                <input list="userSuggestionsList" name="userManual" id="userReturnUserInput" required placeholder="User Name / Email" style="width: 140px;">
               </div>
               <div class="inline-field">
                 <select name="allocationSelect" id="userReturnAllocatedSelect" style="width: 170px;">
@@ -1354,11 +1154,119 @@
     </section>
   </main>
 
-  <!-- Login Modal -->
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. Self Registration Modal -->
+  <div class="modal-overlay" id="registerModal" hidden>
+    <div class="modal-card">
+      <h3 id="regModalTitle">Create Lab Account</h3>
+      <p id="regModalDesc">Enter your details. A verification code will be sent to your email.</p>
+
+      <!-- Step 1: Input Details -->
+      <form id="registerDetailsForm">
+        <label class="field">
+          Full Name
+          <input type="text" id="regName" required placeholder="e.g. John Doe" autocomplete="name">
+        </label>
+        <label class="field">
+          Email Address
+          <input type="email" id="regEmail" required placeholder="user@company.com" autocomplete="email">
+        </label>
+        <label class="field">
+          Password
+          <input type="password" id="regPassword" required minlength="4" placeholder="Choose a password" autocomplete="new-password">
+        </label>
+        <p class="form-status error" id="regError"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="cancelRegBtn">Cancel</button>
+          <button type="submit" class="action-button success-button">Send Code</button>
+        </div>
+      </form>
+
+      <!-- Step 2: Enter OTP -->
+      <form id="registerOtpForm" hidden>
+        <p style="font-size: 11px; color: var(--green-dark); margin-bottom: 8px;">
+          Verification code dispatched to: <strong id="regTargetEmail"></strong>
+        </p>
+        <label class="field">
+          6-Digit Verification Code
+          <input type="text" id="regOtpInput" required maxlength="6" class="otp-input" placeholder="000000" autocomplete="one-time-code">
+        </label>
+        <p class="form-status error" id="regOtpError"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="backToRegDetailsBtn">Back</button>
+          <button type="submit" class="action-button success-button">Verify &amp; Register</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Self Password Reset Modal -->
+  <div class="modal-overlay" id="resetModal" hidden>
+    <div class="modal-card">
+      <h3>Reset Your Password</h3>
+      <p id="resetModalDesc">Enter your registered email address to receive a reset code.</p>
+
+      <!-- Step 1: Request Reset Code -->
+      <form id="resetRequestForm">
+        <label class="field">
+          Registered Email
+          <input type="email" id="resetEmail" required placeholder="user@company.com">
+        </label>
+        <p class="form-status error" id="resetRequestError"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="cancelResetBtn">Cancel</button>
+          <button type="submit" class="action-button">Send Reset Code</button>
+        </div>
+      </form>
+
+      <!-- Step 2: Validate OTP & Set New Password -->
+      <form id="resetSubmitForm" hidden>
+        <label class="field">
+          6-Digit Reset Code
+          <input type="text" id="resetOtpInput" required maxlength="6" class="otp-input" placeholder="000000">
+        </label>
+        <label class="field">
+          New Password
+          <input type="password" id="resetNewPassword" required minlength="4" placeholder="Enter new password">
+        </label>
+        <label class="field">
+          Confirm New Password
+          <input type="password" id="resetConfirmPassword" required minlength="4" placeholder="Confirm new password">
+        </label>
+        <p class="form-status error" id="resetSubmitError"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="backToResetReqBtn">Back</button>
+          <button type="submit" class="action-button success-button">Update Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Action Authentication Modal (Password Confirmation on Allocate / Return) -->
+  <div class="modal-overlay" id="userAuthActionModal" hidden>
+    <div class="modal-card">
+      <h3 id="actionAuthTitle">User Authentication</h3>
+      <p id="actionAuthDesc">Confirm your user password to execute this transaction.</p>
+      <form id="userAuthActionForm">
+        <label class="field">
+          Password for <strong id="actionAuthTargetUser">User</strong>
+          <input type="password" id="actionAuthPasswordInput" required placeholder="Enter your password" autocomplete="current-password">
+        </label>
+        <p class="form-status error" id="actionAuthError"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="actionAuthCancelBtn">Cancel</button>
+          <button type="submit" class="action-button" id="actionAuthConfirmBtn">Authorize</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Admin Login Modal -->
   <div class="modal-overlay" id="authModal" hidden>
     <div class="modal-card">
-      <h3>Authentication Required</h3>
-      <p>Enter the password to access inventory controls.</p>
+      <h3>Admin Authentication Required</h3>
+      <p>Enter the master password to access system configuration.</p>
       <form id="authForm">
         <label class="field">
           Password
@@ -1373,7 +1281,7 @@
     </div>
   </div>
 
-  <!-- Verifier Selector Modal -->
+  <!-- 5. Verifier Selector Modal -->
   <div class="modal-overlay" id="verifierModal" hidden>
     <div class="modal-card">
       <h3>Physical Return Sign-Off</h3>
@@ -1396,12 +1304,47 @@
 
   <script>
     // ==========================================
-    // 1. SUPABASE CLIENT & CREDENTIALS
+    // 1. SUPABASE CLIENT & CRYPTOGRAPHIC UTILITIES
     // ==========================================
     const SUPABASE_URL = "https://yeydscvvujnekicsbdxi.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_uBh_Q_7YFakzCqHknzb1tw_4qj3_7eI";
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Cryptographic Hash (SHA-256)
+    async function hashPassword(plainText) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(plainText + "_lab_salt_2026");
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    // Helper: Generate 6-Digit OTP
+    function generateSecureOTP() {
+      const array = new Uint32Array(1);
+      crypto.getRandomValues(array);
+      return (100000 + (array[0] % 900000)).toString();
+    }
+
+    // Mock/Direct Email Dispatcher
+    // Integrates directly with Supabase Edge Functions / Mail endpoints.
+    // For local evaluation, it displays in alert/console while committing token to DB.
+    async function dispatchVerificationEmail(email, otpCode, purpose = "Verification") {
+      console.log(`[EMAIL DISPATCH] To: ${email} | Subject: Your Lab ${purpose} Code: ${otpCode}`);
+      
+      try {
+        // Attempt Supabase Edge Function invoke if deployed
+        await supabaseClient.functions.invoke('send-email-otp', {
+          body: { to: email, code: otpCode, purpose }
+        });
+      } catch (err) {
+        // Fallback notification for testing/offline environments
+        console.warn("Direct SMTP invoke skipped; token active:", err);
+      }
+      
+      alert(`[DEMO EMAIL NOTIFICATION]\n\nA ${purpose} code has been dispatched to ${email}:\n\nYour 6-Digit Code: ${otpCode}\n\n(Expires in 10 minutes)`);
+    }
 
     // Global State
     let products = [];
@@ -1416,12 +1359,12 @@
     let activeInspectorFilter = "cupboard";
     let selectedInspectorLocationId = null;
 
-    // ACTIVE DATABASE TABLE SET DIRECTLY TO material_lifecycle_logs
     const ACTIVE_LOG_TABLE = "material_lifecycle_logs";
     const allocationOriginMap = new Map();
 
-    // Verifier Modal State
+    // Verifier & Auth Action Modal State
     let pendingVerificationLogId = null;
+    let pendingActionCallback = null;
 
     // DOM Elements
     const initialOverlay = document.getElementById("initialOverlay");
@@ -1438,7 +1381,44 @@
     const verifierCancelButton = document.getElementById("verifierCancelButton");
     const userFormIsVerifier = document.getElementById("userFormIsVerifier");
 
-    // AUTHENTICATION
+    // Action Auth Modal Elements
+    const userAuthActionModal = document.getElementById("userAuthActionModal");
+    const userAuthActionForm = document.getElementById("userAuthActionForm");
+    const actionAuthTargetUser = document.getElementById("actionAuthTargetUser");
+    const actionAuthPasswordInput = document.getElementById("actionAuthPasswordInput");
+    const actionAuthError = document.getElementById("actionAuthError");
+    const actionAuthCancelBtn = document.getElementById("actionAuthCancelBtn");
+
+    // Self Register Elements
+    const openRegisterModalBtn = document.getElementById("openRegisterModalBtn");
+    const registerModal = document.getElementById("registerModal");
+    const registerDetailsForm = document.getElementById("registerDetailsForm");
+    const registerOtpForm = document.getElementById("registerOtpForm");
+    const regName = document.getElementById("regName");
+    const regEmail = document.getElementById("regEmail");
+    const regPassword = document.getElementById("regPassword");
+    const regError = document.getElementById("regError");
+    const cancelRegBtn = document.getElementById("cancelRegBtn");
+    const regTargetEmail = document.getElementById("regTargetEmail");
+    const regOtpInput = document.getElementById("regOtpInput");
+    const regOtpError = document.getElementById("regOtpError");
+    const backToRegDetailsBtn = document.getElementById("backToRegDetailsBtn");
+
+    // Reset Password Elements
+    const openResetModalBtn = document.getElementById("openResetModalBtn");
+    const resetModal = document.getElementById("resetModal");
+    const resetRequestForm = document.getElementById("resetRequestForm");
+    const resetSubmitForm = document.getElementById("resetSubmitForm");
+    const resetEmail = document.getElementById("resetEmail");
+    const resetRequestError = document.getElementById("resetRequestError");
+    const cancelResetBtn = document.getElementById("cancelResetBtn");
+    const resetOtpInput = document.getElementById("resetOtpInput");
+    const resetNewPassword = document.getElementById("resetNewPassword");
+    const resetConfirmPassword = document.getElementById("resetConfirmPassword");
+    const resetSubmitError = document.getElementById("resetSubmitError");
+    const backToResetReqBtn = document.getElementById("backToResetReqBtn");
+
+    // ADMIN AUTHENTICATION
     const AUTH_PASSWORD = "festo";
     const TIMEOUT_SECONDS = 30;
 
@@ -1479,10 +1459,8 @@
         stopInactivityCountdown();
         return;
       }
-
       const remaining = getRemainingSeconds();
       updateTimerBadge();
-
       if (remaining <= 0) logout();
     }
 
@@ -1535,7 +1513,6 @@
       });
 
       renderLogs();
-
       if (activePageId !== "searchPage") navigateTo("searchPage");
     }
 
@@ -1765,7 +1742,302 @@
     }
 
     // ==========================================
-    // 2. STORAGE & INSPECTOR
+    // 2. USER AUTHENTICATION & ACTION CONFIRMATION MODAL
+    // ==========================================
+    function verifyUserPasswordBeforeAction(userObj, actionType, onVerifiedCallback) {
+      // If user has no password configured (legacy or guest), allow action or prompt setup
+      if (!userObj || !userObj.password_hash) {
+        onVerifiedCallback();
+        return;
+      }
+
+      pendingActionCallback = onVerifiedCallback;
+      actionAuthTargetUser.textContent = `${userObj.name} (${actionType})`;
+      actionAuthError.textContent = "";
+      actionAuthPasswordInput.value = "";
+      userAuthActionModal.hidden = false;
+      actionAuthPasswordInput.focus();
+
+      userAuthActionForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const inputPwd = actionAuthPasswordInput.value;
+        const hashed = await hashPassword(inputPwd);
+
+        if (hashed === userObj.password_hash) {
+          userAuthActionModal.hidden = true;
+          const cb = pendingActionCallback;
+          pendingActionCallback = null;
+          if (cb) cb();
+        } else {
+          actionAuthError.textContent = "Incorrect password! Action not allowed.";
+          actionAuthPasswordInput.select();
+        }
+      };
+    }
+
+    actionAuthCancelBtn.addEventListener("click", () => {
+      userAuthActionModal.hidden = true;
+      pendingActionCallback = null;
+    });
+
+    // ==========================================
+    // 3. SELF-REGISTRATION WITH EMAIL OTP
+    // ==========================================
+    let pendingRegistration = null;
+
+    openRegisterModalBtn.addEventListener("click", () => {
+      registerModal.hidden = false;
+      registerDetailsForm.hidden = false;
+      registerOtpForm.hidden = true;
+      regError.textContent = "";
+      registerDetailsForm.reset();
+    });
+
+    cancelRegBtn.addEventListener("click", () => {
+      registerModal.hidden = true;
+      pendingRegistration = null;
+    });
+
+    backToRegDetailsBtn.addEventListener("click", () => {
+      registerOtpForm.hidden = true;
+      registerDetailsForm.hidden = false;
+      regOtpError.textContent = "";
+    });
+
+    registerDetailsForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = regName.value.trim();
+      const email = regEmail.value.trim().toLowerCase();
+      const password = regPassword.value;
+
+      regError.textContent = "Checking credentials...";
+
+      try {
+        // Check if user already exists
+        const { data: existing, error: searchErr } = await supabaseClient
+          .from('users')
+          .select('id, is_verified')
+          .eq('email', email);
+
+        if (searchErr) throw searchErr;
+        if (existing && existing.length > 0 && existing[0].is_verified) {
+          throw new Error("An active user with this email address is already registered.");
+        }
+
+        const otp = generateSecureOTP();
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+        const pwdHash = await hashPassword(password);
+
+        pendingRegistration = { name, email, pwdHash, otp };
+
+        // Save unverified user with verification OTP
+        if (existing && existing.length > 0) {
+          await supabaseClient
+            .from('users')
+            .update({
+              name,
+              password_hash: pwdHash,
+              verification_otp: otp,
+              verification_otp_expires: expiresAt,
+              is_verified: false
+            })
+            .eq('email', email);
+        } else {
+          await supabaseClient
+            .from('users')
+            .insert([{
+              name,
+              email,
+              password_hash: pwdHash,
+              verification_otp: otp,
+              verification_otp_expires: expiresAt,
+              is_verified: false,
+              is_verifier: false
+            }]);
+        }
+
+        await dispatchVerificationEmail(email, otp, "Registration");
+
+        regTargetEmail.textContent = email;
+        registerDetailsForm.hidden = true;
+        registerOtpForm.hidden = false;
+        regOtpInput.value = "";
+        regOtpInput.focus();
+      } catch (err) {
+        regError.textContent = err.message || "Failed to initiate registration.";
+      }
+    });
+
+    registerOtpForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const enteredOtp = regOtpInput.value.trim();
+
+      if (!pendingRegistration) {
+        regOtpError.textContent = "Session expired. Please try registering again.";
+        return;
+      }
+
+      regOtpError.textContent = "Verifying code...";
+
+      try {
+        const { data: userRec, error } = await supabaseClient
+          .from('users')
+          .select('*')
+          .eq('email', pendingRegistration.email)
+          .single();
+
+        if (error || !userRec) throw new Error("Could not find registration record.");
+
+        if (userRec.verification_otp !== enteredOtp) {
+          throw new Error("Invalid verification code. Please check your email.");
+        }
+
+        if (userRec.verification_otp_expires && new Date() > new Date(userRec.verification_otp_expires)) {
+          throw new Error("Verification code has expired. Please request a new one.");
+        }
+
+        // Mark user as verified and clear OTP
+        const { error: updErr } = await supabaseClient
+          .from('users')
+          .update({
+            is_verified: true,
+            verification_otp: null,
+            verification_otp_expires: null
+          })
+          .eq('id', userRec.id);
+
+        if (updErr) throw updErr;
+
+        alert(`Registration successful! Welcome to the lab, ${pendingRegistration.name}.`);
+        registerModal.hidden = true;
+        pendingRegistration = null;
+
+        await loadUsers();
+      } catch (err) {
+        regOtpError.textContent = err.message || "Verification failed.";
+      }
+    });
+
+    // ==========================================
+    // 4. USER PASSWORD RESET SELF-SERVICE
+    // ==========================================
+    let pendingResetEmail = null;
+
+    openResetModalBtn.addEventListener("click", () => {
+      resetModal.hidden = false;
+      resetRequestForm.hidden = false;
+      resetSubmitForm.hidden = true;
+      resetRequestError.textContent = "";
+      resetRequestForm.reset();
+    });
+
+    cancelResetBtn.addEventListener("click", () => {
+      resetModal.hidden = true;
+      pendingResetEmail = null;
+    });
+
+    backToResetReqBtn.addEventListener("click", () => {
+      resetSubmitForm.hidden = true;
+      resetRequestForm.hidden = false;
+      resetSubmitError.textContent = "";
+    });
+
+    resetRequestForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = resetEmail.value.trim().toLowerCase();
+      resetRequestError.textContent = "Verifying email...";
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('users')
+          .select('id, name')
+          .eq('email', email)
+          .single();
+
+        if (error || !data) {
+          throw new Error("No account found matching this email address.");
+        }
+
+        const otp = generateSecureOTP();
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+
+        const { error: updErr } = await supabaseClient
+          .from('users')
+          .update({
+            reset_otp: otp,
+            reset_otp_expires: expiresAt
+          })
+          .eq('id', data.id);
+
+        if (updErr) throw updErr;
+
+        await dispatchVerificationEmail(email, otp, "Password Reset");
+
+        pendingResetEmail = email;
+        resetRequestForm.hidden = true;
+        resetSubmitForm.hidden = false;
+        resetOtpInput.value = "";
+        resetNewPassword.value = "";
+        resetConfirmPassword.value = "";
+        resetOtpInput.focus();
+      } catch (err) {
+        resetRequestError.textContent = err.message || "Failed sending reset code.";
+      }
+    });
+
+    resetSubmitForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const enteredOtp = resetOtpInput.value.trim();
+      const newPwd = resetNewPassword.value;
+      const confirmPwd = resetConfirmPassword.value;
+
+      if (newPwd !== confirmPwd) {
+        resetSubmitError.textContent = "Passwords do not match.";
+        return;
+      }
+
+      resetSubmitError.textContent = "Updating password...";
+
+      try {
+        const { data: userRec, error } = await supabaseClient
+          .from('users')
+          .select('*')
+          .eq('email', pendingResetEmail)
+          .single();
+
+        if (error || !userRec) throw new Error("User record not found.");
+
+        if (userRec.reset_otp !== enteredOtp) {
+          throw new Error("Invalid reset code. Please re-check the email.");
+        }
+
+        if (userRec.reset_otp_expires && new Date() > new Date(userRec.reset_otp_expires)) {
+          throw new Error("Reset code has expired. Please request a new code.");
+        }
+
+        const newHash = await hashPassword(newPwd);
+        const { error: updErr } = await supabaseClient
+          .from('users')
+          .update({
+            password_hash: newHash,
+            reset_otp: null,
+            reset_otp_expires: null
+          })
+          .eq('id', userRec.id);
+
+        if (updErr) throw updErr;
+
+        alert("Your password has been reset successfully! You can now authenticate your allocations and returns.");
+        resetModal.hidden = true;
+        pendingResetEmail = null;
+        await loadUsers();
+      } catch (err) {
+        resetSubmitError.textContent = err.message || "Failed updating password.";
+      }
+    });
+
+    // ==========================================
+    // 5. STORAGE & INSPECTOR
     // ==========================================
     async function loadStorage() {
       try {
@@ -2130,7 +2402,7 @@
     });
 
     // ==========================================
-    // 3. USER MANAGEMENT & GUEST RESOLVER
+    // 6. USER MANAGEMENT & MANUAL ALLOCATION
     // ==========================================
     function isGuestEmail(email) {
       if (!email) return false;
@@ -2194,6 +2466,15 @@
         emailSpan.className = "user-email";
         emailSpan.textContent = user.email;
 
+        // Verified indicator
+        const verifiedCell = document.createElement("div");
+        verifiedCell.style.textAlign = "center";
+        const isVer = user.is_verified !== false;
+        verifiedCell.innerHTML = isVer 
+          ? `<span style="color:#16a34a;font-weight:bold;">✓</span>`
+          : `<span style="color:#d9633b;font-size:9.5px;">Pending</span>`;
+
+        // Verifier checkbox
         const verifierCell = document.createElement("div");
         verifierCell.style.textAlign = "center";
         const vCheckbox = document.createElement("input");
@@ -2215,21 +2496,22 @@
         delBtn.addEventListener("click", () => deleteUser(user.id, user.name));
 
         actionDiv.append(delBtn);
-        row.append(nameSpan, emailSpan, verifierCell, actionDiv);
+        row.append(nameSpan, emailSpan, verifiedCell, verifierCell, actionDiv);
         usersList.append(row);
       }
     }
 
     function populateUserDropdowns() {
-      const nonGuestUsers = users.filter(u => !isGuestEmail(u.email));
-      selectOptions(takeUserSelect, nonGuestUsers, "Select User", u => u.id, u => u.name);
-      selectOptions(returnUserSelect, nonGuestUsers, "Select User", u => u.id, u => u.name);
+      // Only show verified users in the allocation dropdowns
+      const activeEligibleUsers = users.filter(u => !isGuestEmail(u.email) && u.is_verified !== false);
+      selectOptions(takeUserSelect, activeEligibleUsers, "Select User", u => u.id, u => u.name);
+      selectOptions(returnUserSelect, activeEligibleUsers, "Select User", u => u.id, u => u.name);
       selectOptions(userAllocViewerSelect, users, "Choose User to View Allocations", u => u.id, u => u.name);
     }
 
     function populateDatalists() {
       userSuggestionsList.replaceChildren();
-      users.filter(u => !isGuestEmail(u.email)).forEach(u => {
+      users.filter(u => !isGuestEmail(u.email) && u.is_verified !== false).forEach(u => {
         const opt = document.createElement("option");
         opt.value = u.name;
         userSuggestionsList.append(opt);
@@ -2271,7 +2553,7 @@
 
         const { data: newUser, error } = await supabaseClient
           .from('users')
-          .insert([{ name: clean, email: guestEmail, is_verifier: false }])
+          .insert([{ name: clean, email: guestEmail, is_verifier: false, is_verified: true }])
           .select()
           .single();
 
@@ -2358,28 +2640,30 @@
       refreshUserAllocationsViewer(e.target.value);
     });
 
+    // Manual User Creation (Admin Page)
     userForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const name = userForm.userName.value.trim();
       const email = userForm.email.value.trim().toLowerCase();
+      const initialPwd = userForm.initialPassword.value;
       const isVerifier = userFormIsVerifier.checked;
 
       try {
+        const pwdHash = await hashPassword(initialPwd);
         const { error } = await supabaseClient
           .from('users')
-          .insert([{ name, email, is_verifier: isVerifier }]);
+          .insert([{ 
+            name, 
+            email, 
+            password_hash: pwdHash, 
+            is_verifier: isVerifier, 
+            is_verified: true 
+          }]);
 
-        if (error) {
-          if (error.message && error.message.includes("is_verifier")) {
-            const fallback = await supabaseClient.from('users').insert([{ name, email }]);
-            if (fallback.error) throw fallback.error;
-          } else {
-            throw error;
-          }
-        }
+        if (error) throw error;
 
         userForm.reset();
-        setFormStatus(userStatus, `User "${name}" added successfully.`);
+        setFormStatus(userStatus, `User "${name}" manually created and verified.`);
         await loadUsers();
       } catch (error) {
         setFormStatus(userStatus, error.message, true);
@@ -2405,7 +2689,7 @@
     }
 
     // ==========================================
-    // 4. ALLOCATION FETCH & AUTO-POPULATION
+    // 7. ALLOCATION FETCH & AUTO-POPULATION
     // ==========================================
     async function loadAllocationsForUser(userId) {
       if (!userId) {
@@ -2670,7 +2954,7 @@
     }
 
     // ==========================================
-    // 5. AUDIT LOGGING & STATUS PERSISTENCE
+    // 8. AUDIT LOGGING & STATUS PERSISTENCE
     // ==========================================
     async function recordAllocationLog(userId, userName, partCode, partNumber, quantity, locationText) {
       const nowIso = new Date().toISOString();
@@ -2697,7 +2981,6 @@
       }
     }
 
-    // Direct Database Query: Finds the active allocation row and updates it on THAT SAME ROW
     async function recordReturnPendingLog(userId, userName, partCode, partNumber, quantityReturned, locConfig) {
       const nowIso = new Date().toISOString();
 
@@ -2820,7 +3103,7 @@
         const workbenchId = logItem.workbench_id || null;
         const locationText = logItem.location_text || "Storage";
 
-        // 1. Replenish physical stock in materials
+        // Replenish physical stock in materials
         let existingAtDestination = products.find(p => 
           p.part_number.trim().toLowerCase() === logItem.part_number.trim().toLowerCase() &&
           p.part_code.trim().toLowerCase() === logItem.part_code.trim().toLowerCase() &&
@@ -2847,7 +3130,7 @@
           }]);
         }
 
-        // 2. Complete single-line log verification: status -> Return
+        // Complete single-line log verification: status -> Return
         const nowIso = new Date().toISOString();
         await supabaseClient.from(ACTIVE_LOG_TABLE).update({
           status: "Return",
@@ -2866,7 +3149,7 @@
     });
 
     // ==========================================
-    // 6. ALLOCATION & RETURN LOGIC
+    // 9. ALLOCATION & RETURN EXECUTION
     // ==========================================
     async function executeMaterialAllocation(userId, userName, pNum, pCode, takeQty, matId = null) {
       let query = supabaseClient.from('materials').select('*');
@@ -3023,158 +3306,163 @@
       return locationText;
     }
 
-    // Submit: Search Page Allocate
-    globalTakeForm.addEventListener("submit", async (e) => {
+    // Submit: Search Page Allocate (Guarded by User Password)
+    globalTakeForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      allocateSubmitBtn.disabled = true;
+      const userId = takeUserSelect.value;
+      if (!userId) return setFormStatus(globalStripStatus, "Please select a user from the list.", true);
 
-      try {
-        const userId = takeUserSelect.value;
-        if (!userId) throw new Error("Please select a user from the list.");
+      const targetUser = users.find(u => String(u.id) === String(userId));
+      verifyUserPasswordBeforeAction(targetUser, "Allocate", async () => {
+        allocateSubmitBtn.disabled = true;
+        try {
+          const pNum = takePartNumber.value.trim();
+          const pCode = takePartCode.value.trim();
+          if (!pNum || !pCode) throw new Error("Please provide both Part Number and Part Code.");
 
-        const pNum = takePartNumber.value.trim();
-        const pCode = takePartCode.value.trim();
-        if (!pNum || !pCode) throw new Error("Please provide both Part Number and Part Code.");
+          const takeQty = parseInt(takeQuantity.value, 10);
+          if (isNaN(takeQty) || takeQty < 1) throw new Error("Please enter a valid whole number quantity starting from 1.");
 
-        const takeQty = parseInt(takeQuantity.value, 10);
-        if (isNaN(takeQty) || takeQty < 1) throw new Error("Please enter a valid whole number quantity starting from 1.");
+          const userName = targetUser?.name || "User";
+          const item = await executeMaterialAllocation(userId, userName, pNum, pCode, takeQty, takeMaterialId.value);
 
-        const userName = takeUserSelect.selectedOptions[0]?.text || "User";
-        const item = await executeMaterialAllocation(userId, userName, pNum, pCode, takeQty, takeMaterialId.value);
-
-        setFormStatus(globalStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userName}.`);
-        resetTakeForm();
-      } catch (err) {
-        setFormStatus(globalStripStatus, err.message, true);
-        await refreshInventory();
-      } finally {
-        allocateSubmitBtn.disabled = false;
-      }
+          setFormStatus(globalStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userName}.`);
+          resetTakeForm();
+        } catch (err) {
+          setFormStatus(globalStripStatus, err.message, true);
+          await refreshInventory();
+        } finally {
+          allocateSubmitBtn.disabled = false;
+        }
+      });
     });
 
-    // Submit: Search Page Return
-    globalReturnForm.addEventListener("submit", async (e) => {
+    // Submit: Search Page Return (Guarded by User Password)
+    globalReturnForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      try {
-        const userId = returnUserSelect.value;
-        if (!userId) throw new Error("Please select a user returning the material.");
+      const userId = returnUserSelect.value;
+      if (!userId) return setFormStatus(globalStripStatus, "Please select a user returning the material.", true);
 
-        const returnQty = parseInt(returnQuantity.value, 10);
-        if (isNaN(returnQty) || returnQty < 1) throw new Error("Please enter a valid quantity starting from 1.");
+      const targetUser = users.find(u => String(u.id) === String(userId));
+      verifyUserPasswordBeforeAction(targetUser, "Return", async () => {
+        try {
+          const returnQty = parseInt(returnQuantity.value, 10);
+          if (isNaN(returnQty) || returnQty < 1) throw new Error("Please enter a valid quantity starting from 1.");
 
-        const allocId = returnAllocatedPartCodeSelect.value;
-        const allocItem = userAllocations.find(a => String(a.id) === String(allocId));
-        if (!allocItem) throw new Error("Please select an Allocated Part Code.");
+          const allocId = returnAllocatedPartCodeSelect.value;
+          const allocItem = userAllocations.find(a => String(a.id) === String(allocId));
+          if (!allocItem) throw new Error("Please select an Allocated Part Code.");
 
-        if (returnQty > parseInt(allocItem.quantity, 10)) {
-          throw new Error(`Cannot return ${returnQty}. User is only allocated ${allocItem.quantity}.`);
+          if (returnQty > parseInt(allocItem.quantity, 10)) {
+            throw new Error(`Cannot return ${returnQty}. User is only allocated ${allocItem.quantity}.`);
+          }
+
+          const userName = targetUser?.name || "User";
+          const locConfig = {
+            locationType: returnLocationType.value,
+            cupboardId: returnCupboard.value,
+            cupboardName: returnCupboard.selectedOptions[0]?.text,
+            rackId: returnRack.value,
+            rackName: returnRack.selectedOptions[0]?.text,
+            boxId: returnBox.value,
+            boxName: returnBox.selectedOptions[0]?.text,
+            workbenchId: returnWorkbench.value,
+            workbenchName: returnWorkbench.selectedOptions[0]?.text
+          };
+
+          const locationText = await executeMaterialReturn(userId, userName, allocItem, returnQty, locConfig);
+          setFormStatus(globalStripStatus, `Marked ${returnQty} units of "${allocItem.part_number}" returned to ${locationText} (Pending Verification).`);
+          resetReturnForm();
+        } catch (err) {
+          setFormStatus(globalStripStatus, err.message, true);
         }
-
-        const userName = returnUserSelect.selectedOptions[0]?.text || "User";
-        const locConfig = {
-          locationType: returnLocationType.value,
-          cupboardId: returnCupboard.value,
-          cupboardName: returnCupboard.selectedOptions[0]?.text,
-          rackId: returnRack.value,
-          rackName: returnRack.selectedOptions[0]?.text,
-          boxId: returnBox.value,
-          boxName: returnBox.selectedOptions[0]?.text,
-          workbenchId: returnWorkbench.value,
-          workbenchName: returnWorkbench.selectedOptions[0]?.text
-        };
-
-        const locationText = await executeMaterialReturn(userId, userName, allocItem, returnQty, locConfig);
-        setFormStatus(globalStripStatus, `Marked ${returnQty} units of "${allocItem.part_number}" returned to ${locationText} (Pending Verification).`);
-        resetReturnForm();
-      } catch (err) {
-        setFormStatus(globalStripStatus, err.message, true);
-      }
+      });
     });
 
     // Submit: Users Page Allocate
     userPageTakeForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      userAllocateSubmitBtn.disabled = true;
+      const rawUser = userTakeUserInput.value.trim();
+      if (!rawUser) return setFormStatus(userPageStripStatus, "Please enter a user name.", true);
 
-      try {
-        const rawUser = userTakeUserInput.value.trim();
-        if (!rawUser) throw new Error("Please enter a user name.");
+      const userObj = await resolveOrCreateGuestUser(rawUser);
+      verifyUserPasswordBeforeAction(userObj, "Allocate", async () => {
+        userAllocateSubmitBtn.disabled = true;
+        try {
+          const pNum = userTakePartNumber.value.trim();
+          const pCode = userTakePartCode.value.trim();
+          if (!pNum || !pCode) throw new Error("Please enter both Part Number and Part Code.");
 
-        const userObj = await resolveOrCreateGuestUser(rawUser);
+          const takeQty = parseInt(userTakeQuantity.value, 10);
+          if (isNaN(takeQty) || takeQty < 1) throw new Error("Please enter a valid quantity starting from 1.");
 
-        const pNum = userTakePartNumber.value.trim();
-        const pCode = userTakePartCode.value.trim();
-        if (!pNum || !pCode) throw new Error("Please enter both Part Number and Part Code.");
-
-        const takeQty = parseInt(userTakeQuantity.value, 10);
-        if (isNaN(takeQty) || takeQty < 1) throw new Error("Please enter a valid quantity starting from 1.");
-
-        const item = await executeMaterialAllocation(userObj.id, userObj.name, pNum, pCode, takeQty);
-        setFormStatus(userPageStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userObj.name}.`);
-        resetUserPageTakeForm();
-      } catch (err) {
-        setFormStatus(userPageStripStatus, err.message, true);
-      } finally {
-        userAllocateSubmitBtn.disabled = false;
-      }
+          const item = await executeMaterialAllocation(userObj.id, userObj.name, pNum, pCode, takeQty);
+          setFormStatus(userPageStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userObj.name}.`);
+          resetUserPageTakeForm();
+        } catch (err) {
+          setFormStatus(userPageStripStatus, err.message, true);
+        } finally {
+          userAllocateSubmitBtn.disabled = false;
+        }
+      });
     });
 
     // Submit: Users Page Return
     userPageReturnForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      userReturnSubmitBtn.disabled = true;
+      const rawUser = userReturnUserInput.value.trim();
+      if (!rawUser) return setFormStatus(userPageStripStatus, "Please enter the user name.", true);
 
-      try {
-        const rawUser = userReturnUserInput.value.trim();
-        if (!rawUser) throw new Error("Please enter the user name.");
+      const userObj = await resolveOrCreateGuestUser(rawUser);
+      verifyUserPasswordBeforeAction(userObj, "Return", async () => {
+        userReturnSubmitBtn.disabled = true;
+        try {
+          const returnQty = parseInt(userReturnQuantity.value, 10);
+          if (isNaN(returnQty) || returnQty < 1) throw new Error("Please enter a valid whole number quantity.");
 
-        const userObj = await resolveOrCreateGuestUser(rawUser);
+          const pNum = userReturnPartNumber.value.trim();
+          const pCode = userReturnPartCode.value.trim();
 
-        const returnQty = parseInt(userReturnQuantity.value, 10);
-        if (isNaN(returnQty) || returnQty < 1) throw new Error("Please enter a valid whole number quantity.");
+          let allocItem = null;
+          if (userReturnAllocatedSelect.value) {
+            allocItem = userPageAllocations.find(a => String(a.id) === String(userReturnAllocatedSelect.value));
+          }
+          if (!allocItem && pCode) {
+            allocItem = userPageAllocations.find(a => a.part_code.toLowerCase() === pCode.toLowerCase());
+          }
+          if (!allocItem && pNum) {
+            allocItem = userPageAllocations.find(a => a.part_number.toLowerCase() === pNum.toLowerCase());
+          }
 
-        const pNum = userReturnPartNumber.value.trim();
-        const pCode = userReturnPartCode.value.trim();
+          if (!allocItem) {
+            throw new Error(`No allocated material found for user "${userObj.name}" matching ${pCode || pNum || 'selected part'}.`);
+          }
 
-        let allocItem = null;
-        if (userReturnAllocatedSelect.value) {
-          allocItem = userPageAllocations.find(a => String(a.id) === String(userReturnAllocatedSelect.value));
+          if (returnQty > parseInt(allocItem.quantity, 10)) {
+            throw new Error(`Cannot return ${returnQty}. Allocated quantity is ${allocItem.quantity}.`);
+          }
+
+          const locConfig = {
+            locationType: userReturnLocationType.value,
+            cupboardId: userReturnCupboard.value,
+            cupboardName: userReturnCupboard.selectedOptions[0]?.text,
+            rackId: userReturnRack.value,
+            rackName: userReturnRack.selectedOptions[0]?.text,
+            boxId: userReturnBox.value,
+            boxName: userReturnBox.selectedOptions[0]?.text,
+            workbenchId: userReturnWorkbench.value,
+            workbenchName: userReturnWorkbench.selectedOptions[0]?.text
+          };
+
+          const locationText = await executeMaterialReturn(userObj.id, userObj.name, allocItem, returnQty, locConfig);
+          setFormStatus(userPageStripStatus, `Marked ${returnQty} units of "${allocItem.part_number}" returned to ${locationText} (Pending Verification).`);
+          resetUserPageReturnForm();
+        } catch (err) {
+          setFormStatus(userPageStripStatus, err.message, true);
+        } finally {
+          userReturnSubmitBtn.disabled = false;
         }
-        if (!allocItem && pCode) {
-          allocItem = userPageAllocations.find(a => a.part_code.toLowerCase() === pCode.toLowerCase());
-        }
-        if (!allocItem && pNum) {
-          allocItem = userPageAllocations.find(a => a.part_number.toLowerCase() === pNum.toLowerCase());
-        }
-
-        if (!allocItem) {
-          throw new Error(`No allocated material found for user "${userObj.name}" matching ${pCode || pNum || 'selected part'}.`);
-        }
-
-        if (returnQty > parseInt(allocItem.quantity, 10)) {
-          throw new Error(`Cannot return ${returnQty}. Allocated quantity is ${allocItem.quantity}.`);
-        }
-
-        const locConfig = {
-          locationType: userReturnLocationType.value,
-          cupboardId: userReturnCupboard.value,
-          cupboardName: userReturnCupboard.selectedOptions[0]?.text,
-          rackId: userReturnRack.value,
-          rackName: userReturnRack.selectedOptions[0]?.text,
-          boxId: userReturnBox.value,
-          boxName: userReturnBox.selectedOptions[0]?.text,
-          workbenchId: userReturnWorkbench.value,
-          workbenchName: userReturnWorkbench.selectedOptions[0]?.text
-        };
-
-        const locationText = await executeMaterialReturn(userObj.id, userObj.name, allocItem, returnQty, locConfig);
-        setFormStatus(userPageStripStatus, `Marked ${returnQty} units of "${allocItem.part_number}" returned to ${locationText} (Pending Verification).`);
-        resetUserPageReturnForm();
-      } catch (err) {
-        setFormStatus(userPageStripStatus, err.message, true);
-      } finally {
-        userReturnSubmitBtn.disabled = false;
-      }
+      });
     });
 
     // Operation mode toggles
@@ -3203,7 +3491,7 @@
     });
 
     // ==========================================
-    // 7. LIFECYCLE AUDIT LOGS
+    // 10. LIFECYCLE AUDIT LOGS
     // ==========================================
     async function loadLogs() {
       try {
@@ -3330,7 +3618,7 @@
     });
 
     // ==========================================
-    // 8. EXCEL EXPORTS
+    // 11. EXCEL EXPORTS
     // ==========================================
     exportButton.addEventListener("click", () => {
       const activeProducts = products.filter(p => parseInt(p.quantity, 10) >= 1);
@@ -3387,7 +3675,7 @@
     });
 
     // ==========================================
-    // 9. MANUAL ADD & REMOVE
+    // 12. MANUAL ADD & REMOVE
     // ==========================================
     materialForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -3504,7 +3792,7 @@
     });
 
     // ==========================================
-    // 10. REAL-TIME SYNC & RENDERING
+    // 13. REAL-TIME SYNC & RENDERING
     // ==========================================
     async function refreshInventory() {
       try {
@@ -3627,7 +3915,7 @@
     }
 
     // ==========================================
-    // 11. NAVIGATION & INITIALIZATION
+    // 14. NAVIGATION & INITIALIZATION
     // ==========================================
     async function navigateTo(targetPageId) {
       activePageId = targetPageId;
