@@ -723,7 +723,7 @@
 
     .log-table-head, .log-row {
       display: grid;
-      grid-template-columns: minmax(130px, 1.2fr) minmax(105px, 1fr) minmax(130px, 1.2fr) 75px 115px minmax(140px, 1.3fr) minmax(140px, 1.3fr);
+      grid-template-columns: minmax(120px, 1.1fr) minmax(95px, 0.9fr) minmax(120px, 1.1fr) 60px 145px minmax(130px, 1.1fr) minmax(130px, 1.1fr) minmax(110px, 1fr);
       align-items: center;
       column-gap: 10px;
     }
@@ -746,7 +746,7 @@
     .log-row:hover { background: rgba(229,242,236,.3); }
     .log-badge {
       display: inline-block;
-      padding: 2px 8px;
+      padding: 2px 7px;
       font-size: 9.5px;
       font-weight: 700;
       border-radius: 3px;
@@ -756,6 +756,20 @@
     }
     .log-badge.allocated { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
     .log-badge.returned { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .log-badge.pending { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+
+    .verify-btn {
+      padding: 3px 8px;
+      border: 1px solid #16a34a;
+      background: #f0fdf4;
+      color: #15803d;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 700;
+      transition: background-color 0.15s;
+    }
+    .verify-btn:hover { background: #16a34a; color: white; }
 
     /* Modal */
     .modal-overlay {
@@ -797,7 +811,7 @@
     }
     @media (max-width: 850px) {
       .shell { padding: 0 4% 16px; }
-      .table-head, .product-list, .user-table-head, .user-row, .log-table-head, .log-row, .user-alloc-table-head, .user-alloc-row { min-width: 880px; }
+      .table-head, .product-list, .user-table-head, .user-row, .log-table-head, .log-row, .user-alloc-table-head, .user-alloc-row { min-width: 920px; }
       .material-compact-panel .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 600px) {
@@ -891,7 +905,7 @@
         </div>
       </div>
 
-      <!-- Bottom Bar on Search Page: Excludes guest accounts -->
+      <!-- Bottom Bar on Search Page -->
       <div class="aligned-bottom-bar" id="alignedBottomBar">
         <div class="transaction-bar">
           <div class="compact-switch">
@@ -1285,7 +1299,8 @@
           <select id="logActionFilter">
             <option value="ALL">All Records</option>
             <option value="Allocated">Only Allocated</option>
-            <option value="Return">Only Returned</option>
+            <option value="Pending">Pending Return Verification</option>
+            <option value="Return">Verified Returns</option>
           </select>
         </label>
 
@@ -1307,16 +1322,17 @@
           <span>USER NAME</span>
           <span>PART CODE</span>
           <span>PART NUMBER</span>
-          <span>QUANTITY</span>
-          <span>ALLOCATED OR RETURNED</span>
+          <span>QTY</span>
+          <span>STATUS</span>
           <span>ALLOCATED TIME</span>
-          <span>RETURNED TIME</span>
+          <span>RETURN / PENDING TIME</span>
+          <span>VERIFICATION / ACTION</span>
         </div>
         <div id="logList" aria-live="polite"></div>
         <div class="empty" id="emptyLogs" hidden>
           <span class="empty-symbol" aria-hidden="true">&#9776;</span>
           <strong>No matching activity records found</strong>
-          <span>Allocated materials and their return updates will appear here in the same row.</span>
+          <span>Allocated materials, returns awaiting inspection, and sign-offs will appear here.</span>
         </div>
       </div>
     </section>
@@ -1450,6 +1466,7 @@
       });
 
       startInactivityCountdown();
+      renderLogs();
 
       if (pendingTargetPage) {
         navigateTo(pendingTargetPage);
@@ -1470,6 +1487,8 @@
       document.querySelectorAll(".page-tab.admin-tab").forEach(tab => {
         tab.hidden = true;
       });
+
+      renderLogs();
 
       if (activePageId !== "searchPage") navigateTo("searchPage");
     }
@@ -2092,7 +2111,6 @@
     function renderUsers() {
       usersList.replaceChildren();
 
-      // Only display regular, official users in the table view
       const regularUsers = users.filter(u => !isGuestEmail(u.email));
 
       if (!regularUsers.length) {
@@ -2129,7 +2147,6 @@
       }
     }
 
-    // SEARCH BAR DROPDOWNS: Exclude guest accounts and display ONLY the user's name
     function populateUserDropdowns() {
       const nonGuestUsers = users.filter(u => !isGuestEmail(u.email));
       selectOptions(takeUserSelect, nonGuestUsers, "Select User", u => u.id, u => u.name);
@@ -2139,7 +2156,6 @@
 
     function populateDatalists() {
       userSuggestionsList.replaceChildren();
-      // Only suggest registered user names in autocomplete
       users.filter(u => !isGuestEmail(u.email)).forEach(u => {
         const opt = document.createElement("option");
         opt.value = u.name;
@@ -2162,7 +2178,6 @@
       });
     }
 
-    // Dynamically register a guest user with unique guest email when allocating
     async function resolveOrCreateGuestUser(inputName) {
       if (!inputName) return null;
       const clean = inputName.trim();
@@ -2199,7 +2214,6 @@
       return { id: null, name: clean, email: "" };
     }
 
-    // Deletes guest user if all active material allocations have reached 0
     async function cleanupGuestUserIfDone(userId) {
       if (!userId) return;
       const userObj = users.find(u => String(u.id) === String(userId));
@@ -2550,7 +2564,6 @@
       userPageAllocations = [];
     }
 
-    // Sync part number & code to both search and user page allocation fields
     function onProductRowClicked(product) {
       const availQty = parseInt(product.quantity, 10);
       if (isNaN(availQty) || availQty <= 0) {
@@ -2615,7 +2628,8 @@
       }
     }
 
-    async function recordReturnUpdateLog(userId, userName, partCode, partNumber, quantityReturned) {
+    // Records the return action initially as "Pending Return Verification"
+    async function recordReturnPendingLog(userId, userName, partCode, partNumber, quantityReturned, locationText) {
       const nowIso = new Date().toISOString();
       const candidateTables = [ACTIVE_LOG_TABLE, "material_logs", "material_lifecycle_logs", "inventory_logs"];
       const uniqueTables = [...new Set(candidateTables)];
@@ -2639,8 +2653,9 @@
             const updateRes = await supabaseClient
               .from(table)
               .update({
-                status: "Return",
-                returned_time: nowIso
+                status: "Pending Return Verification",
+                pending_return_time: nowIso,
+                location_text: locationText || "Storage"
               })
               .eq('id', openLogId);
 
@@ -2652,6 +2667,7 @@
         } catch (e) {}
       }
 
+      // Standalone pending log fallback
       try {
         await supabaseClient.from(ACTIVE_LOG_TABLE).insert([{
           user_id: userId,
@@ -2659,12 +2675,38 @@
           part_code: partCode,
           part_number: partNumber,
           quantity: quantityReturned,
-          status: "Return",
+          status: "Pending Return Verification",
           allocated_time: null,
-          returned_time: nowIso
+          pending_return_time: nowIso,
+          location_text: locationText || "Storage"
         }]);
       } catch (err) {
-        console.warn("Could not insert standalone return log:", err);
+        console.warn("Could not insert standalone pending return log:", err);
+      }
+    }
+
+    // Manager / Admin Sign-off for physical shelf placement
+    async function verifyAndSignOffReturn(logId) {
+      if (!isAuthenticated) {
+        promptLogin("logsPage");
+        return;
+      }
+
+      try {
+        const nowIso = new Date().toISOString();
+        const { error } = await supabaseClient
+          .from(ACTIVE_LOG_TABLE)
+          .update({
+            status: "Return",
+            returned_time: nowIso,
+            verified_by: "Lab Supervisor"
+          })
+          .eq('id', logId);
+
+        if (error) throw error;
+        await loadLogs();
+      } catch (err) {
+        alert("Failed to confirm sign-off: " + err.message);
       }
     }
 
@@ -2834,9 +2876,9 @@
         await supabaseClient.from('material_allocations').update({ quantity: remainingAlloc, updated_at: new Date() }).eq('id', allocItem.id);
       }
 
-      await recordReturnUpdateLog(userId, userName, allocItem.part_code, allocItem.part_number, returnQty);
+      // Mark status as Pending Return Verification
+      await recordReturnPendingLog(userId, userName, allocItem.part_code, allocItem.part_number, returnQty, locationText);
 
-      // Auto-cleanup dynamic guest user
       await cleanupGuestUserIfDone(userId);
 
       await refreshInventory();
@@ -2908,7 +2950,7 @@
         };
 
         const locationText = await executeMaterialReturn(userId, userName, allocItem, returnQty, locConfig);
-        setFormStatus(globalStripStatus, `Returned ${returnQty} units of "${allocItem.part_number}" to ${locationText}.`);
+        setFormStatus(globalStripStatus, `Marked ${returnQty} units of "${allocItem.part_number}" returned to ${locationText} (Pending Verification).`);
         resetReturnForm();
       } catch (err) {
         setFormStatus(globalStripStatus, err.message, true);
@@ -2992,7 +3034,7 @@
         };
 
         const locationText = await executeMaterialReturn(userObj.id, userObj.name, allocItem, returnQty, locConfig);
-        setFormStatus(userPageStripStatus, `Returned ${returnQty} units of "${allocItem.part_number}" to ${locationText}.`);
+        setFormStatus(userPageStripStatus, `Marked ${returnQty} units of "${allocItem.part_number}" returned to ${locationText} (Pending Verification).`);
         resetUserPageReturnForm();
       } catch (err) {
         setFormStatus(userPageStripStatus, err.message, true);
@@ -3043,8 +3085,8 @@
           if (!error && Array.isArray(data)) {
             ACTIVE_LOG_TABLE = table;
             activityLogs = data.sort((a, b) => {
-              const timeA = new Date(b.allocated_time || b.created_at || 0).getTime();
-              const timeB = new Date(a.allocated_time || a.created_at || 0).getTime();
+              const timeA = new Date(b.allocated_time || b.pending_return_time || b.created_at || 0).getTime();
+              const timeB = new Date(a.allocated_time || a.pending_return_time || a.created_at || 0).getTime();
               return timeA - timeB;
             });
             renderLogs();
@@ -3064,12 +3106,16 @@
 
       const filtered = activityLogs.filter(item => {
         const itemStatus = (item.status || item.action || 'Allocated').trim();
-        const isReturn = itemStatus.toLowerCase().startsWith('return');
-        const normalizedStatus = isReturn ? 'Return' : 'Allocated';
+        const isPending = itemStatus.toLowerCase().includes('pending');
+        const isReturn = !isPending && itemStatus.toLowerCase().startsWith('return');
+        
+        let normalizedStatus = 'Allocated';
+        if (isPending) normalizedStatus = 'Pending';
+        else if (isReturn) normalizedStatus = 'Return';
 
         if (statusFilter !== "ALL" && normalizedStatus !== statusFilter) return false;
 
-        const dateStamp = item.allocated_time || item.created_at || item.returned_time;
+        const dateStamp = item.allocated_time || item.pending_return_time || item.created_at || item.returned_time;
         if (dateStamp) {
           const itemDay = new Date(dateStamp).toISOString().split('T')[0];
           if (fromDateVal && itemDay < fromDateVal) return false;
@@ -3091,15 +3137,38 @@
         row.className = "log-row";
 
         const rawStatus = (log.status || log.action || 'Allocated').trim();
-        const isReturn = rawStatus.toLowerCase().startsWith('return');
-        const displayStatus = isReturn ? 'Return' : 'Allocated';
-        const badgeClass = isReturn ? 'returned' : 'allocated';
+        const isPending = rawStatus.toLowerCase().includes('pending');
+        const isReturn = !isPending && rawStatus.toLowerCase().startsWith('return');
+
+        let displayStatus = 'Allocated';
+        let badgeClass = 'allocated';
+
+        if (isPending) {
+          displayStatus = 'Pending Verification';
+          badgeClass = 'pending';
+        } else if (isReturn) {
+          displayStatus = 'Returned';
+          badgeClass = 'returned';
+        }
 
         const rawAllocTime = log.allocated_time || (rawStatus.toUpperCase() === 'ALLOCATED' ? log.created_at : null);
-        const rawReturnTime = log.returned_time || (rawStatus.toUpperCase() === 'RETURNED' ? log.created_at : null);
+        const rawReturnTime = log.returned_time || log.pending_return_time || (isReturn ? log.created_at : null);
 
         const allocStr = rawAllocTime ? new Date(rawAllocTime).toLocaleString() : '-';
         const returnStr = rawReturnTime ? new Date(rawReturnTime).toLocaleString() : '-';
+
+        let actionHtml = '';
+        if (isPending) {
+          if (isAuthenticated) {
+            actionHtml = `<button class="verify-btn" type="button" data-log-id="${log.id}">Verify &amp; Sign Off</button>`;
+          } else {
+            actionHtml = `<span style="font-size:10px;color:#b45309;">Awaiting Sign-off</span>`;
+          }
+        } else if (isReturn) {
+          actionHtml = `<span style="font-size:10px;color:#15803d;">✓ ${log.verified_by || 'Verified'}</span>`;
+        } else {
+          actionHtml = `<span style="font-size:10px;color:var(--muted);">-</span>`;
+        }
 
         row.innerHTML = `
           <span><strong>${log.user_name || 'User'}</strong></span>
@@ -3109,7 +3178,17 @@
           <span><span class="log-badge ${badgeClass}">${displayStatus}</span></span>
           <span style="font-size:10px;color:#395045;">${allocStr}</span>
           <span style="font-size:10px;color:#395045;">${returnStr}</span>
+          <span>${actionHtml}</span>
         `;
+
+        const vBtn = row.querySelector('.verify-btn');
+        if (vBtn) {
+          vBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            verifyAndSignOffReturn(log.id);
+          });
+        }
+
         logList.append(row);
       });
     }
@@ -3156,18 +3235,22 @@
       if (!activityLogs.length) return alert("No logs available to export.");
 
       const rows = activityLogs.map(l => {
-        const isReturn = (l.status || l.action || '').toLowerCase().startsWith('return');
+        const isPending = (l.status || '').toLowerCase().includes('pending');
+        const isReturn = !isPending && (l.status || l.action || '').toLowerCase().startsWith('return');
+        const statusLabel = isPending ? "Pending Return Verification" : (isReturn ? "Returned" : "Allocated");
+
         const rawAllocTime = l.allocated_time || (l.status?.toUpperCase() === 'ALLOCATED' ? l.created_at : null);
-        const rawReturnTime = l.returned_time || (l.status?.toUpperCase() === 'RETURNED' ? l.created_at : null);
+        const rawReturnTime = l.returned_time || l.pending_return_time || (isReturn ? l.created_at : null);
 
         return {
           "Username": l.user_name || "User",
           "Part Code": l.part_code || "-",
           "Part Number": l.part_number || "-",
           "Quantity": parseInt(l.quantity, 10) || 1,
-          "Allocated or Returned": isReturn ? "Return" : "Allocated",
+          "Status": statusLabel,
           "Allocated Time": rawAllocTime ? new Date(rawAllocTime).toLocaleString() : "-",
-          "Returned Time": rawReturnTime ? new Date(rawReturnTime).toLocaleString() : "-"
+          "Return / Pending Time": rawReturnTime ? new Date(rawReturnTime).toLocaleString() : "-",
+          "Verified By": l.verified_by || "-"
         };
       });
 
