@@ -1420,7 +1420,8 @@
     let activeInspectorFilter = "cupboard";
     let selectedInspectorLocationId = null;
 
-    let ACTIVE_LOG_TABLE = "material_logs";
+    // ACTIVE DATABASE TABLE POINTER
+    let ACTIVE_LOG_TABLE = "inventory_logs";
     const allocationOriginMap = new Map();
 
     // Verification Modal State
@@ -2376,7 +2377,6 @@
           .insert([{ name, email, is_verifier: isVerifier }]);
 
         if (error) {
-          // Fallback if column is not yet migrated
           if (error.message && error.message.includes("is_verifier")) {
             const fallback = await supabaseClient.from('users').insert([{ name, email }]);
             if (fallback.error) throw fallback.error;
@@ -2681,7 +2681,7 @@
     // ==========================================
     async function recordAllocationLog(userId, userName, partCode, partNumber, quantity, locationText) {
       const nowIso = new Date().toISOString();
-      const candidateTables = [ACTIVE_LOG_TABLE, "material_logs", "material_lifecycle_logs", "inventory_logs"];
+      const candidateTables = [ACTIVE_LOG_TABLE, "inventory_logs", "material_logs"];
       const uniqueTables = [...new Set(candidateTables)];
 
       for (const table of uniqueTables) {
@@ -2718,7 +2718,7 @@
 
     async function recordReturnPendingLog(userId, userName, partCode, partNumber, quantityReturned, locConfig) {
       const nowIso = new Date().toISOString();
-      const candidateTables = [ACTIVE_LOG_TABLE, "material_logs", "material_lifecycle_logs", "inventory_logs"];
+      const candidateTables = [ACTIVE_LOG_TABLE, "inventory_logs", "material_logs"];
       const uniqueTables = [...new Set(candidateTables)];
 
       for (const table of uniqueTables) {
@@ -3219,7 +3219,7 @@
     // 7. LIFECYCLE AUDIT LOGS
     // ==========================================
     async function loadLogs() {
-      const candidateTables = [ACTIVE_LOG_TABLE, "material_logs", "material_lifecycle_logs", "inventory_logs"];
+      const candidateTables = [ACTIVE_LOG_TABLE, "inventory_logs", "material_logs"];
       const uniqueTables = [...new Set(candidateTables)];
 
       for (const table of uniqueTables) {
