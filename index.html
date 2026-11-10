@@ -699,7 +699,7 @@
     }
     .user-alloc-row:hover { background: rgba(229,242,236,.35); }
 
-    /* Lifecycle Logs Page & Fixed Scroll Box */
+    /* Lifecycle Logs Page */
     .log-filter-bar {
       display: flex;
       align-items: center;
@@ -736,7 +736,7 @@
 
     .log-table-head, .log-row {
       display: grid;
-      grid-template-columns: minmax(115px, 1.1fr) minmax(95px, 0.9fr) minmax(115px, 1.1fr) 55px 150px minmax(125px, 1.1fr) minmax(125px, 1.1fr) minmax(120px, 1fr);
+      grid-template-columns: minmax(115px, 1.1fr) minmax(95px, 0.9fr) minmax(115px, 1.1fr) 55px 155px minmax(125px, 1.1fr) minmax(125px, 1.1fr) minmax(130px, 1.1fr);
       align-items: center;
       column-gap: 10px;
     }
@@ -772,10 +772,10 @@
     .log-badge.pending { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
 
     .verify-btn {
-      padding: 3px 8px;
+      padding: 4px 10px;
       border: 1px solid #16a34a;
-      background: #f0fdf4;
-      color: #15803d;
+      background: #16a34a;
+      color: white;
       border-radius: 4px;
       cursor: pointer;
       font-size: 10px;
@@ -783,7 +783,7 @@
       transition: background-color 0.15s;
       white-space: nowrap;
     }
-    .verify-btn:hover { background: #16a34a; color: white; }
+    .verify-btn:hover { background: #15803d; }
 
     /* Modals */
     .modal-overlay {
@@ -825,7 +825,7 @@
     }
     @media (max-width: 850px) {
       .shell { padding: 0 4% 16px; }
-      .table-head, .product-list, .user-table-head, .user-row, .log-table-head, .log-row, .user-alloc-table-head, .user-alloc-row { min-width: 940px; }
+      .table-head, .product-list, .user-table-head, .user-row, .log-table-head, .log-row, .user-alloc-table-head, .user-alloc-row { min-width: 960px; }
       .material-compact-panel .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 600px) {
@@ -871,7 +871,7 @@
           <span id="sessionTimerText">30s</span>
           <button type="button" class="logout-btn" id="logoutButton">Log out</button>
         </div>
-        <!-- Pages navigation: Admin tabs hidden by default -->
+        <!-- Pages navigation -->
         <nav class="primary-nav" aria-label="Pages">
           <button class="page-tab active" type="button" data-page="searchPage">Search</button>
           <button class="page-tab admin-tab" type="button" data-page="materialPage" hidden>Add/Delete Material</button>
@@ -892,7 +892,6 @@
         </div>
       </div>
 
-      <!-- Search Controls Bar -->
       <div class="controls">
         <label class="search">
           <span class="search-icon" aria-hidden="true">&#128269;</span>
@@ -903,7 +902,6 @@
       </div>
       <p class="workbook-status" id="workbookStatus" role="status" aria-live="polite"></p>
 
-      <!-- Table View -->
       <div class="table-scroll">
         <div class="table-head" aria-hidden="true">
           <span>PART NUMBER</span>
@@ -1151,11 +1149,10 @@
       <div class="page-heading"><p>ADMINISTRATION</p><h2>Manage Users &amp; Material Allocations</h2></div>
       
       <div class="user-page-container">
-        <!-- Top Split: Add User & User Directory List -->
         <div class="user-top-split">
           <form class="user-card-panel" id="userForm">
             <h3 style="margin: 0 0 4px; font-size: 13px; color: var(--green-dark);">Add New User</h3>
-            <p style="margin: 0 0 10px; font-size: 10px; color: var(--muted);">Register a lab member to populate in the search selection list.</p>
+            <p style="margin: 0 0 10px; font-size: 10px; color: var(--muted);">Register a lab member to populate in the selection list.</p>
             <div class="field" style="margin-bottom: 8px;">
               <label>User Name</label>
               <input name="userName" required maxlength="100" placeholder="e.g. John Doe">
@@ -1176,7 +1173,7 @@
           <div class="user-card-panel">
             <div style="margin-bottom: 6px;">
               <h3 style="margin: 0; font-size: 13px; color: var(--green-dark);">Registered Lab Users</h3>
-              <p style="margin: 2px 0 0; font-size: 10px; color: var(--muted);">Toggle verifiers who can sign off returned inventory.</p>
+              <p style="margin: 2px 0 0; font-size: 10px; color: var(--muted);">Toggle verifiers who can sign off physical returns.</p>
             </div>
             <div class="user-table-head" aria-hidden="true">
               <span>USER NAME</span>
@@ -1193,12 +1190,12 @@
           </div>
         </div>
 
-        <!-- Middle: Material Allocation Inspector Box -->
+        <!-- Material Allocation Inspector Box -->
         <div class="user-bottom-allocations">
           <div class="user-bottom-allocations-head">
             <div>
               <h3>Material Allocation Inspector</h3>
-              <p>Select a user to view currently checked-out materials with checkout timestamps.</p>
+              <p>Select a user to view currently checked-out materials with timestamps.</p>
             </div>
             <div class="field" style="min-width: 250px; margin: 0;">
               <select id="userAllocViewerSelect">
@@ -1352,7 +1349,7 @@
         <div class="empty" id="emptyLogs" hidden>
           <span class="empty-symbol" aria-hidden="true">&#9776;</span>
           <strong>No matching activity records found</strong>
-          <span>Allocated materials, returns awaiting physical inspection, and verified returns appear here.</span>
+          <span>Allocated materials and their single-line return updates will appear here.</span>
         </div>
       </div>
     </section>
@@ -1380,8 +1377,8 @@
   <!-- Verifier Selector Modal -->
   <div class="modal-overlay" id="verifierModal" hidden>
     <div class="modal-card">
-      <h3>Sign Off &amp; Verify Return</h3>
-      <p>Select the supervisor/authorized user verifying physical placement on the shelf.</p>
+      <h3>Physical Return Sign-Off</h3>
+      <p>Select the registered verifier who inspected the physical placement on the shelf.</p>
       <form id="verifierForm">
         <div class="field">
           <label>Authorized Verifier</label>
@@ -1420,11 +1417,11 @@
     let activeInspectorFilter = "cupboard";
     let selectedInspectorLocationId = null;
 
-    // ACTIVE DATABASE TABLE POINTER
-    let ACTIVE_LOG_TABLE = "inventory_logs";
+    // Guaranteed Primary Database Table
+    const ACTIVE_LOG_TABLE = "inventory_logs";
     const allocationOriginMap = new Map();
 
-    // Verification Modal State
+    // Verifier Modal State
     let pendingVerificationLogId = null;
 
     // DOM Elements
@@ -1435,7 +1432,6 @@
     const retryButton = document.getElementById("retryButton");
     const appShell = document.getElementById("appShell");
 
-    // Verifier Modal Elements
     const verifierModal = document.getElementById("verifierModal");
     const verifierForm = document.getElementById("verifierForm");
     const modalVerifierSelect = document.getElementById("modalVerifierSelect");
@@ -1513,7 +1509,6 @@
       authError.textContent = "";
       sessionIndicator.hidden = false;
 
-      // Reveal all hidden admin tabs
       document.querySelectorAll(".page-tab.admin-tab").forEach(tab => {
         tab.hidden = false;
       });
@@ -1536,7 +1531,6 @@
       authModal.hidden = true;
       pendingTargetPage = null;
 
-      // Re-hide admin navigation tabs
       document.querySelectorAll(".page-tab.admin-tab").forEach(tab => {
         tab.hidden = true;
       });
@@ -2681,108 +2675,96 @@
     // ==========================================
     async function recordAllocationLog(userId, userName, partCode, partNumber, quantity, locationText) {
       const nowIso = new Date().toISOString();
-      const candidateTables = [ACTIVE_LOG_TABLE, "inventory_logs", "material_logs"];
-      const uniqueTables = [...new Set(candidateTables)];
+      const payload = {
+        user_name: userName || "User",
+        part_code: partCode,
+        part_number: partNumber,
+        quantity: quantity,
+        status: "Allocated",
+        allocated_time: nowIso,
+        returned_time: null,
+        pending_return_time: null,
+        location_text: locationText || "Storage"
+      };
 
-      for (const table of uniqueTables) {
-        try {
-          const payload = {
-            user_id: userId,
-            user_name: userName,
-            part_code: partCode,
-            part_number: partNumber,
-            quantity: quantity,
-            status: "Allocated",
-            allocated_time: nowIso,
-            returned_time: null,
-            location_text: locationText || "Storage"
-          };
+      if (userId && typeof userId === "string" && userId.length >= 32) {
+        payload.user_id = userId;
+      }
 
-          let res = await supabaseClient.from(table).insert([payload]);
-          if (!res.error) {
-            ACTIVE_LOG_TABLE = table;
-            return;
-          }
-
-          if (res.error.message?.includes('violates foreign key') || res.error.message?.includes('invalid input syntax for type uuid')) {
-            delete payload.user_id;
-            res = await supabaseClient.from(table).insert([payload]);
-            if (!res.error) {
-              ACTIVE_LOG_TABLE = table;
-              return;
-            }
-          }
-        } catch (e) {}
+      let { error } = await supabaseClient.from(ACTIVE_LOG_TABLE).insert([payload]);
+      if (error && error.message?.includes('user_id')) {
+        delete payload.user_id;
+        await supabaseClient.from(ACTIVE_LOG_TABLE).insert([payload]);
       }
     }
 
+    // Finds the open allocation row and updates it to Pending Return Verification on that same row
     async function recordReturnPendingLog(userId, userName, partCode, partNumber, quantityReturned, locConfig) {
       const nowIso = new Date().toISOString();
-      const candidateTables = [ACTIVE_LOG_TABLE, "inventory_logs", "material_logs"];
-      const uniqueTables = [...new Set(candidateTables)];
 
-      for (const table of uniqueTables) {
-        try {
-          let query = supabaseClient
-            .from(table)
-            .select('id, quantity, user_id, part_code, status')
-            .eq('part_code', partCode)
-            .ilike('status', 'Allocated%')
-            .order('allocated_time', { ascending: false })
-            .limit(1);
+      // Find the most recent active allocation row matching this part and user
+      let matchedLog = activityLogs.find(l => 
+        l.part_code?.trim().toLowerCase() === partCode.trim().toLowerCase() &&
+        (l.status || '').toLowerCase().startsWith('alloc') &&
+        (
+          (userId && l.user_id === userId) ||
+          (userName && l.user_name?.toLowerCase() === userName.toLowerCase())
+        )
+      );
 
-          if (userId) query = query.eq('user_id', userId);
-
-          const { data: openLogs, error: findErr } = await query;
-
-          if (!findErr && openLogs && openLogs.length > 0) {
-            const openLogId = openLogs[0].id;
-            const updateRes = await supabaseClient
-              .from(table)
-              .update({
-                status: "Pending Return Verification",
-                pending_return_time: nowIso,
-                location_text: locConfig.locationText || "Storage",
-                location_type: locConfig.locationType,
-                cupboard_id: locConfig.cupboardId,
-                rack_id: locConfig.rackId,
-                box_id: locConfig.boxId,
-                workbench_id: locConfig.workbenchId
-              })
-              .eq('id', openLogId);
-
-            if (!updateRes.error) {
-              ACTIVE_LOG_TABLE = table;
-              return;
-            }
-          }
-        } catch (e) {}
+      // If not matched by user, find by part code
+      if (!matchedLog) {
+        matchedLog = activityLogs.find(l => 
+          l.part_code?.trim().toLowerCase() === partCode.trim().toLowerCase() &&
+          (l.status || '').toLowerCase().startsWith('alloc')
+        );
       }
 
-      // Standalone pending log insertion fallback
-      try {
-        await supabaseClient.from(ACTIVE_LOG_TABLE).insert([{
-          user_id: userId,
-          user_name: userName,
+      const updateData = {
+        status: "Pending Return Verification",
+        pending_return_time: nowIso,
+        location_text: locConfig.locationText || "Storage",
+        location_type: locConfig.locationType || "rack"
+      };
+
+      if (locConfig.cupboardId) updateData.cupboard_id = locConfig.cupboardId;
+      if (locConfig.rackId) updateData.rack_id = locConfig.rackId;
+      if (locConfig.boxId) updateData.box_id = locConfig.boxId;
+      if (locConfig.workbenchId) updateData.workbench_id = locConfig.workbenchId;
+
+      if (matchedLog && matchedLog.id) {
+        let { error } = await supabaseClient
+          .from(ACTIVE_LOG_TABLE)
+          .update(updateData)
+          .eq('id', matchedLog.id);
+
+        if (error) {
+          // Fallback if specific location foreign keys fail
+          await supabaseClient
+            .from(ACTIVE_LOG_TABLE)
+            .update({
+              status: "Pending Return Verification",
+              pending_return_time: nowIso,
+              location_text: locConfig.locationText || "Storage"
+            })
+            .eq('id', matchedLog.id);
+        }
+      } else {
+        // Fallback create unified row if no prior allocation found
+        const newPayload = {
+          user_name: userName || "User",
           part_code: partCode,
           part_number: partNumber,
           quantity: quantityReturned,
           status: "Pending Return Verification",
           allocated_time: null,
           pending_return_time: nowIso,
-          location_text: locConfig.locationText || "Storage",
-          location_type: locConfig.locationType,
-          cupboard_id: locConfig.cupboardId,
-          rack_id: locConfig.rackId,
-          box_id: locConfig.boxId,
-          workbench_id: locConfig.workbenchId
-        }]);
-      } catch (err) {
-        console.warn("Could not insert standalone pending return log:", err);
+          location_text: locConfig.locationText || "Storage"
+        };
+        await supabaseClient.from(ACTIVE_LOG_TABLE).insert([newPayload]);
       }
     }
 
-    // Modal Trigger: Opens selection of registered authorized verifiers
     function openVerifierModal(logId) {
       pendingVerificationLogId = logId;
       verifierModalError.textContent = "";
@@ -2806,18 +2788,17 @@
       pendingVerificationLogId = null;
     });
 
-    // Form submit: completes return, updates log, replenishes physical material catalog
     verifierForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const verifierName = modalVerifierSelect.value;
       if (!verifierName) {
-        verifierModalError.textContent = "Please choose an authorized verifier from the list.";
+        verifierModalError.textContent = "Please select an authorized verifier.";
         return;
       }
 
       const logItem = activityLogs.find(l => String(l.id) === String(pendingVerificationLogId));
       if (!logItem) {
-        verifierModalError.textContent = "Log record could not be found.";
+        verifierModalError.textContent = "Log entry not found.";
         return;
       }
 
@@ -2830,7 +2811,7 @@
         const workbenchId = logItem.workbench_id || null;
         const locationText = logItem.location_text || "Storage";
 
-        // 1. Replenish or Insert into Materials List
+        // 1. Replenish physical stock in materials
         let existingAtDestination = products.find(p => 
           p.part_number.trim().toLowerCase() === logItem.part_number.trim().toLowerCase() &&
           p.part_code.trim().toLowerCase() === logItem.part_code.trim().toLowerCase() &&
@@ -2857,7 +2838,7 @@
           }]);
         }
 
-        // 2. Update Log to Returned with Verifier Name & Timestamp
+        // 2. Complete single-line log verification: status -> Return
         const nowIso = new Date().toISOString();
         await supabaseClient.from(ACTIVE_LOG_TABLE).update({
           status: "Return",
@@ -2980,7 +2961,6 @@
       return item;
     }
 
-    // Material return: removes/deducts checkout allocation and sets log to Pending Verification
     async function executeMaterialReturn(userId, userName, allocItem, returnQty, locConfig) {
       const targetLocationType = (locConfig.locationType || '').trim().toLowerCase();
       let locationText = "";
@@ -3008,7 +2988,6 @@
         throw new Error("Invalid location type selected.");
       }
 
-      // Deduct from allocation checkout list
       const remainingAlloc = parseInt(allocItem.quantity, 10) - returnQty;
       if (remainingAlloc <= 0) {
         await supabaseClient.from('material_allocations').delete().eq('id', allocItem.id);
@@ -3017,7 +2996,6 @@
         await supabaseClient.from('material_allocations').update({ quantity: remainingAlloc, updated_at: new Date() }).eq('id', allocItem.id);
       }
 
-      // Create or update log entry with "Pending Return Verification" & target location metadata
       await recordReturnPendingLog(userId, userName, allocItem.part_code, allocItem.part_number, returnQty, {
         locationType: targetLocationType,
         cupboardId: cupboardId,
@@ -3219,29 +3197,23 @@
     // 7. LIFECYCLE AUDIT LOGS
     // ==========================================
     async function loadLogs() {
-      const candidateTables = [ACTIVE_LOG_TABLE, "inventory_logs", "material_logs"];
-      const uniqueTables = [...new Set(candidateTables)];
+      try {
+        const { data, error } = await supabaseClient
+          .from(ACTIVE_LOG_TABLE)
+          .select('*')
+          .limit(1000);
 
-      for (const table of uniqueTables) {
-        try {
-          const { data, error } = await supabaseClient
-            .from(table)
-            .select('*')
-            .limit(1000);
-
-          if (!error && Array.isArray(data)) {
-            ACTIVE_LOG_TABLE = table;
-            activityLogs = data.sort((a, b) => {
-              const timeA = new Date(b.allocated_time || b.pending_return_time || b.created_at || 0).getTime();
-              const timeB = new Date(a.allocated_time || a.pending_return_time || a.created_at || 0).getTime();
-              return timeA - timeB;
-            });
-            renderLogs();
-            return;
-          }
-        } catch (err) {}
+        if (!error && Array.isArray(data)) {
+          activityLogs = data.sort((a, b) => {
+            const timeA = new Date(b.allocated_time || b.pending_return_time || b.created_at || 0).getTime();
+            const timeB = new Date(a.allocated_time || a.pending_return_time || a.created_at || 0).getTime();
+            return timeA - timeB;
+          });
+          renderLogs();
+        }
+      } catch (err) {
+        console.warn("Error fetching logs:", err);
       }
-      renderLogs();
     }
 
     function renderLogs() {
@@ -3308,7 +3280,7 @@
         if (isPending) {
           actionHtml = `<button class="verify-btn" type="button" data-log-id="${log.id}">Verify &amp; Sign Off</button>`;
         } else if (isReturn) {
-          actionHtml = `<span style="font-size:10px;color:#15803d;font-weight:600;">✓ ${log.verified_by || 'Verified'}</span>`;
+          actionHtml = `<span style="font-size:10.5px;color:#15803d;font-weight:700;">✓ ${log.verified_by || 'Verified'}</span>`;
         } else {
           actionHtml = `<span style="font-size:10px;color:var(--muted);">-</span>`;
         }
@@ -3576,7 +3548,7 @@
         .subscribe();
 
       supabaseClient
-        .channel('public:logs_realtime_sync')
+        .channel('public:inventory_logs_realtime')
         .on('postgres_changes', { event: '*', schema: 'public', table: ACTIVE_LOG_TABLE }, () => { loadLogs(); })
         .subscribe();
 
