@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f8faf8">
   <title>Lab Inventory | Material Directory</title>
-  <!-- Supabase JS Client & SheetJS for local Excel export -->
+  <!-- Supabase JS Client, SheetJS, and EmailJS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <style>
     :root {
       color-scheme: light;
@@ -1176,26 +1177,29 @@
           Password
           <input type="password" id="regPassword" required minlength="4" placeholder="Choose a password" autocomplete="new-password">
         </label>
-        <p class="form-status error" id="regError"></p>
+        <p class="form-status" id="regError"></p>
         <div class="modal-actions">
           <button type="button" class="btn-secondary" id="cancelRegBtn">Cancel</button>
-          <button type="submit" class="action-button success-button">Send Code</button>
+          <button type="submit" class="action-button success-button" id="regSendCodeBtn">Send Code</button>
         </div>
       </form>
 
       <!-- Step 2: Enter OTP -->
       <form id="registerOtpForm" hidden>
         <p style="font-size: 11px; color: var(--green-dark); margin-bottom: 8px;">
-          Verification code dispatched to: <strong id="regTargetEmail"></strong>
+          Verification code sent to: <strong id="regTargetEmail"></strong>
+        </p>
+        <p style="font-size: 10.5px; color: var(--muted); margin-bottom: 12px;">
+          Please check your inbox (and spam/junk folder) and enter the 6-digit code below.
         </p>
         <label class="field">
           6-Digit Verification Code
           <input type="text" id="regOtpInput" required maxlength="6" class="otp-input" placeholder="000000" autocomplete="one-time-code">
         </label>
-        <p class="form-status error" id="regOtpError"></p>
+        <p class="form-status" id="regOtpError"></p>
         <div class="modal-actions">
           <button type="button" class="btn-secondary" id="backToRegDetailsBtn">Back</button>
-          <button type="submit" class="action-button success-button">Verify &amp; Register</button>
+          <button type="submit" class="action-button success-button" id="regVerifyBtn">Verify &amp; Register</button>
         </div>
       </form>
     </div>
@@ -1205,7 +1209,7 @@
   <div class="modal-overlay" id="resetModal" hidden>
     <div class="modal-card">
       <h3>Reset Your Password</h3>
-      <p id="resetModalDesc">Enter your registered email address to receive a reset code.</p>
+      <p id="resetModalDesc">Enter your registered email address to receive a reset code in your inbox.</p>
 
       <!-- Step 1: Request Reset Code -->
       <form id="resetRequestForm">
@@ -1213,15 +1217,18 @@
           Registered Email
           <input type="email" id="resetEmail" required placeholder="user@company.com">
         </label>
-        <p class="form-status error" id="resetRequestError"></p>
+        <p class="form-status" id="resetRequestError"></p>
         <div class="modal-actions">
           <button type="button" class="btn-secondary" id="cancelResetBtn">Cancel</button>
-          <button type="submit" class="action-button">Send Reset Code</button>
+          <button type="submit" class="action-button" id="resetSendCodeBtn">Send Reset Code</button>
         </div>
       </form>
 
       <!-- Step 2: Validate OTP & Set New Password -->
       <form id="resetSubmitForm" hidden>
+        <p style="font-size: 10.5px; color: var(--muted); margin-bottom: 12px;">
+          Enter the reset code sent to your email and your new password.
+        </p>
         <label class="field">
           6-Digit Reset Code
           <input type="text" id="resetOtpInput" required maxlength="6" class="otp-input" placeholder="000000">
@@ -1234,10 +1241,10 @@
           Confirm New Password
           <input type="password" id="resetConfirmPassword" required minlength="4" placeholder="Confirm new password">
         </label>
-        <p class="form-status error" id="resetSubmitError"></p>
+        <p class="form-status" id="resetSubmitError"></p>
         <div class="modal-actions">
           <button type="button" class="btn-secondary" id="backToResetReqBtn">Back</button>
-          <button type="submit" class="action-button success-button">Update Password</button>
+          <button type="submit" class="action-button success-button" id="resetConfirmBtn">Update Password</button>
         </div>
       </form>
     </div>
@@ -1304,12 +1311,21 @@
 
   <script>
     // ==========================================
-    // 1. SUPABASE CLIENT & CRYPTOGRAPHIC UTILITIES
+    // 1. SUPABASE CLIENT & EMAIL CONFIGURATION
     // ==========================================
     const SUPABASE_URL = "https://yeydscvvujnekicsbdxi.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_uBh_Q_7YFakzCqHknzb1tw_4qj3_7eI";
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // --- EMAILJS CREDENTIALS ---
+    const EMAILJS_PUBLIC_KEY = "XvQqdc9fulhE_Z4Ss";
+    const EMAILJS_SERVICE_ID = "service_bgygk6a";
+    const EMAILJS_TEMPLATE_ID = "template_hes0c3t";
+
+    if (window.emailjs) {
+      window.emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+    }
 
     // Cryptographic Hash (SHA-256)
     async function hashPassword(plainText) {
@@ -1320,30 +1336,30 @@
       return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
     }
 
-    // Helper: Generate 6-Digit OTP
+    // Helper: Generate Secure 6-Digit OTP
     function generateSecureOTP() {
       const array = new Uint32Array(1);
       crypto.getRandomValues(array);
       return (100000 + (array[0] % 900000)).toString();
     }
 
-    // Mock/Direct Email Dispatcher
-    // Integrates directly with Supabase Edge Functions / Mail endpoints.
-    // For local evaluation, it displays in alert/console while committing token to DB.
-    async function dispatchVerificationEmail(email, otpCode, purpose = "Verification") {
-      console.log(`[EMAIL DISPATCH] To: ${email} | Subject: Your Lab ${purpose} Code: ${otpCode}`);
-      
-      try {
-        // Attempt Supabase Edge Function invoke if deployed
-        await supabaseClient.functions.invoke('send-email-otp', {
-          body: { to: email, code: otpCode, purpose }
-        });
-      } catch (err) {
-        // Fallback notification for testing/offline environments
-        console.warn("Direct SMTP invoke skipped; token active:", err);
+    // Real Email Dispatcher (Sends to user's inbox; NEVER displays code on screen)
+    async function dispatchVerificationEmail(email, toName, otpCode, purpose = "Verification") {
+      const subject = `Your Lab Inventory ${purpose} Code`;
+
+      if (!window.emailjs) {
+        throw new Error("Email service is unavailable. Please check your network connection.");
       }
-      
-      alert(`[DEMO EMAIL NOTIFICATION]\n\nA ${purpose} code has been dispatched to ${email}:\n\nYour 6-Digit Code: ${otpCode}\n\n(Expires in 10 minutes)`);
+
+      // Sends variables to EmailJS template: to_email, email, to_name, otp_code, purpose, subject
+      return await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_email: email,
+        email: email,
+        to_name: toName || "Lab Member",
+        subject: subject,
+        otp_code: otpCode,
+        purpose: purpose
+      });
     }
 
     // Global State
@@ -1399,9 +1415,11 @@
     const regPassword = document.getElementById("regPassword");
     const regError = document.getElementById("regError");
     const cancelRegBtn = document.getElementById("cancelRegBtn");
+    const regSendCodeBtn = document.getElementById("regSendCodeBtn");
     const regTargetEmail = document.getElementById("regTargetEmail");
     const regOtpInput = document.getElementById("regOtpInput");
     const regOtpError = document.getElementById("regOtpError");
+    const regVerifyBtn = document.getElementById("regVerifyBtn");
     const backToRegDetailsBtn = document.getElementById("backToRegDetailsBtn");
 
     // Reset Password Elements
@@ -1411,11 +1429,13 @@
     const resetSubmitForm = document.getElementById("resetSubmitForm");
     const resetEmail = document.getElementById("resetEmail");
     const resetRequestError = document.getElementById("resetRequestError");
+    const resetSendCodeBtn = document.getElementById("resetSendCodeBtn");
     const cancelResetBtn = document.getElementById("cancelResetBtn");
     const resetOtpInput = document.getElementById("resetOtpInput");
     const resetNewPassword = document.getElementById("resetNewPassword");
     const resetConfirmPassword = document.getElementById("resetConfirmPassword");
     const resetSubmitError = document.getElementById("resetSubmitError");
+    const resetConfirmBtn = document.getElementById("resetConfirmBtn");
     const backToResetReqBtn = document.getElementById("backToResetReqBtn");
 
     // ADMIN AUTHENTICATION
@@ -1745,7 +1765,6 @@
     // 2. USER AUTHENTICATION & ACTION CONFIRMATION MODAL
     // ==========================================
     function verifyUserPasswordBeforeAction(userObj, actionType, onVerifiedCallback) {
-      // If user has no password configured (legacy or guest), allow action or prompt setup
       if (!userObj || !userObj.password_hash) {
         onVerifiedCallback();
         return;
@@ -1781,7 +1800,7 @@
     });
 
     // ==========================================
-    // 3. SELF-REGISTRATION WITH EMAIL OTP
+    // 3. SELF-REGISTRATION WITH REAL EMAIL OTP
     // ==========================================
     let pendingRegistration = null;
 
@@ -1789,7 +1808,7 @@
       registerModal.hidden = false;
       registerDetailsForm.hidden = false;
       registerOtpForm.hidden = true;
-      regError.textContent = "";
+      setFormStatus(regError, "");
       registerDetailsForm.reset();
     });
 
@@ -1801,7 +1820,7 @@
     backToRegDetailsBtn.addEventListener("click", () => {
       registerOtpForm.hidden = true;
       registerDetailsForm.hidden = false;
-      regOtpError.textContent = "";
+      setFormStatus(regOtpError, "");
     });
 
     registerDetailsForm.addEventListener("submit", async (e) => {
@@ -1810,10 +1829,10 @@
       const email = regEmail.value.trim().toLowerCase();
       const password = regPassword.value;
 
-      regError.textContent = "Checking credentials...";
+      regSendCodeBtn.disabled = true;
+      setFormStatus(regError, "Sending verification code to your email...");
 
       try {
-        // Check if user already exists
         const { data: existing, error: searchErr } = await supabaseClient
           .from('users')
           .select('id, is_verified')
@@ -1830,7 +1849,6 @@
 
         pendingRegistration = { name, email, pwdHash, otp };
 
-        // Save unverified user with verification OTP
         if (existing && existing.length > 0) {
           await supabaseClient
             .from('users')
@@ -1856,15 +1874,19 @@
             }]);
         }
 
-        await dispatchVerificationEmail(email, otp, "Registration");
+        // Send directly via EmailJS to the user's inbox
+        await dispatchVerificationEmail(email, name, otp, "Registration Verification");
 
         regTargetEmail.textContent = email;
         registerDetailsForm.hidden = true;
         registerOtpForm.hidden = false;
+        setFormStatus(regOtpError, "");
         regOtpInput.value = "";
         regOtpInput.focus();
       } catch (err) {
-        regError.textContent = err.message || "Failed to initiate registration.";
+        setFormStatus(regError, err.message || "Failed to dispatch email verification.", true);
+      } finally {
+        regSendCodeBtn.disabled = false;
       }
     });
 
@@ -1873,11 +1895,12 @@
       const enteredOtp = regOtpInput.value.trim();
 
       if (!pendingRegistration) {
-        regOtpError.textContent = "Session expired. Please try registering again.";
+        setFormStatus(regOtpError, "Session expired. Please try registering again.", true);
         return;
       }
 
-      regOtpError.textContent = "Verifying code...";
+      regVerifyBtn.disabled = true;
+      setFormStatus(regOtpError, "Validating code...");
 
       try {
         const { data: userRec, error } = await supabaseClient
@@ -1889,14 +1912,13 @@
         if (error || !userRec) throw new Error("Could not find registration record.");
 
         if (userRec.verification_otp !== enteredOtp) {
-          throw new Error("Invalid verification code. Please check your email.");
+          throw new Error("Invalid verification code. Please check your email inbox and enter the 6-digit code.");
         }
 
         if (userRec.verification_otp_expires && new Date() > new Date(userRec.verification_otp_expires)) {
-          throw new Error("Verification code has expired. Please request a new one.");
+          throw new Error("Verification code has expired. Please request a new code.");
         }
 
-        // Mark user as verified and clear OTP
         const { error: updErr } = await supabaseClient
           .from('users')
           .update({
@@ -1908,13 +1930,15 @@
 
         if (updErr) throw updErr;
 
-        alert(`Registration successful! Welcome to the lab, ${pendingRegistration.name}.`);
         registerModal.hidden = true;
         pendingRegistration = null;
+        alert(`Registration successful! You can now allocate and return materials.`);
 
         await loadUsers();
       } catch (err) {
-        regOtpError.textContent = err.message || "Verification failed.";
+        setFormStatus(regOtpError, err.message || "Verification failed.", true);
+      } finally {
+        regVerifyBtn.disabled = false;
       }
     });
 
@@ -1927,7 +1951,7 @@
       resetModal.hidden = false;
       resetRequestForm.hidden = false;
       resetSubmitForm.hidden = true;
-      resetRequestError.textContent = "";
+      setFormStatus(resetRequestError, "");
       resetRequestForm.reset();
     });
 
@@ -1939,13 +1963,14 @@
     backToResetReqBtn.addEventListener("click", () => {
       resetSubmitForm.hidden = true;
       resetRequestForm.hidden = false;
-      resetSubmitError.textContent = "";
+      setFormStatus(resetSubmitError, "");
     });
 
     resetRequestForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = resetEmail.value.trim().toLowerCase();
-      resetRequestError.textContent = "Verifying email...";
+      resetSendCodeBtn.disabled = true;
+      setFormStatus(resetRequestError, "Sending reset code to your email...");
 
       try {
         const { data, error } = await supabaseClient
@@ -1955,7 +1980,7 @@
           .single();
 
         if (error || !data) {
-          throw new Error("No account found matching this email address.");
+          throw new Error("No registered account found matching this email address.");
         }
 
         const otp = generateSecureOTP();
@@ -1971,17 +1996,21 @@
 
         if (updErr) throw updErr;
 
-        await dispatchVerificationEmail(email, otp, "Password Reset");
+        // Dispatch real email via EmailJS
+        await dispatchVerificationEmail(email, data.name, otp, "Password Reset");
 
         pendingResetEmail = email;
         resetRequestForm.hidden = true;
         resetSubmitForm.hidden = false;
+        setFormStatus(resetSubmitError, "");
         resetOtpInput.value = "";
         resetNewPassword.value = "";
         resetConfirmPassword.value = "";
         resetOtpInput.focus();
       } catch (err) {
-        resetRequestError.textContent = err.message || "Failed sending reset code.";
+        setFormStatus(resetRequestError, err.message || "Failed dispatching reset code.", true);
+      } finally {
+        resetSendCodeBtn.disabled = false;
       }
     });
 
@@ -1992,11 +2021,12 @@
       const confirmPwd = resetConfirmPassword.value;
 
       if (newPwd !== confirmPwd) {
-        resetSubmitError.textContent = "Passwords do not match.";
+        setFormStatus(resetSubmitError, "Passwords do not match.", true);
         return;
       }
 
-      resetSubmitError.textContent = "Updating password...";
+      resetConfirmBtn.disabled = true;
+      setFormStatus(resetSubmitError, "Updating password...");
 
       try {
         const { data: userRec, error } = await supabaseClient
@@ -2008,7 +2038,7 @@
         if (error || !userRec) throw new Error("User record not found.");
 
         if (userRec.reset_otp !== enteredOtp) {
-          throw new Error("Invalid reset code. Please re-check the email.");
+          throw new Error("Invalid reset code. Please check your email inbox and enter the 6-digit code.");
         }
 
         if (userRec.reset_otp_expires && new Date() > new Date(userRec.reset_otp_expires)) {
@@ -2027,12 +2057,14 @@
 
         if (updErr) throw updErr;
 
-        alert("Your password has been reset successfully! You can now authenticate your allocations and returns.");
+        alert("Your password has been updated successfully! You can now use your new password.");
         resetModal.hidden = true;
         pendingResetEmail = null;
         await loadUsers();
       } catch (err) {
-        resetSubmitError.textContent = err.message || "Failed updating password.";
+        setFormStatus(resetSubmitError, err.message || "Failed updating password.", true);
+      } finally {
+        resetConfirmBtn.disabled = false;
       }
     });
 
@@ -2502,7 +2534,6 @@
     }
 
     function populateUserDropdowns() {
-      // Only show verified users in the allocation dropdowns
       const activeEligibleUsers = users.filter(u => !isGuestEmail(u.email) && u.is_verified !== false);
       selectOptions(takeUserSelect, activeEligibleUsers, "Select User", u => u.id, u => u.name);
       selectOptions(returnUserSelect, activeEligibleUsers, "Select User", u => u.id, u => u.name);
@@ -3103,7 +3134,6 @@
         const workbenchId = logItem.workbench_id || null;
         const locationText = logItem.location_text || "Storage";
 
-        // Replenish physical stock in materials
         let existingAtDestination = products.find(p => 
           p.part_number.trim().toLowerCase() === logItem.part_number.trim().toLowerCase() &&
           p.part_code.trim().toLowerCase() === logItem.part_code.trim().toLowerCase() &&
@@ -3130,7 +3160,6 @@
           }]);
         }
 
-        // Complete single-line log verification: status -> Return
         const nowIso = new Date().toISOString();
         await supabaseClient.from(ACTIVE_LOG_TABLE).update({
           status: "Return",
@@ -3306,7 +3335,7 @@
       return locationText;
     }
 
-    // Submit: Search Page Allocate (Guarded by User Password)
+    // Submit: Search Page Allocate
     globalTakeForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const userId = takeUserSelect.value;
@@ -3337,7 +3366,7 @@
       });
     });
 
-    // Submit: Search Page Return (Guarded by User Password)
+    // Submit: Search Page Return
     globalReturnForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const userId = returnUserSelect.value;
