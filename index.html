@@ -73,7 +73,6 @@
       min-width: 0;
     }
 
-    /* Fixed Auto-Hiding Taskbar Overlay on the Right (hidden completely when logged off) */
     .right-sidebar {
       position: fixed;
       right: 0;
@@ -152,7 +151,6 @@
     *::-webkit-scrollbar-thumb { background: #b6c6bd; border-radius: 4px; }
     *::-webkit-scrollbar-thumb:hover { background: #8e9f96; }
 
-    /* Loading Overlay */
     .initial-overlay {
       position: fixed;
       inset: 0;
@@ -277,6 +275,8 @@
     .danger-button:hover { border-color: #85331f; background: #85331f; }
     .success-button { border-color: #16a34a; background: #16a34a; }
     .success-button:hover { border-color: #15803d; background: #15803d; }
+    .regret-button { border-color: #d97706; background: #d97706; color: white; }
+    .regret-button:hover { border-color: #b45309; background: #b45309; }
     
     .workbook-status { min-height: 14px; margin: 2px 0; color: var(--muted); font-size: 10.5px; flex-shrink: 0; }
     .workbook-status.error { color: #b55130; }
@@ -285,8 +285,8 @@
     .page-heading p { margin: 0 0 2px; color: #82908b; font: 9px var(--mono); }
     .page-heading h2 { font-size: 18px; }
 
-    /* Result Table */
-    .table-scroll { flex: 1; overflow-x: auto; overflow-y: hidden; min-height: 0; width: 100%; display: flex; flex-direction: column; }
+    /* Result Table & Centered Empty State */
+    .table-scroll { flex: 1; overflow-x: auto; overflow-y: hidden; min-height: 0; width: 100%; display: flex; flex-direction: column; position: relative; }
     .table-head, .product-row { display: grid; grid-template-columns: minmax(180px, 1.5fr) minmax(150px, 1.2fr) minmax(110px, .8fr) minmax(190px, 1.5fr); align-items: center; column-gap: 11px; }
     .table-head { min-height: 34px; height: 34px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; padding-right: 8px; }
     .product-list { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
@@ -296,9 +296,22 @@
     .part-code { color: #718079; font: 10px var(--mono); }
     .location-cell { min-width: 0; overflow: hidden; color: #718079; text-overflow: ellipsis; white-space: nowrap; }
     .quantity-cell strong { font: 13px var(--mono); font-weight: 500; }
-    .empty { min-height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #8b9992; text-align: center; }
+    
+    /* Centering the instruction message vertically & horizontally */
+    .empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #8b9992;
+      text-align: center;
+      margin: auto 0;
+      padding: 30px 10px;
+    }
     .empty[hidden] { display: none !important; }
-    .empty-symbol { color: var(--green); font: 20px var(--mono); }
+    .empty-symbol { color: var(--green); font: 24px var(--mono); font-weight: bold; }
 
     /* Bottom Bar on Search Page */
     .aligned-bottom-bar {
@@ -570,6 +583,17 @@
     #userAllocViewerResults { flex: 1; overflow-y: auto; min-height: 0; }
     .user-alloc-row { min-height: 34px; border-bottom: 1px solid #eaf0eb; font-size: 11px; }
 
+    /* Direct Allocate & Return in Users Page */
+    .user-direct-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      white-space: nowrap;
+      padding-bottom: 2px;
+    }
+
     /* Logs Page */
     .log-filter-bar {
       display: flex;
@@ -646,7 +670,7 @@
       border: 1px solid var(--line);
       border-radius: 6px;
       padding: 20px;
-      width: min(440px, 92%);
+      width: min(460px, 92%);
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
@@ -686,7 +710,6 @@
 
   <!-- Main Application Layout -->
   <div class="app-layout" id="appLayout" hidden>
-    <!-- Main Content Shell -->
     <main class="shell" id="appShell">
       <header class="topbar">
         <div class="brand" id="secretBrandTrigger" title="Lab Inventory">
@@ -720,13 +743,14 @@
         <div class="controls">
           <label class="search">
             <span class="search-icon" aria-hidden="true">&#128269;</span>
-            <input id="searchInput" type="text" placeholder="Search by part number or part code" autocomplete="off">
+            <input id="searchInput" type="text" placeholder="Search by part number or part code" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
             <button class="clear-button" id="clearButton" type="button" hidden>&times;</button>
           </label>
           <button class="action-button" id="searchButton" type="button">Search</button>
         </div>
         <p class="workbook-status" id="workbookStatus" role="status" aria-live="polite"></p>
 
+        <!-- Product Table Area with Centered Message -->
         <div class="table-scroll">
           <div class="table-head" aria-hidden="true">
             <span>PART NUMBER</span>
@@ -735,14 +759,14 @@
             <span>LOCATION</span>
           </div>
           <div class="product-list" id="productList" aria-live="polite"></div>
-          <div class="empty" id="emptyState" hidden>
-            <span class="empty-symbol" aria-hidden="true">/</span>
-            <strong id="emptyTitle">No materials found</strong>
-            <span id="emptyMessage">Try another name or item code.</span>
+          <div class="empty" id="emptyState">
+            <span class="empty-symbol" aria-hidden="true">&#128269;</span>
+            <strong id="emptyTitle" style="font-size: 15px; color: var(--green-dark);">Search Material Directory</strong>
+            <span id="emptyMessage" style="font-size: 12px; color: var(--muted);">Enter a part number or part code above and press Search.</span>
           </div>
         </div>
 
-        <!-- Bottom Bar on Search Page with Multi-Part Staging Table -->
+        <!-- Bottom Transaction Bar -->
         <div class="aligned-bottom-bar" id="alignedBottomBar">
           <div class="transaction-bar">
             <div class="compact-switch">
@@ -750,7 +774,7 @@
               <label><input type="radio" name="globalOpMode" value="return"> Return</label>
             </div>
 
-            <!-- Staged Allocate Bar on Search Page -->
+            <!-- Staged Allocate Bar -->
             <div id="searchAllocateControls" style="display: flex; align-items: center; gap: 8px;">
               <div class="inline-field">
                 <select name="userId" id="takeUserSelect" required style="width: 140px;">
@@ -758,19 +782,19 @@
                 </select>
               </div>
               <div class="inline-field">
-                <input name="partCode" id="takePartCode" readonly placeholder="Part Code" style="width: 120px;">
+                <input name="partCode" id="takePartCode" readonly placeholder="Part Code" style="width: 120px;" autocomplete="off">
               </div>
               <div class="inline-field">
-                <input name="partNumber" id="takePartNumber" readonly placeholder="Part Number" style="width: 170px;">
+                <input name="partNumber" id="takePartNumber" readonly placeholder="Part Number" style="width: 170px;" autocomplete="off">
               </div>
               <div class="inline-field">
-                <input name="quantity" id="takeQuantity" type="number" min="1" step="1" placeholder="Quantity" style="width: 80px;">
+                <input name="quantity" id="takeQuantity" type="number" min="1" step="1" placeholder="Quantity" style="width: 80px;" autocomplete="off">
               </div>
               <button class="compact-btn secondary-btn" type="button" id="searchAddStageBtn">Add</button>
               <button class="compact-btn danger" type="button" id="searchExecuteAllocateBtn">Allocate</button>
             </div>
 
-            <!-- Staged Return Bar on Search Page -->
+            <!-- Staged Return Bar -->
             <div id="searchReturnControls" style="display: none; align-items: center; gap: 8px;">
               <div class="inline-field">
                 <select name="userId" id="returnUserSelect" required style="width: 140px;">
@@ -783,10 +807,10 @@
                 </select>
               </div>
               <div class="inline-field">
-                <input name="partNumber" id="returnPartNumber" readonly placeholder="Part Name" style="width: 150px;">
+                <input name="partNumber" id="returnPartNumber" readonly placeholder="Part Name" style="width: 150px;" autocomplete="off">
               </div>
               <div class="inline-field">
-                <input name="quantity" id="returnQuantity" type="number" min="1" step="1" placeholder="Quantity" style="width: 75px;">
+                <input name="quantity" id="returnQuantity" type="number" min="1" step="1" placeholder="Quantity" style="width: 75px;" autocomplete="off">
               </div>
 
               <div class="inline-field">
@@ -821,7 +845,7 @@
             </div>
           </div>
 
-          <!-- Staged Items List on Search Page -->
+          <!-- Staged Items List -->
           <div class="staged-parts-box" id="searchStagedPartsBox" hidden>
             <ul class="staged-parts-list" id="searchStagedPartsList"></ul>
           </div>
@@ -839,13 +863,13 @@
 
         <div class="material-split-layout">
           <!-- Add Material Form -->
-          <form class="material-compact-panel" id="materialForm">
+          <form class="material-compact-panel" id="materialForm" autocomplete="off">
             <div>
               <h3 style="margin: 0 0 6px; font-size: 13px; color: var(--green-dark);">Add Material Stock</h3>
               <div class="form-grid">
-                <label class="field">Part Number<input name="partNumber" required maxlength="100" placeholder="e.g. PN-1029"></label>
-                <label class="field">Part Code<input name="partCode" required maxlength="100" placeholder="e.g. PC-A1"></label>
-                <label class="field">Quantity<input name="quantity" type="number" min="1" step="1" required placeholder="Qty"></label>
+                <label class="field">Part Number<input name="partNumber" required maxlength="100" placeholder="e.g. PN-1029" autocomplete="off" autocorrect="off" spellcheck="false"></label>
+                <label class="field">Part Code<input name="partCode" required maxlength="100" placeholder="e.g. PC-A1" autocomplete="off" autocorrect="off" spellcheck="false"></label>
+                <label class="field">Quantity<input name="quantity" type="number" min="1" step="1" required placeholder="Qty" autocomplete="off"></label>
                 <label class="field">Location Type
                   <select name="locationType" id="locationType">
                     <option value="rack">Cupboard Rack</option>
@@ -885,13 +909,13 @@
           </form>
 
           <!-- Delete Material Form -->
-          <form class="material-compact-panel" id="removeMaterialForm">
+          <form class="material-compact-panel" id="removeMaterialForm" autocomplete="off">
             <div>
               <h3 style="margin: 0 0 6px; font-size: 13px; color: #a6442b;">Delete Material Stock</h3>
               <div class="form-grid">
-                <label class="field">Part Number<input name="partNumber" required maxlength="100" placeholder="e.g. PN-1029"></label>
-                <label class="field">Part Code<input name="partCode" required maxlength="100" placeholder="e.g. PC-A1"></label>
-                <label class="field">Quantity to Deduct<input name="quantity" type="number" min="1" step="1" required placeholder="Qty"></label>
+                <label class="field">Part Number<input name="partNumber" required maxlength="100" placeholder="e.g. PN-1029" autocomplete="off" autocorrect="off" spellcheck="false"></label>
+                <label class="field">Part Code<input name="partCode" required maxlength="100" placeholder="e.g. PC-A1" autocomplete="off" autocorrect="off" spellcheck="false"></label>
+                <label class="field">Quantity to Deduct<input name="quantity" type="number" min="1" step="1" required placeholder="Qty" autocomplete="off"></label>
                 <label class="field">Location Type
                   <select name="locationType" id="removeLocationType">
                     <option value="rack">Cupboard Rack</option>
@@ -942,28 +966,28 @@
         <div class="storage-layout">
           <div class="storage-sections">
             <section class="storage-section">
-              <form class="storage-form" id="cupboardRackForm">
+              <form class="storage-form" id="cupboardRackForm" autocomplete="off">
                 <h3>Cupboard and Rack</h3>
                 <div class="storage-inline-inputs">
-                  <label class="field">Cupboard Name<input name="name" placeholder="e.g. Cupboard 1" required maxlength="80"></label>
-                  <label class="field">Racks Count<input name="rackCount" type="number" min="1" max="50" step="1" value="1" required></label>
+                  <label class="field">Cupboard Name<input name="name" placeholder="e.g. Cupboard 1" required maxlength="80" autocomplete="off" autocorrect="off" spellcheck="false"></label>
+                  <label class="field">Racks Count<input name="rackCount" type="number" min="1" max="50" step="1" value="1" required autocomplete="off"></label>
                 </div>
                 <button class="action-button storage-small-btn" type="submit">Add Cupboard &amp; Racks</button>
               </form>
             </section>
 
             <section class="storage-section">
-              <form class="storage-form" id="boxForm">
+              <form class="storage-form" id="boxForm" autocomplete="off">
                 <h3>Box</h3>
-                <label class="field">Box Name<input name="name" placeholder="e.g. Box A" required maxlength="80"></label>
+                <label class="field">Box Name<input name="name" placeholder="e.g. Box A" required maxlength="80" autocomplete="off" autocorrect="off" spellcheck="false"></label>
                 <button class="action-button storage-small-btn" type="submit">Add Box</button>
               </form>
             </section>
 
             <section class="storage-section">
-              <form class="storage-form" id="workbenchForm">
+              <form class="storage-form" id="workbenchForm" autocomplete="off">
                 <h3>Workbench</h3>
-                <label class="field">Workbench Name<input name="name" placeholder="e.g. Workbench 1" required maxlength="80"></label>
+                <label class="field">Workbench Name<input name="name" placeholder="e.g. Workbench 1" required maxlength="80" autocomplete="off" autocorrect="off" spellcheck="false"></label>
                 <button class="action-button storage-small-btn" type="submit">Add Workbench</button>
               </form>
             </section>
@@ -990,20 +1014,20 @@
         
         <div class="user-page-container">
           <div class="user-top-split">
-            <form class="user-card-panel" id="userForm">
+            <form class="user-card-panel" id="userForm" autocomplete="off">
               <h3 style="margin: 0 0 4px; font-size: 13px; color: var(--green-dark);">Manual User Allocation</h3>
               <p style="margin: 0 0 8px; font-size: 10px; color: var(--muted);">Manually enroll lab members with verification access.</p>
               <div class="field" style="margin-bottom: 6px;">
                 <label>User Name</label>
-                <input name="userName" required maxlength="100" placeholder="e.g. John Doe">
+                <input name="userName" required maxlength="100" placeholder="e.g. John Doe" autocomplete="off" autocorrect="off" spellcheck="false">
               </div>
               <div class="field" style="margin-bottom: 6px;">
                 <label>Email ID</label>
-                <input name="email" type="email" required maxlength="120" placeholder="user@company.com">
+                <input name="email" type="email" required maxlength="120" placeholder="user@company.com" autocomplete="off" autocorrect="off" spellcheck="false">
               </div>
               <div class="field" style="margin-bottom: 6px;">
                 <label>Initial Password</label>
-                <input name="initialPassword" type="password" required maxlength="50" placeholder="Set user password">
+                <input name="initialPassword" type="password" required maxlength="50" placeholder="Set user password" autocomplete="new-password">
               </div>
               <div style="margin-bottom: 10px;">
                 <label class="verifier-toggle-label" style="display:inline-flex; align-items:center; gap:4px; font-size:10px; cursor:pointer;">
@@ -1069,30 +1093,27 @@
                 <label><input type="radio" name="userPageOpMode" value="return"> Return</label>
               </div>
 
-              <datalist id="partNumberSuggestionsList"></datalist>
-              <datalist id="partCodeSuggestionsList"></datalist>
-
               <!-- Allocate Form -->
-              <form id="userPageTakeForm" style="display: contents;">
+              <form id="userPageTakeForm" style="display: contents;" autocomplete="off">
                 <div class="inline-field">
-                  <input name="userManual" id="userTakeUserInput" required autocomplete="off" placeholder="User Name / Email" style="width: 160px;">
+                  <input name="userManual" id="userTakeUserInput" required autocomplete="off" autocorrect="off" spellcheck="false" placeholder="User Name / Email" style="width: 160px;">
                 </div>
                 <div class="inline-field">
-                  <input list="partNumberSuggestionsList" name="partNumber" id="userTakePartNumber" required maxlength="100" placeholder="Part Number" style="width: 170px;">
+                  <input name="partNumber" id="userTakePartNumber" required maxlength="100" placeholder="Part Number" style="width: 170px;" autocomplete="off" autocorrect="off" spellcheck="false">
                 </div>
                 <div class="inline-field">
-                  <input list="partCodeSuggestionsList" name="partCode" id="userTakePartCode" required maxlength="100" placeholder="Part Code" style="width: 120px;">
+                  <input name="partCode" id="userTakePartCode" required maxlength="100" placeholder="Part Code" style="width: 120px;" autocomplete="off" autocorrect="off" spellcheck="false">
                 </div>
                 <div class="inline-field">
-                  <input name="quantity" id="userTakeQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 75px;">
+                  <input name="quantity" id="userTakeQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 75px;" autocomplete="off">
                 </div>
                 <button class="compact-btn danger" type="submit" id="userAllocateSubmitBtn">Allocate</button>
               </form>
 
               <!-- Return Form -->
-              <form id="userPageReturnForm" style="display: none;">
+              <form id="userPageReturnForm" style="display: none;" autocomplete="off">
                 <div class="inline-field">
-                  <input name="userManual" id="userReturnUserInput" required autocomplete="off" placeholder="User Name / Email" style="width: 140px;">
+                  <input name="userManual" id="userReturnUserInput" required autocomplete="off" autocorrect="off" spellcheck="false" placeholder="User Name / Email" style="width: 140px;">
                 </div>
                 <div class="inline-field">
                   <select name="allocationSelect" id="userReturnAllocatedSelect" style="width: 170px;">
@@ -1100,13 +1121,13 @@
                   </select>
                 </div>
                 <div class="inline-field">
-                  <input name="partNumber" id="userReturnPartNumber" placeholder="Part Number" style="width: 140px;">
+                  <input name="partNumber" id="userReturnPartNumber" placeholder="Part Number" style="width: 140px;" autocomplete="off" autocorrect="off" spellcheck="false">
                 </div>
                 <div class="inline-field">
-                  <input name="partCode" id="userReturnPartCode" placeholder="Part Code" style="width: 110px;">
+                  <input name="partCode" id="userReturnPartCode" placeholder="Part Code" style="width: 110px;" autocomplete="off" autocorrect="off" spellcheck="false">
                 </div>
                 <div class="inline-field">
-                  <input name="quantity" id="userReturnQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 65px;">
+                  <input name="quantity" id="userReturnQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 65px;" autocomplete="off">
                 </div>
 
                 <div class="inline-field">
@@ -1198,7 +1219,7 @@
       </section>
     </main>
 
-    <!-- Auto-Hiding Taskbar Overlay on Right (Removed completely when logged off) -->
+    <!-- Auto-Hiding Taskbar Overlay on Right (Removed entirely when logged off) -->
     <aside class="right-sidebar" id="rightSidebar" aria-label="Quick Navigation" hidden>
       <!-- Search Page Icon -->
       <button class="icon-nav-btn page-tab active" type="button" data-page="searchPage" title="Search Catalog" aria-label="Search Catalog">
@@ -1235,14 +1256,14 @@
       <h3 id="regModalTitle" style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Create Lab Account</h3>
       <p id="regModalDesc" style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Enter your details. A verification code will be sent to your email.</p>
 
-      <form id="registerDetailsForm">
+      <form id="registerDetailsForm" autocomplete="off">
         <label class="field" style="margin-bottom: 8px;">
           Full Name
-          <input type="text" id="regName" required placeholder="e.g. John Doe" autocomplete="name">
+          <input type="text" id="regName" required placeholder="e.g. John Doe" autocomplete="off" autocorrect="off" spellcheck="false">
         </label>
         <label class="field" style="margin-bottom: 8px;">
           Email Address
-          <input type="email" id="regEmail" required placeholder="user@company.com" autocomplete="email">
+          <input type="email" id="regEmail" required placeholder="user@company.com" autocomplete="off" autocorrect="off" spellcheck="false">
         </label>
         <label class="field" style="margin-bottom: 8px;">
           Password
@@ -1255,7 +1276,7 @@
         </div>
       </form>
 
-      <form id="registerOtpForm" hidden>
+      <form id="registerOtpForm" hidden autocomplete="off">
         <p style="font-size: 11px; color: var(--green-dark); margin-bottom: 8px;">
           Verification code sent to: <strong id="regTargetEmail"></strong>
         </p>
@@ -1264,7 +1285,7 @@
         </p>
         <label class="field" style="margin-bottom: 8px;">
           6-Digit Verification Code
-          <input type="text" id="regOtpInput" required maxlength="6" class="otp-input" placeholder="000000" autocomplete="one-time-code">
+          <input type="text" id="regOtpInput" required maxlength="6" class="otp-input" placeholder="000000" autocomplete="off">
         </label>
         <p class="form-status" id="regOtpError"></p>
         <div class="modal-actions">
@@ -1281,10 +1302,10 @@
       <h3 style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Reset Your Password</h3>
       <p id="resetModalDesc" style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Enter your registered email address to receive a reset code in your inbox.</p>
 
-      <form id="resetRequestForm">
+      <form id="resetRequestForm" autocomplete="off">
         <label class="field" style="margin-bottom: 8px;">
           Registered Email
-          <input type="email" id="resetEmail" required placeholder="user@company.com">
+          <input type="email" id="resetEmail" required placeholder="user@company.com" autocomplete="off" autocorrect="off" spellcheck="false">
         </label>
         <p class="form-status" id="resetRequestError"></p>
         <div class="modal-actions">
@@ -1293,21 +1314,21 @@
         </div>
       </form>
 
-      <form id="resetSubmitForm" hidden>
+      <form id="resetSubmitForm" hidden autocomplete="off">
         <p style="font-size: 10.5px; color: var(--muted); margin-bottom: 12px;">
           Enter the reset code sent to your email and your new password.
         </p>
         <label class="field" style="margin-bottom: 8px;">
           6-Digit Reset Code
-          <input type="text" id="resetOtpInput" required maxlength="6" class="otp-input" placeholder="000000">
+          <input type="text" id="resetOtpInput" required maxlength="6" class="otp-input" placeholder="000000" autocomplete="off">
         </label>
         <label class="field" style="margin-bottom: 8px;">
           New Password
-          <input type="password" id="resetNewPassword" required minlength="4" placeholder="Enter new password">
+          <input type="password" id="resetNewPassword" required minlength="4" placeholder="Enter new password" autocomplete="new-password">
         </label>
         <label class="field" style="margin-bottom: 8px;">
           Confirm New Password
-          <input type="password" id="resetConfirmPassword" required minlength="4" placeholder="Confirm new password">
+          <input type="password" id="resetConfirmPassword" required minlength="4" placeholder="Confirm new password" autocomplete="new-password">
         </label>
         <p class="form-status" id="resetSubmitError"></p>
         <div class="modal-actions">
@@ -1323,10 +1344,10 @@
     <div class="modal-card">
       <h3 id="actionAuthTitle" style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">User Authentication</h3>
       <p id="actionAuthDesc" style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Confirm your user password to execute this transaction.</p>
-      <form id="userAuthActionForm">
+      <form id="userAuthActionForm" autocomplete="off">
         <label class="field" style="margin-bottom: 8px;">
           Password for <strong id="actionAuthTargetUser">User</strong>
-          <input type="password" id="actionAuthPasswordInput" required placeholder="Enter your password" autocomplete="current-password">
+          <input type="password" id="actionAuthPasswordInput" required placeholder="Enter your password" autocomplete="new-password">
         </label>
         <p class="form-status error" id="actionAuthError"></p>
         <div class="modal-actions">
@@ -1342,7 +1363,7 @@
     <div class="modal-card">
       <h3 style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Admin Authentication Required</h3>
       <p style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Enter the master password to access system configuration.</p>
-      <form id="authForm">
+      <form id="authForm" autocomplete="off">
         <label class="field" style="margin-bottom: 8px;">
           Password
           <input type="password" id="authPasswordInput" required placeholder="Enter password" autocomplete="current-password">
@@ -1360,8 +1381,8 @@
   <div class="modal-overlay" id="adminChangePwdModal" hidden>
     <div class="modal-card">
       <h3 style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Change Admin Master Password</h3>
-      <p style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Update the system administration password (Default: "festo"). Synchronizes to all devices.</p>
-      <form id="adminChangePwdForm">
+      <p style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Update system administration password (Default: "festo"). Synchronizes to all devices via database.</p>
+      <form id="adminChangePwdForm" autocomplete="off">
         <label class="field" style="margin-bottom: 8px;">
           Current Admin Password
           <input type="password" id="adminCurrentPwdInput" required placeholder="Enter current admin password" autocomplete="current-password">
@@ -1383,22 +1404,25 @@
     </div>
   </div>
 
-  <!-- 6. Verifier Selector Modal -->
+  <!-- 6. Physical Return Verification Modal with Verify, Regret, and Cancel -->
   <div class="modal-overlay" id="verifierModal" hidden>
     <div class="modal-card">
       <h3 style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Physical Return Sign-Off</h3>
-      <p style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Select the registered verifier who inspected the physical placement on the shelf.</p>
+      <p style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">
+        Inspect physical placement on shelf. Choose <strong>Verify</strong> to update material stock, or <strong>Regret</strong> to cancel return and reassign back to the user.
+      </p>
       <form id="verifierForm">
         <div class="field" style="margin-bottom: 8px;">
-          <label>Authorized Verifier</label>
+          <label>Authorized Verifier (Verified lab users with verifier privileges only)</label>
           <select id="modalVerifierSelect" required>
             <option value="">Select Verifying Person</option>
           </select>
         </div>
         <p class="form-status error" id="verifierModalError" style="margin-top: 4px;"></p>
-        <div class="modal-actions">
+        <div class="modal-actions" style="display:flex; justify-content: flex-end; gap: 8px;">
           <button type="button" class="btn-secondary" id="verifierCancelButton">Cancel</button>
-          <button type="submit" class="action-button success-button">Confirm &amp; Update Stock</button>
+          <button type="button" class="action-button regret-button" id="verifierRegretButton">Regret</button>
+          <button type="submit" class="action-button success-button" id="verifierConfirmButton">Verify</button>
         </div>
       </form>
     </div>
@@ -1468,7 +1492,6 @@
           return;
         }
 
-        // Fallback default: sha256 of "festo"
         const defaultHash = await hashPassword("festo");
         currentAdminPasswordHash = defaultHash;
       } catch (err) {
@@ -1484,13 +1507,11 @@
         return true;
       }
 
-      // Re-fetch in real time in case password was changed moments ago
       await syncAdminPasswordFromDatabase();
       if (currentAdminPasswordHash && hashedEntered === currentAdminPasswordHash) {
         return true;
       }
 
-      // Default fallback match
       const defaultHash = await hashPassword("festo");
       return hashedEntered === defaultHash;
     }
@@ -1508,7 +1529,7 @@
         });
 
       if (error) {
-        throw new Error("Failed to synchronize with Supabase: " + error.message);
+        throw new Error("Failed to synchronize with database: " + error.message);
       }
     }
 
@@ -1548,6 +1569,8 @@
     const modalVerifierSelect = document.getElementById("modalVerifierSelect");
     const verifierModalError = document.getElementById("verifierModalError");
     const verifierCancelButton = document.getElementById("verifierCancelButton");
+    const verifierRegretButton = document.getElementById("verifierRegretButton");
+    const verifierConfirmButton = document.getElementById("verifierConfirmButton");
     const userFormIsVerifier = document.getElementById("userFormIsVerifier");
 
     const userAuthActionModal = document.getElementById("userAuthActionModal");
@@ -1616,7 +1639,6 @@
     // ==========================================
     // TASKBAR VISIBILITY & AUTO-HIDE LOGIC
     // ==========================================
-    // Slides out when cursor reaches the right edge, auto-hides when mouse departs
     document.addEventListener("mousemove", (e) => {
       if (!isAuthenticated) return;
       const dist = window.innerWidth - e.clientX;
@@ -1679,7 +1701,7 @@
       authError.textContent = "";
       sessionIndicator.hidden = false;
 
-      // Reveal taskbar and its navigation items upon admin login
+      // Reveal taskbar only on successful login
       rightSidebar.hidden = false;
       document.querySelectorAll(".admin-tab, .admin-elem").forEach(el => {
         el.hidden = false;
@@ -1703,7 +1725,7 @@
       authModal.hidden = true;
       pendingTargetPage = null;
 
-      // Completely remove right taskbar when logged off
+      // Remove taskbar completely when logged off
       rightSidebar.hidden = true;
       rightSidebar.classList.remove("revealed");
 
@@ -1903,8 +1925,6 @@
     const userReturnBoxField = document.getElementById("userReturnBoxField");
     const userReturnWorkbenchField = document.getElementById("userReturnWorkbenchField");
     const userPageStripStatus = document.getElementById("userPageStripStatus");
-    const partNumberSuggestionsList = document.getElementById("partNumberSuggestionsList");
-    const partCodeSuggestionsList = document.getElementById("partCodeSuggestionsList");
 
     const logList = document.getElementById("logList");
     const emptyLogs = document.getElementById("emptyLogs");
@@ -1988,8 +2008,7 @@
     // ==========================================
     function isSpecialUser(email) {
       if (!email) return false;
-      const em = email.toLowerCase().trim();
-      return em.endsWith('@guest.lab');
+      return email.toLowerCase().trim().endsWith('@guest.lab');
     }
 
     async function loadUsers() {
@@ -2003,7 +2022,6 @@
         users = data || [];
         renderUsers();
         populateUserDropdowns();
-        populateDatalists();
       } catch (error) {
         setFormStatus(userStatus, error.message, true);
       }
@@ -2086,23 +2104,6 @@
       selectOptions(takeUserSelect, activeEligibleUsers, "Select User", u => u.id, u => u.name);
       selectOptions(returnUserSelect, activeEligibleUsers, "Select User", u => u.id, u => u.name);
       selectOptions(userAllocViewerSelect, users, "Choose User to View Allocations", u => u.id, u => u.name);
-    }
-
-    function populateDatalists() {
-      partNumberSuggestionsList.replaceChildren();
-      partCodeSuggestionsList.replaceChildren();
-      const uniquePN = [...new Set(products.map(p => p.part_number))];
-      const uniquePC = [...new Set(products.map(p => p.part_code))];
-      uniquePN.forEach(pn => {
-        const opt = document.createElement("option");
-        opt.value = pn;
-        partNumberSuggestionsList.append(opt);
-      });
-      uniquePC.forEach(pc => {
-        const opt = document.createElement("option");
-        opt.value = pc;
-        partCodeSuggestionsList.append(opt);
-      });
     }
 
     async function resolveOrCreateGuestUser(inputName) {
@@ -3522,7 +3523,7 @@
     });
 
     // ==========================================
-    // 9. AUDIT LOGGING & VERIFIER MODAL
+    // 9. AUDIT LOGGING & VERIFIER MODAL (Verify / Regret / Cancel)
     // ==========================================
     async function recordAllocationLog(userId, userName, partCode, partNumber, quantity, locationText) {
       const nowIso = new Date().toISOString();
@@ -3634,34 +3635,43 @@
       }
     }
 
+    // Change 2: Selecting user for verify is strictly possible only when is_verifier is checked
     function openVerifierModal(logId) {
       pendingVerificationLogId = logId;
       verifierModalError.textContent = "";
 
-      const verifierUsers = users.filter(u => !isSpecialUser(u.email) && u.is_verifier === true);
-      const candidateList = verifierUsers.length ? verifierUsers : users.filter(u => !isSpecialUser(u.email));
+      const verifierUsers = users.filter(u => !isSpecialUser(u.email) && u.is_verifier === true && u.is_verified !== false);
 
       modalVerifierSelect.replaceChildren(new Option("Select Verifying Person", ""));
-      candidateList.forEach(u => {
-        const opt = document.createElement("option");
-        opt.value = u.name;
-        opt.textContent = u.name;
-        modalVerifierSelect.append(opt);
-      });
+      if (verifierUsers.length === 0) {
+        const noOpt = document.createElement("option");
+        noOpt.disabled = true;
+        noOpt.textContent = "No authorized verifiers exist (Enable in Users page)";
+        modalVerifierSelect.append(noOpt);
+      } else {
+        verifierUsers.forEach(u => {
+          const opt = document.createElement("option");
+          opt.value = u.name;
+          opt.textContent = u.name;
+          modalVerifierSelect.append(opt);
+        });
+      }
 
       verifierModal.hidden = false;
     }
 
+    // Cancel Button: closes the modal without changes
     verifierCancelButton.addEventListener("click", () => {
       verifierModal.hidden = true;
       pendingVerificationLogId = null;
     });
 
+    // Change 4: VERIFY button logic (adds to material stock & marks Return)
     verifierForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const verifierName = modalVerifierSelect.value;
       if (!verifierName) {
-        verifierModalError.textContent = "Please select an authorized verifier.";
+        verifierModalError.textContent = "Please select an authorized verifier with verifier privileges.";
         return;
       }
 
@@ -3747,6 +3757,92 @@
         await loadLogs();
       } catch (err) {
         verifierModalError.textContent = err.message || "Failed verifying return.";
+      }
+    });
+
+    // Change 4: REGRET button logic (cancels return, assigns back to user allocations)
+    verifierRegretButton.addEventListener("click", async () => {
+      const verifierName = modalVerifierSelect.value;
+      if (!verifierName) {
+        verifierModalError.textContent = "Please select an authorized verifier who is declining this return.";
+        return;
+      }
+
+      const logItem = activityLogs.find(l => String(l.id) === String(pendingVerificationLogId));
+      if (!logItem) {
+        verifierModalError.textContent = "Log entry not found.";
+        return;
+      }
+
+      if (!window.confirm(`Regret return of "${logItem.part_number}"? The quantity (${logItem.quantity}) will be reassigned back to ${logItem.user_name}.`)) {
+        return;
+      }
+
+      try {
+        const qtyToRestore = parseInt(logItem.quantity, 10) || 1;
+        const targetUserId = logItem.user_id || null;
+
+        let userObj = users.find(u => (targetUserId && String(u.id) === String(targetUserId)) || u.name.toLowerCase() === (logItem.user_name || '').toLowerCase());
+        if (!userObj && logItem.user_name) {
+          userObj = await resolveOrCreateGuestUser(logItem.user_name);
+        }
+
+        const finalUserId = userObj ? userObj.id : targetUserId;
+
+        // Restore back to material_allocations
+        let allocQuery = supabaseClient
+          .from('material_allocations')
+          .select('*')
+          .eq('part_number', logItem.part_number)
+          .eq('part_code', logItem.part_code);
+
+        if (finalUserId) {
+          allocQuery = allocQuery.eq('user_id', finalUserId);
+        }
+
+        const { data: existingAlloc, error: allocFetchErr } = await allocQuery;
+        if (allocFetchErr) throw allocFetchErr;
+
+        if (existingAlloc && existingAlloc.length > 0) {
+          const newQty = (parseInt(existingAlloc[0].quantity, 10) || 0) + qtyToRestore;
+          await supabaseClient
+            .from('material_allocations')
+            .update({ quantity: newQty, updated_at: new Date().toISOString() })
+            .eq('id', existingAlloc[0].id);
+        } else {
+          await supabaseClient
+            .from('material_allocations')
+            .insert([{
+              user_id: finalUserId,
+              part_number: logItem.part_number,
+              part_code: logItem.part_code,
+              quantity: qtyToRestore,
+              location_text: logItem.location_text || "Storage",
+              location_type: logItem.location_type || "rack",
+              cupboard_id: logItem.cupboard_id || null,
+              rack_id: logItem.rack_id || null,
+              box_id: logItem.box_id || null,
+              workbench_id: logItem.workbench_id || null
+            }]);
+        }
+
+        // Revert log status back to Allocated with regret note
+        await supabaseClient.from(ACTIVE_LOG_TABLE).update({
+          status: "Allocated",
+          pending_return_time: null,
+          returned_time: null,
+          verified_by: `Regretted by ${verifierName}`
+        }).eq('id', logItem.id);
+
+        verifierModal.hidden = true;
+        pendingVerificationLogId = null;
+
+        await loadLogs();
+        if (returnUserSelect.value) loadAllocationsForUser(returnUserSelect.value);
+        if (userAllocViewerSelect.value) refreshUserAllocationsViewer(userAllocViewerSelect.value);
+        alert(`Return regretted. ${qtyToRestore} units reassigned back to ${logItem.user_name}.`);
+      } catch (err) {
+        verifierModalError.textContent = "Failed to regret return: " + err.message;
       }
     });
 
@@ -4086,7 +4182,7 @@
         } else if (isReturn) {
           actionHtml = `<span style="font-size:10.5px;color:#15803d;font-weight:700;">✓ ${log.verified_by || 'Verified'}</span>`;
         } else {
-          actionHtml = `<span style="font-size:10px;color:var(--muted);">-</span>`;
+          actionHtml = `<span style="font-size:10px;color:var(--muted);">${log.verified_by || '-'}</span>`;
         }
 
         row.innerHTML = `
@@ -4314,7 +4410,6 @@
         
         render();
         renderCombinedStorageInspector();
-        populateDatalists();
         setConnectionVisuals(true);
       } catch (err) {
         workbookStatus.textContent = "Error fetching catalog: " + err.message;
@@ -4337,7 +4432,7 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'workbenches' }, () => { loadStorage(); })
         .subscribe();
 
-      // Real-time synchronization of system settings (admin password) across all laptops
+      // Real-time synchronization of system settings (admin password) across all clients
       supabaseClient
         .channel('public:system_settings')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'system_settings' }, async () => {
@@ -4392,6 +4487,7 @@
 
       productList.replaceChildren();
 
+      // Change 1: Empty & instruction message placed directly in the center
       if (!submittedQuery) {
         emptyState.hidden = false;
         document.getElementById("emptyTitle").textContent = "Search Material Directory";
