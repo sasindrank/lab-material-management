@@ -275,10 +275,10 @@
     .danger-button:hover { border-color: #85331f; background: #85331f; }
     .success-button { border-color: #16a34a; background: #16a34a; }
     .success-button:hover { border-color: #15803d; background: #15803d; }
-    .regret-button { border-color: #d97706; background: #d97706; color: white; }
-    .regret-button:hover { border-color: #b45309; background: #b45309; }
+    .reject-button { border-color: #d97706; background: #d97706; color: white; }
+    .reject-button:hover { border-color: #b45309; background: #b45309; }
     
-    .workbook-status { min-height: 14px; margin: 2px 0; color: var(--muted); font-size: 10.5px; flex-shrink: 0; transition: opacity 0.2s; }
+    .workbook-status { min-height: 14px; margin: 2px 0; color: var(--muted); font-size: 10.5px; flex-shrink: 0; transition: opacity 0.3s; }
     .workbook-status.error { color: #b55130; }
     
     .page-heading { margin: 0 0 8px; flex-shrink: 0; }
@@ -393,7 +393,7 @@
     .compact-btn.secondary-btn { background: #355348; border-color: #355348; }
     .compact-btn.secondary-btn:hover { background: #284037; }
 
-    .strip-status { font-size: 9.5px; color: var(--green); min-height: 12px; margin: 0; padding-left: 2px; transition: opacity 0.2s; }
+    .strip-status { font-size: 9.5px; color: var(--green); min-height: 12px; margin: 0; padding-left: 2px; transition: opacity 0.3s; }
     .strip-status.error { color: #b55130; }
 
     .staged-parts-box {
@@ -447,7 +447,7 @@
     .field[hidden] { display: none !important; }
     .field input, .field select { width: 100%; height: 32px; padding: 0 9px; border: 1px solid #dce4df; border-radius: 4px; outline: none; background: white; color: var(--ink); font-size: 11px; }
     .field input:focus, .field select:focus { border-color: var(--green); box-shadow: 0 0 0 2px rgba(23,110,89,.08); }
-    .form-status { min-height: 14px; margin: 0; color: var(--green); font-size: 10.5px; transition: opacity 0.2s; }
+    .form-status { min-height: 14px; margin: 0; color: var(--green); font-size: 10.5px; transition: opacity 0.3s; }
     .form-status.error { color: #b55130; }
 
     .storage-layout {
@@ -581,6 +581,21 @@
     .user-alloc-table-head { min-height: 28px; height: 28px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; }
     #userAllocViewerResults { flex: 1; overflow-y: auto; min-height: 0; }
     .user-alloc-row { min-height: 34px; border-bottom: 1px solid #eaf0eb; font-size: 11px; }
+
+    /* Direct Allocate & Return in Users Page */
+    .aligned-bottom-bar {
+      width: 100%;
+      margin-top: 6px;
+      background: white;
+      border: 1px solid #dce4df;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-shrink: 0;
+    }
 
     /* Logs Page */
     .log-filter-bar {
@@ -1209,27 +1224,22 @@
 
     <!-- Auto-Hiding Taskbar Overlay on Right (Removed entirely when logged off) -->
     <aside class="right-sidebar" id="rightSidebar" aria-label="Quick Navigation" hidden>
-      <!-- Search Page Icon -->
       <button class="icon-nav-btn page-tab active" type="button" data-page="searchPage" title="Search Catalog" aria-label="Search Catalog">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       </button>
 
-      <!-- Add/Delete Material Page Icon (Admin only) -->
       <button class="icon-nav-btn page-tab admin-tab" type="button" data-page="materialPage" title="Add / Delete Material Stock" aria-label="Add / Delete Material Stock" hidden>
         <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>
       </button>
 
-      <!-- Storage Locations Page Icon (Admin only) -->
       <button class="icon-nav-btn page-tab admin-tab" type="button" data-page="storagePage" title="Storage Locations &amp; Inspector" aria-label="Storage Locations &amp; Inspector" hidden>
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
       </button>
 
-      <!-- Users Page Icon (Admin only) -->
       <button class="icon-nav-btn page-tab admin-tab" type="button" data-page="usersPage" title="Manage Users" aria-label="Manage Users" hidden>
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
       </button>
 
-      <!-- Lifecycle Logs Page Icon (Admin only) -->
       <button class="icon-nav-btn page-tab admin-tab" type="button" data-page="logsPage" title="Activity Logs" aria-label="Activity Logs" hidden>
         <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
       </button>
@@ -1392,16 +1402,16 @@
     </div>
   </div>
 
-  <!-- 6. Physical Return Verification Modal with Verify, Regret, and Cancel -->
+  <!-- 6. Physical Return Verification Modal with Verify, Reject, and Cancel -->
   <div class="modal-overlay" id="verifierModal" hidden>
     <div class="modal-card">
       <h3 style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Physical Return Sign-Off</h3>
       <p style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">
-        Inspect physical placement on shelf. Choose <strong>Verify</strong> to update material stock, or <strong>Regret</strong> to cancel return and reassign back to the user.
+        Inspect physical placement on shelf. Choose <strong>Verify</strong> to update material stock, or <strong>Reject</strong> to cancel return and reassign back to the user.
       </p>
       <form id="verifierForm">
         <div class="field" style="margin-bottom: 8px;">
-          <label>Authorized Verifier (Verified lab users with verifier privileges only)</label>
+          <label>Authorized Verifier</label>
           <select id="modalVerifierSelect" required>
             <option value="">Select Verifying Person</option>
           </select>
@@ -1409,7 +1419,7 @@
         <p class="form-status error" id="verifierModalError" style="margin-top: 4px;"></p>
         <div class="modal-actions" style="display:flex; justify-content: flex-end; gap: 8px;">
           <button type="button" class="btn-secondary" id="verifierCancelButton">Cancel</button>
-          <button type="button" class="action-button regret-button" id="verifierRegretButton">Regret</button>
+          <button type="button" class="action-button reject-button" id="verifierRejectButton">Reject</button>
           <button type="submit" class="action-button success-button" id="verifierConfirmButton">Verify</button>
         </div>
       </form>
@@ -1557,7 +1567,7 @@
     const modalVerifierSelect = document.getElementById("modalVerifierSelect");
     const verifierModalError = document.getElementById("verifierModalError");
     const verifierCancelButton = document.getElementById("verifierCancelButton");
-    const verifierRegretButton = document.getElementById("verifierRegretButton");
+    const verifierRejectButton = document.getElementById("verifierRejectButton");
     const verifierConfirmButton = document.getElementById("verifierConfirmButton");
     const userFormIsVerifier = document.getElementById("userFormIsVerifier");
 
@@ -1625,6 +1635,44 @@
     const cancelAdminChangePwdBtn = document.getElementById("cancelAdminChangePwdBtn");
 
     // ==========================================
+    // AUTO-VANISH STATUS MESSAGE ENGINE (5 SECONDS)
+    // ==========================================
+    const statusTimers = new Map();
+
+    function setFormStatus(element, message, isError = false) {
+      if (!element) return;
+      
+      if (statusTimers.has(element)) {
+        clearTimeout(statusTimers.get(element));
+        statusTimers.delete(element);
+      }
+
+      element.textContent = message;
+      element.classList.toggle("error", isError);
+
+      if (message) {
+        const timerId = setTimeout(() => {
+          element.textContent = "";
+          element.classList.remove("error");
+          statusTimers.delete(element);
+        }, 5000);
+        statusTimers.set(element, timerId);
+      }
+    }
+
+    function clearAllVisibleStatusMessages() {
+      const statusElements = document.querySelectorAll('.form-status, .strip-status, .workbook-status');
+      statusElements.forEach(el => {
+        if (statusTimers.has(el)) {
+          clearTimeout(statusTimers.get(el));
+          statusTimers.delete(el);
+        }
+        el.textContent = "";
+        el.classList.remove("error");
+      });
+    }
+
+    // ==========================================
     // TASKBAR VISIBILITY & AUTO-HIDE LOGIC
     // ==========================================
     document.addEventListener("mousemove", (e) => {
@@ -1686,7 +1734,7 @@
       isAuthenticated = true;
       authModal.hidden = true;
       authPasswordInput.value = "";
-      clearStatusElement(authError);
+      authError.textContent = "";
       sessionIndicator.hidden = false;
 
       rightSidebar.hidden = false;
@@ -1719,7 +1767,7 @@
         el.hidden = true;
       });
 
-      clearAllPageStatusMessages();
+      clearAllVisibleStatusMessages();
       renderLogs();
       if (activePageId !== "searchPage") navigateTo("searchPage");
     }
@@ -1727,7 +1775,7 @@
     function promptLogin(targetPage) {
       pendingTargetPage = targetPage;
       authModal.hidden = false;
-      clearStatusElement(authError);
+      authError.textContent = "";
       authPasswordInput.value = "";
       authPasswordInput.focus();
     }
@@ -1776,7 +1824,7 @@
     logoutButton.addEventListener("click", logout);
 
     openAdminChangePwdBtn.addEventListener("click", () => {
-      clearStatusElement(adminChangePwdStatus);
+      adminChangePwdStatus.textContent = "";
       adminChangePwdForm.reset();
       adminChangePwdModal.hidden = false;
       adminCurrentPwdInput.focus();
@@ -1948,54 +1996,7 @@
       const { error } = await supabaseClient.from('cupboards').select('id', { count: 'exact', head: true });
       if (error) throw error;
       setConnectionVisuals(true);
-      clearStatusElement(workbookStatus);
-    }
-
-    // ==========================================
-    // 5-SECOND AUTO-DISMISS STATUS HANDLER
-    // ==========================================
-    const statusTimers = new WeakMap();
-
-    function clearStatusElement(element) {
-      if (!element) return;
-      element.textContent = "";
-      element.classList.remove("error");
-      if (statusTimers.has(element)) {
-        clearTimeout(statusTimers.get(element));
-        statusTimers.delete(element);
-      }
-    }
-
-    function setFormStatus(element, message, isError = false, duration = 5000) {
-      if (!element) return;
-      if (statusTimers.has(element)) {
-        clearTimeout(statusTimers.get(element));
-        statusTimers.delete(element);
-      }
-      element.textContent = message;
-      element.classList.toggle("error", isError);
-
-      if (message && duration > 0) {
-        const timer = setTimeout(() => {
-          element.textContent = "";
-          element.classList.remove("error");
-          statusTimers.delete(element);
-        }, duration);
-        statusTimers.set(element, timer);
-      }
-    }
-
-    function clearAllPageStatusMessages() {
-      const elements = [
-        globalStripStatus,
-        userPageStripStatus,
-        materialStatus,
-        removeMaterialStatus,
-        storageStatus,
-        userStatus,
-        workbookStatus
-      ];
-      elements.forEach(el => clearStatusElement(el));
+      setFormStatus(workbookStatus, "");
     }
 
     function selectOptions(select, entries, placeholder, getValue, getLabel) {
@@ -2298,7 +2299,7 @@
 
       pendingActionCallback = onVerifiedCallback;
       actionAuthTargetUser.textContent = `${userObj.name} (${actionType})`;
-      clearStatusElement(actionAuthError);
+      actionAuthError.textContent = "";
       actionAuthPasswordInput.value = "";
       userAuthActionModal.hidden = false;
       actionAuthPasswordInput.focus();
@@ -2334,7 +2335,7 @@
       registerModal.hidden = false;
       registerDetailsForm.hidden = false;
       registerOtpForm.hidden = true;
-      clearStatusElement(regError);
+      setFormStatus(regError, "");
       registerDetailsForm.reset();
     });
 
@@ -2346,7 +2347,7 @@
     backToRegDetailsBtn.addEventListener("click", () => {
       registerOtpForm.hidden = true;
       registerDetailsForm.hidden = false;
-      clearStatusElement(regOtpError);
+      setFormStatus(regOtpError, "");
     });
 
     registerDetailsForm.addEventListener("submit", async (e) => {
@@ -2356,7 +2357,7 @@
       const password = regPassword.value;
 
       regSendCodeBtn.disabled = true;
-      setFormStatus(regError, "Sending verification code to your email...", false, 0);
+      setFormStatus(regError, "Sending verification code to your email...");
 
       try {
         const { data: existing, error: searchErr } = await supabaseClient
@@ -2405,7 +2406,7 @@
         regTargetEmail.textContent = email;
         registerDetailsForm.hidden = true;
         registerOtpForm.hidden = false;
-        clearStatusElement(regOtpError);
+        setFormStatus(regOtpError, "");
         regOtpInput.value = "";
         regOtpInput.focus();
       } catch (err) {
@@ -2425,7 +2426,7 @@
       }
 
       regVerifyBtn.disabled = true;
-      setFormStatus(regOtpError, "Validating code...", false, 0);
+      setFormStatus(regOtpError, "Validating code...");
 
       try {
         const { data: userRec, error } = await supabaseClient
@@ -2472,7 +2473,7 @@
       resetModal.hidden = false;
       resetRequestForm.hidden = false;
       resetSubmitForm.hidden = true;
-      clearStatusElement(resetRequestError);
+      setFormStatus(resetRequestError, "");
       resetRequestForm.reset();
     });
 
@@ -2484,14 +2485,14 @@
     backToResetReqBtn.addEventListener("click", () => {
       resetSubmitForm.hidden = true;
       resetRequestForm.hidden = false;
-      clearStatusElement(resetSubmitError);
+      setFormStatus(resetSubmitError, "");
     });
 
     resetRequestForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = resetEmail.value.trim().toLowerCase();
       resetSendCodeBtn.disabled = true;
-      setFormStatus(resetRequestError, "Sending reset code to your email...", false, 0);
+      setFormStatus(resetRequestError, "Sending reset code to your email...");
 
       try {
         const { data, error } = await supabaseClient
@@ -2522,7 +2523,7 @@
         pendingResetEmail = email;
         resetRequestForm.hidden = true;
         resetSubmitForm.hidden = false;
-        clearStatusElement(resetSubmitError);
+        setFormStatus(resetSubmitError, "");
         resetOtpInput.value = "";
         resetNewPassword.value = "";
         resetConfirmPassword.value = "";
@@ -2546,7 +2547,7 @@
       }
 
       resetConfirmBtn.disabled = true;
-      setFormStatus(resetSubmitError, "Updating password...", false, 0);
+      setFormStatus(resetSubmitError, "Updating password...");
 
       try {
         const { data: userRec, error } = await supabaseClient
@@ -3168,7 +3169,7 @@
         userReturnWorkbench.value = targetWb;
       }
 
-      setFormStatus(userPageStripStatus, `Auto-populated: ${item.part_number} (${item.part_code}).`);
+      setFormStatus(userPageStripStatus, `Auto-populated: ${item.part_number} (${item.part_code}) with original location.`);
     }
 
     userReturnAllocatedSelect.addEventListener("change", (e) => {
@@ -3216,6 +3217,8 @@
       userPageAllocations = [];
     }
 
+    // Change 2: Click product row updates allocation only if Allocate mode is selected.
+    // If Return mode is selected, it pre-populates the Users Page direct allocation form instead.
     function onProductRowClicked(product) {
       const availQty = parseInt(product.quantity, 10);
       if (isNaN(availQty) || availQty <= 0) {
@@ -3227,17 +3230,22 @@
       const clickedRow = document.querySelector(`.product-row[data-row-id="${product.id}"]`);
       if (clickedRow) clickedRow.classList.add("selected-row");
 
-      currentlySelectedCatalogProduct = product;
-      takePartNumber.value = product.part_number;
-      takePartCode.value = product.part_code;
+      const currentSearchOpMode = document.querySelector('input[name="globalOpMode"]:checked')?.value || 'allocate';
 
-      userTakePartNumber.value = product.part_number;
-      userTakePartCode.value = product.part_code;
-
-      takeQuantity.value = "";
-      takeQuantity.focus();
-
-      setFormStatus(globalStripStatus, `Selected "${product.part_number}" (${product.part_code}). Ready to stage or allocate.`);
+      if (currentSearchOpMode === 'allocate') {
+        currentlySelectedCatalogProduct = product;
+        takePartNumber.value = product.part_number;
+        takePartCode.value = product.part_code;
+        takeQuantity.value = "";
+        takeQuantity.focus();
+        setFormStatus(globalStripStatus, `Selected "${product.part_number}" (${product.part_code}). Ready to stage or allocate.`);
+      } else {
+        // Return is selected on Search Page: do NOT populate Search allocation fields.
+        // Direct allocation in Users page is prepared instead.
+        userTakePartNumber.value = product.part_number;
+        userTakePartCode.value = product.part_code;
+        setFormStatus(globalStripStatus, `"${product.part_number}" selected for Users page allocation.`);
+      }
     }
 
     // ==========================================
@@ -3517,7 +3525,7 @@
         const isAlloc = e.target.value === "allocate";
         searchAllocateControls.style.display = isAlloc ? "flex" : "none";
         searchReturnControls.style.display = isAlloc ? "none" : "flex";
-        clearStatusElement(globalStripStatus);
+        setFormStatus(globalStripStatus, "");
 
         takeUserSelect.value = "";
         takePartNumber.value = "";
@@ -3542,7 +3550,7 @@
         const isAlloc = e.target.value === "allocate";
         userPageTakeForm.style.display = isAlloc ? "contents" : "none";
         userPageReturnForm.style.display = isAlloc ? "none" : "contents";
-        clearStatusElement(userPageStripStatus);
+        setFormStatus(userPageStripStatus, "");
 
         resetUserPageTakeForm();
         resetUserPageReturnForm();
@@ -3550,7 +3558,7 @@
     });
 
     // ==========================================
-    // 9. AUDIT LOGGING & VERIFIER MODAL
+    // 9. AUDIT LOGGING & VERIFIER MODAL (Verify / Reject / Cancel)
     // ==========================================
     async function recordAllocationLog(userId, userName, partCode, partNumber, quantity, locationText) {
       const nowIso = new Date().toISOString();
@@ -3664,7 +3672,7 @@
 
     function openVerifierModal(logId) {
       pendingVerificationLogId = logId;
-      clearStatusElement(verifierModalError);
+      verifierModalError.textContent = "";
 
       const verifierUsers = users.filter(u => !isSpecialUser(u.email) && u.is_verifier === true && u.is_verified !== false);
 
@@ -3695,7 +3703,7 @@
       e.preventDefault();
       const verifierName = modalVerifierSelect.value;
       if (!verifierName) {
-        setFormStatus(verifierModalError, "Please select an authorized verifier with verifier privileges.", true);
+        setFormStatus(verifierModalError, "Please select an authorized verifier.", true);
         return;
       }
 
@@ -3784,10 +3792,11 @@
       }
     });
 
-    verifierRegretButton.addEventListener("click", async () => {
+    // Change 1: Reject Button logic (Restores to user, sets status to Allocated)
+    verifierRejectButton.addEventListener("click", async () => {
       const verifierName = modalVerifierSelect.value;
       if (!verifierName) {
-        setFormStatus(verifierModalError, "Please select an authorized verifier who is declining this return.", true);
+        setFormStatus(verifierModalError, "Please select an authorized verifier who is rejecting this return.", true);
         return;
       }
 
@@ -3797,7 +3806,7 @@
         return;
       }
 
-      if (!window.confirm(`Regret return of "${logItem.part_number}"? The quantity (${logItem.quantity}) will be reassigned back to ${logItem.user_name}.`)) {
+      if (!window.confirm(`Reject return of "${logItem.part_number}"? The quantity (${logItem.quantity}) will be reassigned back to ${logItem.user_name}.`)) {
         return;
       }
 
@@ -3852,7 +3861,7 @@
           status: "Allocated",
           pending_return_time: null,
           returned_time: null,
-          verified_by: `Regretted by ${verifierName}`
+          verified_by: `Rejected by ${verifierName}`
         }).eq('id', logItem.id);
 
         verifierModal.hidden = true;
@@ -3861,9 +3870,9 @@
         await loadLogs();
         if (returnUserSelect.value) loadAllocationsForUser(returnUserSelect.value);
         if (userAllocViewerSelect.value) refreshUserAllocationsViewer(userAllocViewerSelect.value);
-        alert(`Return regretted. ${qtyToRestore} units reassigned back to ${logItem.user_name}.`);
+        alert(`Return rejected. ${qtyToRestore} units reassigned back to ${logItem.user_name}.`);
       } catch (err) {
-        setFormStatus(verifierModalError, "Failed to regret return: " + err.message, true);
+        setFormStatus(verifierModalError, "Failed to reject return: " + err.message, true);
       }
     });
 
@@ -4548,8 +4557,7 @@
     // ==========================================
     async function navigateTo(targetPageId) {
       activePageId = targetPageId;
-
-      clearAllPageStatusMessages();
+      clearAllVisibleStatusMessages();
 
       document.querySelectorAll(".page-tab").forEach(item => {
         item.classList.toggle("active", item.dataset.page === targetPageId);
