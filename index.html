@@ -140,7 +140,7 @@
     #labTitleText.connected { color: #16a34a !important; }
     .brand-mark.connected { background-color: #16a34a !important; }
 
-    .nav-wrapper { display: flex; align-items: center; gap: 12px; }
+    .nav-wrapper { display: flex; align-items: center; gap: 10px; }
     .primary-nav { display: flex; align-items: stretch; gap: 6px; height: 52px; }
     .page-tab { position: relative; padding: 0 14px; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 600; }
     .page-tab:hover, .page-tab.active { color: var(--green-dark); }
@@ -152,12 +152,12 @@
     .session-badge[hidden] { display: none !important; }
     .logout-btn { background: transparent; border: 0; cursor: pointer; font-weight: bold; color: var(--search-button); padding: 0 4px; text-decoration: underline; font-size: 11px; }
 
-    .user-auth-links { display: flex; align-items: center; gap: 8px; }
+    .user-auth-links { display: flex; align-items: center; gap: 6px; }
     .auth-nav-btn {
       background: transparent;
       border: 1px solid var(--line);
       border-radius: 4px;
-      padding: 4px 10px;
+      padding: 4px 9px;
       font-size: 11px;
       font-weight: 600;
       color: var(--green-dark);
@@ -301,7 +301,7 @@
     .strip-status { font-size: 9.5px; color: var(--green); min-height: 12px; margin: 0; padding-left: 2px; }
     .strip-status.error { color: #b55130; }
 
-    /* Staged Multi-Part List on Search Page (Clean row style like Users list, fits 3 without scroll) */
+    /* Change 1: Clean Single Line Row Style (Like Users List) */
     .staged-parts-box {
       border: 1px solid #e2ece7;
       border-radius: 4px;
@@ -318,10 +318,10 @@
     }
     .staged-part-row {
       display: grid;
-      grid-template-columns: minmax(140px, 1.4fr) minmax(110px, 1fr) 75px 1fr 50px;
+      grid-template-columns: minmax(160px, 1.5fr) minmax(130px, 1fr) 90px 45px;
       align-items: center;
       height: 36px;
-      padding: 0 8px;
+      padding: 0 10px;
       border-bottom: 1px solid #eef3f0;
       font-size: 11px;
     }
@@ -625,6 +625,7 @@
         <div class="user-auth-links">
           <button type="button" class="auth-nav-btn" id="openRegisterModalBtn">Register</button>
           <button type="button" class="auth-nav-btn" id="openResetModalBtn">Forgot Password?</button>
+          <button type="button" class="auth-nav-btn" id="openAdminChangePwdBtn" title="Change master festo password">Change Admin Password</button>
         </div>
 
         <div id="sessionIndicator" class="session-badge" hidden>
@@ -774,6 +775,7 @@
       </div>
 
       <div class="material-split-layout">
+        <!-- Add Material Form -->
         <form class="material-compact-panel" id="materialForm">
           <div>
             <h3 style="margin: 0 0 6px; font-size: 13px; color: var(--green-dark);">Add Material Stock</h3>
@@ -789,7 +791,7 @@
                 </select>
               </label>
               
-              <!-- Mutually exclusive location fields based on location type -->
+              <!-- Location Type Selection: Cupboard + Rack only for 'rack' -->
               <label class="field" id="materialCupboardField">Cupboard
                 <select name="cupboardId" id="materialCupboard" required disabled>
                   <option value="">Choose Cupboard</option>
@@ -800,11 +802,15 @@
                   <option value="">Choose Rack</option>
                 </select>
               </label>
+              
+              <!-- Location Type Selection: Box only for 'box' -->
               <label class="field" id="boxLocationField" hidden>Box
                 <select name="boxId" id="materialBox" disabled>
                   <option value="">Choose Box</option>
                 </select>
               </label>
+              
+              <!-- Location Type Selection: Workbench only for 'workbench' -->
               <label class="field" id="workbenchLocationField" hidden>Workbench
                 <select name="workbenchId" id="materialWorkbench" disabled>
                   <option value="">Choose Workbench</option>
@@ -818,6 +824,7 @@
           </div>
         </form>
 
+        <!-- Delete Material Form -->
         <form class="material-compact-panel" id="removeMaterialForm">
           <div>
             <h3 style="margin: 0 0 6px; font-size: 13px; color: #a6442b;">Delete Material Stock</h3>
@@ -833,7 +840,7 @@
                 </select>
               </label>
               
-              <!-- Mutually exclusive location fields based on location type -->
+              <!-- Location Type Selection: Cupboard + Rack only for 'rack' -->
               <label class="field" id="removeCupboardField">Cupboard
                 <select name="cupboardId" id="removeCupboard" required disabled>
                   <option value="">Choose Cupboard</option>
@@ -844,11 +851,15 @@
                   <option value="">Choose Rack</option>
                 </select>
               </label>
+              
+              <!-- Location Type Selection: Box only for 'box' -->
               <label class="field" id="removeBoxField" hidden>Box
                 <select name="boxId" id="removeBox" disabled>
                   <option value="">Choose Box</option>
                 </select>
               </label>
+              
+              <!-- Location Type Selection: Workbench only for 'workbench' -->
               <label class="field" id="removeWorkbenchField" hidden>Workbench
                 <select name="workbenchId" id="removeWorkbench" disabled>
                   <option value="">Choose Workbench</option>
@@ -916,7 +927,7 @@
       </div>
     </section>
 
-    <!-- Users Page (Standard Direct Program) -->
+    <!-- Users Page (Empty text input without suggestions) -->
     <section class="catalog page-view" id="usersPage" hidden>
       <div class="page-heading"><p>ADMINISTRATION</p><h2>Manage Users &amp; Material Allocations</h2></div>
       
@@ -993,7 +1004,7 @@
           </div>
         </div>
 
-        <!-- Old/Direct Allocate & Return in Users Page -->
+        <!-- Direct Allocate & Return in Users Page (No user suggestions, clean text window) -->
         <div class="aligned-bottom-bar" id="userAlignedBottomBar">
           <div class="transaction-bar">
             <div class="compact-switch">
@@ -1001,14 +1012,13 @@
               <label><input type="radio" name="userPageOpMode" value="return"> Return</label>
             </div>
 
-            <datalist id="userSuggestionsList"></datalist>
             <datalist id="partNumberSuggestionsList"></datalist>
             <datalist id="partCodeSuggestionsList"></datalist>
 
-            <!-- Old Direct Allocate Form (Sticks with old program) -->
+            <!-- Allocate Form (Empty text window, NO suggestions) -->
             <form id="userPageTakeForm" style="display: contents;">
               <div class="inline-field">
-                <input list="userSuggestionsList" name="userManual" id="userTakeUserInput" required placeholder="User Name / Email" style="width: 160px;">
+                <input name="userManual" id="userTakeUserInput" required autocomplete="off" placeholder="User Name / Email" style="width: 160px;">
               </div>
               <div class="inline-field">
                 <input list="partNumberSuggestionsList" name="partNumber" id="userTakePartNumber" required maxlength="100" placeholder="Part Number" style="width: 170px;">
@@ -1022,10 +1032,10 @@
               <button class="compact-btn danger" type="submit" id="userAllocateSubmitBtn">Allocate</button>
             </form>
 
-            <!-- Old Direct Return Form (Sticks with old program) -->
+            <!-- Return Form (Empty text window, NO suggestions) -->
             <form id="userPageReturnForm" style="display: none;">
               <div class="inline-field">
-                <input list="userSuggestionsList" name="userManual" id="userReturnUserInput" required placeholder="User Name / Email" style="width: 140px;">
+                <input name="userManual" id="userReturnUserInput" required autocomplete="off" placeholder="User Name / Email" style="width: 140px;">
               </div>
               <div class="inline-field">
                 <select name="allocationSelect" id="userReturnAllocatedSelect" style="width: 170px;">
@@ -1119,7 +1129,7 @@
           <span>STATUS</span>
           <span>ALLOCATED TIME</span>
           <span>RETURN / PENDING TIME</span>
-          <span>SIGN-OFF &amp; VERIFY</span>
+          <span>VERIFY</span>
         </div>
         <div id="logList" aria-live="polite"></div>
         <div class="empty" id="emptyLogs" hidden>
@@ -1260,7 +1270,34 @@
     </div>
   </div>
 
-  <!-- 5. Verifier Selector Modal (Show only user name, no email) -->
+  <!-- 5. Admin Master Password Change Modal -->
+  <div class="modal-overlay" id="adminChangePwdModal" hidden>
+    <div class="modal-card">
+      <h3 style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Change Admin Master Password</h3>
+      <p style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Update the system administration password (Default: "festo").</p>
+      <form id="adminChangePwdForm">
+        <label class="field" style="margin-bottom: 8px;">
+          Current Admin Password
+          <input type="password" id="adminCurrentPwdInput" required placeholder="Enter current admin password" autocomplete="current-password">
+        </label>
+        <label class="field" style="margin-bottom: 8px;">
+          New Admin Password
+          <input type="password" id="adminNewPwdInput" required minlength="3" placeholder="Enter new admin password" autocomplete="new-password">
+        </label>
+        <label class="field" style="margin-bottom: 8px;">
+          Confirm New Admin Password
+          <input type="password" id="adminConfirmPwdInput" required minlength="3" placeholder="Confirm new admin password" autocomplete="new-password">
+        </label>
+        <p class="form-status error" id="adminChangePwdStatus" style="margin-bottom: 10px;"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="cancelAdminChangePwdBtn">Cancel</button>
+          <button type="submit" class="action-button success-button">Update Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. Verifier Selector Modal (Show only user name, no email) -->
   <div class="modal-overlay" id="verifierModal" hidden>
     <div class="modal-card">
       <h3 style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Physical Return Sign-Off</h3>
@@ -1403,7 +1440,8 @@
     const resetConfirmBtn = document.getElementById("resetConfirmBtn");
     const backToResetReqBtn = document.getElementById("backToResetReqBtn");
 
-    const AUTH_PASSWORD = "festo";
+    // Master Admin Password with UI Change Capability (Default: festo)
+    let currentAdminPassword = localStorage.getItem("lab_admin_master_pwd") || "festo";
     const TIMEOUT_SECONDS = 30;
 
     let isAuthenticated = false;
@@ -1420,6 +1458,16 @@
     const sessionIndicator = document.getElementById("sessionIndicator");
     const sessionTimerText = document.getElementById("sessionTimerText");
     const logoutButton = document.getElementById("logoutButton");
+
+    // Admin Password Change Modal Elements
+    const openAdminChangePwdBtn = document.getElementById("openAdminChangePwdBtn");
+    const adminChangePwdModal = document.getElementById("adminChangePwdModal");
+    const adminChangePwdForm = document.getElementById("adminChangePwdForm");
+    const adminCurrentPwdInput = document.getElementById("adminCurrentPwdInput");
+    const adminNewPwdInput = document.getElementById("adminNewPwdInput");
+    const adminConfirmPwdInput = document.getElementById("adminConfirmPwdInput");
+    const adminChangePwdStatus = document.getElementById("adminChangePwdStatus");
+    const cancelAdminChangePwdBtn = document.getElementById("cancelAdminChangePwdBtn");
 
     function getRemainingSeconds() {
       if (!sessionDeadline) return 0;
@@ -1530,9 +1578,10 @@
     window.addEventListener("keydown", handleScopedActivity, { passive: true });
     window.addEventListener("mousedown", handleScopedActivity, { passive: true });
 
+    // Validate using dynamic master password
     authForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      if (authPasswordInput.value.trim().toLowerCase() === AUTH_PASSWORD) {
+      if (authPasswordInput.value.trim() === currentAdminPassword) {
         loginSuccess();
       } else {
         authError.textContent = "Incorrect password. Please try again.";
@@ -1546,6 +1595,45 @@
     });
 
     logoutButton.addEventListener("click", logout);
+
+    // Master Password Change Handlers
+    openAdminChangePwdBtn.addEventListener("click", () => {
+      adminChangePwdStatus.textContent = "";
+      adminChangePwdForm.reset();
+      adminChangePwdModal.hidden = false;
+      adminCurrentPwdInput.focus();
+    });
+
+    cancelAdminChangePwdBtn.addEventListener("click", () => {
+      adminChangePwdModal.hidden = true;
+    });
+
+    adminChangePwdForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const currentInput = adminCurrentPwdInput.value.trim();
+      const newPwd = adminNewPwdInput.value.trim();
+      const confirmPwd = adminConfirmPwdInput.value.trim();
+
+      if (currentInput !== currentAdminPassword) {
+        adminChangePwdStatus.textContent = "Current admin password is incorrect.";
+        adminCurrentPwdInput.select();
+        return;
+      }
+      if (newPwd.length < 3) {
+        adminChangePwdStatus.textContent = "New password must be at least 3 characters.";
+        return;
+      }
+      if (newPwd !== confirmPwd) {
+        adminChangePwdStatus.textContent = "New password and confirmation do not match.";
+        adminConfirmPwdInput.select();
+        return;
+      }
+
+      currentAdminPassword = newPwd;
+      localStorage.setItem("lab_admin_master_pwd", newPwd);
+      adminChangePwdModal.hidden = true;
+      alert("Admin master password changed successfully!");
+    });
 
     // DOM References
     const labTitleText = document.getElementById("labTitleText");
@@ -1623,7 +1711,7 @@
     const searchStagedPartsList = document.getElementById("searchStagedPartsList");
     const globalStripStatus = document.getElementById("globalStripStatus");
 
-    // Users Page Bottom Bar (Unchanged)
+    // Users Page Bottom Bar (No suggestions, clean input)
     const userPageTakeForm = document.getElementById("userPageTakeForm");
     const userPageReturnForm = document.getElementById("userPageReturnForm");
     const userTakeUserInput = document.getElementById("userTakeUserInput");
@@ -1647,7 +1735,6 @@
     const userReturnBoxField = document.getElementById("userReturnBoxField");
     const userReturnWorkbenchField = document.getElementById("userReturnWorkbenchField");
     const userPageStripStatus = document.getElementById("userPageStripStatus");
-    const userSuggestionsList = document.getElementById("userSuggestionsList");
     const partNumberSuggestionsList = document.getElementById("partNumberSuggestionsList");
     const partCodeSuggestionsList = document.getElementById("partCodeSuggestionsList");
 
@@ -2234,17 +2321,17 @@
       }
     }
 
-    // STRICT LOCATION DISPLAY PER SELECTED TYPE (Add Material Form)
+    // Change 3: Strict Location Display based on selection (Add Material Form)
     function renderMaterialLocationOptions() {
       const locType = locationType.value;
       const cupboard = storageTree.find((item) => String(item.id) === String(materialCupboard.value));
 
-      // Cupboard & Rack only show when 'rack' is chosen
+      // Show cupboard & rack ONLY when locationType is 'rack'
       materialCupboardField.hidden = locType !== "rack";
       rackLocationField.hidden = locType !== "rack";
-      // Box only shows when 'box' is chosen
+      // Show box ONLY when locationType is 'box'
       boxLocationField.hidden = locType !== "box";
-      // Workbench only shows when 'workbench' is chosen
+      // Show workbench ONLY when locationType is 'workbench'
       workbenchLocationField.hidden = locType !== "workbench";
 
       materialCupboard.required = locType === "rack";
@@ -2263,17 +2350,17 @@
       materialWorkbench.disabled = locType !== "workbench" || !storageWorkbenches.length;
     }
 
-    // STRICT LOCATION DISPLAY PER SELECTED TYPE (Delete Material Form)
+    // Change 3: Strict Location Display based on selection (Delete Material Form)
     function renderRemoveLocationOptions() {
       const locType = removeLocationType.value;
       const cupboard = storageTree.find((item) => String(item.id) === String(removeCupboard.value));
 
-      // Cupboard & Rack only show when 'rack' is chosen
+      // Show cupboard & rack ONLY when locationType is 'rack'
       removeCupboardField.hidden = locType !== "rack";
       removeRackField.hidden = locType !== "rack";
-      // Box only shows when 'box' is chosen
+      // Show box ONLY when locationType is 'box'
       removeBoxField.hidden = locType !== "box";
-      // Workbench only shows when 'workbench' is chosen
+      // Show workbench ONLY when locationType is 'workbench'
       removeWorkbenchField.hidden = locType !== "workbench";
 
       removeCupboard.required = locType === "rack";
@@ -2512,14 +2599,8 @@
       selectOptions(userAllocViewerSelect, users, "Choose User to View Allocations", u => u.id, u => u.name);
     }
 
+    // Change 2: Do NOT populate or attach user suggestions to input fields in users page
     function populateDatalists() {
-      userSuggestionsList.replaceChildren();
-      users.filter(u => !isGuestEmail(u.email) && u.is_verified !== false).forEach(u => {
-        const opt = document.createElement("option");
-        opt.value = u.name;
-        userSuggestionsList.append(opt);
-      });
-
       partNumberSuggestionsList.replaceChildren();
       partCodeSuggestionsList.replaceChildren();
       const uniquePN = [...new Set(products.map(p => p.part_number))];
@@ -2912,7 +2993,7 @@
       userPageAllocations = [];
     }
 
-    // Selection on Catalog Table: Keep Add button unchanged as "Add"
+    // Selection on Catalog Table: Keep Add button strictly as "Add"
     function onProductRowClicked(product) {
       const availQty = parseInt(product.quantity, 10);
       if (isNaN(availQty) || availQty <= 0) {
@@ -2965,11 +3046,6 @@
         const qtySpan = document.createElement("span");
         qtySpan.innerHTML = `Qty: <strong>${stagedItem.quantity}</strong>`;
 
-        const noteSpan = document.createElement("span");
-        noteSpan.style.color = "#718079";
-        noteSpan.style.fontSize = "10.5px";
-        noteSpan.textContent = stagedItem.mode === 'return' ? `Location: ${stagedItem.locConfig?.locationText || 'Default'}` : `Allocating`;
-
         const actionDiv = document.createElement("div");
         actionDiv.style.textAlign = "right";
 
@@ -2984,7 +3060,8 @@
         });
 
         actionDiv.append(delBtn);
-        li.append(pnSpan, pcSpan, qtySpan, noteSpan, actionDiv);
+        // Only part number, part code, quantity and delete button (no allocating text)
+        li.append(pnSpan, pcSpan, qtySpan, actionDiv);
         searchStagedPartsList.append(li);
       });
     }
@@ -3614,12 +3691,12 @@
     }
 
     // ==========================================
-    // 11. USERS PAGE (OLD UNCHANGED LOGIC)
+    // 11. USERS PAGE (DIRECT PROGRAM - NO SUGGESTIONS)
     // ==========================================
     userPageTakeForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const rawUser = userTakeUserInput.value.trim();
-      if (!rawUser) return setFormStatus(userPageStripStatus, "Please enter a user name.", true);
+      if (!rawUser) return setFormStatus(userPageStripStatus, "Please enter a user name or email address.", true);
 
       const userObj = await resolveOrCreateGuestUser(rawUser);
       verifyUserPasswordBeforeAction(userObj, "Allocate", async () => {
@@ -3646,7 +3723,7 @@
     userPageReturnForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const rawUser = userReturnUserInput.value.trim();
-      if (!rawUser) return setFormStatus(userPageStripStatus, "Please enter the user name.", true);
+      if (!rawUser) return setFormStatus(userPageStripStatus, "Please enter the user name or email address.", true);
 
       const userObj = await resolveOrCreateGuestUser(rawUser);
       verifyUserPasswordBeforeAction(userObj, "Return", async () => {
@@ -3787,7 +3864,7 @@
 
         let actionHtml = '';
         if (isPending) {
-          // Changed button text strictly to "Verify"
+          // Change: Button text is strictly "Verify"
           actionHtml = `<button class="verify-btn" type="button" data-log-id="${log.id}">Verify</button>`;
         } else if (isReturn) {
           actionHtml = `<span style="font-size:10.5px;color:#15803d;font-weight:700;">✓ ${log.verified_by || 'Verified'}</span>`;
