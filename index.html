@@ -35,6 +35,7 @@
     }
     body {
       margin: 0;
+      min-height: 100vh;
       height: 100vh;
       overflow: hidden;
       color: var(--ink);
@@ -48,10 +49,10 @@
     button { color: inherit; }
     
     .shell {
-      width: min(1440px, 100%);
+      width: min(96vw, 1750px);
       height: 100vh;
-      margin: auto;
-      padding: 0 5% 10px;
+      margin: 0 auto;
+      padding: 0 1.5vw 10px;
       background: rgba(248,250,248,.96);
       display: flex;
       flex-direction: column;
@@ -128,7 +129,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
+      gap: 16px;
       border-bottom: 1px solid var(--line);
       flex-shrink: 0;
     }
@@ -165,7 +166,7 @@
     }
     .auth-nav-btn:hover { background: var(--mint); border-color: var(--green); }
 
-    .kicker { margin: 0 0 2px; color: var(--green); font: 9.5px var(--mono); }
+    .kicker { margin: 0 0 2px; color: var(--green); font: 10px var(--mono); }
     .catalog {
       padding-top: 10px;
       flex: 1;
@@ -182,7 +183,7 @@
     .controls { display: flex; gap: 8px; margin-bottom: 6px; width: 100%; flex-shrink: 0; }
     .search { height: 36px; min-width: 0; flex: 1; display: flex; align-items: center; gap: 10px; padding: 0 12px; border: 1px solid #dce4df; border-radius: 4px; background: white; color: #728079; }
     .search:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px rgba(23,110,89,.08); }
-    .search-icon { font-size: 15px; }
+    .search-icon { font-size: 14px; }
     .search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 12px; }
     .search input::placeholder { color: #96a19c; }
     .clear-button { border: 0; padding: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 17px; }
@@ -194,172 +195,67 @@
     .success-button { border-color: #16a34a; background: #16a34a; }
     .success-button:hover { border-color: #15803d; background: #15803d; }
     
-    .workbook-status { min-height: 14px; margin: 1px 0 3px; color: var(--muted); font-size: 10.5px; flex-shrink: 0; }
+    .workbook-status { min-height: 14px; margin: 2px 0; color: var(--muted); font-size: 10.5px; flex-shrink: 0; }
     .workbook-status.error { color: #b55130; }
     
-    .page-heading { margin: 0 0 6px; flex-shrink: 0; }
+    .page-heading { margin: 0 0 8px; flex-shrink: 0; }
     .page-heading p { margin: 0 0 2px; color: #82908b; font: 9px var(--mono); }
-    .page-heading h2 { font-size: 17px; }
-
-    .material-split-layout {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      min-height: 0;
-      overflow: hidden;
-      width: 100%;
-    }
-    .material-compact-panel {
-      flex: 0 0 auto;
-      display: flex;
-      flex-direction: column;
-      padding: 10px 14px 8px;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      background: rgba(255,255,255,.9);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
-    }
-    .material-compact-panel .form-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px 10px; }
-    .material-compact-panel .field { gap: 3px; font-size: 10px; }
-    .material-compact-panel .field input, .material-compact-panel .field select { height: 28px; padding: 0 8px; font-size: 11px; }
-    .material-compact-panel .form-actions { display: flex; align-items: center; gap: 12px; margin-top: 6px; flex-shrink: 0; }
-
-    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-    .field { display: flex; min-width: 0; flex-direction: column; gap: 3px; color: #53645e; font-size: 11px; font-weight: 600; }
-    .field input, .field select { width: 100%; height: 32px; padding: 0 8px; border: 1px solid #dce4df; border-radius: 4px; outline: none; background: white; color: var(--ink); font-size: 11px; font-weight: 400; }
-    .field input:focus, .field select:focus { border-color: var(--green); box-shadow: 0 0 0 2px rgba(23,110,89,.08); }
-    .form-status { min-height: 14px; margin: 0; color: var(--green); font-size: 10px; }
-    .form-status.error { color: #b55130; }
-    .field[hidden] { display: none !important; }
-
-    .storage-layout {
-      display: grid;
-      grid-template-columns: minmax(320px, 380px) minmax(0, 1.4fr);
-      gap: 12px;
-      align-items: stretch;
-      flex: 1;
-      min-height: 0;
-      max-height: 520px;
-      overflow: hidden;
-    }
-    .storage-sections {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      min-height: 0;
-      overflow-y: auto;
-      justify-content: flex-start;
-      padding-right: 4px;
-    }
-    .storage-section {
-      flex: 0 0 auto;
-      display: flex;
-      flex-direction: column;
-      padding: 8px 12px 7px;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      background: rgba(255,255,255,.9);
-    }
-    .storage-status { min-height: 14px; flex-shrink: 0; margin: 2px 0 0; }
-    .storage-form { display: flex; flex-direction: column; gap: 4px; }
-    .storage-form h3 { margin: 0 0 2px; font-size: 12px; color: var(--green-dark); }
-    .storage-form .field { gap: 2px; font-size: 10px; }
-    .storage-form .field input { height: 26px; padding: 0 8px; font-size: 11px; }
-    .storage-inline-inputs { display: grid; grid-template-columns: 1fr 100px; gap: 8px; }
-    .storage-small-btn { height: 24px !important; min-width: max-content !important; font-size: 9.5px !important; padding: 0 9px !important; align-self: flex-start; margin-top: 4px; }
-
-    .unified-inspector-panel {
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      background: white;
-      padding: 10px 12px;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      max-height: 520px;
-      overflow: hidden;
-      height: 100%;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    }
-    .unified-inspector-panel h3 { margin: 0 0 3px; font-size: 13px; color: var(--green-dark); flex-shrink: 0; }
-    .unified-inspector-panel p { margin: 0 0 6px; font-size: 10px; color: var(--muted); flex-shrink: 0; }
-    .inspector-pills { display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; flex-shrink: 0; }
-    .pill-btn {
-      padding: 3px 8px;
-      font-size: 9.5px;
-      font-weight: 600;
-      border: 1px solid #cedad2;
-      border-radius: 14px;
-      background: #f7faf8;
-      cursor: pointer;
-      color: #43544d;
-    }
-    .pill-btn.active { background: var(--green-dark); color: white; border-color: var(--green-dark); }
-    .inspector-content { border-top: 1px solid #edf1ee; padding-top: 6px; flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
-    .inspector-item { padding: 6px 8px; margin-bottom: 5px; border: 1px solid #e1ebe5; border-radius: 4px; background: #fafdfb; cursor: pointer; transition: all .15s; }
-    .inspector-item:hover, .inspector-item.active { border-color: var(--green); background: var(--mint); }
-    .inspector-item-head { font-size: 10.5px; font-weight: 700; color: var(--green-dark); display: flex; justify-content: space-between; align-items: center; }
-    .head-actions { display: flex; align-items: center; gap: 8px; }
-    .rack-material-box { margin-top: 5px; padding: 5px 7px; background: white; border-left: 3px solid var(--green); border-radius: 2px; }
-    .rack-material-box h5 { margin: 0; font-size: 9.5px; color: #3d4f48; display: flex; justify-content: space-between; align-items: center; }
-    .material-entry-pill { font-size: 9.5px; padding: 2px 0; border-bottom: 1px dashed #e7ede9; }
-    .material-entry-pill:last-child { border-bottom: none; }
+    .page-heading h2 { font-size: 18px; }
 
     /* Result Table */
     .table-scroll { flex: 1; overflow-x: auto; overflow-y: hidden; min-height: 0; width: 100%; display: flex; flex-direction: column; }
     .table-head, .product-row { display: grid; grid-template-columns: minmax(180px, 1.5fr) minmax(150px, 1.2fr) minmax(110px, .8fr) minmax(190px, 1.5fr); align-items: center; column-gap: 11px; }
     .table-head { min-height: 34px; height: 34px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; padding-right: 8px; }
     .product-list { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
-    .product-row { min-height: 40px; border-bottom: 1px solid #eaf0eb; font-size: 11px; animation: appear .22s both; cursor: pointer; user-select: none; transition: background-color 0.15s, transform 0.1s; }
+    .product-row { min-height: 42px; border-bottom: 1px solid #eaf0eb; font-size: 11px; animation: appear .22s both; cursor: pointer; user-select: none; transition: background-color 0.15s, transform 0.1s; }
     .product-row:hover { background: rgba(229,242,236,.65); transform: translateX(2px); }
     .product-row.selected-row { background: #e1f0e8 !important; outline: 1px solid var(--green); }
     .part-code { color: #718079; font: 10px var(--mono); }
     .location-cell { min-width: 0; overflow: hidden; color: #718079; text-overflow: ellipsis; white-space: nowrap; }
-    .quantity-cell strong { font: 12.5px var(--mono); font-weight: 500; }
-    .empty { min-height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: #8b9992; text-align: center; }
+    .quantity-cell strong { font: 13px var(--mono); font-weight: 500; }
+    .empty { min-height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #8b9992; text-align: center; }
     .empty[hidden] { display: none !important; }
-    .empty-symbol { color: var(--green); font: 18px var(--mono); }
+    .empty-symbol { color: var(--green); font: 20px var(--mono); }
 
-    /* Multi-Item Aligned Bottom Bar */
+    /* Bottom Bar on Search Page */
     .aligned-bottom-bar {
       width: 100%;
       margin-top: 6px;
       background: white;
       border: 1px solid #dce4df;
       border-radius: 6px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-      padding: 6px 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      padding: 8px 12px;
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 4px;
       flex-shrink: 0;
     }
     .transaction-bar {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       flex-wrap: nowrap;
       overflow-x: auto;
       white-space: nowrap;
       padding-bottom: 2px;
     }
-    .transaction-bar::-webkit-scrollbar { height: 3px; }
+    .transaction-bar::-webkit-scrollbar { height: 4px; }
     .transaction-bar::-webkit-scrollbar-thumb { background: #b8c8be; border-radius: 2px; }
 
     .compact-switch {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding-right: 8px;
+      gap: 6px;
+      padding-right: 10px;
       border-right: 1px solid #d5ded9;
       flex-shrink: 0;
     }
     .compact-switch label {
       display: inline-flex;
       align-items: center;
-      gap: 3px;
-      font-size: 10.5px;
+      gap: 4px;
+      font-size: 11px;
       font-weight: 700;
       color: #3b4d46;
       cursor: pointer;
@@ -368,13 +264,13 @@
 
     .inline-field { display: inline-flex; align-items: center; flex-shrink: 0; }
     .inline-field input, .inline-field select {
-      height: 28px;
-      padding: 0 7px;
+      height: 30px;
+      padding: 0 8px;
       border: 1px solid #ced9d3;
       border-radius: 4px;
       background: white;
       color: var(--ink);
-      font-size: 10.5px;
+      font-size: 11px;
       outline: none;
     }
     .inline-field input:focus, .inline-field select:focus { border-color: var(--green); box-shadow: 0 0 0 2px rgba(23,110,89,.15); }
@@ -382,9 +278,9 @@
     .inline-field[hidden] { display: none !important; }
 
     .compact-btn {
-      height: 28px;
-      padding: 0 10px;
-      font-size: 10px;
+      height: 30px;
+      padding: 0 12px;
+      font-size: 10.5px;
       font-weight: 700;
       border-radius: 4px;
       border: 1px solid transparent;
@@ -399,47 +295,155 @@
     .compact-btn.danger:hover { background: var(--search-button-hover); }
     .compact-btn.success { background: #16a34a; border-color: #16a34a; }
     .compact-btn.success:hover { background: #15803d; }
-    .compact-btn.secondary { background: #eaf1ed; border-color: #c4d7cd; color: var(--green-dark); }
-    .compact-btn.secondary:hover { background: #dceae3; }
-
-    /* Multi-Item Batch Chips Strip */
-    .queue-chips-strip {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 3px 0 2px;
-      overflow-x: auto;
-      white-space: nowrap;
-      min-height: 24px;
-      border-top: 1px dashed #e1ebe5;
-    }
-    .queue-chips-strip::-webkit-scrollbar { height: 2px; }
-    .batch-item-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: #eef5f1;
-      border: 1px solid #c2ded3;
-      padding: 2px 7px;
-      border-radius: 12px;
-      font-size: 10px;
-      color: var(--green-dark);
-      font-family: var(--mono);
-      flex-shrink: 0;
-    }
-    .batch-item-chip .chip-del {
-      cursor: pointer;
-      color: #dc2626;
-      font-weight: bold;
-      margin-left: 2px;
-      font-size: 12px;
-      line-height: 1;
-    }
-    .batch-item-chip .chip-del:hover { color: #991b1b; }
+    .compact-btn.secondary-btn { background: #355348; border-color: #355348; }
+    .compact-btn.secondary-btn:hover { background: #284037; }
 
     .strip-status { font-size: 9.5px; color: var(--green); min-height: 12px; margin: 0; padding-left: 2px; }
     .strip-status.error { color: #b55130; }
 
+    /* Staged Multi-Part List on Search Page (Fixed viewport with 3 visible rows, scrollable if >3) */
+    .staged-parts-box {
+      border: 1px solid #d7e2dc;
+      border-radius: 4px;
+      background: #fdfefe;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .staged-parts-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 10px;
+      background: #edf5f1;
+      border-bottom: 1px solid #d7e2dc;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--green-dark);
+    }
+    .staged-badge-count {
+      background: #176e59;
+      color: white;
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-size: 9.5px;
+      font-family: var(--mono);
+      font-weight: 600;
+    }
+    .staged-parts-list {
+      max-height: 108px; /* Fits exactly 3 items without scrolling */
+      overflow-y: auto;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+    .staged-part-row {
+      display: grid;
+      grid-template-columns: minmax(130px, 1.2fr) minmax(170px, 1.5fr) 70px 1fr 34px;
+      align-items: center;
+      gap: 10px;
+      height: 36px;
+      padding: 0 10px;
+      border-bottom: 1px solid #eef3f0;
+      font-size: 11px;
+    }
+    .staged-part-row:last-child { border-bottom: none; }
+    .staged-del-btn {
+      background: transparent;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 13px;
+      height: 22px;
+      width: 22px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      transition: background 0.15s;
+    }
+    .staged-del-btn:hover { background: #fee2e2; }
+
+    /* Other Panels */
+    .material-split-layout {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 0;
+      overflow-y: auto;
+      width: 100%;
+    }
+    .material-compact-panel {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: rgba(255,255,255,.9);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .field { display: flex; min-width: 0; flex-direction: column; gap: 4px; color: #53645e; font-size: 11px; font-weight: 600; }
+    .field input, .field select { width: 100%; height: 32px; padding: 0 9px; border: 1px solid #dce4df; border-radius: 4px; outline: none; background: white; color: var(--ink); font-size: 11px; }
+    .field input:focus, .field select:focus { border-color: var(--green); box-shadow: 0 0 0 2px rgba(23,110,89,.08); }
+    .form-status { min-height: 14px; margin: 0; color: var(--green); font-size: 10.5px; }
+    .form-status.error { color: #b55130; }
+
+    .storage-layout {
+      display: grid;
+      grid-template-columns: minmax(320px, 380px) minmax(0, 1.4fr);
+      gap: 14px;
+      align-items: stretch;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .storage-sections {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .storage-section {
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: rgba(255,255,255,.9);
+    }
+    .storage-form h3 { margin: 0 0 2px; font-size: 12px; color: var(--green-dark); }
+    .storage-inline-inputs { display: grid; grid-template-columns: 1fr 100px; gap: 8px; }
+    .storage-small-btn { height: 26px !important; min-width: max-content !important; font-size: 9.5px !important; padding: 0 9px !important; align-self: flex-start; margin-top: 4px; }
+
+    .unified-inspector-panel {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: white;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+      height: 100%;
+    }
+    .inspector-pills { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; flex-shrink: 0; }
+    .pill-btn {
+      padding: 4px 10px;
+      font-size: 10px;
+      font-weight: 600;
+      border: 1px solid #cedad2;
+      border-radius: 16px;
+      background: #f7faf8;
+      cursor: pointer;
+      color: #43544d;
+    }
+    .pill-btn.active { background: var(--green-dark); color: white; border-color: var(--green-dark); }
+    .inspector-content { border-top: 1px solid #edf1ee; padding-top: 8px; flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
+    .inspector-item { padding: 7px 10px; margin-bottom: 6px; border: 1px solid #e1ebe5; border-radius: 4px; background: #fafdfb; cursor: pointer; transition: all .15s; }
+    .inspector-item:hover, .inspector-item.active { border-color: var(--green); background: var(--mint); }
+    .inspector-item-head { font-size: 11px; font-weight: 700; color: var(--green-dark); display: flex; justify-content: space-between; align-items: center; }
     .location-delete {
       padding: 2px 6px;
       border: 1px solid #e6c6bd;
@@ -451,32 +455,34 @@
       font-weight: 600;
     }
     .location-delete:hover { border-color: #b74628; background: #fbede6; }
-    
-    /* Users Page Container (FIT SCREEN DIRECTIVE) */
+    .rack-material-box { margin-top: 6px; padding: 6px 8px; background: white; border-left: 3px solid var(--green); border-radius: 2px; }
+    .rack-material-box h5 { margin: 0; font-size: 10px; color: #3d4f48; display: flex; justify-content: space-between; align-items: center; }
+    .material-entry-pill { font-size: 10px; padding: 2px 0; border-bottom: 1px dashed #e7ede9; }
+
+    /* Users Page */
     .user-page-container {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 12px;
       min-height: 0;
-      overflow: hidden; /* No page scroll */
-      height: 100%;
+      overflow-y: auto;
+      padding-bottom: 6px;
     }
     .user-top-split {
       display: grid;
-      grid-template-columns: minmax(320px, 380px) minmax(0, 1.4fr);
-      gap: 12px;
+      grid-template-columns: minmax(320px, 390px) minmax(0, 1.4fr);
+      gap: 14px;
       align-items: stretch;
-      flex: 1 1 50%;
-      min-height: 0;
-      overflow: hidden;
+      min-height: 290px;
+      flex-shrink: 0;
     }
     .user-card-panel {
       border: 1px solid var(--line);
       border-radius: 6px;
       background: #ffffff;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.03);
-      padding: 10px 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      padding: 12px 14px;
       display: flex;
       flex-direction: column;
       min-height: 0;
@@ -490,101 +496,65 @@
       align-items: center;
       column-gap: 8px;
     }
-    .user-table-head {
-      min-height: 28px;
-      height: 28px;
-      border-bottom: 1px solid var(--line);
-      color: #89968f;
-      font: 9px var(--mono);
-      flex-shrink: 0;
-      padding-right: 6px;
-    }
-    .user-row { min-height: 34px; border-bottom: 1px solid #eaf0eb; font-size: 11px; animation: appear .22s both; }
-    .user-row:hover { background: rgba(229,242,236,.45); }
-    .user-name { font-weight: 600; color: var(--ink); }
-    .user-email { color: #53645e; font: 10px var(--mono); word-break: break-all; }
-    .user-actions { text-align: right; }
-    .verifier-toggle-label { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; cursor: pointer; color: var(--green-dark); font-weight: 600; }
-    .verifier-toggle-label input[type="checkbox"] { cursor: pointer; accent-color: var(--green); }
+    .user-table-head { min-height: 30px; height: 30px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; }
+    .user-row { min-height: 36px; border-bottom: 1px solid #eaf0eb; font-size: 11px; }
 
-    /* User Allocations Box */
     .user-bottom-allocations {
       border: 1px solid var(--line);
       border-radius: 6px;
       background: #ffffff;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.03);
-      padding: 8px 12px;
+      padding: 12px 14px;
       display: flex;
       flex-direction: column;
-      flex: 1 1 35%;
-      min-height: 0;
+      height: 220px;
+      min-height: 180px;
+      flex-shrink: 0;
       overflow: hidden;
     }
-    .user-bottom-allocations-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 6px;
-      flex-shrink: 0;
-    }
-    .user-bottom-allocations-head h3 { margin: 0; font-size: 12px; color: var(--green-dark); }
-    .user-bottom-allocations-head p { margin: 1px 0 0; font-size: 10px; color: var(--muted); }
+    .user-bottom-allocations-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 6px; }
     .user-alloc-table-head, .user-alloc-row {
       display: grid;
-      grid-template-columns: minmax(160px, 1.5fr) minmax(130px, 1.2fr) 90px minmax(160px, 1.5fr) minmax(170px, 1.4fr);
-      align-items: center;
-      column-gap: 12px;
-    }
-    .user-alloc-table-head {
-      min-height: 26px;
-      height: 26px;
-      border-bottom: 1px solid var(--line);
-      color: #89968f;
-      font: 9px var(--mono);
-      flex-shrink: 0;
-      padding-right: 6px;
-    }
-    #userAllocViewerResults { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
-    .user-alloc-row { min-height: 32px; border-bottom: 1px solid #eaf0eb; font-size: 10.5px; animation: appear .22s both; }
-    .user-alloc-row:hover { background: rgba(229,242,236,.35); }
-
-    /* Lifecycle Logs Page */
-    .log-filter-bar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-      flex-shrink: 0;
-      flex-wrap: wrap;
-      background: white;
-      padding: 6px 10px;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-    }
-    .log-filter-bar label { font-size: 10.5px; font-weight: 700; color: #52635d; display: inline-flex; align-items: center; gap: 5px; }
-    .log-filter-bar select, .log-filter-bar input[type="date"] {
-      height: 28px;
-      padding: 0 7px;
-      border: 1px solid #d0dad4;
-      border-radius: 4px;
-      background: white;
-      font-size: 10.5px;
-      outline: none;
-      color: var(--ink);
-    }
-    .log-filter-bar select:focus, .log-filter-bar input[type="date"]:focus { border-color: var(--green); }
-
-    .log-table-head, .log-row {
-      display: grid;
-      grid-template-columns: minmax(120px, 1.2fr) minmax(95px, 0.9fr) minmax(120px, 1.2fr) 55px 150px minmax(135px, 1.2fr) minmax(135px, 1.2fr) 110px;
+      grid-template-columns: minmax(160px, 1.5fr) minmax(130px, 1.2fr) 80px minmax(150px, 1.5fr) minmax(160px, 1.4fr);
       align-items: center;
       column-gap: 10px;
     }
-    .log-table-head { min-height: 32px; height: 32px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; padding-right: 6px; }
-    #logList { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
-    .log-row { min-height: 38px; border-bottom: 1px solid #eaf0eb; font-size: 10.5px; animation: appear .22s both; }
-    .log-row:hover { background: rgba(229,242,236,.3); }
+    .user-alloc-table-head { min-height: 28px; height: 28px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; }
+    #userAllocViewerResults { flex: 1; overflow-y: auto; min-height: 0; }
+    .user-alloc-row { min-height: 34px; border-bottom: 1px solid #eaf0eb; font-size: 11px; }
+
+    /* Logs Page */
+    .log-filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      background: white;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+    .log-filter-bar label { font-size: 11px; font-weight: 700; color: #52635d; display: inline-flex; align-items: center; gap: 6px; }
+    .log-filter-bar select, .log-filter-bar input[type="date"] {
+      height: 30px;
+      padding: 0 8px;
+      border: 1px solid #d0dad4;
+      border-radius: 4px;
+      background: white;
+      font-size: 11px;
+      outline: none;
+      color: var(--ink);
+    }
+    .log-table-head, .log-row {
+      display: grid;
+      grid-template-columns: minmax(130px, 1.2fr) minmax(95px, 0.9fr) minmax(130px, 1.2fr) 55px 140px minmax(135px, 1.2fr) minmax(135px, 1.2fr) minmax(140px, 1.2fr);
+      align-items: center;
+      column-gap: 10px;
+    }
+    .log-table-head { min-height: 34px; height: 34px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; }
+    #logList { flex: 1; overflow-y: auto; min-height: 0; }
+    .log-row { min-height: 40px; border-bottom: 1px solid #eaf0eb; font-size: 11px; }
     .log-badge {
       display: inline-block;
       padding: 2px 7px;
@@ -592,7 +562,6 @@
       font-weight: 700;
       border-radius: 3px;
       text-transform: uppercase;
-      text-align: center;
       letter-spacing: 0.3px;
     }
     .log-badge.allocated { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
@@ -600,7 +569,7 @@
     .log-badge.pending { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
 
     .verify-btn {
-      padding: 3px 8px;
+      padding: 4px 10px;
       border: 1px solid #16a34a;
       background: #16a34a;
       color: white;
@@ -608,10 +577,7 @@
       cursor: pointer;
       font-size: 10px;
       font-weight: 700;
-      transition: background-color 0.15s;
-      white-space: nowrap;
     }
-    .verify-btn:hover { background: #15803d; }
 
     /* Modals */
     .modal-overlay {
@@ -629,35 +595,34 @@
       background: white;
       border: 1px solid var(--line);
       border-radius: 6px;
-      padding: 18px;
-      width: min(420px, 92%);
+      padding: 20px;
+      width: min(440px, 92%);
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
-    .modal-card h3 { margin: 0 0 6px; font-size: 14.5px; color: var(--green-dark); }
-    .modal-card p { margin: 0 0 12px; color: var(--muted); font-size: 11px; }
-    .modal-card .field { margin-bottom: 10px; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
-    .btn-secondary { background: #eef2f0; border: 1px solid #ced6d1; border-radius: 4px; padding: 0 10px; height: 30px; cursor: pointer; font-size: 10.5px; font-weight: 600; }
-    .btn-secondary:hover { background: #e0e7e3; }
-    .modal-actions .action-button { height: 30px; min-width: 76px; }
-
-    .otp-input {
-      letter-spacing: 6px;
-      font-size: 18px !important;
-      text-align: center;
-      font-weight: bold;
-      font-family: var(--mono);
-    }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+    .btn-secondary { background: #eef2f0; border: 1px solid #ced6d1; border-radius: 4px; padding: 0 12px; height: 32px; cursor: pointer; font-size: 11px; font-weight: 600; }
+    .otp-input { letter-spacing: 6px; font-size: 18px !important; text-align: center; font-weight: bold; font-family: var(--mono); }
 
     @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Responsive Adaptation Across Multiple Monitor Sizes */
+    @media (min-width: 1920px) {
+      .shell { width: 95vw; max-width: 2200px; }
+      body { font-size: 15px; }
+      .field input, .field select, .inline-field input, .inline-field select { height: 34px; font-size: 12px; }
+      .staged-parts-list { max-height: 120px; }
+      .staged-part-row { height: 40px; }
+    }
+    @media (max-width: 1280px) {
+      .shell { width: 98vw; padding: 0 8px 8px; }
+    }
     @media (max-width: 950px) {
-      .storage-layout { grid-template-columns: 1fr; max-height: none; overflow-y: auto; }
-      .unified-inspector-panel { max-height: 400px; }
-      .user-top-split { grid-template-columns: 1fr; height: auto; max-height: none; }
-      .user-card-panel { height: 260px; }
       body { height: auto; overflow: auto; }
       .shell { height: auto; overflow: visible; }
-      .user-page-container { overflow: visible; }
+      .storage-layout { grid-template-columns: 1fr; overflow-y: visible; }
+      .user-top-split { grid-template-columns: 1fr; height: auto; }
+      .table-scroll { min-height: 280px; }
+      .material-split-layout { overflow: visible; }
     }
   </style>
 </head>
@@ -744,7 +709,7 @@
         </div>
       </div>
 
-      <!-- Bottom Bar on Search Page with Multi-Product Batch Support -->
+      <!-- Bottom Bar on Search Page with Multi-Part Staging Table -->
       <div class="aligned-bottom-bar" id="alignedBottomBar">
         <div class="transaction-bar">
           <div class="compact-switch">
@@ -752,80 +717,90 @@
             <label><input type="radio" name="globalOpMode" value="return"> Return</label>
           </div>
 
-          <!-- Multi-Allocate Form -->
-          <form id="globalTakeForm" style="display: contents;">
-            <input type="hidden" id="takeMaterialId">
+          <!-- Staged Allocate Bar on Search Page -->
+          <div id="searchAllocateControls" style="display: flex; align-items: center; gap: 8px;">
             <div class="inline-field">
-              <select id="takeUserSelect" required style="width: 135px;">
+              <select name="userId" id="takeUserSelect" required style="width: 140px;">
                 <option value="">Select User</option>
               </select>
             </div>
             <div class="inline-field">
-              <input id="takePartNumber" maxlength="100" placeholder="Part Number" style="width: 140px;">
+              <input name="partCode" id="takePartCode" readonly placeholder="Part Code" style="width: 120px;">
             </div>
             <div class="inline-field">
-              <input id="takePartCode" maxlength="100" placeholder="Part Code" style="width: 110px;">
+              <input name="partNumber" id="takePartNumber" readonly placeholder="Part Number" style="width: 170px;">
             </div>
             <div class="inline-field">
-              <input id="takeQuantity" type="number" min="1" step="1" placeholder="Qty" style="width: 65px;">
+              <input name="quantity" id="takeQuantity" type="number" min="1" step="1" placeholder="Quantity" style="width: 80px;">
             </div>
-            <button class="compact-btn secondary" type="button" id="takeAddQueueBtn">+ Add to Queue</button>
-            <button class="compact-btn danger" type="submit" id="allocateSubmitBtn">Allocate (0 items)</button>
-          </form>
+            <!-- Dynamic button: changes from 'Add' to '?' when selected from catalog table -->
+            <button class="compact-btn secondary-btn" type="button" id="searchAddStageBtn">Add</button>
+            <!-- Clean Action button without inline count -->
+            <button class="compact-btn danger" type="button" id="searchExecuteAllocateBtn">Allocate</button>
+          </div>
 
-          <!-- Multi-Return Form -->
-          <form id="globalReturnForm" style="display: none;">
+          <!-- Staged Return Bar on Search Page (Allows returning due items directly) -->
+          <div id="searchReturnControls" style="display: none; align-items: center; gap: 8px;">
             <div class="inline-field">
-              <select id="returnUserSelect" required style="width: 135px;">
+              <select name="userId" id="returnUserSelect" required style="width: 140px;">
                 <option value="">Select User</option>
               </select>
             </div>
             <div class="inline-field">
-              <select id="returnAllocatedPartCodeSelect" style="width: 160px;">
+              <select name="allocationSelect" id="returnAllocatedPartCodeSelect" style="width: 180px;">
                 <option value="">Allocated Part Code</option>
               </select>
             </div>
             <div class="inline-field">
-              <input id="returnPartNumber" readonly placeholder="Part Name" style="width: 130px;">
+              <input name="partNumber" id="returnPartNumber" readonly placeholder="Part Name" style="width: 150px;">
             </div>
             <div class="inline-field">
-              <input id="returnQuantity" type="number" min="1" step="1" placeholder="Qty" style="width: 60px;">
+              <input name="quantity" id="returnQuantity" type="number" min="1" step="1" placeholder="Quantity" style="width: 75px;">
             </div>
 
             <div class="inline-field">
-              <select id="returnLocationType" style="width: 100px;">
+              <select name="locationType" id="returnLocationType" style="width: 105px;">
                 <option value="rack">Cupboard Rack</option>
                 <option value="box">Box</option>
                 <option value="workbench">Workbench</option>
               </select>
             </div>
             <div class="inline-field" id="returnCupboardField">
-              <select id="returnCupboard" style="width: 100px;">
+              <select name="cupboardId" id="returnCupboard" required style="width: 105px;">
                 <option value="">Cupboard</option>
               </select>
             </div>
             <div class="inline-field" id="returnRackField">
-              <select id="returnRack" style="width: 75px;">
+              <select name="rackId" id="returnRack" required style="width: 80px;">
                 <option value="">Rack</option>
               </select>
             </div>
             <div class="inline-field" id="returnBoxField" hidden>
-              <select id="returnBox" style="width: 95px;">
+              <select name="boxId" id="returnBox" style="width: 105px;">
                 <option value="">Box</option>
               </select>
             </div>
             <div class="inline-field" id="returnWorkbenchField" hidden>
-              <select id="returnWorkbench" style="width: 100px;">
+              <select name="workbenchId" id="returnWorkbench" style="width: 110px;">
                 <option value="">Workbench</option>
               </select>
             </div>
-            <button class="compact-btn secondary" type="button" id="returnAddQueueBtn">+ Add to Queue</button>
-            <button class="compact-btn success" type="submit" id="returnSubmitBtn">Return (0 items)</button>
-          </form>
+            <!-- Button changes from 'Add' to '?' upon selection; items can also be returned directly -->
+            <button class="compact-btn secondary-btn" type="button" id="searchAddReturnStageBtn">Add</button>
+            <button class="compact-btn success" type="button" id="searchExecuteReturnBtn">Return</button>
+          </div>
         </div>
 
-        <!-- Chips strip for Search Page Multi Items -->
-        <div class="queue-chips-strip" id="globalQueueChipsStrip" hidden></div>
+        <!-- Staged Items Sub-Table on Search Page -->
+        <div class="staged-parts-box" id="searchStagedPartsBox" hidden>
+          <div class="staged-parts-head">
+            <span id="stagedBoxLabel">Queued Items</span>
+            <!-- Number of added quantity displayed safely here instead of inside the action button -->
+            <span class="staged-badge-count" id="stagedBadgeCount">0 items staged</span>
+          </div>
+          <ul class="staged-parts-list" id="searchStagedPartsList"></ul>
+        </div>
+
         <p class="strip-status" id="globalStripStatus" role="status" aria-live="polite"></p>
       </div>
     </section>
@@ -874,7 +849,7 @@
               </label>
             </div>
           </div>
-          <div class="form-actions">
+          <div class="form-actions" style="margin-top: 8px; display: flex; gap: 12px; align-items: center;">
             <button class="action-button success-button" type="submit">Save Material</button>
             <p class="form-status" id="materialStatus" role="status" aria-live="polite"></p>
           </div>
@@ -916,7 +891,7 @@
               </label>
             </div>
           </div>
-          <div class="form-actions">
+          <div class="form-actions" style="margin-top: 8px; display: flex; gap: 12px; align-items: center;">
             <button class="action-button danger-button" type="submit">Remove Quantity</button>
             <p class="form-status" id="removeMaterialStatus" role="status" aria-live="polite"></p>
           </div>
@@ -965,7 +940,7 @@
 
         <div class="unified-inspector-panel">
           <h3>Storage Location Content Inspector</h3>
-          <p>Click any location to inspect stored materials, or use Delete to remove the location.</p>
+          <p style="margin: 0 0 8px; font-size: 10.5px; color: var(--muted);">Click any location to inspect stored materials, or use Delete to remove the location.</p>
           <div class="inspector-pills">
             <button type="button" class="pill-btn active" data-filter="cupboard">Cupboards &amp; Racks</button>
             <button type="button" class="pill-btn" data-filter="box">Boxes</button>
@@ -976,41 +951,40 @@
       </div>
     </section>
 
-    <!-- Users Page (Fitted to Screen - No Vertical Page Scroll) -->
+    <!-- Users Page (Standard Unchanged Direct System) -->
     <section class="catalog page-view" id="usersPage" hidden>
       <div class="page-heading"><p>ADMINISTRATION</p><h2>Manage Users &amp; Material Allocations</h2></div>
       
       <div class="user-page-container">
         <div class="user-top-split">
-          <!-- Manual User Allocation Form -->
           <form class="user-card-panel" id="userForm">
-            <h3 style="margin: 0 0 2px; font-size: 12px; color: var(--green-dark);">Manual User Allocation</h3>
-            <p style="margin: 0 0 6px; font-size: 9.5px; color: var(--muted);">Manually enroll lab members with verification access.</p>
-            <div class="field" style="margin-bottom: 4px;">
+            <h3 style="margin: 0 0 4px; font-size: 13px; color: var(--green-dark);">Manual User Allocation</h3>
+            <p style="margin: 0 0 8px; font-size: 10px; color: var(--muted);">Manually enroll lab members with verification access.</p>
+            <div class="field" style="margin-bottom: 6px;">
               <label>User Name</label>
               <input name="userName" required maxlength="100" placeholder="e.g. John Doe">
             </div>
-            <div class="field" style="margin-bottom: 4px;">
+            <div class="field" style="margin-bottom: 6px;">
               <label>Email ID</label>
               <input name="email" type="email" required maxlength="120" placeholder="user@company.com">
             </div>
-            <div class="field" style="margin-bottom: 4px;">
+            <div class="field" style="margin-bottom: 6px;">
               <label>Initial Password</label>
               <input name="initialPassword" type="password" required maxlength="50" placeholder="Set user password">
             </div>
-            <div style="margin-bottom: 6px;">
-              <label class="verifier-toggle-label">
+            <div style="margin-bottom: 10px;">
+              <label class="verifier-toggle-label" style="display:inline-flex; align-items:center; gap:4px; font-size:10px; cursor:pointer;">
                 <input type="checkbox" id="userFormIsVerifier"> Can Verify Returned Items
               </label>
             </div>
-            <button class="action-button" type="submit" style="width: 100%; height: 28px;">Create &amp; Verify User</button>
-            <p class="form-status" id="userStatus" role="status" aria-live="polite" style="margin-top: 3px;"></p>
+            <button class="action-button" type="submit" style="width: 100%; height: 32px;">Create &amp; Verify User</button>
+            <p class="form-status" id="userStatus" role="status" aria-live="polite" style="margin-top: 5px;"></p>
           </form>
 
           <div class="user-card-panel">
-            <div style="margin-bottom: 4px;">
-              <h3 style="margin: 0; font-size: 12px; color: var(--green-dark);">Registered Lab Users</h3>
-              <p style="margin: 1px 0 0; font-size: 9.5px; color: var(--muted);">View user verification status and toggle return verify privileges.</p>
+            <div style="margin-bottom: 6px;">
+              <h3 style="margin: 0; font-size: 13px; color: var(--green-dark);">Registered Lab Users</h3>
+              <p style="margin: 2px 0 0; font-size: 10px; color: var(--muted);">View user verification status and toggle return sign-off privileges.</p>
             </div>
             <div class="user-table-head" aria-hidden="true">
               <span>USER NAME</span>
@@ -1032,10 +1006,10 @@
         <div class="user-bottom-allocations">
           <div class="user-bottom-allocations-head">
             <div>
-              <h3>Material Allocation Inspector</h3>
-              <p>Select a user to view currently checked-out materials with timestamps.</p>
+              <h3 style="margin: 0; font-size: 13px; color: var(--green-dark);">Material Allocation Inspector</h3>
+              <p style="margin: 2px 0 0; font-size: 10px; color: var(--muted);">Select a user to view currently checked-out materials with timestamps.</p>
             </div>
-            <div class="field" style="min-width: 220px; margin: 0;">
+            <div class="field" style="min-width: 250px; margin: 0;">
               <select id="userAllocViewerSelect">
                 <option value="">Choose User to View Allocations</option>
               </select>
@@ -1050,11 +1024,11 @@
             <span>ALLOCATED DATE &amp; TIME</span>
           </div>
           <div id="userAllocViewerResults" aria-live="polite">
-            <p style="color:#718079;font-size:10.5px;padding: 12px 0;">Select a user from the dropdown above to view checkout records.</p>
+            <p style="color:#718079;font-size:11px;padding: 16px 0;">Select a user from the dropdown above to view checkout records.</p>
           </div>
         </div>
 
-        <!-- Bottom: User Page Multi-Allocate / Multi-Return Section -->
+        <!-- Old/Standard Allocate & Return in Users Page -->
         <div class="aligned-bottom-bar" id="userAlignedBottomBar">
           <div class="transaction-bar">
             <div class="compact-switch">
@@ -1066,84 +1040,79 @@
             <datalist id="partNumberSuggestionsList"></datalist>
             <datalist id="partCodeSuggestionsList"></datalist>
 
-            <!-- User Page Multi-Allocate Form -->
+            <!-- Old Direct Allocate Form (Sticks with old program) -->
             <form id="userPageTakeForm" style="display: contents;">
               <div class="inline-field">
-                <input list="userSuggestionsList" name="userManual" id="userTakeUserInput" required placeholder="User Name / Email" style="width: 150px;">
+                <input list="userSuggestionsList" name="userManual" id="userTakeUserInput" required placeholder="User Name / Email" style="width: 160px;">
               </div>
               <div class="inline-field">
-                <input list="partNumberSuggestionsList" name="partNumber" id="userTakePartNumber" maxlength="100" placeholder="Part Number" style="width: 140px;">
+                <input list="partNumberSuggestionsList" name="partNumber" id="userTakePartNumber" required maxlength="100" placeholder="Part Number" style="width: 170px;">
               </div>
               <div class="inline-field">
-                <input list="partCodeSuggestionsList" name="partCode" id="userTakePartCode" maxlength="100" placeholder="Part Code" style="width: 110px;">
+                <input list="partCodeSuggestionsList" name="partCode" id="userTakePartCode" required maxlength="100" placeholder="Part Code" style="width: 120px;">
               </div>
               <div class="inline-field">
-                <input name="quantity" id="userTakeQuantity" type="number" min="1" step="1" placeholder="Qty" style="width: 60px;">
+                <input name="quantity" id="userTakeQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 75px;">
               </div>
-              <button class="compact-btn secondary" type="button" id="userTakeAddQueueBtn">+ Add to Queue</button>
-              <button class="compact-btn danger" type="submit" id="userAllocateSubmitBtn">Allocate (0 items)</button>
+              <button class="compact-btn danger" type="submit" id="userAllocateSubmitBtn">Allocate</button>
             </form>
 
-            <!-- User Page Multi-Return Form -->
+            <!-- Old Direct Return Form (Sticks with old program) -->
             <form id="userPageReturnForm" style="display: none;">
               <div class="inline-field">
-                <input list="userSuggestionsList" name="userManual" id="userReturnUserInput" required placeholder="User Name / Email" style="width: 135px;">
+                <input list="userSuggestionsList" name="userManual" id="userReturnUserInput" required placeholder="User Name / Email" style="width: 140px;">
               </div>
               <div class="inline-field">
-                <select name="allocationSelect" id="userReturnAllocatedSelect" style="width: 160px;">
+                <select name="allocationSelect" id="userReturnAllocatedSelect" style="width: 170px;">
                   <option value="">Allocated Items</option>
                 </select>
               </div>
               <div class="inline-field">
-                <input name="partNumber" id="userReturnPartNumber" placeholder="Part Number" style="width: 130px;">
+                <input name="partNumber" id="userReturnPartNumber" placeholder="Part Number" style="width: 140px;">
               </div>
               <div class="inline-field">
-                <input name="partCode" id="userReturnPartCode" placeholder="Part Code" style="width: 100px;">
+                <input name="partCode" id="userReturnPartCode" placeholder="Part Code" style="width: 110px;">
               </div>
               <div class="inline-field">
-                <input name="quantity" id="userReturnQuantity" type="number" min="1" step="1" placeholder="Qty" style="width: 55px;">
+                <input name="quantity" id="userReturnQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 65px;">
               </div>
 
               <div class="inline-field">
-                <select name="locationType" id="userReturnLocationType" style="width: 95px;">
+                <select name="locationType" id="userReturnLocationType" style="width: 105px;">
                   <option value="rack">Cupboard Rack</option>
                   <option value="box">Box</option>
                   <option value="workbench">Workbench</option>
                 </select>
               </div>
               <div class="inline-field" id="userReturnCupboardField">
-                <select name="cupboardId" id="userReturnCupboard" style="width: 95px;">
+                <select name="cupboardId" id="userReturnCupboard" required style="width: 100px;">
                   <option value="">Cupboard</option>
                 </select>
               </div>
               <div class="inline-field" id="userReturnRackField">
-                <select name="rackId" id="userReturnRack" style="width: 75px;">
+                <select name="rackId" id="userReturnRack" required style="width: 80px;">
                   <option value="">Rack</option>
                 </select>
               </div>
               <div class="inline-field" id="userReturnBoxField" hidden>
-                <select name="boxId" id="userReturnBox" style="width: 95px;">
+                <select name="boxId" id="userReturnBox" style="width: 100px;">
                   <option value="">Box</option>
                 </select>
               </div>
               <div class="inline-field" id="userReturnWorkbenchField" hidden>
-                <select name="workbenchId" id="userReturnWorkbench" style="width: 95px;">
+                <select name="workbenchId" id="userReturnWorkbench" style="width: 105px;">
                   <option value="">Workbench</option>
                 </select>
               </div>
-              <button class="compact-btn secondary" type="button" id="userReturnAddQueueBtn">+ Add to Queue</button>
-              <button class="compact-btn success" type="submit" id="userReturnSubmitBtn">Return (0 items)</button>
+              <button class="compact-btn success" type="submit" id="userReturnSubmitBtn">Return</button>
             </form>
           </div>
-
-          <!-- Chips strip for User Page Multi Items -->
-          <div class="queue-chips-strip" id="userQueueChipsStrip" hidden></div>
           <p class="strip-status" id="userPageStripStatus" role="status" aria-live="polite"></p>
         </div>
       </div>
     </section>
 
-    <!-- Lifecycle Logs Page (Renamed to Verify) -->
+    <!-- Lifecycle Logs Page -->
     <section class="catalog page-view" id="logsPage" hidden>
       <div class="catalog-head">
         <div><p class="kicker">AUDIT TRAIL</p><h2>Material Activity Logs</h2></div>
@@ -1176,7 +1145,7 @@
         <button type="button" class="btn-secondary" id="clearLogDatesBtn">Clear Dates</button>
       </div>
 
-      <div class="table-scroll" style="max-height: 520px; overflow-y: hidden;">
+      <div class="table-scroll">
         <div class="log-table-head" aria-hidden="true">
           <span>USER NAME</span>
           <span>PART CODE</span>
@@ -1185,7 +1154,7 @@
           <span>STATUS</span>
           <span>ALLOCATED TIME</span>
           <span>RETURN / PENDING TIME</span>
-          <span>VERIFY</span>
+          <span>SIGN-OFF &amp; VERIFY</span>
         </div>
         <div id="logList" aria-live="polite"></div>
         <div class="empty" id="emptyLogs" hidden>
@@ -1202,20 +1171,19 @@
   <!-- 1. Self Registration Modal -->
   <div class="modal-overlay" id="registerModal" hidden>
     <div class="modal-card">
-      <h3 id="regModalTitle">Create Lab Account</h3>
-      <p id="regModalDesc">Enter your details. A verification code will be sent to your email.</p>
+      <h3 id="regModalTitle" style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Create Lab Account</h3>
+      <p id="regModalDesc" style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Enter your details. A verification code will be sent to your email.</p>
 
-      <!-- Step 1: Input Details -->
       <form id="registerDetailsForm">
-        <label class="field">
+        <label class="field" style="margin-bottom: 8px;">
           Full Name
           <input type="text" id="regName" required placeholder="e.g. John Doe" autocomplete="name">
         </label>
-        <label class="field">
+        <label class="field" style="margin-bottom: 8px;">
           Email Address
           <input type="email" id="regEmail" required placeholder="user@company.com" autocomplete="email">
         </label>
-        <label class="field">
+        <label class="field" style="margin-bottom: 8px;">
           Password
           <input type="password" id="regPassword" required minlength="4" placeholder="Choose a password" autocomplete="new-password">
         </label>
@@ -1226,15 +1194,14 @@
         </div>
       </form>
 
-      <!-- Step 2: Enter OTP -->
       <form id="registerOtpForm" hidden>
         <p style="font-size: 11px; color: var(--green-dark); margin-bottom: 8px;">
           Verification code sent to: <strong id="regTargetEmail"></strong>
         </p>
         <p style="font-size: 10.5px; color: var(--muted); margin-bottom: 12px;">
-          Please check your inbox (and spam/junk folder) and enter the 6-digit code below.
+          Please check your inbox and enter the 6-digit code below.
         </p>
-        <label class="field">
+        <label class="field" style="margin-bottom: 8px;">
           6-Digit Verification Code
           <input type="text" id="regOtpInput" required maxlength="6" class="otp-input" placeholder="000000" autocomplete="one-time-code">
         </label>
@@ -1250,12 +1217,11 @@
   <!-- 2. Self Password Reset Modal -->
   <div class="modal-overlay" id="resetModal" hidden>
     <div class="modal-card">
-      <h3>Reset Your Password</h3>
-      <p id="resetModalDesc">Enter your registered email address to receive a reset code in your inbox.</p>
+      <h3 style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Reset Your Password</h3>
+      <p id="resetModalDesc" style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Enter your registered email address to receive a reset code in your inbox.</p>
 
-      <!-- Step 1: Request Reset Code -->
       <form id="resetRequestForm">
-        <label class="field">
+        <label class="field" style="margin-bottom: 8px;">
           Registered Email
           <input type="email" id="resetEmail" required placeholder="user@company.com">
         </label>
@@ -1266,20 +1232,19 @@
         </div>
       </form>
 
-      <!-- Step 2: Validate OTP & Set New Password -->
       <form id="resetSubmitForm" hidden>
         <p style="font-size: 10.5px; color: var(--muted); margin-bottom: 12px;">
           Enter the reset code sent to your email and your new password.
         </p>
-        <label class="field">
+        <label class="field" style="margin-bottom: 8px;">
           6-Digit Reset Code
           <input type="text" id="resetOtpInput" required maxlength="6" class="otp-input" placeholder="000000">
         </label>
-        <label class="field">
+        <label class="field" style="margin-bottom: 8px;">
           New Password
           <input type="password" id="resetNewPassword" required minlength="4" placeholder="Enter new password">
         </label>
-        <label class="field">
+        <label class="field" style="margin-bottom: 8px;">
           Confirm New Password
           <input type="password" id="resetConfirmPassword" required minlength="4" placeholder="Confirm new password">
         </label>
@@ -1295,10 +1260,10 @@
   <!-- 3. Action Authentication Modal -->
   <div class="modal-overlay" id="userAuthActionModal" hidden>
     <div class="modal-card">
-      <h3 id="actionAuthTitle">User Authentication</h3>
-      <p id="actionAuthDesc">Confirm your user password to execute this transaction.</p>
+      <h3 id="actionAuthTitle" style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">User Authentication</h3>
+      <p id="actionAuthDesc" style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Confirm your user password to execute this transaction.</p>
       <form id="userAuthActionForm">
-        <label class="field">
+        <label class="field" style="margin-bottom: 8px;">
           Password for <strong id="actionAuthTargetUser">User</strong>
           <input type="password" id="actionAuthPasswordInput" required placeholder="Enter your password" autocomplete="current-password">
         </label>
@@ -1314,10 +1279,10 @@
   <!-- 4. Admin Login Modal -->
   <div class="modal-overlay" id="authModal" hidden>
     <div class="modal-card">
-      <h3>Admin Authentication Required</h3>
-      <p>Enter the master password to access system configuration.</p>
+      <h3 style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Admin Authentication Required</h3>
+      <p style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Enter the master password to access system configuration.</p>
       <form id="authForm">
-        <label class="field">
+        <label class="field" style="margin-bottom: 8px;">
           Password
           <input type="password" id="authPasswordInput" required placeholder="Enter password" autocomplete="current-password">
         </label>
@@ -1330,13 +1295,13 @@
     </div>
   </div>
 
-  <!-- 5. Verifier Selector Modal -->
+  <!-- 5. Verifier Selector Modal (Show only user name, no email) -->
   <div class="modal-overlay" id="verifierModal" hidden>
     <div class="modal-card">
-      <h3>Verify Material Return</h3>
-      <p>Select the registered verifier who inspected the physical placement on the shelf.</p>
+      <h3 style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Physical Return Sign-Off</h3>
+      <p style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Select the registered verifier who inspected the physical placement on the shelf.</p>
       <form id="verifierForm">
-        <div class="field">
+        <div class="field" style="margin-bottom: 8px;">
           <label>Authorized Verifier</label>
           <select id="modalVerifierSelect" required>
             <option value="">Select Verifying Person</option>
@@ -1345,7 +1310,7 @@
         <p class="form-status error" id="verifierModalError" style="margin-top: 4px;"></p>
         <div class="modal-actions">
           <button type="button" class="btn-secondary" id="verifierCancelButton">Cancel</button>
-          <button type="submit" class="action-button success-button">Verify</button>
+          <button type="submit" class="action-button success-button">Confirm &amp; Update Stock</button>
         </div>
       </form>
     </div>
@@ -1410,16 +1375,13 @@
     let activeInspectorFilter = "cupboard";
     let selectedInspectorLocationId = null;
 
+    // Multi-Part Staging Queue on Search Page
+    let searchStagedParts = [];
+    let currentlySelectedCatalogProduct = null;
+
     const ACTIVE_LOG_TABLE = "material_lifecycle_logs";
     const allocationOriginMap = new Map();
 
-    // Multi-Product Queues
-    let searchTakeQueue = [];
-    let searchReturnQueue = [];
-    let userTakeQueue = [];
-    let userReturnQueue = [];
-
-    // Verifier & Auth Action Modal State
     let pendingVerificationLogId = null;
     let pendingActionCallback = null;
 
@@ -1476,7 +1438,6 @@
     const resetConfirmBtn = document.getElementById("resetConfirmBtn");
     const backToResetReqBtn = document.getElementById("backToResetReqBtn");
 
-    // ADMIN AUTHENTICATION
     const AUTH_PASSWORD = "festo";
     const TIMEOUT_SECONDS = 30;
 
@@ -1502,8 +1463,7 @@
     }
 
     function updateTimerBadge() {
-      const remaining = getRemainingSeconds();
-      sessionTimerText.textContent = `${remaining}s`;
+      sessionTimerText.textContent = `${getRemainingSeconds()}s`;
     }
 
     function resetActivityTimer() {
@@ -1668,16 +1628,15 @@
     const userAllocViewerSelect = document.getElementById("userAllocViewerSelect");
     const userAllocViewerResults = document.getElementById("userAllocViewerResults");
 
-    // Search Page Bottom Bar
-    const globalTakeForm = document.getElementById("globalTakeForm");
-    const globalReturnForm = document.getElementById("globalReturnForm");
+    // Search Page Bottom Controls
+    const searchAllocateControls = document.getElementById("searchAllocateControls");
+    const searchReturnControls = document.getElementById("searchReturnControls");
     const takeUserSelect = document.getElementById("takeUserSelect");
-    const takeMaterialId = document.getElementById("takeMaterialId");
     const takePartNumber = document.getElementById("takePartNumber");
     const takePartCode = document.getElementById("takePartCode");
     const takeQuantity = document.getElementById("takeQuantity");
-    const takeAddQueueBtn = document.getElementById("takeAddQueueBtn");
-    const allocateSubmitBtn = document.getElementById("allocateSubmitBtn");
+    const searchAddStageBtn = document.getElementById("searchAddStageBtn");
+    const searchExecuteAllocateBtn = document.getElementById("searchExecuteAllocateBtn");
 
     const returnUserSelect = document.getElementById("returnUserSelect");
     const returnAllocatedPartCodeSelect = document.getElementById("returnAllocatedPartCodeSelect");
@@ -1692,20 +1651,22 @@
     const returnRackField = document.getElementById("returnRackField");
     const returnBoxField = document.getElementById("returnBoxField");
     const returnWorkbenchField = document.getElementById("returnWorkbenchField");
-    const returnAddQueueBtn = document.getElementById("returnAddQueueBtn");
-    const returnSubmitBtn = document.getElementById("returnSubmitBtn");
+    const searchAddReturnStageBtn = document.getElementById("searchAddReturnStageBtn");
+    const searchExecuteReturnBtn = document.getElementById("searchExecuteReturnBtn");
 
-    const globalQueueChipsStrip = document.getElementById("globalQueueChipsStrip");
+    const searchStagedPartsBox = document.getElementById("searchStagedPartsBox");
+    const searchStagedPartsList = document.getElementById("searchStagedPartsList");
+    const stagedBoxLabel = document.getElementById("stagedBoxLabel");
+    const stagedBadgeCount = document.getElementById("stagedBadgeCount");
     const globalStripStatus = document.getElementById("globalStripStatus");
 
-    // Users Page Bottom Bar
+    // Users Page Bottom Bar (Unchanged)
     const userPageTakeForm = document.getElementById("userPageTakeForm");
     const userPageReturnForm = document.getElementById("userPageReturnForm");
     const userTakeUserInput = document.getElementById("userTakeUserInput");
     const userTakePartNumber = document.getElementById("userTakePartNumber");
     const userTakePartCode = document.getElementById("userTakePartCode");
     const userTakeQuantity = document.getElementById("userTakeQuantity");
-    const userTakeAddQueueBtn = document.getElementById("userTakeAddQueueBtn");
     const userAllocateSubmitBtn = document.getElementById("userAllocateSubmitBtn");
 
     const userReturnUserInput = document.getElementById("userReturnUserInput");
@@ -1722,10 +1683,6 @@
     const userReturnRackField = document.getElementById("userReturnRackField");
     const userReturnBoxField = document.getElementById("userReturnBoxField");
     const userReturnWorkbenchField = document.getElementById("userReturnWorkbenchField");
-    const userReturnAddQueueBtn = document.getElementById("userReturnAddQueueBtn");
-    const userReturnSubmitBtn = document.getElementById("userReturnSubmitBtn");
-
-    const userQueueChipsStrip = document.getElementById("userQueueChipsStrip");
     const userPageStripStatus = document.getElementById("userPageStripStatus");
     const userSuggestionsList = document.getElementById("userSuggestionsList");
     const partNumberSuggestionsList = document.getElementById("partNumberSuggestionsList");
@@ -1980,7 +1937,6 @@
         registerModal.hidden = true;
         pendingRegistration = null;
         alert(`Registration successful! You can now allocate and return materials.`);
-
         await loadUsers();
       } catch (err) {
         setFormStatus(regOtpError, err.message || "Verification failed.", true);
@@ -2480,7 +2436,7 @@
     });
 
     // ==========================================
-    // 6. USER MANAGEMENT & MANUAL ALLOCATION
+    // 6. USER MANAGEMENT
     // ==========================================
     function isGuestEmail(email) {
       if (!email) return false;
@@ -2563,7 +2519,7 @@
         verifierCell.append(vCheckbox);
 
         const actionDiv = document.createElement("div");
-        actionDiv.className = "user-actions";
+        actionDiv.style.textAlign = "right";
 
         const delBtn = document.createElement("button");
         delBtn.type = "button";
@@ -2669,7 +2625,7 @@
 
     async function refreshUserAllocationsViewer(uId) {
       if (!uId) {
-        userAllocViewerResults.innerHTML = `<p style="color:#718079;font-size:10.5px;padding: 12px 0;">Select a user from the dropdown above to view checkout records.</p>`;
+        userAllocViewerResults.innerHTML = `<p style="color:#718079;font-size:11px;padding: 16px 0;">Select a user from the dropdown above to view checkout records.</p>`;
         return;
       }
 
@@ -2686,7 +2642,7 @@
 
         userAllocViewerResults.replaceChildren();
         if (!allocs.length) {
-          userAllocViewerResults.innerHTML = `<p style="font-size:10.5px;color:#718079;padding: 12px 0;">This user currently has 0 checked-out materials.</p>`;
+          userAllocViewerResults.innerHTML = `<p style="font-size:11px;color:#718079;padding: 16px 0;">This user currently has 0 checked-out materials.</p>`;
           return;
         }
 
@@ -2702,12 +2658,12 @@
             <span class="part-code">${a.part_code}</span>
             <span><strong>${a.quantity}</strong></span>
             <span class="location-cell">${locText}</span>
-            <span style="font-size:9.5px;color:var(--muted);">${dateStr}</span>
+            <span style="font-size:10px;color:var(--muted);">${dateStr}</span>
           `;
           userAllocViewerResults.append(row);
         });
       } catch (err) {
-        userAllocViewerResults.innerHTML = `<p style="color:#b91c1c;font-size:10.5px;padding: 12px 0;">Error loading user allocations: ${err.message}</p>`;
+        userAllocViewerResults.innerHTML = `<p style="color:#b91c1c;font-size:11px;padding: 16px 0;">Error loading user allocations: ${err.message}</p>`;
       }
     }
 
@@ -2763,7 +2719,7 @@
     }
 
     // ==========================================
-    // 7. ALLOCATION FETCH & AUTO-POPULATION
+    // 7. ALLOCATION FETCH & SELECTION
     // ==========================================
     async function loadAllocationsForUser(userId) {
       if (!userId) {
@@ -2830,17 +2786,11 @@
     }
 
     returnUserSelect.addEventListener("change", (e) => {
-      searchReturnQueue = [];
-      renderQueueChips("global", "return");
       loadAllocationsForUser(e.target.value);
       returnPartNumber.value = "";
       returnQuantity.value = "";
       resetReturnLocationFields();
-    });
-
-    takeUserSelect.addEventListener("change", () => {
-      searchTakeQueue = [];
-      renderQueueChips("global", "allocate");
+      searchAddReturnStageBtn.textContent = "Add";
     });
 
     function resetReturnLocationFields() {
@@ -2867,6 +2817,9 @@
       if (item) {
         returnPartNumber.value = item.part_number;
         returnQuantity.value = item.quantity;
+
+        // Changing name from Add to ? when item is chosen
+        searchAddReturnStageBtn.textContent = "?";
 
         const cachedOrigin = allocationOriginMap.get(item.id);
         const refProduct = products.find(p => 
@@ -2895,10 +2848,11 @@
           returnWorkbench.value = targetWb;
         }
 
-        setFormStatus(globalStripStatus, `Loaded "${item.part_number}". Target location set.`);
+        setFormStatus(globalStripStatus, `Loaded "${item.part_number}". Can be directly returned or queued.`);
       } else {
         returnPartNumber.value = "";
         returnQuantity.value = "";
+        searchAddReturnStageBtn.textContent = "Add";
         resetReturnLocationFields();
       }
     });
@@ -2974,33 +2928,24 @@
       if (exactMatch) onUserReturnInputMatch();
     });
 
-    function resetTakeFormInputs() {
-      takeMaterialId.value = "";
-      takePartNumber.value = "";
-      takePartCode.value = "";
-      takeQuantity.value = "";
-      document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
-    }
-
-    function resetReturnFormInputs() {
-      returnPartNumber.value = "";
-      returnQuantity.value = "";
-      resetReturnLocationFields();
-    }
-
-    function resetUserPageTakeFormInputs() {
+    function resetUserPageTakeForm() {
+      userTakeUserInput.value = "";
       userTakePartNumber.value = "";
       userTakePartCode.value = "";
       userTakeQuantity.value = "";
     }
 
-    function resetUserPageReturnFormInputs() {
+    function resetUserPageReturnForm() {
+      userReturnUserInput.value = "";
+      userReturnAllocatedSelect.replaceChildren(new Option("Allocated Items", ""));
       userReturnPartNumber.value = "";
       userReturnPartCode.value = "";
       userReturnQuantity.value = "";
       resetUserReturnLocationFields();
+      userPageAllocations = [];
     }
 
+    // Selection on Catalog Table: Change Add button to '?'
     function onProductRowClicked(product) {
       const availQty = parseInt(product.quantity, 10);
       if (isNaN(availQty) || availQty <= 0) {
@@ -3012,9 +2957,12 @@
       const clickedRow = document.querySelector(`.product-row[data-row-id="${product.id}"]`);
       if (clickedRow) clickedRow.classList.add("selected-row");
 
-      takeMaterialId.value = product.id;
+      currentlySelectedCatalogProduct = product;
       takePartNumber.value = product.part_number;
       takePartCode.value = product.part_code;
+
+      // Update button text to '?'
+      searchAddStageBtn.textContent = "?";
 
       userTakePartNumber.value = product.part_number;
       userTakePartCode.value = product.part_code;
@@ -3022,93 +2970,114 @@
       takeQuantity.value = "";
       takeQuantity.focus();
 
-      setFormStatus(globalStripStatus, `Selected "${product.part_number}". Available: ${product.quantity}. Updated on Search & Users page.`);
+      setFormStatus(globalStripStatus, `Selected "${product.part_number}" (${product.part_code}). Ready to stage or allocate.`);
     }
 
     // ==========================================
-    // MULTI-ITEM BATCH QUEUE RENDERING & HELPERS
+    // 8. MULTI-PART STAGING ON SEARCH PAGE
     // ==========================================
-    function renderQueueChips(pageType, opMode) {
-      let strip, queue, submitBtn, btnText;
-      if (pageType === "global") {
-        strip = globalQueueChipsStrip;
-        if (opMode === "allocate") {
-          queue = searchTakeQueue;
-          submitBtn = allocateSubmitBtn;
-          btnText = `Allocate (${queue.length} item${queue.length === 1 ? '' : 's'})`;
-        } else {
-          queue = searchReturnQueue;
-          submitBtn = returnSubmitBtn;
-          btnText = `Return (${queue.length} item${queue.length === 1 ? '' : 's'})`;
-        }
-      } else {
-        strip = userQueueChipsStrip;
-        if (opMode === "allocate") {
-          queue = userTakeQueue;
-          submitBtn = userAllocateSubmitBtn;
-          btnText = `Allocate (${queue.length} item${queue.length === 1 ? '' : 's'})`;
-        } else {
-          queue = userReturnQueue;
-          submitBtn = userReturnSubmitBtn;
-          btnText = `Return (${queue.length} item${queue.length === 1 ? '' : 's'})`;
-        }
-      }
+    function renderSearchStagedParts() {
+      searchStagedPartsList.replaceChildren();
 
-      submitBtn.textContent = btnText;
-      strip.replaceChildren();
-
-      if (queue.length === 0) {
-        strip.hidden = true;
+      if (!searchStagedParts.length) {
+        searchStagedPartsBox.hidden = true;
+        stagedBadgeCount.textContent = "0 items staged";
         return;
       }
 
-      strip.hidden = false;
-      queue.forEach((item, index) => {
-        const chip = document.createElement("span");
-        chip.className = "batch-item-chip";
-        chip.innerHTML = `<span><strong>${item.partNumber || item.partCode}</strong> (${item.partCode}) &times; <strong>${item.quantity}</strong></span>`;
-        
-        const del = document.createElement("span");
-        del.className = "chip-del";
-        del.innerHTML = "&times;";
-        del.title = "Remove item from queue";
-        del.addEventListener("click", () => {
-          queue.splice(index, 1);
-          renderQueueChips(pageType, opMode);
+      searchStagedPartsBox.hidden = false;
+      const totalUnits = searchStagedParts.reduce((sum, p) => sum + p.quantity, 0);
+      // Added quantity count is shown cleanly here in the staged box header
+      stagedBadgeCount.textContent = `${searchStagedParts.length} parts (${totalUnits} total units)`;
+
+      searchStagedParts.forEach((stagedItem, index) => {
+        const li = document.createElement("li");
+        li.className = "staged-part-row";
+
+        const pcSpan = document.createElement("span");
+        pcSpan.className = "part-code";
+        pcSpan.textContent = stagedItem.partCode;
+
+        const pnSpan = document.createElement("span");
+        pnSpan.innerHTML = `<strong>${stagedItem.partNumber}</strong>`;
+
+        const qtySpan = document.createElement("span");
+        qtySpan.innerHTML = `Qty: <strong>${stagedItem.quantity}</strong>`;
+
+        const noteSpan = document.createElement("span");
+        noteSpan.style.color = "#718079";
+        noteSpan.style.fontSize = "10px";
+        noteSpan.textContent = stagedItem.mode === 'return' ? `Target: ${stagedItem.locConfig?.locationText || 'Default'}` : `Allocating`;
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "staged-del-btn";
+        delBtn.innerHTML = "&times;";
+        delBtn.title = "Delete item from queue";
+        delBtn.addEventListener("click", () => {
+          searchStagedParts.splice(index, 1);
+          renderSearchStagedParts();
         });
 
-        chip.append(del);
-        strip.append(chip);
+        li.append(pcSpan, pnSpan, qtySpan, noteSpan, delBtn);
+        searchStagedPartsList.append(li);
       });
     }
 
-    // Add to Queue Handlers
-    takeAddQueueBtn.addEventListener("click", () => {
+    // Add / Stage Part in Search Allocate
+    searchAddStageBtn.addEventListener("click", () => {
       const pNum = takePartNumber.value.trim();
       const pCode = takePartCode.value.trim();
       const qty = parseInt(takeQuantity.value, 10);
-      if (!pNum || !pCode) return setFormStatus(globalStripStatus, "Specify Part Number & Part Code before adding.", true);
-      if (isNaN(qty) || qty < 1) return setFormStatus(globalStripStatus, "Quantity must be at least 1.", true);
 
-      searchTakeQueue.push({
-        materialId: takeMaterialId.value || null,
-        partNumber: pNum,
-        partCode: pCode,
-        quantity: qty
-      });
-      resetTakeFormInputs();
-      renderQueueChips("global", "allocate");
-      setFormStatus(globalStripStatus, `Added ${qty} &times; ${pNum} to allocation queue.`);
+      if (!pNum || !pCode) {
+        return setFormStatus(globalStripStatus, "Please select a product from catalog table first.", true);
+      }
+      if (isNaN(qty) || qty < 1) {
+        return setFormStatus(globalStripStatus, "Please enter a valid quantity of at least 1.", true);
+      }
+
+      const existingIndex = searchStagedParts.findIndex(item => item.mode === 'allocate' && item.partCode.toLowerCase() === pCode.toLowerCase());
+      if (existingIndex >= 0) {
+        searchStagedParts[existingIndex].quantity += qty;
+      } else {
+        searchStagedParts.push({
+          mode: 'allocate',
+          partCode: pCode,
+          partNumber: pNum,
+          quantity: qty,
+          materialId: currentlySelectedCatalogProduct?.id || null
+        });
+      }
+
+      // Reset selection inputs and return button name from '?' back to 'Add'
+      takePartNumber.value = "";
+      takePartCode.value = "";
+      takeQuantity.value = "";
+      searchAddStageBtn.textContent = "Add";
+      currentlySelectedCatalogProduct = null;
+      document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
+
+      renderSearchStagedParts();
+      setFormStatus(globalStripStatus, `Added ${qty} of "${pNum}" to stage list.`);
     });
 
-    returnAddQueueBtn.addEventListener("click", () => {
+    // Add / Stage Part in Search Return
+    searchAddReturnStageBtn.addEventListener("click", () => {
+      const pNum = returnPartNumber.value.trim();
       const allocId = returnAllocatedPartCodeSelect.value;
       const allocItem = userAllocations.find(a => String(a.id) === String(allocId));
-      if (!allocItem) return setFormStatus(globalStripStatus, "Select an allocated item to return.", true);
-
       const qty = parseInt(returnQuantity.value, 10);
-      if (isNaN(qty) || qty < 1) return setFormStatus(globalStripStatus, "Enter a valid return quantity.", true);
-      if (qty > parseInt(allocItem.quantity, 10)) return setFormStatus(globalStripStatus, `Cannot return more than allocated (${allocItem.quantity}).`, true);
+
+      if (!allocItem || !pNum) {
+        return setFormStatus(globalStripStatus, "Please select an Allocated Part Code to stage for return.", true);
+      }
+      if (isNaN(qty) || qty < 1) {
+        return setFormStatus(globalStripStatus, "Please enter a valid quantity.", true);
+      }
+      if (qty > parseInt(allocItem.quantity, 10)) {
+        return setFormStatus(globalStripStatus, `Cannot return more than allocated (${allocItem.quantity}).`, true);
+      }
 
       const locConfig = {
         locationType: returnLocationType.value,
@@ -3122,81 +3091,201 @@
         workbenchName: returnWorkbench.selectedOptions[0]?.text
       };
 
-      searchReturnQueue.push({
-        allocItem: allocItem,
-        partNumber: allocItem.part_number,
-        partCode: allocItem.part_code,
-        quantity: qty,
-        locConfig: locConfig
-      });
-      resetReturnFormInputs();
-      renderQueueChips("global", "return");
-      setFormStatus(globalStripStatus, `Added ${qty} &times; ${allocItem.part_number} to return queue.`);
+      let locText = "";
+      if (locConfig.locationType === "rack") {
+        locText = `${locConfig.cupboardName || 'Cupboard'} / ${locConfig.rackName || 'Rack'}`;
+      } else if (locConfig.locationType === "box") {
+        locText = `Box: ${locConfig.boxName || 'Box'}`;
+      } else {
+        locText = `Workbench: ${locConfig.workbenchName || 'Workbench'}`;
+      }
+      locConfig.locationText = locText;
+
+      const existingIndex = searchStagedParts.findIndex(item => item.mode === 'return' && item.allocItem?.id === allocItem.id);
+      if (existingIndex >= 0) {
+        searchStagedParts[existingIndex].quantity = qty;
+        searchStagedParts[existingIndex].locConfig = locConfig;
+      } else {
+        searchStagedParts.push({
+          mode: 'return',
+          partCode: allocItem.part_code,
+          partNumber: pNum,
+          quantity: qty,
+          allocItem: allocItem,
+          locConfig: locConfig
+        });
+      }
+
+      returnPartNumber.value = "";
+      returnQuantity.value = "";
+      returnAllocatedPartCodeSelect.value = "";
+      searchAddReturnStageBtn.textContent = "Add";
+      resetReturnLocationFields();
+
+      renderSearchStagedParts();
+      setFormStatus(globalStripStatus, `Added "${pNum}" to staged return list.`);
     });
 
-    userTakeAddQueueBtn.addEventListener("click", () => {
-      const pNum = userTakePartNumber.value.trim();
-      const pCode = userTakePartCode.value.trim();
-      const qty = parseInt(userTakeQuantity.value, 10);
-      if (!pNum || !pCode) return setFormStatus(userPageStripStatus, "Specify Part Number & Part Code before adding.", true);
-      if (isNaN(qty) || qty < 1) return setFormStatus(userPageStripStatus, "Quantity must be at least 1.", true);
+    // Execute Search Allocate (Batched or Direct)
+    searchExecuteAllocateBtn.addEventListener("click", () => {
+      const userId = takeUserSelect.value;
+      if (!userId) return setFormStatus(globalStripStatus, "Please select a user from the dropdown.", true);
 
-      userTakeQueue.push({
-        partNumber: pNum,
-        partCode: pCode,
-        quantity: qty
+      const targetUser = users.find(u => String(u.id) === String(userId));
+
+      // Build execution queue: if items staged in table, use them; if not, directly allocate selected product
+      let executionQueue = searchStagedParts.filter(p => p.mode === 'allocate');
+      if (!executionQueue.length) {
+        const pNum = takePartNumber.value.trim();
+        const pCode = takePartCode.value.trim();
+        const qty = parseInt(takeQuantity.value, 10);
+        if (pNum && pCode && !isNaN(qty) && qty >= 1) {
+          executionQueue = [{
+            mode: 'allocate',
+            partCode: pCode,
+            partNumber: pNum,
+            quantity: qty,
+            materialId: currentlySelectedCatalogProduct?.id || null
+          }];
+        }
+      }
+
+      if (!executionQueue.length) {
+        return setFormStatus(globalStripStatus, "No products staged or selected for allocation.", true);
+      }
+
+      verifyUserPasswordBeforeAction(targetUser, "Allocate", async () => {
+        searchExecuteAllocateBtn.disabled = true;
+        try {
+          const userName = targetUser?.name || "User";
+          for (const item of executionQueue) {
+            await executeMaterialAllocation(userId, userName, item.partNumber, item.partCode, item.quantity, item.materialId);
+          }
+
+          searchStagedParts = searchStagedParts.filter(p => p.mode !== 'allocate');
+          renderSearchStagedParts();
+
+          takePartNumber.value = "";
+          takePartCode.value = "";
+          takeQuantity.value = "";
+          searchAddStageBtn.textContent = "Add";
+          currentlySelectedCatalogProduct = null;
+          document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
+
+          setFormStatus(globalStripStatus, `Successfully allocated items to ${userName}.`);
+        } catch (err) {
+          setFormStatus(globalStripStatus, err.message, true);
+        } finally {
+          searchExecuteAllocateBtn.disabled = false;
+        }
       });
-      resetUserPageTakeFormInputs();
-      renderQueueChips("user", "allocate");
-      setFormStatus(userPageStripStatus, `Added ${qty} &times; ${pNum} to queue.`);
     });
 
-    userReturnAddQueueBtn.addEventListener("click", () => {
-      const pNum = userReturnPartNumber.value.trim();
-      const pCode = userReturnPartCode.value.trim();
-      const qty = parseInt(userReturnQuantity.value, 10);
+    // Execute Search Return (Direct return of due items or Batched Return)
+    searchExecuteReturnBtn.addEventListener("click", () => {
+      const userId = returnUserSelect.value;
+      if (!userId) return setFormStatus(globalStripStatus, "Please select the user returning items.", true);
 
-      let allocItem = null;
-      if (userReturnAllocatedSelect.value) {
-        allocItem = userPageAllocations.find(a => String(a.id) === String(userReturnAllocatedSelect.value));
+      const targetUser = users.find(u => String(u.id) === String(userId));
+
+      // Without adding item to due part, item can be directly returned
+      let returnQueue = searchStagedParts.filter(p => p.mode === 'return');
+      if (!returnQueue.length) {
+        const allocId = returnAllocatedPartCodeSelect.value;
+        const allocItem = userAllocations.find(a => String(a.id) === String(allocId));
+        const returnQty = parseInt(returnQuantity.value, 10);
+
+        if (allocItem && !isNaN(returnQty) && returnQty >= 1) {
+          const locConfig = {
+            locationType: returnLocationType.value,
+            cupboardId: returnCupboard.value,
+            cupboardName: returnCupboard.selectedOptions[0]?.text,
+            rackId: returnRack.value,
+            rackName: returnRack.selectedOptions[0]?.text,
+            boxId: returnBox.value,
+            boxName: returnBox.selectedOptions[0]?.text,
+            workbenchId: returnWorkbench.value,
+            workbenchName: returnWorkbench.selectedOptions[0]?.text
+          };
+          let locText = "";
+          if (locConfig.locationType === "rack") {
+            locText = `${locConfig.cupboardName || 'Cupboard'} / ${locConfig.rackName || 'Rack'}`;
+          } else if (locConfig.locationType === "box") {
+            locText = `Box: ${locConfig.boxName || 'Box'}`;
+          } else {
+            locText = `Workbench: ${locConfig.workbenchName || 'Workbench'}`;
+          }
+          locConfig.locationText = locText;
+
+          returnQueue = [{
+            mode: 'return',
+            partCode: allocItem.part_code,
+            partNumber: allocItem.part_number,
+            quantity: returnQty,
+            allocItem: allocItem,
+            locConfig: locConfig
+          }];
+        }
       }
-      if (!allocItem && pCode) {
-        allocItem = userPageAllocations.find(a => a.part_code.toLowerCase() === pCode.toLowerCase());
-      }
-      if (!allocItem && pNum) {
-        allocItem = userPageAllocations.find(a => a.part_number.toLowerCase() === pNum.toLowerCase());
+
+      if (!returnQueue.length) {
+        return setFormStatus(globalStripStatus, "No return items staged or selected.", true);
       }
 
-      if (!allocItem) return setFormStatus(userPageStripStatus, "Select or enter an allocated item to return.", true);
-      if (isNaN(qty) || qty < 1) return setFormStatus(userPageStripStatus, "Enter a valid quantity.", true);
-      if (qty > parseInt(allocItem.quantity, 10)) return setFormStatus(userPageStripStatus, `Cannot return more than allocated (${allocItem.quantity}).`, true);
+      verifyUserPasswordBeforeAction(targetUser, "Return", async () => {
+        searchExecuteReturnBtn.disabled = true;
+        try {
+          const userName = targetUser?.name || "User";
+          for (const item of returnQueue) {
+            await executeMaterialReturn(userId, userName, item.allocItem, item.quantity, item.locConfig);
+          }
 
-      const locConfig = {
-        locationType: userReturnLocationType.value,
-        cupboardId: userReturnCupboard.value,
-        cupboardName: userReturnCupboard.selectedOptions[0]?.text,
-        rackId: userReturnRack.value,
-        rackName: userReturnRack.selectedOptions[0]?.text,
-        boxId: userReturnBox.value,
-        boxName: userReturnBox.selectedOptions[0]?.text,
-        workbenchId: userReturnWorkbench.value,
-        workbenchName: userReturnWorkbench.selectedOptions[0]?.text
-      };
+          searchStagedParts = searchStagedParts.filter(p => p.mode !== 'return');
+          renderSearchStagedParts();
 
-      userReturnQueue.push({
-        allocItem: allocItem,
-        partNumber: allocItem.part_number,
-        partCode: allocItem.part_code,
-        quantity: qty,
-        locConfig: locConfig
+          returnPartNumber.value = "";
+          returnQuantity.value = "";
+          returnAllocatedPartCodeSelect.value = "";
+          searchAddReturnStageBtn.textContent = "Add";
+          resetReturnLocationFields();
+          await loadAllocationsForUser(userId);
+
+          setFormStatus(globalStripStatus, `Returned items recorded (Pending Physical Verification).`);
+        } catch (err) {
+          setFormStatus(globalStripStatus, err.message, true);
+        } finally {
+          searchExecuteReturnBtn.disabled = false;
+        }
       });
-      resetUserPageReturnFormInputs();
-      renderQueueChips("user", "return");
-      setFormStatus(userPageStripStatus, `Added ${qty} &times; ${allocItem.part_number} to return queue.`);
+    });
+
+    // Operation mode toggles
+    document.querySelectorAll('input[name="globalOpMode"]').forEach(radio => {
+      radio.addEventListener("change", (e) => {
+        const isAlloc = e.target.value === "allocate";
+        searchAllocateControls.style.display = isAlloc ? "flex" : "none";
+        searchReturnControls.style.display = isAlloc ? "none" : "flex";
+        globalStripStatus.textContent = "";
+
+        // Switch staged list view
+        renderSearchStagedParts();
+      });
+    });
+
+    document.querySelectorAll('input[name="userPageOpMode"]').forEach(radio => {
+      radio.addEventListener("change", (e) => {
+        const isAlloc = e.target.value === "allocate";
+        userPageTakeForm.style.display = isAlloc ? "contents" : "none";
+        userPageReturnForm.style.display = isAlloc ? "none" : "contents";
+        userPageStripStatus.textContent = "";
+
+        resetUserPageTakeForm();
+        resetUserPageReturnForm();
+      });
     });
 
     // ==========================================
-    // 8. AUDIT LOGGING & STATUS PERSISTENCE
+    // 9. AUDIT LOGGING & VERIFIER MODAL (NAME ONLY)
     // ==========================================
     async function recordAllocationLog(userId, userName, partCode, partNumber, quantity, locationText) {
       const nowIso = new Date().toISOString();
@@ -3299,6 +3388,7 @@
       }
     }
 
+    // Verifier Modal: Shows ONLY USER WITH NAME (NO EMAIL)
     function openVerifierModal(logId) {
       pendingVerificationLogId = logId;
       verifierModalError.textContent = "";
@@ -3310,7 +3400,8 @@
       candidateList.forEach(u => {
         const opt = document.createElement("option");
         opt.value = u.name;
-        opt.textContent = `${u.name} (${u.email})`;
+        // Strictly only user with name, no email id shown
+        opt.textContent = u.name;
         modalVerifierSelect.append(opt);
       });
 
@@ -3389,7 +3480,7 @@
     });
 
     // ==========================================
-    // 9. ATOMIC ALLOCATION & RETURN LOGIC
+    // 10. ALLOCATION & RETURN EXECUTION
     // ==========================================
     async function executeMaterialAllocation(userId, userName, pNum, pCode, takeQty, matId = null) {
       let query = supabaseClient.from('materials').select('*');
@@ -3407,7 +3498,7 @@
 
       const currentLiveStock = parseInt(item.quantity, 10);
       if (currentLiveStock < 1 || isNaN(currentLiveStock)) throw new Error(`Cannot allocate: 0 quantity available.`);
-      if (takeQty > currentLiveStock) throw new Error(`Insufficient stock for "${pNum}". Available: ${currentLiveStock}.`);
+      if (takeQty > currentLiveStock) throw new Error(`Insufficient stock for ${item.part_number}. Current live stock is ${currentLiveStock}.`);
 
       let allocQuery = supabaseClient.from('material_allocations').select('*').eq('part_number', item.part_number).eq('part_code', item.part_code);
       if (userId) allocQuery = allocQuery.eq('user_id', userId);
@@ -3484,6 +3575,12 @@
       }
 
       await recordAllocationLog(userId, userName, item.part_code, item.part_number, takeQty, item.location_text || "Storage");
+
+      await refreshInventory();
+      await loadLogs();
+      if (userAllocViewerSelect.value === userId) {
+        await refreshUserAllocationsViewer(userId);
+      }
       return item;
     }
 
@@ -3531,157 +3628,37 @@
         locationText: locationText
       });
 
+      await cleanupGuestUserIfDone(userId);
+
+      await loadLogs();
+      if (userAllocViewerSelect.value === userId) {
+        await refreshUserAllocationsViewer(userId);
+      }
       return locationText;
     }
 
-    // Submit: Search Page Multi-Allocate
-    globalTakeForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const userId = takeUserSelect.value;
-      if (!userId) return setFormStatus(globalStripStatus, "Please select a user from the list.", true);
-
-      // Consolidate current input if filled
-      if (takePartNumber.value.trim() && takePartCode.value.trim() && parseInt(takeQuantity.value, 10) >= 1) {
-        searchTakeQueue.push({
-          materialId: takeMaterialId.value || null,
-          partNumber: takePartNumber.value.trim(),
-          partCode: takePartCode.value.trim(),
-          quantity: parseInt(takeQuantity.value, 10)
-        });
-        resetTakeFormInputs();
-      }
-
-      if (searchTakeQueue.length === 0) {
-        return setFormStatus(globalStripStatus, "Add at least one product to the allocation queue.", true);
-      }
-
-      const targetUser = users.find(u => String(u.id) === String(userId));
-      verifyUserPasswordBeforeAction(targetUser, "Allocate", async () => {
-        allocateSubmitBtn.disabled = true;
-        try {
-          const userName = targetUser?.name || "User";
-          let successCount = 0;
-
-          for (const item of searchTakeQueue) {
-            await executeMaterialAllocation(userId, userName, item.partNumber, item.partCode, item.quantity, item.materialId);
-            successCount++;
-          }
-
-          setFormStatus(globalStripStatus, `Successfully allocated ${successCount} item(s) to ${userName}.`);
-          searchTakeQueue = [];
-          renderQueueChips("global", "allocate");
-          resetTakeFormInputs();
-          await refreshInventory();
-          await loadLogs();
-          if (userAllocViewerSelect.value === userId) await refreshUserAllocationsViewer(userId);
-        } catch (err) {
-          setFormStatus(globalStripStatus, err.message, true);
-          await refreshInventory();
-        } finally {
-          allocateSubmitBtn.disabled = false;
-        }
-      });
-    });
-
-    // Submit: Search Page Multi-Return
-    globalReturnForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const userId = returnUserSelect.value;
-      if (!userId) return setFormStatus(globalStripStatus, "Please select a user returning the material.", true);
-
-      if (returnAllocatedPartCodeSelect.value && parseInt(returnQuantity.value, 10) >= 1) {
-        const allocId = returnAllocatedPartCodeSelect.value;
-        const allocItem = userAllocations.find(a => String(a.id) === String(allocId));
-        if (allocItem) {
-          searchReturnQueue.push({
-            allocItem: allocItem,
-            partNumber: allocItem.part_number,
-            partCode: allocItem.part_code,
-            quantity: parseInt(returnQuantity.value, 10),
-            locConfig: {
-              locationType: returnLocationType.value,
-              cupboardId: returnCupboard.value,
-              cupboardName: returnCupboard.selectedOptions[0]?.text,
-              rackId: returnRack.value,
-              rackName: returnRack.selectedOptions[0]?.text,
-              boxId: returnBox.value,
-              boxName: returnBox.selectedOptions[0]?.text,
-              workbenchId: returnWorkbench.value,
-              workbenchName: returnWorkbench.selectedOptions[0]?.text
-            }
-          });
-          resetReturnFormInputs();
-        }
-      }
-
-      if (searchReturnQueue.length === 0) {
-        return setFormStatus(globalStripStatus, "Add at least one product to the return queue.", true);
-      }
-
-      const targetUser = users.find(u => String(u.id) === String(userId));
-      verifyUserPasswordBeforeAction(targetUser, "Return", async () => {
-        returnSubmitBtn.disabled = true;
-        try {
-          const userName = targetUser?.name || "User";
-          let successCount = 0;
-
-          for (const item of searchReturnQueue) {
-            await executeMaterialReturn(userId, userName, item.allocItem, item.quantity, item.locConfig);
-            successCount++;
-          }
-
-          await cleanupGuestUserIfDone(userId);
-          setFormStatus(globalStripStatus, `Marked ${successCount} item(s) returned (Pending Verification).`);
-          searchReturnQueue = [];
-          renderQueueChips("global", "return");
-          resetReturnFormInputs();
-          await loadAllocationsForUser(userId);
-          await loadLogs();
-          if (userAllocViewerSelect.value === userId) await refreshUserAllocationsViewer(userId);
-        } catch (err) {
-          setFormStatus(globalStripStatus, err.message, true);
-        } finally {
-          returnSubmitBtn.disabled = false;
-        }
-      });
-    });
-
-    // Submit: Users Page Multi-Allocate
+    // ==========================================
+    // 11. USERS PAGE (OLD UNCHANGED LOGIC)
+    // ==========================================
     userPageTakeForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const rawUser = userTakeUserInput.value.trim();
       if (!rawUser) return setFormStatus(userPageStripStatus, "Please enter a user name.", true);
 
-      if (userTakePartNumber.value.trim() && userTakePartCode.value.trim() && parseInt(userTakeQuantity.value, 10) >= 1) {
-        userTakeQueue.push({
-          partNumber: userTakePartNumber.value.trim(),
-          partCode: userTakePartCode.value.trim(),
-          quantity: parseInt(userTakeQuantity.value, 10)
-        });
-        resetUserPageTakeFormInputs();
-      }
-
-      if (userTakeQueue.length === 0) {
-        return setFormStatus(userPageStripStatus, "Add at least one product to the allocation queue.", true);
-      }
-
       const userObj = await resolveOrCreateGuestUser(rawUser);
       verifyUserPasswordBeforeAction(userObj, "Allocate", async () => {
         userAllocateSubmitBtn.disabled = true;
         try {
-          let successCount = 0;
-          for (const item of userTakeQueue) {
-            await executeMaterialAllocation(userObj.id, userObj.name, item.partNumber, item.partCode, item.quantity);
-            successCount++;
-          }
+          const pNum = userTakePartNumber.value.trim();
+          const pCode = userTakePartCode.value.trim();
+          if (!pNum || !pCode) throw new Error("Please enter both Part Number and Part Code.");
 
-          setFormStatus(userPageStripStatus, `Successfully allocated ${successCount} item(s) to ${userObj.name}.`);
-          userTakeQueue = [];
-          renderQueueChips("user", "allocate");
-          resetUserPageTakeFormInputs();
-          await refreshInventory();
-          await loadLogs();
-          if (userAllocViewerSelect.value === userObj.id) await refreshUserAllocationsViewer(userObj.id);
+          const takeQty = parseInt(userTakeQuantity.value, 10);
+          if (isNaN(takeQty) || takeQty < 1) throw new Error("Please enter a valid quantity starting from 1.");
+
+          const item = await executeMaterialAllocation(userObj.id, userObj.name, pNum, pCode, takeQty);
+          setFormStatus(userPageStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userObj.name}.`);
+          resetUserPageTakeForm();
         } catch (err) {
           setFormStatus(userPageStripStatus, err.message, true);
         } finally {
@@ -3690,72 +3667,55 @@
       });
     });
 
-    // Submit: Users Page Multi-Return
     userPageReturnForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const rawUser = userReturnUserInput.value.trim();
       if (!rawUser) return setFormStatus(userPageStripStatus, "Please enter the user name.", true);
 
-      const pNum = userReturnPartNumber.value.trim();
-      const pCode = userReturnPartCode.value.trim();
-      const qty = parseInt(userReturnQuantity.value, 10);
-
-      if (qty >= 1 && (pNum || pCode || userReturnAllocatedSelect.value)) {
-        let allocItem = null;
-        if (userReturnAllocatedSelect.value) {
-          allocItem = userPageAllocations.find(a => String(a.id) === String(userReturnAllocatedSelect.value));
-        }
-        if (!allocItem && pCode) {
-          allocItem = userPageAllocations.find(a => a.part_code.toLowerCase() === pCode.toLowerCase());
-        }
-        if (!allocItem && pNum) {
-          allocItem = userPageAllocations.find(a => a.part_number.toLowerCase() === pNum.toLowerCase());
-        }
-
-        if (allocItem) {
-          userReturnQueue.push({
-            allocItem: allocItem,
-            partNumber: allocItem.part_number,
-            partCode: allocItem.part_code,
-            quantity: qty,
-            locConfig: {
-              locationType: userReturnLocationType.value,
-              cupboardId: userReturnCupboard.value,
-              cupboardName: userReturnCupboard.selectedOptions[0]?.text,
-              rackId: userReturnRack.value,
-              rackName: userReturnRack.selectedOptions[0]?.text,
-              boxId: userReturnBox.value,
-              boxName: userReturnBox.selectedOptions[0]?.text,
-              workbenchId: userReturnWorkbench.value,
-              workbenchName: userReturnWorkbench.selectedOptions[0]?.text
-            }
-          });
-          resetUserPageReturnFormInputs();
-        }
-      }
-
-      if (userReturnQueue.length === 0) {
-        return setFormStatus(userPageStripStatus, "Add at least one product to the return queue.", true);
-      }
-
       const userObj = await resolveOrCreateGuestUser(rawUser);
       verifyUserPasswordBeforeAction(userObj, "Return", async () => {
         userReturnSubmitBtn.disabled = true;
         try {
-          let successCount = 0;
-          for (const item of userReturnQueue) {
-            await executeMaterialReturn(userObj.id, userObj.name, item.allocItem, item.quantity, item.locConfig);
-            successCount++;
+          const returnQty = parseInt(userReturnQuantity.value, 10);
+          if (isNaN(returnQty) || returnQty < 1) throw new Error("Please enter a valid whole number quantity.");
+
+          const pNum = userReturnPartNumber.value.trim();
+          const pCode = userReturnPartCode.value.trim();
+
+          let allocItem = null;
+          if (userReturnAllocatedSelect.value) {
+            allocItem = userPageAllocations.find(a => String(a.id) === String(userReturnAllocatedSelect.value));
+          }
+          if (!allocItem && pCode) {
+            allocItem = userPageAllocations.find(a => a.part_code.toLowerCase() === pCode.toLowerCase());
+          }
+          if (!allocItem && pNum) {
+            allocItem = userPageAllocations.find(a => a.part_number.toLowerCase() === pNum.toLowerCase());
           }
 
-          await cleanupGuestUserIfDone(userObj.id);
-          setFormStatus(userPageStripStatus, `Marked ${successCount} item(s) returned (Pending Verification).`);
-          userReturnQueue = [];
-          renderQueueChips("user", "return");
-          resetUserPageReturnFormInputs();
-          await onUserReturnInputMatch();
-          await loadLogs();
-          if (userAllocViewerSelect.value === userObj.id) await refreshUserAllocationsViewer(userObj.id);
+          if (!allocItem) {
+            throw new Error(`No allocated material found for user "${userObj.name}" matching ${pCode || pNum || 'selected part'}.`);
+          }
+
+          if (returnQty > parseInt(allocItem.quantity, 10)) {
+            throw new Error(`Cannot return ${returnQty}. Allocated quantity is ${allocItem.quantity}.`);
+          }
+
+          const locConfig = {
+            locationType: userReturnLocationType.value,
+            cupboardId: userReturnCupboard.value,
+            cupboardName: userReturnCupboard.selectedOptions[0]?.text,
+            rackId: userReturnRack.value,
+            rackName: userReturnRack.selectedOptions[0]?.text,
+            boxId: userReturnBox.value,
+            boxName: userReturnBox.selectedOptions[0]?.text,
+            workbenchId: userReturnWorkbench.value,
+            workbenchName: userReturnWorkbench.selectedOptions[0]?.text
+          };
+
+          const locationText = await executeMaterialReturn(userObj.id, userObj.name, allocItem, returnQty, locConfig);
+          setFormStatus(userPageStripStatus, `Marked ${returnQty} units of "${allocItem.part_number}" returned to ${locationText} (Pending Verification).`);
+          resetUserPageReturnForm();
         } catch (err) {
           setFormStatus(userPageStripStatus, err.message, true);
         } finally {
@@ -3764,35 +3724,8 @@
       });
     });
 
-    // Operation mode toggles
-    document.querySelectorAll('input[name="globalOpMode"]').forEach(radio => {
-      radio.addEventListener("change", (e) => {
-        const isAlloc = e.target.value === "allocate";
-        globalTakeForm.style.display = isAlloc ? "contents" : "none";
-        globalReturnForm.style.display = isAlloc ? "none" : "contents";
-        globalStripStatus.textContent = "";
-
-        resetTakeFormInputs();
-        resetReturnFormInputs();
-        renderQueueChips("global", isAlloc ? "allocate" : "return");
-      });
-    });
-
-    document.querySelectorAll('input[name="userPageOpMode"]').forEach(radio => {
-      radio.addEventListener("change", (e) => {
-        const isAlloc = e.target.value === "allocate";
-        userPageTakeForm.style.display = isAlloc ? "contents" : "none";
-        userPageReturnForm.style.display = isAlloc ? "none" : "contents";
-        userPageStripStatus.textContent = "";
-
-        resetUserPageTakeFormInputs();
-        resetUserPageReturnFormInputs();
-        renderQueueChips("user", isAlloc ? "allocate" : "return");
-      });
-    });
-
     // ==========================================
-    // 10. LIFECYCLE AUDIT LOGS (Renamed to Verify)
+    // 12. LIFECYCLE AUDIT LOGS
     // ==========================================
     async function loadLogs() {
       try {
@@ -3878,9 +3811,9 @@
 
         let actionHtml = '';
         if (isPending) {
-          actionHtml = `<button class="verify-btn" type="button" data-log-id="${log.id}">Verify</button>`;
+          actionHtml = `<button class="verify-btn" type="button" data-log-id="${log.id}">Verify &amp; Sign Off</button>`;
         } else if (isReturn) {
-          actionHtml = `<span style="font-size:10px;color:#15803d;font-weight:700;">✓ ${log.verified_by || 'Verified'}</span>`;
+          actionHtml = `<span style="font-size:10.5px;color:#15803d;font-weight:700;">✓ ${log.verified_by || 'Verified'}</span>`;
         } else {
           actionHtml = `<span style="font-size:10px;color:var(--muted);">-</span>`;
         }
@@ -3891,8 +3824,8 @@
           <span><strong>${log.part_number || '-'}</strong></span>
           <span><strong>${log.quantity || 1}</strong></span>
           <span><span class="log-badge ${badgeClass}">${displayStatus}</span></span>
-          <span style="font-size:9.5px;color:#395045;">${allocStr}</span>
-          <span style="font-size:9.5px;color:#395045;">${returnStr}</span>
+          <span style="font-size:10px;color:#395045;">${allocStr}</span>
+          <span style="font-size:10px;color:#395045;">${returnStr}</span>
           <span>${actionHtml}</span>
         `;
 
@@ -3919,7 +3852,7 @@
     });
 
     // ==========================================
-    // 11. EXCEL EXPORTS
+    // 13. EXCEL EXPORTS
     // ==========================================
     exportButton.addEventListener("click", () => {
       const activeProducts = products.filter(p => parseInt(p.quantity, 10) >= 1);
@@ -3976,7 +3909,7 @@
     });
 
     // ==========================================
-    // 12. MANUAL ADD & REMOVE
+    // 14. MANUAL ADD & REMOVE
     // ==========================================
     materialForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -4093,7 +4026,7 @@
     });
 
     // ==========================================
-    // 13. REAL-TIME SYNC & RENDERING
+    // 15. REAL-TIME SYNC & RENDERING
     // ==========================================
     async function refreshInventory() {
       try {
@@ -4216,7 +4149,7 @@
     }
 
     // ==========================================
-    // 14. NAVIGATION & INITIALIZATION
+    // 16. NAVIGATION & INITIALIZATION
     // ==========================================
     async function navigateTo(targetPageId) {
       activePageId = targetPageId;
