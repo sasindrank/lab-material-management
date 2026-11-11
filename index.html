@@ -37,6 +37,7 @@
       margin: 0;
       min-height: 100vh;
       height: 100vh;
+      width: 100vw;
       overflow: hidden;
       color: var(--ink);
       font: 14px var(--sans);
@@ -58,14 +59,14 @@
     }
     .app-layout[hidden] { display: none !important; }
 
-    /* Shell occupies full space so sidebar slides directly on top without reflow */
+    /* Dynamically fills the entire monitor screen without artificial width limits */
     .shell {
       flex: 1;
       width: 100%;
-      max-width: min(96vw, 1750px);
+      max-width: 100%;
       height: 100vh;
-      margin: 0 auto;
-      padding: 0 1.5vw 10px;
+      margin: 0;
+      padding: 0 24px 10px;
       background: rgba(248,250,248,.96);
       display: flex;
       flex-direction: column;
@@ -100,8 +101,8 @@
       position: absolute;
       top: 0;
       bottom: 0;
-      left: -18px;
-      width: 18px;
+      left: -20px;
+      width: 20px;
       background: transparent;
     }
 
@@ -1368,7 +1369,7 @@
   <div class="modal-overlay" id="adminChangePwdModal" hidden>
     <div class="modal-card">
       <h3 style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Change Admin Master Password</h3>
-      <p style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Update the system administration password (Default: "festo").</p>
+      <p style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Update the system administration password (Default: "festo"). Synchronizes to all devices.</p>
       <form id="adminChangePwdForm">
         <label class="field" style="margin-bottom: 8px;">
           Current Admin Password
@@ -1458,6 +1459,92 @@
       });
     }
 
+    // ==========================================
+    // 2. CENTRALIZED CROSS-LAPTOP ADMIN PASSWORD SYNC
+    // ==========================================
+    const MASTER_ADMIN_EMAIL = "admin_system_master@lab.local";
+    let currentAdminPassword = localStorage.getItem("lab_admin_master_pwd") || "festo";
+    let currentAdminPasswordHash = null;
+
+    async function syncAdminPasswordFromDatabase() {
+      try {
+        // Attempt 1: Check users table for central system admin record
+        const { data: userAdminRec, error } = await supabaseClient
+          .from('users')
+          .select('password_hash, name')
+          .eq('email', MASTER_ADMIN_EMAIL)
+          .maybeSingle();
+
+        if (userAdminRec && userAdminRec.password_hash) {
+          currentAdminPasswordHash = userAdminRec.password_hash;
+          return;
+        }
+
+        // If record doesn't exist yet, initialize it with default "festo"
+        if (!userAdminRec) {
+          const defaultHash = await hashPassword("festo");
+          currentAdminPasswordHash = defaultHash;
+          await supabaseClient.from('users').insert([{
+            name: "Master Admin System",
+            email: MASTER_ADMIN_EMAIL,
+            password_hash: defaultHash,
+            is_verifier: false,
+            is_verified: true
+          }]);
+        }
+      } catch (err) {
+        console.warn("Could not fetch remote admin credentials, falling back to local cache:", err);
+      }
+    }
+
+    async function verifyEnteredAdminPassword(entered) {
+      if (!entered) return false;
+      const hashedEntered = await hashPassword(entered);
+
+      if (currentAdminPasswordHash && hashedEntered === currentAdminPasswordHash) {
+        return true;
+      }
+      // Immediate local match fallback
+      if (entered === currentAdminPassword || hashedEntered === (await hashPassword(currentAdminPassword))) {
+        return true;
+      }
+      // Re-fetch in real time in case password was changed on another laptop a moment ago
+      await syncAdminPasswordFromDatabase();
+      if (currentAdminPasswordHash && hashedEntered === currentAdminPasswordHash) {
+        return true;
+      }
+      return false;
+    }
+
+    async function updateRemoteAdminPassword(newPlainPassword) {
+      const newHash = await hashPassword(newPlainPassword);
+      currentAdminPassword = newPlainPassword;
+      currentAdminPasswordHash = newHash;
+      localStorage.setItem("lab_admin_master_pwd", newPlainPassword);
+
+      // Save to Supabase to immediately sync across all laptops
+      const { data: existing } = await supabaseClient
+        .from('users')
+        .select('id')
+        .eq('email', MASTER_ADMIN_EMAIL)
+        .maybeSingle();
+
+      if (existing) {
+        await supabaseClient.from('users').update({
+          password_hash: newHash,
+          updated_at: new Date().toISOString()
+        }).eq('id', existing.id);
+      } else {
+        await supabaseClient.from('users').insert([{
+          name: "Master Admin System",
+          email: MASTER_ADMIN_EMAIL,
+          password_hash: newHash,
+          is_verifier: false,
+          is_verified: true
+        }]);
+      }
+    }
+
     // Global State
     let products = [];
     let users = [];
@@ -1534,9 +1621,7 @@
     const resetConfirmBtn = document.getElementById("resetConfirmBtn");
     const backToResetReqBtn = document.getElementById("backToResetReqBtn");
 
-    let currentAdminPassword = localStorage.getItem("lab_admin_master_pwd") || "festo";
     const TIMEOUT_SECONDS = 30;
-
     let isAuthenticated = false;
     let pendingTargetPage = null;
     let activePageId = "searchPage";
@@ -1561,9 +1646,9 @@
     const adminChangePwdStatus = document.getElementById("adminChangePwdStatus");
     const cancelAdminChangePwdBtn = document.getElementById("cancelAdminChangePwdBtn");
 
-    // Smooth auto-hide taskbar hover tracker at the right edge
+    // Dynamic right-edge hover detector for the auto-hiding taskbar
     document.addEventListener("mousemove", (e) => {
-      if (window.innerWidth - e.clientX <= 14) {
+      if (window.innerWidth - e.clientX <= 16) {
         rightSidebar.classList.add("revealed");
       } else if (e.clientX < window.innerWidth - 65) {
         rightSidebar.classList.remove("revealed");
@@ -1641,7 +1726,7 @@
       authModal.hidden = true;
       pendingTargetPage = null;
 
-      // Hide admin elements and sidebar tabs
+      // Re-hide admin elements and sidebar tabs
       document.querySelectorAll(".admin-tab, .admin-elem").forEach(el => {
         el.hidden = true;
       });
@@ -1681,9 +1766,12 @@
     window.addEventListener("keydown", handleScopedActivity, { passive: true });
     window.addEventListener("mousedown", handleScopedActivity, { passive: true });
 
-    authForm.addEventListener("submit", (e) => {
+    authForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (authPasswordInput.value.trim() === currentAdminPassword) {
+      const entered = authPasswordInput.value.trim();
+      const isValid = await verifyEnteredAdminPassword(entered);
+
+      if (isValid) {
         loginSuccess();
       } else {
         authError.textContent = "Incorrect password. Please try again.";
@@ -1709,13 +1797,14 @@
       adminChangePwdModal.hidden = true;
     });
 
-    adminChangePwdForm.addEventListener("submit", (e) => {
+    adminChangePwdForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const currentInput = adminCurrentPwdInput.value.trim();
       const newPwd = adminNewPwdInput.value.trim();
       const confirmPwd = adminConfirmPwdInput.value.trim();
 
-      if (currentInput !== currentAdminPassword) {
+      const isCurrentValid = await verifyEnteredAdminPassword(currentInput);
+      if (!isCurrentValid) {
         adminChangePwdStatus.textContent = "Current admin password is incorrect.";
         adminCurrentPwdInput.select();
         return;
@@ -1730,10 +1819,9 @@
         return;
       }
 
-      currentAdminPassword = newPwd;
-      localStorage.setItem("lab_admin_master_pwd", newPwd);
+      await updateRemoteAdminPassword(newPwd);
       adminChangePwdModal.hidden = true;
-      alert("Admin master password changed successfully!");
+      alert("Admin master password changed and synchronized across all laptops successfully!");
     });
 
     const labTitleText = document.getElementById("labTitleText");
@@ -1912,7 +2000,285 @@
     }
 
     // ==========================================
-    // 2. USER AUTHENTICATION & ACTION CONFIRMATION MODAL
+    // 3. USER MANAGEMENT & GUEST RESOLUTION
+    // ==========================================
+    function isSpecialUser(email) {
+      if (!email) return false;
+      const em = email.toLowerCase().trim();
+      return em.endsWith('@guest.lab') || em === MASTER_ADMIN_EMAIL.toLowerCase();
+    }
+
+    async function loadUsers() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('users')
+          .select('*')
+          .order('name', { ascending: true });
+
+        if (error) throw error;
+        users = data || [];
+        renderUsers();
+        populateUserDropdowns();
+        populateDatalists();
+      } catch (error) {
+        setFormStatus(userStatus, error.message, true);
+      }
+    }
+
+    async function toggleUserVerifierStatus(userId, isVerifier) {
+      try {
+        const { error } = await supabaseClient
+          .from('users')
+          .update({ is_verifier: isVerifier })
+          .eq('id', userId);
+
+        if (error) throw error;
+        const target = users.find(u => String(u.id) === String(userId));
+        if (target) target.is_verifier = isVerifier;
+        setFormStatus(userStatus, "Verifier status updated.");
+      } catch (err) {
+        setFormStatus(userStatus, "Error updating verifier: " + err.message, true);
+      }
+    }
+
+    function renderUsers() {
+      usersList.replaceChildren();
+
+      // Filter out internal system and guest users from the regular user table
+      const regularUsers = users.filter(u => !isSpecialUser(u.email));
+
+      if (!regularUsers.length) {
+        emptyUsers.hidden = false;
+        return;
+      }
+
+      emptyUsers.hidden = true;
+
+      for (const user of regularUsers) {
+        const row = document.createElement("article");
+        row.className = "user-row";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "user-name";
+        nameSpan.textContent = user.name;
+
+        const emailSpan = document.createElement("span");
+        emailSpan.className = "user-email";
+        emailSpan.textContent = user.email;
+
+        const verifiedCell = document.createElement("div");
+        verifiedCell.style.textAlign = "center";
+        const isVer = user.is_verified !== false;
+        verifiedCell.innerHTML = isVer 
+          ? `<span style="color:#16a34a;font-weight:bold;">✓</span>`
+          : `<span style="color:#d9633b;font-size:9.5px;">Pending</span>`;
+
+        const verifierCell = document.createElement("div");
+        verifierCell.style.textAlign = "center";
+        const vCheckbox = document.createElement("input");
+        vCheckbox.type = "checkbox";
+        vCheckbox.checked = !!user.is_verifier;
+        vCheckbox.title = "Authorize user to verify physical returns";
+        vCheckbox.addEventListener("change", (e) => {
+          toggleUserVerifierStatus(user.id, e.target.checked);
+        });
+        verifierCell.append(vCheckbox);
+
+        const actionDiv = document.createElement("div");
+        actionDiv.style.textAlign = "right";
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "location-delete";
+        delBtn.textContent = "Delete";
+        delBtn.addEventListener("click", () => deleteUser(user.id, user.name));
+
+        actionDiv.append(delBtn);
+        row.append(nameSpan, emailSpan, verifiedCell, verifierCell, actionDiv);
+        usersList.append(row);
+      }
+    }
+
+    function populateUserDropdowns() {
+      const activeEligibleUsers = users.filter(u => !isSpecialUser(u.email) && u.is_verified !== false);
+      selectOptions(takeUserSelect, activeEligibleUsers, "Select User", u => u.id, u => u.name);
+      selectOptions(returnUserSelect, activeEligibleUsers, "Select User", u => u.id, u => u.name);
+      selectOptions(userAllocViewerSelect, users.filter(u => u.email !== MASTER_ADMIN_EMAIL), "Choose User to View Allocations", u => u.id, u => u.name);
+    }
+
+    function populateDatalists() {
+      partNumberSuggestionsList.replaceChildren();
+      partCodeSuggestionsList.replaceChildren();
+      const uniquePN = [...new Set(products.map(p => p.part_number))];
+      const uniquePC = [...new Set(products.map(p => p.part_code))];
+      uniquePN.forEach(pn => {
+        const opt = document.createElement("option");
+        opt.value = pn;
+        partNumberSuggestionsList.append(opt);
+      });
+      uniquePC.forEach(pc => {
+        const opt = document.createElement("option");
+        opt.value = pc;
+        partCodeSuggestionsList.append(opt);
+      });
+    }
+
+    async function resolveOrCreateGuestUser(inputName) {
+      if (!inputName) return null;
+      const clean = inputName.trim();
+      const cleanLower = clean.toLowerCase();
+
+      let matched = users.find(u => 
+        u.name.toLowerCase() === cleanLower || 
+        u.email.toLowerCase() === cleanLower ||
+        String(u.id) === clean
+      );
+
+      if (matched) return matched;
+
+      try {
+        const guestUid = Math.random().toString(36).substring(2, 7);
+        const sanitized = cleanLower.replace(/[^a-z0-9]/g, '') || 'guest';
+        const guestEmail = `${sanitized}.${guestUid}@guest.lab`;
+
+        const { data: newUser, error } = await supabaseClient
+          .from('users')
+          .insert([{ name: clean, email: guestEmail, is_verifier: false, is_verified: true }])
+          .select()
+          .single();
+
+        if (!error && newUser) {
+          users.push(newUser);
+          populateUserDropdowns();
+          return newUser;
+        }
+      } catch (err) {
+        console.warn("Could not create dynamic guest user:", err);
+      }
+
+      return { id: null, name: clean, email: "" };
+    }
+
+    async function cleanupGuestUserIfDone(userId) {
+      if (!userId) return;
+      const userObj = users.find(u => String(u.id) === String(userId));
+      if (!userObj || !userObj.email?.endsWith('@guest.lab')) return;
+
+      try {
+        const { data: remainingAllocs, error } = await supabaseClient
+          .from('material_allocations')
+          .select('id')
+          .eq('user_id', userId)
+          .gt('quantity', 0);
+
+        if (!error && (!remainingAllocs || remainingAllocs.length === 0)) {
+          await supabaseClient.from('users').delete().eq('id', userId);
+          users = users.filter(u => String(u.id) !== String(userId));
+          populateUserDropdowns();
+          renderUsers();
+        }
+      } catch (err) {
+        console.warn("Guest user cleanup error:", err);
+      }
+    }
+
+    async function refreshUserAllocationsViewer(uId) {
+      if (!uId) {
+        userAllocViewerResults.innerHTML = `<p style="color:#718079;font-size:11px;padding: 16px 0;">Select a user from the dropdown above to view checkout records.</p>`;
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('material_allocations')
+          .select('*')
+          .eq('user_id', uId)
+          .gt('quantity', 0)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        const allocs = data || [];
+
+        userAllocViewerResults.replaceChildren();
+        if (!allocs.length) {
+          userAllocViewerResults.innerHTML = `<p style="font-size:11px;color:#718079;padding: 16px 0;">This user currently has 0 checked-out materials.</p>`;
+          return;
+        }
+
+        allocs.forEach(a => {
+          const locText = a.location_text || allocationOriginMap.get(a.id)?.location_text || "Storage";
+          const timeStamp = a.created_at || a.updated_at;
+          const dateStr = timeStamp ? new Date(timeStamp).toLocaleString() : "-";
+
+          const row = document.createElement("article");
+          row.className = "user-alloc-row";
+          row.innerHTML = `
+            <span><strong>${a.part_number}</strong></span>
+            <span class="part-code">${a.part_code}</span>
+            <span><strong>${a.quantity}</strong></span>
+            <span class="location-cell">${locText}</span>
+            <span style="font-size:10px;color:var(--muted);">${dateStr}</span>
+          `;
+          userAllocViewerResults.append(row);
+        });
+      } catch (err) {
+        userAllocViewerResults.innerHTML = `<p style="color:#b91c1c;font-size:11px;padding: 16px 0;">Error loading user allocations: ${err.message}</p>`;
+      }
+    }
+
+    userAllocViewerSelect.addEventListener("change", (e) => {
+      refreshUserAllocationsViewer(e.target.value);
+    });
+
+    userForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const name = userForm.userName.value.trim();
+      const email = userForm.email.value.trim().toLowerCase();
+      const initialPwd = userForm.initialPassword.value;
+      const isVerifier = userFormIsVerifier.checked;
+
+      try {
+        const pwdHash = await hashPassword(initialPwd);
+        const { error } = await supabaseClient
+          .from('users')
+          .insert([{ 
+            name, 
+            email, 
+            password_hash: pwdHash, 
+            is_verifier: isVerifier, 
+            is_verified: true 
+          }]);
+
+        if (error) throw error;
+
+        userForm.reset();
+        setFormStatus(userStatus, `User "${name}" manually created and verified.`);
+        await loadUsers();
+      } catch (error) {
+        setFormStatus(userStatus, error.message, true);
+      }
+    });
+
+    async function deleteUser(id, name) {
+      if (!window.confirm(`Delete user "${name}"?`)) return;
+
+      try {
+        const { error } = await supabaseClient
+          .from('users')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+
+        setFormStatus(userStatus, `User "${name}" removed.`);
+        await loadUsers();
+      } catch (error) {
+        setFormStatus(userStatus, error.message, true);
+      }
+    }
+
+    // ==========================================
+    // 4. ACTION AUTHENTICATION MODAL
     // ==========================================
     function verifyUserPasswordBeforeAction(userObj, actionType, onVerifiedCallback) {
       if (!userObj || !userObj.password_hash) {
@@ -1950,7 +2316,7 @@
     });
 
     // ==========================================
-    // 3. SELF-REGISTRATION WITH REAL EMAIL OTP
+    // 5. REGISTRATION & RESET WITH EMAIL OTP
     // ==========================================
     let pendingRegistration = null;
 
@@ -2090,9 +2456,6 @@
       }
     });
 
-    // ==========================================
-    // 4. USER PASSWORD RESET SELF-SERVICE
-    // ==========================================
     let pendingResetEmail = null;
 
     openResetModalBtn.addEventListener("click", () => {
@@ -2216,7 +2579,7 @@
     });
 
     // ==========================================
-    // 5. STORAGE & INSPECTOR
+    // 6. STORAGE & INSPECTOR
     // ==========================================
     async function loadStorage() {
       try {
@@ -2416,7 +2779,6 @@
       }
     }
 
-    // ACCURATE CONDITIONAL DISPLAY FOR ADD FORM
     function renderMaterialLocationOptions() {
       const locType = locationType.value;
       const cupboard = storageTree.find((item) => String(item.id) === String(materialCupboard.value));
@@ -2446,7 +2808,6 @@
       materialWorkbench.disabled = !isWorkbench || !storageWorkbenches.length;
     }
 
-    // ACCURATE CONDITIONAL DISPLAY FOR REMOVE FORM
     function renderRemoveLocationOptions() {
       const locType = removeLocationType.value;
       const cupboard = storageTree.find((item) => String(item.id) === String(removeCupboard.value));
@@ -2622,282 +2983,6 @@
         setFormStatus(storageStatus, error.message, true);
       }
     });
-
-    // ==========================================
-    // 6. USER MANAGEMENT
-    // ==========================================
-    function isGuestEmail(email) {
-      if (!email) return false;
-      return email.toLowerCase().endsWith('@guest.lab');
-    }
-
-    async function loadUsers() {
-      try {
-        const { data, error } = await supabaseClient
-          .from('users')
-          .select('*')
-          .order('name', { ascending: true });
-
-        if (error) throw error;
-        users = data || [];
-        renderUsers();
-        populateUserDropdowns();
-        populateDatalists();
-      } catch (error) {
-        setFormStatus(userStatus, error.message, true);
-      }
-    }
-
-    async function toggleUserVerifierStatus(userId, isVerifier) {
-      try {
-        const { error } = await supabaseClient
-          .from('users')
-          .update({ is_verifier: isVerifier })
-          .eq('id', userId);
-
-        if (error) throw error;
-        const target = users.find(u => String(u.id) === String(userId));
-        if (target) target.is_verifier = isVerifier;
-        setFormStatus(userStatus, "Verifier status updated.");
-      } catch (err) {
-        setFormStatus(userStatus, "Error updating verifier: " + err.message, true);
-      }
-    }
-
-    function renderUsers() {
-      usersList.replaceChildren();
-
-      const regularUsers = users.filter(u => !isGuestEmail(u.email));
-
-      if (!regularUsers.length) {
-        emptyUsers.hidden = false;
-        return;
-      }
-
-      emptyUsers.hidden = true;
-
-      for (const user of regularUsers) {
-        const row = document.createElement("article");
-        row.className = "user-row";
-
-        const nameSpan = document.createElement("span");
-        nameSpan.className = "user-name";
-        nameSpan.textContent = user.name;
-
-        const emailSpan = document.createElement("span");
-        emailSpan.className = "user-email";
-        emailSpan.textContent = user.email;
-
-        const verifiedCell = document.createElement("div");
-        verifiedCell.style.textAlign = "center";
-        const isVer = user.is_verified !== false;
-        verifiedCell.innerHTML = isVer 
-          ? `<span style="color:#16a34a;font-weight:bold;">✓</span>`
-          : `<span style="color:#d9633b;font-size:9.5px;">Pending</span>`;
-
-        const verifierCell = document.createElement("div");
-        verifierCell.style.textAlign = "center";
-        const vCheckbox = document.createElement("input");
-        vCheckbox.type = "checkbox";
-        vCheckbox.checked = !!user.is_verifier;
-        vCheckbox.title = "Authorize user to verify physical returns";
-        vCheckbox.addEventListener("change", (e) => {
-          toggleUserVerifierStatus(user.id, e.target.checked);
-        });
-        verifierCell.append(vCheckbox);
-
-        const actionDiv = document.createElement("div");
-        actionDiv.style.textAlign = "right";
-
-        const delBtn = document.createElement("button");
-        delBtn.type = "button";
-        delBtn.className = "location-delete";
-        delBtn.textContent = "Delete";
-        delBtn.addEventListener("click", () => deleteUser(user.id, user.name));
-
-        actionDiv.append(delBtn);
-        row.append(nameSpan, emailSpan, verifiedCell, verifierCell, actionDiv);
-        usersList.append(row);
-      }
-    }
-
-    function populateUserDropdowns() {
-      const activeEligibleUsers = users.filter(u => !isGuestEmail(u.email) && u.is_verified !== false);
-      selectOptions(takeUserSelect, activeEligibleUsers, "Select User", u => u.id, u => u.name);
-      selectOptions(returnUserSelect, activeEligibleUsers, "Select User", u => u.id, u => u.name);
-      selectOptions(userAllocViewerSelect, users, "Choose User to View Allocations", u => u.id, u => u.name);
-    }
-
-    function populateDatalists() {
-      partNumberSuggestionsList.replaceChildren();
-      partCodeSuggestionsList.replaceChildren();
-      const uniquePN = [...new Set(products.map(p => p.part_number))];
-      const uniquePC = [...new Set(products.map(p => p.part_code))];
-      uniquePN.forEach(pn => {
-        const opt = document.createElement("option");
-        opt.value = pn;
-        partNumberSuggestionsList.append(opt);
-      });
-      uniquePC.forEach(pc => {
-        const opt = document.createElement("option");
-        opt.value = pc;
-        partCodeSuggestionsList.append(opt);
-      });
-    }
-
-    async function resolveOrCreateGuestUser(inputName) {
-      if (!inputName) return null;
-      const clean = inputName.trim();
-      const cleanLower = clean.toLowerCase();
-
-      let matched = users.find(u => 
-        u.name.toLowerCase() === cleanLower || 
-        u.email.toLowerCase() === cleanLower ||
-        String(u.id) === clean
-      );
-
-      if (matched) return matched;
-
-      try {
-        const guestUid = Math.random().toString(36).substring(2, 7);
-        const sanitized = cleanLower.replace(/[^a-z0-9]/g, '') || 'guest';
-        const guestEmail = `${sanitized}.${guestUid}@guest.lab`;
-
-        const { data: newUser, error } = await supabaseClient
-          .from('users')
-          .insert([{ name: clean, email: guestEmail, is_verifier: false, is_verified: true }])
-          .select()
-          .single();
-
-        if (!error && newUser) {
-          users.push(newUser);
-          populateUserDropdowns();
-          return newUser;
-        }
-      } catch (err) {
-        console.warn("Could not create dynamic guest user:", err);
-      }
-
-      return { id: null, name: clean, email: "" };
-    }
-
-    async function cleanupGuestUserIfDone(userId) {
-      if (!userId) return;
-      const userObj = users.find(u => String(u.id) === String(userId));
-      if (!userObj || !isGuestEmail(userObj.email)) return;
-
-      try {
-        const { data: remainingAllocs, error } = await supabaseClient
-          .from('material_allocations')
-          .select('id')
-          .eq('user_id', userId)
-          .gt('quantity', 0);
-
-        if (!error && (!remainingAllocs || remainingAllocs.length === 0)) {
-          await supabaseClient.from('users').delete().eq('id', userId);
-          users = users.filter(u => String(u.id) !== String(userId));
-          populateUserDropdowns();
-          renderUsers();
-        }
-      } catch (err) {
-        console.warn("Guest user cleanup error:", err);
-      }
-    }
-
-    async function refreshUserAllocationsViewer(uId) {
-      if (!uId) {
-        userAllocViewerResults.innerHTML = `<p style="color:#718079;font-size:11px;padding: 16px 0;">Select a user from the dropdown above to view checkout records.</p>`;
-        return;
-      }
-
-      try {
-        const { data, error } = await supabaseClient
-          .from('material_allocations')
-          .select('*')
-          .eq('user_id', uId)
-          .gt('quantity', 0)
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        const allocs = data || [];
-
-        userAllocViewerResults.replaceChildren();
-        if (!allocs.length) {
-          userAllocViewerResults.innerHTML = `<p style="font-size:11px;color:#718079;padding: 16px 0;">This user currently has 0 checked-out materials.</p>`;
-          return;
-        }
-
-        allocs.forEach(a => {
-          const locText = a.location_text || allocationOriginMap.get(a.id)?.location_text || "Storage";
-          const timeStamp = a.created_at || a.updated_at;
-          const dateStr = timeStamp ? new Date(timeStamp).toLocaleString() : "-";
-
-          const row = document.createElement("article");
-          row.className = "user-alloc-row";
-          row.innerHTML = `
-            <span><strong>${a.part_number}</strong></span>
-            <span class="part-code">${a.part_code}</span>
-            <span><strong>${a.quantity}</strong></span>
-            <span class="location-cell">${locText}</span>
-            <span style="font-size:10px;color:var(--muted);">${dateStr}</span>
-          `;
-          userAllocViewerResults.append(row);
-        });
-      } catch (err) {
-        userAllocViewerResults.innerHTML = `<p style="color:#b91c1c;font-size:11px;padding: 16px 0;">Error loading user allocations: ${err.message}</p>`;
-      }
-    }
-
-    userAllocViewerSelect.addEventListener("change", (e) => {
-      refreshUserAllocationsViewer(e.target.value);
-    });
-
-    userForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const name = userForm.userName.value.trim();
-      const email = userForm.email.value.trim().toLowerCase();
-      const initialPwd = userForm.initialPassword.value;
-      const isVerifier = userFormIsVerifier.checked;
-
-      try {
-        const pwdHash = await hashPassword(initialPwd);
-        const { error } = await supabaseClient
-          .from('users')
-          .insert([{ 
-            name, 
-            email, 
-            password_hash: pwdHash, 
-            is_verifier: isVerifier, 
-            is_verified: true 
-          }]);
-
-        if (error) throw error;
-
-        userForm.reset();
-        setFormStatus(userStatus, `User "${name}" manually created and verified.`);
-        await loadUsers();
-      } catch (error) {
-        setFormStatus(userStatus, error.message, true);
-      }
-    });
-
-    async function deleteUser(id, name) {
-      if (!window.confirm(`Delete user "${name}"?`)) return;
-
-      try {
-        const { error } = await supabaseClient
-          .from('users')
-          .delete()
-          .eq('id', id);
-
-        if (error) throw error;
-
-        setFormStatus(userStatus, `User "${name}" removed.`);
-        await loadUsers();
-      } catch (error) {
-        setFormStatus(userStatus, error.message, true);
-      }
-    }
 
     // ==========================================
     // 7. ALLOCATION FETCH & SELECTION
@@ -3571,8 +3656,8 @@
       pendingVerificationLogId = logId;
       verifierModalError.textContent = "";
 
-      const verifierUsers = users.filter(u => !isGuestEmail(u.email) && u.is_verifier === true);
-      const candidateList = verifierUsers.length ? verifierUsers : users.filter(u => !isGuestEmail(u.email));
+      const verifierUsers = users.filter(u => !isSpecialUser(u.email) && u.is_verifier === true);
+      const candidateList = verifierUsers.length ? verifierUsers : users.filter(u => !isSpecialUser(u.email));
 
       modalVerifierSelect.replaceChildren(new Option("Select Verifying Person", ""));
       candidateList.forEach(u => {
@@ -4270,9 +4355,13 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'workbenches' }, () => { loadStorage(); })
         .subscribe();
 
+      // Real-time synchronization of users & master admin password changes across all laptops
       supabaseClient
         .channel('public:users')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, () => { loadUsers(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, async () => {
+          await syncAdminPasswordFromDatabase();
+          await loadUsers();
+        })
         .subscribe();
 
       supabaseClient
@@ -4420,6 +4509,7 @@
         await checkServerConnection();
 
         await Promise.all([
+          syncAdminPasswordFromDatabase(),
           loadStorage(),
           loadUsers(),
           loadLogs(),
