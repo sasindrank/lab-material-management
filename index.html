@@ -73,7 +73,7 @@
       min-width: 0;
     }
 
-    /* Fixed Auto-Hiding Taskbar on the Right Edge */
+    /* Fixed Auto-Hiding Taskbar Overlay on the Right (hidden completely when logged off) */
     .right-sidebar {
       position: fixed;
       right: 0;
@@ -93,8 +93,8 @@
       transform: translateX(100%);
       transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     }
+    .right-sidebar[hidden] { display: none !important; }
 
-    /* Invisible hover edge strip */
     .right-sidebar::before {
       content: "";
       position: absolute;
@@ -105,7 +105,6 @@
       background: transparent;
     }
 
-    /* Slides in purely on hover or dynamic revealed state */
     .right-sidebar:hover,
     .right-sidebar.revealed {
       transform: translateX(0);
@@ -685,7 +684,7 @@
     </div>
   </div>
 
-  <!-- Main Application Layout with Floating Auto-Hide Right Sidebar -->
+  <!-- Main Application Layout -->
   <div class="app-layout" id="appLayout" hidden>
     <!-- Main Content Shell -->
     <main class="shell" id="appShell">
@@ -698,7 +697,6 @@
           <div class="user-auth-links">
             <button type="button" class="auth-nav-btn" id="openRegisterModalBtn">Register</button>
             <button type="button" class="auth-nav-btn" id="openResetModalBtn">Forgot Password?</button>
-            <!-- Change Admin Password button is revealed once admin is authenticated -->
             <button type="button" class="auth-nav-btn admin-elem" id="openAdminChangePwdBtn" title="Change master admin password" hidden>Change Admin Password</button>
           </div>
 
@@ -1200,8 +1198,8 @@
       </section>
     </main>
 
-    <!-- Auto-Hiding Taskbar Overlay on the Right (Pure Icons) -->
-    <aside class="right-sidebar" id="rightSidebar" aria-label="Quick Navigation">
+    <!-- Auto-Hiding Taskbar Overlay on Right (Removed completely when logged off) -->
+    <aside class="right-sidebar" id="rightSidebar" aria-label="Quick Navigation" hidden>
       <!-- Search Page Icon -->
       <button class="icon-nav-btn page-tab active" type="button" data-page="searchPage" title="Search Catalog" aria-label="Search Catalog">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -1453,61 +1451,28 @@
     }
 
     // ==========================================
-    // 2. CENTRALIZED CROSS-USER ADMIN PASSWORD SYNC
+    // 2. CENTRALIZED SUPABASE ADMIN PASSWORD SYNC
     // ==========================================
-    const MASTER_ADMIN_EMAIL = "admin_system_master@lab.local";
     let currentAdminPasswordHash = null;
 
     async function syncAdminPasswordFromDatabase() {
       try {
-        // First priority: check system_config table for master admin key
-        const { data: configData, error: configErr } = await supabaseClient
-          .from('system_config')
-          .select('config_val')
-          .eq('config_key', 'admin_password_hash')
+        const { data, error } = await supabaseClient
+          .from('system_settings')
+          .select('value')
+          .eq('key', 'admin_password_hash')
           .maybeSingle();
 
-        if (!configErr && configData && configData.config_val) {
-          currentAdminPasswordHash = configData.config_val;
+        if (!error && data && data.value) {
+          currentAdminPasswordHash = data.value;
           return;
         }
 
-        // Second priority: check users table for centralized master admin user record
-        const { data: userAdminRec, error: userErr } = await supabaseClient
-          .from('users')
-          .select('password_hash, name')
-          .eq('email', MASTER_ADMIN_EMAIL)
-          .maybeSingle();
-
-        if (!userErr && userAdminRec && userAdminRec.password_hash) {
-          currentAdminPasswordHash = userAdminRec.password_hash;
-          return;
-        }
-
-        // Initialize default password "festo" if no prior record exists
+        // Fallback default: sha256 of "festo"
         const defaultHash = await hashPassword("festo");
         currentAdminPasswordHash = defaultHash;
-
-        try {
-          await supabaseClient.from('system_config').upsert({
-            config_key: 'admin_password_hash',
-            config_val: defaultHash,
-            updated_at: new Date().toISOString()
-          });
-        } catch (_) {}
-
-        try {
-          await supabaseClient.from('users').upsert({
-            name: "Master Admin System",
-            email: MASTER_ADMIN_EMAIL,
-            password_hash: defaultHash,
-            is_verifier: false,
-            is_verified: true
-          }, { onConflict: 'email' });
-        } catch (_) {}
-
       } catch (err) {
-        console.warn("Could not fetch remote admin credentials from DB:", err);
+        console.warn("Could not query system_settings:", err);
       }
     }
 
@@ -1519,60 +1484,31 @@
         return true;
       }
 
-      // Re-fetch in real time in case password was changed by another user
+      // Re-fetch in real time in case password was changed moments ago
       await syncAdminPasswordFromDatabase();
       if (currentAdminPasswordHash && hashedEntered === currentAdminPasswordHash) {
         return true;
       }
 
-      // Default fallback
+      // Default fallback match
       const defaultHash = await hashPassword("festo");
-      if (hashedEntered === defaultHash && !currentAdminPasswordHash) {
-        return true;
-      }
-
-      return false;
+      return hashedEntered === defaultHash;
     }
 
     async function updateRemoteAdminPassword(newPlainPassword) {
       const newHash = await hashPassword(newPlainPassword);
       currentAdminPasswordHash = newHash;
 
-      // Update system_config table for global visibility
-      try {
-        await supabaseClient.from('system_config').upsert({
-          config_key: 'admin_password_hash',
-          config_val: newHash,
+      const { error } = await supabaseClient
+        .from('system_settings')
+        .upsert({
+          key: 'admin_password_hash',
+          value: newHash,
           updated_at: new Date().toISOString()
         });
-      } catch (err) {
-        console.warn("Could not write to system_config:", err);
-      }
 
-      // Also sync to master user record in users table
-      try {
-        const { data: existing } = await supabaseClient
-          .from('users')
-          .select('id')
-          .eq('email', MASTER_ADMIN_EMAIL)
-          .maybeSingle();
-
-        if (existing) {
-          await supabaseClient.from('users').update({
-            password_hash: newHash,
-            updated_at: new Date().toISOString()
-          }).eq('id', existing.id);
-        } else {
-          await supabaseClient.from('users').insert([{
-            name: "Master Admin System",
-            email: MASTER_ADMIN_EMAIL,
-            password_hash: newHash,
-            is_verifier: false,
-            is_verified: true
-          }]);
-        }
-      } catch (err) {
-        console.warn("Could not write to users table:", err);
+      if (error) {
+        throw new Error("Failed to synchronize with Supabase: " + error.message);
       }
     }
 
@@ -1678,15 +1614,15 @@
     const cancelAdminChangePwdBtn = document.getElementById("cancelAdminChangePwdBtn");
 
     // ==========================================
-    // REFINED TASKBAR HOVER & LEAVE LOGIC
+    // TASKBAR VISIBILITY & AUTO-HIDE LOGIC
     // ==========================================
-    // Automatically slides out when cursor reaches the right edge (within 16px)
-    // Automatically slides in and closes when cursor moves away from the bar
+    // Slides out when cursor reaches the right edge, auto-hides when mouse departs
     document.addEventListener("mousemove", (e) => {
-      const distanceToRight = window.innerWidth - e.clientX;
-      if (distanceToRight <= 16) {
+      if (!isAuthenticated) return;
+      const dist = window.innerWidth - e.clientX;
+      if (dist <= 16) {
         rightSidebar.classList.add("revealed");
-      } else if (distanceToRight > 64) {
+      } else if (dist > 60) {
         rightSidebar.classList.remove("revealed");
       }
     });
@@ -1743,6 +1679,8 @@
       authError.textContent = "";
       sessionIndicator.hidden = false;
 
+      // Reveal taskbar and its navigation items upon admin login
+      rightSidebar.hidden = false;
       document.querySelectorAll(".admin-tab, .admin-elem").forEach(el => {
         el.hidden = false;
       });
@@ -1764,6 +1702,10 @@
       sessionIndicator.hidden = true;
       authModal.hidden = true;
       pendingTargetPage = null;
+
+      // Completely remove right taskbar when logged off
+      rightSidebar.hidden = true;
+      rightSidebar.classList.remove("revealed");
 
       document.querySelectorAll(".admin-tab, .admin-elem").forEach(el => {
         el.hidden = true;
@@ -1857,9 +1799,13 @@
         return;
       }
 
-      await updateRemoteAdminPassword(newPwd);
-      adminChangePwdModal.hidden = true;
-      alert("Admin password updated successfully. Changes are now live for all users.");
+      try {
+        await updateRemoteAdminPassword(newPwd);
+        adminChangePwdModal.hidden = true;
+        alert("Admin master password changed and synchronized for all users!");
+      } catch (err) {
+        adminChangePwdStatus.textContent = err.message;
+      }
     });
 
     const labTitleText = document.getElementById("labTitleText");
@@ -2043,7 +1989,7 @@
     function isSpecialUser(email) {
       if (!email) return false;
       const em = email.toLowerCase().trim();
-      return em.endsWith('@guest.lab') || em === MASTER_ADMIN_EMAIL.toLowerCase();
+      return em.endsWith('@guest.lab');
     }
 
     async function loadUsers() {
@@ -2139,7 +2085,7 @@
       const activeEligibleUsers = users.filter(u => !isSpecialUser(u.email) && u.is_verified !== false);
       selectOptions(takeUserSelect, activeEligibleUsers, "Select User", u => u.id, u => u.name);
       selectOptions(returnUserSelect, activeEligibleUsers, "Select User", u => u.id, u => u.name);
-      selectOptions(userAllocViewerSelect, users.filter(u => u.email !== MASTER_ADMIN_EMAIL), "Choose User to View Allocations", u => u.id, u => u.name);
+      selectOptions(userAllocViewerSelect, users, "Choose User to View Allocations", u => u.id, u => u.name);
     }
 
     function populateDatalists() {
@@ -4391,19 +4337,18 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'workbenches' }, () => { loadStorage(); })
         .subscribe();
 
-      // Real-time synchronization of users & master admin password changes
+      // Real-time synchronization of system settings (admin password) across all laptops
       supabaseClient
-        .channel('public:users')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, async () => {
+        .channel('public:system_settings')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'system_settings' }, async () => {
           await syncAdminPasswordFromDatabase();
-          await loadUsers();
         })
         .subscribe();
 
       supabaseClient
-        .channel('public:system_config')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'system_config' }, async () => {
-          await syncAdminPasswordFromDatabase();
+        .channel('public:users')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, async () => {
+          await loadUsers();
         })
         .subscribe();
 
@@ -4508,7 +4453,7 @@
     }
 
     document.querySelectorAll(".page-tab").forEach((tab) => {
-      tab.addEventListener("click", (e) => {
+      tab.addEventListener("click", () => {
         tab.blur();
         const targetPageId = tab.dataset.page;
         const isProtected = targetPageId === "materialPage" || targetPageId === "storagePage" || targetPageId === "usersPage" || targetPageId === "logsPage";
