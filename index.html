@@ -582,21 +582,6 @@
     #userAllocViewerResults { flex: 1; overflow-y: auto; min-height: 0; }
     .user-alloc-row { min-height: 34px; border-bottom: 1px solid #eaf0eb; font-size: 11px; }
 
-    /* Direct Allocate & Return in Users Page */
-    .aligned-bottom-bar {
-      width: 100%;
-      margin-top: 6px;
-      background: white;
-      border: 1px solid #dce4df;
-      border-radius: 6px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      padding: 8px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      flex-shrink: 0;
-    }
-
     /* Logs Page */
     .log-filter-bar {
       display: flex;
@@ -3217,8 +3202,6 @@
       userPageAllocations = [];
     }
 
-    // Change 2: Click product row updates allocation only if Allocate mode is selected.
-    // If Return mode is selected, it pre-populates the Users Page direct allocation form instead.
     function onProductRowClicked(product) {
       const availQty = parseInt(product.quantity, 10);
       if (isNaN(availQty) || availQty <= 0) {
@@ -3240,11 +3223,15 @@
         takeQuantity.focus();
         setFormStatus(globalStripStatus, `Selected "${product.part_number}" (${product.part_code}). Ready to stage or allocate.`);
       } else {
-        // Return is selected on Search Page: do NOT populate Search allocation fields.
-        // Direct allocation in Users page is prepared instead.
+        // Return is selected on Search Page: do NOT allocate or stage in the search page. Populate the Users page allocation form instead.
+        takePartNumber.value = "";
+        takePartCode.value = "";
+        takeQuantity.value = "";
+        currentlySelectedCatalogProduct = null;
+
         userTakePartNumber.value = product.part_number;
         userTakePartCode.value = product.part_code;
-        setFormStatus(globalStripStatus, `"${product.part_number}" selected for Users page allocation.`);
+        setFormStatus(globalStripStatus, `"${product.part_number}" populated in Users tab for allocation.`);
       }
     }
 
@@ -3792,7 +3779,6 @@
       }
     });
 
-    // Change 1: Reject Button logic (Restores to user, sets status to Allocated)
     verifierRejectButton.addEventListener("click", async () => {
       const verifierName = modalVerifierSelect.value;
       if (!verifierName) {
