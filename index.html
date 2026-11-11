@@ -278,7 +278,7 @@
     .regret-button { border-color: #d97706; background: #d97706; color: white; }
     .regret-button:hover { border-color: #b45309; background: #b45309; }
     
-    .workbook-status { min-height: 14px; margin: 2px 0; color: var(--muted); font-size: 10.5px; flex-shrink: 0; }
+    .workbook-status { min-height: 14px; margin: 2px 0; color: var(--muted); font-size: 10.5px; flex-shrink: 0; transition: opacity 0.2s; }
     .workbook-status.error { color: #b55130; }
     
     .page-heading { margin: 0 0 8px; flex-shrink: 0; }
@@ -297,7 +297,6 @@
     .location-cell { min-width: 0; overflow: hidden; color: #718079; text-overflow: ellipsis; white-space: nowrap; }
     .quantity-cell strong { font: 13px var(--mono); font-weight: 500; }
     
-    /* Centering the instruction message vertically & horizontally */
     .empty {
       flex: 1;
       display: flex;
@@ -394,7 +393,7 @@
     .compact-btn.secondary-btn { background: #355348; border-color: #355348; }
     .compact-btn.secondary-btn:hover { background: #284037; }
 
-    .strip-status { font-size: 9.5px; color: var(--green); min-height: 12px; margin: 0; padding-left: 2px; }
+    .strip-status { font-size: 9.5px; color: var(--green); min-height: 12px; margin: 0; padding-left: 2px; transition: opacity 0.2s; }
     .strip-status.error { color: #b55130; }
 
     .staged-parts-box {
@@ -448,7 +447,7 @@
     .field[hidden] { display: none !important; }
     .field input, .field select { width: 100%; height: 32px; padding: 0 9px; border: 1px solid #dce4df; border-radius: 4px; outline: none; background: white; color: var(--ink); font-size: 11px; }
     .field input:focus, .field select:focus { border-color: var(--green); box-shadow: 0 0 0 2px rgba(23,110,89,.08); }
-    .form-status { min-height: 14px; margin: 0; color: var(--green); font-size: 10.5px; }
+    .form-status { min-height: 14px; margin: 0; color: var(--green); font-size: 10.5px; transition: opacity 0.2s; }
     .form-status.error { color: #b55130; }
 
     .storage-layout {
@@ -582,17 +581,6 @@
     .user-alloc-table-head { min-height: 28px; height: 28px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; }
     #userAllocViewerResults { flex: 1; overflow-y: auto; min-height: 0; }
     .user-alloc-row { min-height: 34px; border-bottom: 1px solid #eaf0eb; font-size: 11px; }
-
-    /* Direct Allocate & Return in Users Page */
-    .user-direct-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      white-space: nowrap;
-      padding-bottom: 2px;
-    }
 
     /* Logs Page */
     .log-filter-bar {
@@ -1698,10 +1686,9 @@
       isAuthenticated = true;
       authModal.hidden = true;
       authPasswordInput.value = "";
-      authError.textContent = "";
+      clearStatusElement(authError);
       sessionIndicator.hidden = false;
 
-      // Reveal taskbar only on successful login
       rightSidebar.hidden = false;
       document.querySelectorAll(".admin-tab, .admin-elem").forEach(el => {
         el.hidden = false;
@@ -1725,7 +1712,6 @@
       authModal.hidden = true;
       pendingTargetPage = null;
 
-      // Remove taskbar completely when logged off
       rightSidebar.hidden = true;
       rightSidebar.classList.remove("revealed");
 
@@ -1733,6 +1719,7 @@
         el.hidden = true;
       });
 
+      clearAllPageStatusMessages();
       renderLogs();
       if (activePageId !== "searchPage") navigateTo("searchPage");
     }
@@ -1740,7 +1727,7 @@
     function promptLogin(targetPage) {
       pendingTargetPage = targetPage;
       authModal.hidden = false;
-      authError.textContent = "";
+      clearStatusElement(authError);
       authPasswordInput.value = "";
       authPasswordInput.focus();
     }
@@ -1776,7 +1763,7 @@
       if (isValid) {
         loginSuccess();
       } else {
-        authError.textContent = "Incorrect password. Please try again.";
+        setFormStatus(authError, "Incorrect password. Please try again.", true);
         authPasswordInput.select();
       }
     });
@@ -1789,7 +1776,7 @@
     logoutButton.addEventListener("click", logout);
 
     openAdminChangePwdBtn.addEventListener("click", () => {
-      adminChangePwdStatus.textContent = "";
+      clearStatusElement(adminChangePwdStatus);
       adminChangePwdForm.reset();
       adminChangePwdModal.hidden = false;
       adminCurrentPwdInput.focus();
@@ -1807,16 +1794,16 @@
 
       const isCurrentValid = await verifyEnteredAdminPassword(currentInput);
       if (!isCurrentValid) {
-        adminChangePwdStatus.textContent = "Current admin password is incorrect.";
+        setFormStatus(adminChangePwdStatus, "Current admin password is incorrect.", true);
         adminCurrentPwdInput.select();
         return;
       }
       if (newPwd.length < 3) {
-        adminChangePwdStatus.textContent = "New password must be at least 3 characters.";
+        setFormStatus(adminChangePwdStatus, "New password must be at least 3 characters.", true);
         return;
       }
       if (newPwd !== confirmPwd) {
-        adminChangePwdStatus.textContent = "New password and confirmation do not match.";
+        setFormStatus(adminChangePwdStatus, "New password and confirmation do not match.", true);
         adminConfirmPwdInput.select();
         return;
       }
@@ -1826,7 +1813,7 @@
         adminChangePwdModal.hidden = true;
         alert("Admin master password changed and synchronized for all users!");
       } catch (err) {
-        adminChangePwdStatus.textContent = err.message;
+        setFormStatus(adminChangePwdStatus, err.message, true);
       }
     });
 
@@ -1961,14 +1948,54 @@
       const { error } = await supabaseClient.from('cupboards').select('id', { count: 'exact', head: true });
       if (error) throw error;
       setConnectionVisuals(true);
-      workbookStatus.textContent = "";
-      workbookStatus.classList.remove("error");
+      clearStatusElement(workbookStatus);
     }
 
-    function setFormStatus(element, message, isError = false) {
+    // ==========================================
+    // 5-SECOND AUTO-DISMISS STATUS HANDLER
+    // ==========================================
+    const statusTimers = new WeakMap();
+
+    function clearStatusElement(element) {
       if (!element) return;
+      element.textContent = "";
+      element.classList.remove("error");
+      if (statusTimers.has(element)) {
+        clearTimeout(statusTimers.get(element));
+        statusTimers.delete(element);
+      }
+    }
+
+    function setFormStatus(element, message, isError = false, duration = 5000) {
+      if (!element) return;
+      if (statusTimers.has(element)) {
+        clearTimeout(statusTimers.get(element));
+        statusTimers.delete(element);
+      }
       element.textContent = message;
       element.classList.toggle("error", isError);
+
+      if (message && duration > 0) {
+        const timer = setTimeout(() => {
+          element.textContent = "";
+          element.classList.remove("error");
+          statusTimers.delete(element);
+        }, duration);
+        statusTimers.set(element, timer);
+      }
+    }
+
+    function clearAllPageStatusMessages() {
+      const elements = [
+        globalStripStatus,
+        userPageStripStatus,
+        materialStatus,
+        removeMaterialStatus,
+        storageStatus,
+        userStatus,
+        workbookStatus
+      ];
+      elements.forEach(el => clearStatusElement(el));
     }
 
     function selectOptions(select, entries, placeholder, getValue, getLabel) {
@@ -2271,7 +2298,7 @@
 
       pendingActionCallback = onVerifiedCallback;
       actionAuthTargetUser.textContent = `${userObj.name} (${actionType})`;
-      actionAuthError.textContent = "";
+      clearStatusElement(actionAuthError);
       actionAuthPasswordInput.value = "";
       userAuthActionModal.hidden = false;
       actionAuthPasswordInput.focus();
@@ -2287,7 +2314,7 @@
           pendingActionCallback = null;
           if (cb) cb();
         } else {
-          actionAuthError.textContent = "Incorrect password! Action not allowed.";
+          setFormStatus(actionAuthError, "Incorrect password! Action not allowed.", true);
           actionAuthPasswordInput.select();
         }
       };
@@ -2307,7 +2334,7 @@
       registerModal.hidden = false;
       registerDetailsForm.hidden = false;
       registerOtpForm.hidden = true;
-      setFormStatus(regError, "");
+      clearStatusElement(regError);
       registerDetailsForm.reset();
     });
 
@@ -2319,7 +2346,7 @@
     backToRegDetailsBtn.addEventListener("click", () => {
       registerOtpForm.hidden = true;
       registerDetailsForm.hidden = false;
-      setFormStatus(regOtpError, "");
+      clearStatusElement(regOtpError);
     });
 
     registerDetailsForm.addEventListener("submit", async (e) => {
@@ -2329,7 +2356,7 @@
       const password = regPassword.value;
 
       regSendCodeBtn.disabled = true;
-      setFormStatus(regError, "Sending verification code to your email...");
+      setFormStatus(regError, "Sending verification code to your email...", false, 0);
 
       try {
         const { data: existing, error: searchErr } = await supabaseClient
@@ -2378,7 +2405,7 @@
         regTargetEmail.textContent = email;
         registerDetailsForm.hidden = true;
         registerOtpForm.hidden = false;
-        setFormStatus(regOtpError, "");
+        clearStatusElement(regOtpError);
         regOtpInput.value = "";
         regOtpInput.focus();
       } catch (err) {
@@ -2398,7 +2425,7 @@
       }
 
       regVerifyBtn.disabled = true;
-      setFormStatus(regOtpError, "Validating code...");
+      setFormStatus(regOtpError, "Validating code...", false, 0);
 
       try {
         const { data: userRec, error } = await supabaseClient
@@ -2445,7 +2472,7 @@
       resetModal.hidden = false;
       resetRequestForm.hidden = false;
       resetSubmitForm.hidden = true;
-      setFormStatus(resetRequestError, "");
+      clearStatusElement(resetRequestError);
       resetRequestForm.reset();
     });
 
@@ -2457,14 +2484,14 @@
     backToResetReqBtn.addEventListener("click", () => {
       resetSubmitForm.hidden = true;
       resetRequestForm.hidden = false;
-      setFormStatus(resetSubmitError, "");
+      clearStatusElement(resetSubmitError);
     });
 
     resetRequestForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = resetEmail.value.trim().toLowerCase();
       resetSendCodeBtn.disabled = true;
-      setFormStatus(resetRequestError, "Sending reset code to your email...");
+      setFormStatus(resetRequestError, "Sending reset code to your email...", false, 0);
 
       try {
         const { data, error } = await supabaseClient
@@ -2495,7 +2522,7 @@
         pendingResetEmail = email;
         resetRequestForm.hidden = true;
         resetSubmitForm.hidden = false;
-        setFormStatus(resetSubmitError, "");
+        clearStatusElement(resetSubmitError);
         resetOtpInput.value = "";
         resetNewPassword.value = "";
         resetConfirmPassword.value = "";
@@ -2519,7 +2546,7 @@
       }
 
       resetConfirmBtn.disabled = true;
-      setFormStatus(resetSubmitError, "Updating password...");
+      setFormStatus(resetSubmitError, "Updating password...", false, 0);
 
       try {
         const { data: userRec, error } = await supabaseClient
@@ -3093,7 +3120,7 @@
           returnWorkbench.value = targetWb;
         }
 
-        setFormStatus(globalStripStatus, `Loaded "${item.part_number}". Can be directly returned or added to queue.`);
+        setFormStatus(globalStripStatus, `Loaded "${item.part_number}". Ready for return queue.`);
       } else {
         returnPartNumber.value = "";
         returnQuantity.value = "";
@@ -3141,7 +3168,7 @@
         userReturnWorkbench.value = targetWb;
       }
 
-      setFormStatus(userPageStripStatus, `Auto-populated: ${item.part_number} (${item.part_code}) with original location.`);
+      setFormStatus(userPageStripStatus, `Auto-populated: ${item.part_number} (${item.part_code}).`);
     }
 
     userReturnAllocatedSelect.addEventListener("change", (e) => {
@@ -3490,7 +3517,7 @@
         const isAlloc = e.target.value === "allocate";
         searchAllocateControls.style.display = isAlloc ? "flex" : "none";
         searchReturnControls.style.display = isAlloc ? "none" : "flex";
-        globalStripStatus.textContent = "";
+        clearStatusElement(globalStripStatus);
 
         takeUserSelect.value = "";
         takePartNumber.value = "";
@@ -3515,7 +3542,7 @@
         const isAlloc = e.target.value === "allocate";
         userPageTakeForm.style.display = isAlloc ? "contents" : "none";
         userPageReturnForm.style.display = isAlloc ? "none" : "contents";
-        userPageStripStatus.textContent = "";
+        clearStatusElement(userPageStripStatus);
 
         resetUserPageTakeForm();
         resetUserPageReturnForm();
@@ -3523,7 +3550,7 @@
     });
 
     // ==========================================
-    // 9. AUDIT LOGGING & VERIFIER MODAL (Verify / Regret / Cancel)
+    // 9. AUDIT LOGGING & VERIFIER MODAL
     // ==========================================
     async function recordAllocationLog(userId, userName, partCode, partNumber, quantity, locationText) {
       const nowIso = new Date().toISOString();
@@ -3635,10 +3662,9 @@
       }
     }
 
-    // Change 2: Selecting user for verify is strictly possible only when is_verifier is checked
     function openVerifierModal(logId) {
       pendingVerificationLogId = logId;
-      verifierModalError.textContent = "";
+      clearStatusElement(verifierModalError);
 
       const verifierUsers = users.filter(u => !isSpecialUser(u.email) && u.is_verifier === true && u.is_verified !== false);
 
@@ -3660,24 +3686,22 @@
       verifierModal.hidden = false;
     }
 
-    // Cancel Button: closes the modal without changes
     verifierCancelButton.addEventListener("click", () => {
       verifierModal.hidden = true;
       pendingVerificationLogId = null;
     });
 
-    // Change 4: VERIFY button logic (adds to material stock & marks Return)
     verifierForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const verifierName = modalVerifierSelect.value;
       if (!verifierName) {
-        verifierModalError.textContent = "Please select an authorized verifier with verifier privileges.";
+        setFormStatus(verifierModalError, "Please select an authorized verifier with verifier privileges.", true);
         return;
       }
 
       const logItem = activityLogs.find(l => String(l.id) === String(pendingVerificationLogId));
       if (!logItem) {
-        verifierModalError.textContent = "Log entry not found.";
+        setFormStatus(verifierModalError, "Log entry not found.", true);
         return;
       }
 
@@ -3756,21 +3780,20 @@
         await refreshInventory();
         await loadLogs();
       } catch (err) {
-        verifierModalError.textContent = err.message || "Failed verifying return.";
+        setFormStatus(verifierModalError, err.message || "Failed verifying return.", true);
       }
     });
 
-    // Change 4: REGRET button logic (cancels return, assigns back to user allocations)
     verifierRegretButton.addEventListener("click", async () => {
       const verifierName = modalVerifierSelect.value;
       if (!verifierName) {
-        verifierModalError.textContent = "Please select an authorized verifier who is declining this return.";
+        setFormStatus(verifierModalError, "Please select an authorized verifier who is declining this return.", true);
         return;
       }
 
       const logItem = activityLogs.find(l => String(l.id) === String(pendingVerificationLogId));
       if (!logItem) {
-        verifierModalError.textContent = "Log entry not found.";
+        setFormStatus(verifierModalError, "Log entry not found.", true);
         return;
       }
 
@@ -3789,7 +3812,6 @@
 
         const finalUserId = userObj ? userObj.id : targetUserId;
 
-        // Restore back to material_allocations
         let allocQuery = supabaseClient
           .from('material_allocations')
           .select('*')
@@ -3826,7 +3848,6 @@
             }]);
         }
 
-        // Revert log status back to Allocated with regret note
         await supabaseClient.from(ACTIVE_LOG_TABLE).update({
           status: "Allocated",
           pending_return_time: null,
@@ -3842,7 +3863,7 @@
         if (userAllocViewerSelect.value) refreshUserAllocationsViewer(userAllocViewerSelect.value);
         alert(`Return regretted. ${qtyToRestore} units reassigned back to ${logItem.user_name}.`);
       } catch (err) {
-        verifierModalError.textContent = "Failed to regret return: " + err.message;
+        setFormStatus(verifierModalError, "Failed to regret return: " + err.message, true);
       }
     });
 
@@ -4412,8 +4433,7 @@
         renderCombinedStorageInspector();
         setConnectionVisuals(true);
       } catch (err) {
-        workbookStatus.textContent = "Error fetching catalog: " + err.message;
-        workbookStatus.classList.add("error");
+        setFormStatus(workbookStatus, "Error fetching catalog: " + err.message, true);
         setConnectionVisuals(false);
       }
     }
@@ -4432,7 +4452,6 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'workbenches' }, () => { loadStorage(); })
         .subscribe();
 
-      // Real-time synchronization of system settings (admin password) across all clients
       supabaseClient
         .channel('public:system_settings')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'system_settings' }, async () => {
@@ -4487,7 +4506,6 @@
 
       productList.replaceChildren();
 
-      // Change 1: Empty & instruction message placed directly in the center
       if (!submittedQuery) {
         emptyState.hidden = false;
         document.getElementById("emptyTitle").textContent = "Search Material Directory";
@@ -4530,6 +4548,8 @@
     // ==========================================
     async function navigateTo(targetPageId) {
       activePageId = targetPageId;
+
+      clearAllPageStatusMessages();
 
       document.querySelectorAll(".page-tab").forEach(item => {
         item.classList.toggle("active", item.dataset.page === targetPageId);
