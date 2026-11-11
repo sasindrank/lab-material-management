@@ -52,12 +52,11 @@
       width: min(96vw, 1750px);
       height: 100vh;
       margin: 0 auto;
-      padding: 0 54px 10px 1.5vw; /* Right padding accommodates the vertical right rail */
+      padding: 0 1.5vw 10px;
       background: rgba(248,250,248,.96);
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      position: relative;
     }
     .shell[hidden] { display: none !important; }
 
@@ -142,6 +141,7 @@
     .brand-mark.connected { background-color: #16a34a !important; }
 
     .nav-wrapper { display: flex; align-items: center; gap: 10px; }
+    .primary-nav { display: flex; align-items: stretch; gap: 6px; height: 52px; }
     .page-tab { position: relative; padding: 0 14px; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 600; }
     .page-tab:hover, .page-tab.active { color: var(--green-dark); }
     .page-tab.active::after { position: absolute; right: 12px; bottom: 0; left: 12px; height: 2px; background: var(--orange); content: ""; }
@@ -165,65 +165,6 @@
       transition: all .15s;
     }
     .auth-nav-btn:hover { background: var(--mint); border-color: var(--green); }
-    .auth-nav-btn[hidden] { display: none !important; }
-
-    /* Right-Side Vertical Admin Navigation Rail */
-    .vertical-admin-rail {
-      position: absolute;
-      top: 52px;
-      right: 0;
-      bottom: 0;
-      width: 48px;
-      background: #ffffff;
-      border-left: 1px solid var(--line);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 10px 0;
-      gap: 10px;
-      z-index: 100;
-      box-shadow: -2px 0 6px rgba(0,0,0,0.02);
-    }
-    .vertical-admin-rail[hidden] { display: none !important; }
-    
-    .icon-nav-btn {
-      width: 38px;
-      height: 38px;
-      border: 1px solid transparent;
-      border-radius: 6px;
-      background: transparent;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all .15s;
-      position: relative;
-      padding: 0;
-    }
-    .icon-nav-btn svg { width: 18px; height: 18px; fill: currentColor; }
-    .icon-nav-btn:hover { background: var(--mint); color: var(--green-dark); }
-    .icon-nav-btn.active {
-      background: var(--mint);
-      color: var(--green);
-      border-color: #bcd9cd;
-    }
-    .icon-nav-btn.active::after {
-      content: "";
-      position: absolute;
-      right: -1px;
-      top: 6px;
-      bottom: 6px;
-      width: 3px;
-      background: var(--orange);
-      border-radius: 2px 0 0 2px;
-    }
-    .rail-divider {
-      width: 24px;
-      height: 1px;
-      background: var(--line);
-      margin: 4px 0;
-    }
 
     .kicker { margin: 0 0 2px; color: var(--green); font: 10px var(--mono); }
     .catalog {
@@ -386,7 +327,7 @@
     .staged-part-row:last-child { border-bottom: none; }
     .staged-part-row:hover { background: rgba(229,242,236,.4); }
 
-    /* Forms & Panel Layouts */
+    /* Other Panels */
     .material-split-layout {
       flex: 1;
       display: flex;
@@ -408,6 +349,7 @@
     }
     .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .field { display: flex; min-width: 0; flex-direction: column; gap: 4px; color: #53645e; font-size: 11px; font-weight: 600; }
+    /* FIXED: Ensures conditional form fields stay hidden despite display: flex */
     .field[hidden] { display: none !important; }
     .field input, .field select { width: 100%; height: 32px; padding: 0 9px; border: 1px solid #dce4df; border-radius: 4px; outline: none; background: white; color: var(--ink); font-size: 11px; }
     .field input:focus, .field select:focus { border-color: var(--green); box-shadow: 0 0 0 2px rgba(23,110,89,.08); }
@@ -639,11 +581,11 @@
       .staged-part-row { height: 40px; }
     }
     @media (max-width: 1280px) {
-      .shell { width: 98vw; padding: 0 54px 8px 8px; }
+      .shell { width: 98vw; padding: 0 8px 8px; }
     }
     @media (max-width: 950px) {
       body { height: auto; overflow: auto; }
-      .shell { height: auto; overflow: visible; padding-right: 48px; }
+      .shell { height: auto; overflow: visible; }
       .storage-layout { grid-template-columns: 1fr; overflow-y: visible; }
       .user-top-split { grid-template-columns: 1fr; height: auto; }
       .table-scroll { min-height: 280px; }
@@ -683,46 +625,22 @@
         <div class="user-auth-links">
           <button type="button" class="auth-nav-btn" id="openRegisterModalBtn">Register</button>
           <button type="button" class="auth-nav-btn" id="openResetModalBtn">Forgot Password?</button>
-          <!-- Admin master password change button is completely hidden until logged in -->
-          <button type="button" class="auth-nav-btn" id="openAdminChangePwdBtn" hidden title="Change master admin password">Change Admin Password</button>
+          <button type="button" class="auth-nav-btn" id="openAdminChangePwdBtn" title="Change master festo password">Change Admin Password</button>
         </div>
 
         <div id="sessionIndicator" class="session-badge" hidden>
           <span id="sessionTimerText">30s</span>
           <button type="button" class="logout-btn" id="logoutButton">Log out</button>
         </div>
+        <nav class="primary-nav" aria-label="Pages">
+          <button class="page-tab active" type="button" data-page="searchPage">Search</button>
+          <button class="page-tab admin-tab" type="button" data-page="materialPage" hidden>Add/Delete Material</button>
+          <button class="page-tab admin-tab" type="button" data-page="storagePage" hidden>Storage Locations</button>
+          <button class="page-tab admin-tab" type="button" data-page="usersPage" hidden>Users</button>
+          <button class="page-tab admin-tab" type="button" data-page="logsPage" hidden>Logs</button>
+        </nav>
       </div>
     </header>
-
-    <!-- Right-Side Vertical Admin Navigation Rail with Icons Only -->
-    <aside class="vertical-admin-rail" id="verticalAdminRail" hidden aria-label="Admin Navigation">
-      <!-- Search Page Icon -->
-      <button class="icon-nav-btn active" type="button" data-page="searchPage" title="Search Catalog">
-        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-      </button>
-
-      <div class="rail-divider"></div>
-
-      <!-- Add/Delete Material Icon -->
-      <button class="icon-nav-btn" type="button" data-page="materialPage" title="Add / Delete Material">
-        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
-      </button>
-
-      <!-- Storage Locations Icon -->
-      <button class="icon-nav-btn" type="button" data-page="storagePage" title="Storage Locations">
-        <svg viewBox="0 0 24 24"><path d="M4 6h16V4H4c-1.1 0-2 .9-2 2v11H0v3h14v-3H4V6zm19 2h-6c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V9c0-.55-.45-1-1-1zm-1 10h-4v-7h4v7z"/></svg>
-      </button>
-
-      <!-- Users Icon -->
-      <button class="icon-nav-btn" type="button" data-page="usersPage" title="Users & Allocations">
-        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-      </button>
-
-      <!-- Logs Icon -->
-      <button class="icon-nav-btn" type="button" data-page="logsPage" title="Activity Logs">
-        <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-      </button>
-    </aside>
 
     <!-- Search Page -->
     <section class="catalog page-view" id="searchPage" aria-label="Material catalog">
@@ -871,6 +789,7 @@
                 </select>
               </label>
               
+              <!-- Location Type Selection: Cupboard + Rack only for 'rack' -->
               <label class="field" id="materialCupboardField">Cupboard
                 <select name="cupboardId" id="materialCupboard" required disabled>
                   <option value="">Choose Cupboard</option>
@@ -882,12 +801,14 @@
                 </select>
               </label>
               
+              <!-- Location Type Selection: Box only for 'box' -->
               <label class="field" id="boxLocationField" hidden>Box
                 <select name="boxId" id="materialBox" disabled>
                   <option value="">Choose Box</option>
                 </select>
               </label>
               
+              <!-- Location Type Selection: Workbench only for 'workbench' -->
               <label class="field" id="workbenchLocationField" hidden>Workbench
                 <select name="workbenchId" id="materialWorkbench" disabled>
                   <option value="">Choose Workbench</option>
@@ -917,6 +838,7 @@
                 </select>
               </label>
               
+              <!-- Location Type Selection: Cupboard + Rack only for 'rack' -->
               <label class="field" id="removeCupboardField">Cupboard
                 <select name="cupboardId" id="removeCupboard" required disabled>
                   <option value="">Choose Cupboard</option>
@@ -928,12 +850,14 @@
                 </select>
               </label>
               
+              <!-- Location Type Selection: Box only for 'box' -->
               <label class="field" id="removeBoxField" hidden>Box
                 <select name="boxId" id="removeBox" disabled>
                   <option value="">Choose Box</option>
                 </select>
               </label>
               
+              <!-- Location Type Selection: Workbench only for 'workbench' -->
               <label class="field" id="removeWorkbenchField" hidden>Workbench
                 <select name="workbenchId" id="removeWorkbench" disabled>
                   <option value="">Choose Workbench</option>
@@ -1277,4 +1201,3143 @@
         <p class="form-status" id="resetRequestError"></p>
         <div class="modal-actions">
           <button type="button" class="btn-secondary" id="cancelResetBtn">Cancel</button>
-          <button type="submit" class="action-button" id="resetSendCodeBtn">Send Reset Code</
+          <button type="submit" class="action-button" id="resetSendCodeBtn">Send Reset Code</button>
+        </div>
+      </form>
+
+      <form id="resetSubmitForm" hidden>
+        <p style="font-size: 10.5px; color: var(--muted); margin-bottom: 12px;">
+          Enter the reset code sent to your email and your new password.
+        </p>
+        <label class="field" style="margin-bottom: 8px;">
+          6-Digit Reset Code
+          <input type="text" id="resetOtpInput" required maxlength="6" class="otp-input" placeholder="000000">
+        </label>
+        <label class="field" style="margin-bottom: 8px;">
+          New Password
+          <input type="password" id="resetNewPassword" required minlength="4" placeholder="Enter new password">
+        </label>
+        <label class="field" style="margin-bottom: 8px;">
+          Confirm New Password
+          <input type="password" id="resetConfirmPassword" required minlength="4" placeholder="Confirm new password">
+        </label>
+        <p class="form-status" id="resetSubmitError"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="backToResetReqBtn">Back</button>
+          <button type="submit" class="action-button success-button" id="resetConfirmBtn">Update Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Action Authentication Modal -->
+  <div class="modal-overlay" id="userAuthActionModal" hidden>
+    <div class="modal-card">
+      <h3 id="actionAuthTitle" style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">User Authentication</h3>
+      <p id="actionAuthDesc" style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Confirm your user password to execute this transaction.</p>
+      <form id="userAuthActionForm">
+        <label class="field" style="margin-bottom: 8px;">
+          Password for <strong id="actionAuthTargetUser">User</strong>
+          <input type="password" id="actionAuthPasswordInput" required placeholder="Enter your password" autocomplete="current-password">
+        </label>
+        <p class="form-status error" id="actionAuthError"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="actionAuthCancelBtn">Cancel</button>
+          <button type="submit" class="action-button" id="actionAuthConfirmBtn">Authorize</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Admin Login Modal -->
+  <div class="modal-overlay" id="authModal" hidden>
+    <div class="modal-card">
+      <h3 style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Admin Authentication Required</h3>
+      <p style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Enter the master password to access system configuration.</p>
+      <form id="authForm">
+        <label class="field" style="margin-bottom: 8px;">
+          Password
+          <input type="password" id="authPasswordInput" required placeholder="Enter password" autocomplete="current-password">
+        </label>
+        <p class="form-status error" id="authError" style="margin-bottom: 12px;"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="authCancelButton">Cancel</button>
+          <button type="submit" class="action-button">Unlock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Admin Master Password Change Modal -->
+  <div class="modal-overlay" id="adminChangePwdModal" hidden>
+    <div class="modal-card">
+      <h3 style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Change Admin Master Password</h3>
+      <p style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Update the system administration password (Default: "festo").</p>
+      <form id="adminChangePwdForm">
+        <label class="field" style="margin-bottom: 8px;">
+          Current Admin Password
+          <input type="password" id="adminCurrentPwdInput" required placeholder="Enter current admin password" autocomplete="current-password">
+        </label>
+        <label class="field" style="margin-bottom: 8px;">
+          New Admin Password
+          <input type="password" id="adminNewPwdInput" required minlength="3" placeholder="Enter new admin password" autocomplete="new-password">
+        </label>
+        <label class="field" style="margin-bottom: 8px;">
+          Confirm New Admin Password
+          <input type="password" id="adminConfirmPwdInput" required minlength="3" placeholder="Confirm new admin password" autocomplete="new-password">
+        </label>
+        <p class="form-status error" id="adminChangePwdStatus" style="margin-bottom: 10px;"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="cancelAdminChangePwdBtn">Cancel</button>
+          <button type="submit" class="action-button success-button">Update Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. Verifier Selector Modal -->
+  <div class="modal-overlay" id="verifierModal" hidden>
+    <div class="modal-card">
+      <h3 style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Physical Return Sign-Off</h3>
+      <p style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">Select the registered verifier who inspected the physical placement on the shelf.</p>
+      <form id="verifierForm">
+        <div class="field" style="margin-bottom: 8px;">
+          <label>Authorized Verifier</label>
+          <select id="modalVerifierSelect" required>
+            <option value="">Select Verifying Person</option>
+          </select>
+        </div>
+        <p class="form-status error" id="verifierModalError" style="margin-top: 4px;"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="verifierCancelButton">Cancel</button>
+          <button type="submit" class="action-button success-button">Confirm &amp; Update Stock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // 1. SUPABASE CLIENT & EMAIL CONFIGURATION
+    // ==========================================
+    const SUPABASE_URL = "https://yeydscvvujnekicsbdxi.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_uBh_Q_7YFakzCqHknzb1tw_4qj3_7eI";
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const EMAILJS_PUBLIC_KEY = "XvQqdc9fulhE_Z4Ss";
+    const EMAILJS_SERVICE_ID = "service_bgygk6a";
+    const EMAILJS_TEMPLATE_ID = "template_hes0c3t";
+
+    if (window.emailjs) {
+      window.emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+    }
+
+    async function hashPassword(plainText) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(plainText + "_lab_salt_2026");
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    function generateSecureOTP() {
+      const array = new Uint8Array(1);
+      crypto.getRandomValues(array);
+      return (100000 + (array[0] % 900000)).toString();
+    }
+
+    async function dispatchVerificationEmail(email, toName, otpCode, purpose = "Verification") {
+      const subject = `Your Lab Inventory ${purpose} Code`;
+      if (!window.emailjs) {
+        throw new Error("Email service is unavailable. Please check your network connection.");
+      }
+      return await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_email: email,
+        email: email,
+        to_name: toName || "Lab Member",
+        subject: subject,
+        otp_code: otpCode,
+        purpose: purpose
+      });
+    }
+
+    // Global State
+    let products = [];
+    let users = [];
+    let userAllocations = [];
+    let userPageAllocations = [];
+    let activityLogs = [];
+    let submittedQuery = null;
+    let storageTree = [];
+    let storageBoxes = [];
+    let storageWorkbenches = [];
+    let activeInspectorFilter = "cupboard";
+    let selectedInspectorLocationId = null;
+
+    let searchStagedParts = [];
+    let currentlySelectedCatalogProduct = null;
+
+    const ACTIVE_LOG_TABLE = "material_lifecycle_logs";
+    const allocationOriginMap = new Map();
+
+    let pendingVerificationLogId = null;
+    let pendingActionCallback = null;
+
+    // DOM Elements
+    const initialOverlay = document.getElementById("initialOverlay");
+    const loadingState = document.getElementById("loadingState");
+    const errorState = document.getElementById("errorState");
+    const errorMsgText = document.getElementById("errorMsgText");
+    const retryButton = document.getElementById("retryButton");
+    const appShell = document.getElementById("appShell");
+
+    const verifierModal = document.getElementById("verifierModal");
+    const verifierForm = document.getElementById("verifierForm");
+    const modalVerifierSelect = document.getElementById("modalVerifierSelect");
+    const verifierModalError = document.getElementById("verifierModalError");
+    const verifierCancelButton = document.getElementById("verifierCancelButton");
+    const userFormIsVerifier = document.getElementById("userFormIsVerifier");
+
+    const userAuthActionModal = document.getElementById("userAuthActionModal");
+    const userAuthActionForm = document.getElementById("userAuthActionForm");
+    const actionAuthTargetUser = document.getElementById("actionAuthTargetUser");
+    const actionAuthPasswordInput = document.getElementById("actionAuthPasswordInput");
+    const actionAuthError = document.getElementById("actionAuthError");
+    const actionAuthCancelBtn = document.getElementById("actionAuthCancelBtn");
+
+    const openRegisterModalBtn = document.getElementById("openRegisterModalBtn");
+    const registerModal = document.getElementById("registerModal");
+    const registerDetailsForm = document.getElementById("registerDetailsForm");
+    const registerOtpForm = document.getElementById("registerOtpForm");
+    const regName = document.getElementById("regName");
+    const regEmail = document.getElementById("regEmail");
+    const regPassword = document.getElementById("regPassword");
+    const regError = document.getElementById("regError");
+    const cancelRegBtn = document.getElementById("cancelRegBtn");
+    const regSendCodeBtn = document.getElementById("regSendCodeBtn");
+    const regTargetEmail = document.getElementById("regTargetEmail");
+    const regOtpInput = document.getElementById("regOtpInput");
+    const regOtpError = document.getElementById("regOtpError");
+    const regVerifyBtn = document.getElementById("regVerifyBtn");
+    const backToRegDetailsBtn = document.getElementById("backToRegDetailsBtn");
+
+    const openResetModalBtn = document.getElementById("openResetModalBtn");
+    const resetModal = document.getElementById("resetModal");
+    const resetRequestForm = document.getElementById("resetRequestForm");
+    const resetSubmitForm = document.getElementById("resetSubmitForm");
+    const resetEmail = document.getElementById("resetEmail");
+    const resetRequestError = document.getElementById("resetRequestError");
+    const resetSendCodeBtn = document.getElementById("resetSendCodeBtn");
+    const cancelResetBtn = document.getElementById("cancelResetBtn");
+    const resetOtpInput = document.getElementById("resetOtpInput");
+    const resetNewPassword = document.getElementById("resetNewPassword");
+    const resetConfirmPassword = document.getElementById("resetConfirmPassword");
+    const resetSubmitError = document.getElementById("resetSubmitError");
+    const resetConfirmBtn = document.getElementById("resetConfirmBtn");
+    const backToResetReqBtn = document.getElementById("backToResetReqBtn");
+
+    let currentAdminPassword = localStorage.getItem("lab_admin_master_pwd") || "festo";
+    const TIMEOUT_SECONDS = 30;
+
+    let isAuthenticated = false;
+    let pendingTargetPage = null;
+    let activePageId = "searchPage";
+    let sessionDeadline = 0;
+    let countdownIntervalId = null;
+
+    const authModal = document.getElementById("authModal");
+    const authForm = document.getElementById("authForm");
+    const authPasswordInput = document.getElementById("authPasswordInput");
+    const authError = document.getElementById("authError");
+    const authCancelButton = document.getElementById("authCancelButton");
+    const sessionIndicator = document.getElementById("sessionIndicator");
+    const sessionTimerText = document.getElementById("sessionTimerText");
+    const logoutButton = document.getElementById("logoutButton");
+
+    const openAdminChangePwdBtn = document.getElementById("openAdminChangePwdBtn");
+    const adminChangePwdModal = document.getElementById("adminChangePwdModal");
+    const adminChangePwdForm = document.getElementById("adminChangePwdForm");
+    const adminCurrentPwdInput = document.getElementById("adminCurrentPwdInput");
+    const adminNewPwdInput = document.getElementById("adminNewPwdInput");
+    const adminConfirmPwdInput = document.getElementById("adminConfirmPwdInput");
+    const adminChangePwdStatus = document.getElementById("adminChangePwdStatus");
+    const cancelAdminChangePwdBtn = document.getElementById("cancelAdminChangePwdBtn");
+
+    function getRemainingSeconds() {
+      if (!sessionDeadline) return 0;
+      const diff = Math.ceil((sessionDeadline - Date.now()) / 1000);
+      return diff > 0 ? diff : 0;
+    }
+
+    function updateTimerBadge() {
+      sessionTimerText.textContent = `${getRemainingSeconds()}s`;
+    }
+
+    function resetActivityTimer() {
+      if (!isAuthenticated) return;
+      sessionDeadline = Date.now() + (TIMEOUT_SECONDS * 1000);
+      updateTimerBadge();
+    }
+
+    function checkSessionTimeout() {
+      if (!isAuthenticated) {
+        stopInactivityCountdown();
+        return;
+      }
+      const remaining = getRemainingSeconds();
+      updateTimerBadge();
+      if (remaining <= 0) logout();
+    }
+
+    function startInactivityCountdown() {
+      stopInactivityCountdown();
+      sessionDeadline = Date.now() + (TIMEOUT_SECONDS * 1000);
+      updateTimerBadge();
+      countdownIntervalId = setInterval(checkSessionTimeout, 500);
+    }
+
+    function stopInactivityCountdown() {
+      if (countdownIntervalId) {
+        clearInterval(countdownIntervalId);
+        countdownIntervalId = null;
+      }
+      sessionDeadline = 0;
+    }
+
+    function loginSuccess() {
+      isAuthenticated = true;
+      authModal.hidden = true;
+      authPasswordInput.value = "";
+      authError.textContent = "";
+      sessionIndicator.hidden = false;
+
+      document.querySelectorAll(".page-tab.admin-tab").forEach(tab => {
+        tab.hidden = false;
+      });
+
+      startInactivityCountdown();
+      renderLogs();
+
+      if (pendingTargetPage) {
+        navigateTo(pendingTargetPage);
+        pendingTargetPage = null;
+      } else {
+        navigateTo("materialPage");
+      }
+    }
+
+    function logout() {
+      isAuthenticated = false;
+      stopInactivityCountdown();
+      sessionIndicator.hidden = true;
+      authModal.hidden = true;
+      pendingTargetPage = null;
+
+      document.querySelectorAll(".page-tab.admin-tab").forEach(tab => {
+        tab.hidden = true;
+      });
+
+      renderLogs();
+      if (activePageId !== "searchPage") navigateTo("searchPage");
+    }
+
+    function promptLogin(targetPage) {
+      pendingTargetPage = targetPage;
+      authModal.hidden = false;
+      authError.textContent = "";
+      authPasswordInput.value = "";
+      authPasswordInput.focus();
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (isAuthenticated) checkSessionTimeout();
+    });
+
+    window.addEventListener("focus", () => {
+      if (isAuthenticated) checkSessionTimeout();
+    });
+
+    function handleScopedActivity(event) {
+      if (!isAuthenticated) return;
+      const protectedPages = ['materialPage', 'storagePage', 'usersPage', 'logsPage'];
+      if (!protectedPages.includes(activePageId)) return;
+
+      const activeElement = document.getElementById(activePageId);
+      if (activeElement && activeElement.contains(event.target)) {
+        resetActivityTimer();
+      }
+    }
+
+    window.addEventListener("mousemove", handleScopedActivity, { passive: true });
+    window.addEventListener("keydown", handleScopedActivity, { passive: true });
+    window.addEventListener("mousedown", handleScopedActivity, { passive: true });
+
+    authForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (authPasswordInput.value.trim() === currentAdminPassword) {
+        loginSuccess();
+      } else {
+        authError.textContent = "Incorrect password. Please try again.";
+        authPasswordInput.select();
+      }
+    });
+
+    authCancelButton.addEventListener("click", () => {
+      authModal.hidden = true;
+      pendingTargetPage = null;
+    });
+
+    logoutButton.addEventListener("click", logout);
+
+    openAdminChangePwdBtn.addEventListener("click", () => {
+      adminChangePwdStatus.textContent = "";
+      adminChangePwdForm.reset();
+      adminChangePwdModal.hidden = false;
+      adminCurrentPwdInput.focus();
+    });
+
+    cancelAdminChangePwdBtn.addEventListener("click", () => {
+      adminChangePwdModal.hidden = true;
+    });
+
+    adminChangePwdForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const currentInput = adminCurrentPwdInput.value.trim();
+      const newPwd = adminNewPwdInput.value.trim();
+      const confirmPwd = adminConfirmPwdInput.value.trim();
+
+      if (currentInput !== currentAdminPassword) {
+        adminChangePwdStatus.textContent = "Current admin password is incorrect.";
+        adminCurrentPwdInput.select();
+        return;
+      }
+      if (newPwd.length < 3) {
+        adminChangePwdStatus.textContent = "New password must be at least 3 characters.";
+        return;
+      }
+      if (newPwd !== confirmPwd) {
+        adminChangePwdStatus.textContent = "New password and confirmation do not match.";
+        adminConfirmPwdInput.select();
+        return;
+      }
+
+      currentAdminPassword = newPwd;
+      localStorage.setItem("lab_admin_master_pwd", newPwd);
+      adminChangePwdModal.hidden = true;
+      alert("Admin master password changed successfully!");
+    });
+
+    const labTitleText = document.getElementById("labTitleText");
+    const brandMark = document.getElementById("brandMark");
+    const secretBrandTrigger = document.getElementById("secretBrandTrigger");
+    const searchInput = document.getElementById("searchInput");
+    const clearButton = document.getElementById("clearButton");
+    const productList = document.getElementById("productList");
+    const emptyState = document.getElementById("emptyState");
+    const workbookStatus = document.getElementById("workbookStatus");
+    const exportButton = document.getElementById("exportButton");
+    
+    const materialForm = document.getElementById("materialForm");
+    const materialStatus = document.getElementById("materialStatus");
+    const locationType = document.getElementById("locationType");
+    const materialCupboard = document.getElementById("materialCupboard");
+    const materialRack = document.getElementById("materialRack");
+    const materialBox = document.getElementById("materialBox");
+    const materialWorkbench = document.getElementById("materialWorkbench");
+    const materialCupboardField = document.getElementById("materialCupboardField");
+    const rackLocationField = document.getElementById("rackLocationField");
+    const boxLocationField = document.getElementById("boxLocationField");
+    const workbenchLocationField = document.getElementById("workbenchLocationField");
+
+    const removeMaterialForm = document.getElementById("removeMaterialForm");
+    const removeMaterialStatus = document.getElementById("removeMaterialStatus");
+    const removeLocationType = document.getElementById("removeLocationType");
+    const removeCupboard = document.getElementById("removeCupboard");
+    const removeRack = document.getElementById("removeRack");
+    const removeBox = document.getElementById("removeBox");
+    const removeWorkbench = document.getElementById("removeWorkbench");
+    const removeCupboardField = document.getElementById("removeCupboardField");
+    const removeRackField = document.getElementById("removeRackField");
+    const removeBoxField = document.getElementById("removeBoxField");
+    const removeWorkbenchField = document.getElementById("removeWorkbenchField");
+
+    const storageStatus = document.getElementById("storageStatus");
+
+    const userForm = document.getElementById("userForm");
+    const userStatus = document.getElementById("userStatus");
+    const usersList = document.getElementById("usersList");
+    const emptyUsers = document.getElementById("emptyUsers");
+    const userAllocViewerSelect = document.getElementById("userAllocViewerSelect");
+    const userAllocViewerResults = document.getElementById("userAllocViewerResults");
+
+    const searchAllocateControls = document.getElementById("searchAllocateControls");
+    const searchReturnControls = document.getElementById("searchReturnControls");
+    const takeUserSelect = document.getElementById("takeUserSelect");
+    const takePartNumber = document.getElementById("takePartNumber");
+    const takePartCode = document.getElementById("takePartCode");
+    const takeQuantity = document.getElementById("takeQuantity");
+    const searchAddStageBtn = document.getElementById("searchAddStageBtn");
+    const searchExecuteAllocateBtn = document.getElementById("searchExecuteAllocateBtn");
+
+    const returnUserSelect = document.getElementById("returnUserSelect");
+    const returnAllocatedPartCodeSelect = document.getElementById("returnAllocatedPartCodeSelect");
+    const returnPartNumber = document.getElementById("returnPartNumber");
+    const returnQuantity = document.getElementById("returnQuantity");
+    const returnLocationType = document.getElementById("returnLocationType");
+    const returnCupboard = document.getElementById("returnCupboard");
+    const returnRack = document.getElementById("returnRack");
+    const returnBox = document.getElementById("returnBox");
+    const returnWorkbench = document.getElementById("returnWorkbench");
+    const returnCupboardField = document.getElementById("returnCupboardField");
+    const returnRackField = document.getElementById("returnRackField");
+    const returnBoxField = document.getElementById("returnBoxField");
+    const returnWorkbenchField = document.getElementById("returnWorkbenchField");
+    const searchAddReturnStageBtn = document.getElementById("searchAddReturnStageBtn");
+    const searchExecuteReturnBtn = document.getElementById("searchExecuteReturnBtn");
+
+    const searchStagedPartsBox = document.getElementById("searchStagedPartsBox");
+    const searchStagedPartsList = document.getElementById("searchStagedPartsList");
+    const globalStripStatus = document.getElementById("globalStripStatus");
+
+    const userPageTakeForm = document.getElementById("userPageTakeForm");
+    const userPageReturnForm = document.getElementById("userPageReturnForm");
+    const userTakeUserInput = document.getElementById("userTakeUserInput");
+    const userTakePartNumber = document.getElementById("userTakePartNumber");
+    const userTakePartCode = document.getElementById("userTakePartCode");
+    const userTakeQuantity = document.getElementById("userTakeQuantity");
+    const userAllocateSubmitBtn = document.getElementById("userAllocateSubmitBtn");
+
+    const userReturnUserInput = document.getElementById("userReturnUserInput");
+    const userReturnAllocatedSelect = document.getElementById("userReturnAllocatedSelect");
+    const userReturnPartNumber = document.getElementById("userReturnPartNumber");
+    const userReturnPartCode = document.getElementById("userReturnPartCode");
+    const userReturnQuantity = document.getElementById("userReturnQuantity");
+    const userReturnLocationType = document.getElementById("userReturnLocationType");
+    const userReturnCupboard = document.getElementById("userReturnCupboard");
+    const userReturnRack = document.getElementById("userReturnRack");
+    const userReturnBox = document.getElementById("userReturnBox");
+    const userReturnWorkbench = document.getElementById("userReturnWorkbench");
+    const userReturnCupboardField = document.getElementById("userReturnCupboardField");
+    const userReturnRackField = document.getElementById("userReturnRackField");
+    const userReturnBoxField = document.getElementById("userReturnBoxField");
+    const userReturnWorkbenchField = document.getElementById("userReturnWorkbenchField");
+    const userPageStripStatus = document.getElementById("userPageStripStatus");
+    const partNumberSuggestionsList = document.getElementById("partNumberSuggestionsList");
+    const partCodeSuggestionsList = document.getElementById("partCodeSuggestionsList");
+
+    const logList = document.getElementById("logList");
+    const emptyLogs = document.getElementById("emptyLogs");
+    const exportLogsButton = document.getElementById("exportLogsButton");
+    const logActionFilter = document.getElementById("logActionFilter");
+    const logFromDateFilter = document.getElementById("logFromDateFilter");
+    const logToDateFilter = document.getElementById("logToDateFilter");
+    const clearLogDatesBtn = document.getElementById("clearLogDatesBtn");
+
+    const unifiedInspectorContent = document.getElementById("unifiedInspectorContent");
+
+    secretBrandTrigger.addEventListener("click", () => {
+      if (!isAuthenticated) promptLogin("materialPage");
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.ctrlKey && e.shiftKey && (e.key === "A" || e.key === "a")) {
+        e.preventDefault();
+        if (!isAuthenticated) promptLogin("materialPage");
+      }
+    });
+
+    function setConnectionVisuals(isConnected) {
+      if (isConnected) {
+        labTitleText.classList.add("connected");
+        brandMark.classList.add("connected");
+      } else {
+        labTitleText.classList.remove("connected");
+        brandMark.classList.remove("connected");
+      }
+    }
+
+    async function checkServerConnection() {
+      const { error } = await supabaseClient.from('cupboards').select('id', { count: 'exact', head: true });
+      if (error) throw error;
+      setConnectionVisuals(true);
+      workbookStatus.textContent = "";
+      workbookStatus.classList.remove("error");
+    }
+
+    function setFormStatus(element, message, isError = false) {
+      if (!element) return;
+      element.textContent = message;
+      element.classList.toggle("error", isError);
+    }
+
+    function selectOptions(select, entries, placeholder, getValue, getLabel) {
+      const previousValue = select.value;
+      select.replaceChildren(new Option(placeholder, ""));
+      for (const entry of entries) {
+        select.add(new Option(getLabel(entry), getValue(entry)));
+      }
+      select.disabled = entries.length === 0;
+      if (entries.some((entry) => String(getValue(entry)) === String(previousValue))) {
+        select.value = previousValue;
+      }
+    }
+
+    function prepareExcelWorksheet(jsonRows) {
+      const ws = XLSX.utils.json_to_sheet(jsonRows);
+      if (ws['!ref']) {
+        ws['!autofilter'] = { ref: ws['!ref'] };
+        const headers = Object.keys(jsonRows[0] || {});
+        ws['!cols'] = headers.map(key => {
+          let maxLen = key.length;
+          jsonRows.forEach(row => {
+            const val = row[key];
+            if (val !== null && val !== undefined) {
+              const strLen = String(val).length;
+              if (strLen > maxLen) maxLen = strLen;
+            }
+          });
+          return { wch: Math.min(Math.max(maxLen + 3, 12), 45) };
+        });
+      }
+      return ws;
+    }
+
+    // ==========================================
+    // 2. USER AUTHENTICATION & ACTION CONFIRMATION MODAL
+    // ==========================================
+    function verifyUserPasswordBeforeAction(userObj, actionType, onVerifiedCallback) {
+      if (!userObj || !userObj.password_hash) {
+        onVerifiedCallback();
+        return;
+      }
+
+      pendingActionCallback = onVerifiedCallback;
+      actionAuthTargetUser.textContent = `${userObj.name} (${actionType})`;
+      actionAuthError.textContent = "";
+      actionAuthPasswordInput.value = "";
+      userAuthActionModal.hidden = false;
+      actionAuthPasswordInput.focus();
+
+      userAuthActionForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const inputPwd = actionAuthPasswordInput.value;
+        const hashed = await hashPassword(inputPwd);
+
+        if (hashed === userObj.password_hash) {
+          userAuthActionModal.hidden = true;
+          const cb = pendingActionCallback;
+          pendingActionCallback = null;
+          if (cb) cb();
+        } else {
+          actionAuthError.textContent = "Incorrect password! Action not allowed.";
+          actionAuthPasswordInput.select();
+        }
+      };
+    }
+
+    actionAuthCancelBtn.addEventListener("click", () => {
+      userAuthActionModal.hidden = true;
+      pendingActionCallback = null;
+    });
+
+    // ==========================================
+    // 3. SELF-REGISTRATION WITH REAL EMAIL OTP
+    // ==========================================
+    let pendingRegistration = null;
+
+    openRegisterModalBtn.addEventListener("click", () => {
+      registerModal.hidden = false;
+      registerDetailsForm.hidden = false;
+      registerOtpForm.hidden = true;
+      setFormStatus(regError, "");
+      registerDetailsForm.reset();
+    });
+
+    cancelRegBtn.addEventListener("click", () => {
+      registerModal.hidden = true;
+      pendingRegistration = null;
+    });
+
+    backToRegDetailsBtn.addEventListener("click", () => {
+      registerOtpForm.hidden = true;
+      registerDetailsForm.hidden = false;
+      setFormStatus(regOtpError, "");
+    });
+
+    registerDetailsForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = regName.value.trim();
+      const email = regEmail.value.trim().toLowerCase();
+      const password = regPassword.value;
+
+      regSendCodeBtn.disabled = true;
+      setFormStatus(regError, "Sending verification code to your email...");
+
+      try {
+        const { data: existing, error: searchErr } = await supabaseClient
+          .from('users')
+          .select('id, is_verified')
+          .eq('email', email);
+
+        if (searchErr) throw searchErr;
+        if (existing && existing.length > 0 && existing[0].is_verified) {
+          throw new Error("An active user with this email address is already registered.");
+        }
+
+        const otp = generateSecureOTP();
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+        const pwdHash = await hashPassword(password);
+
+        pendingRegistration = { name, email, pwdHash, otp };
+
+        if (existing && existing.length > 0) {
+          await supabaseClient
+            .from('users')
+            .update({
+              name,
+              password_hash: pwdHash,
+              verification_otp: otp,
+              verification_otp_expires: expiresAt,
+              is_verified: false
+            })
+            .eq('email', email);
+        } else {
+          await supabaseClient
+            .from('users')
+            .insert([{
+              name,
+              email,
+              password_hash: pwdHash,
+              verification_otp: otp,
+              verification_otp_expires: expiresAt,
+              is_verified: false,
+              is_verifier: false
+            }]);
+        }
+
+        await dispatchVerificationEmail(email, name, otp, "Registration Verification");
+
+        regTargetEmail.textContent = email;
+        registerDetailsForm.hidden = true;
+        registerOtpForm.hidden = false;
+        setFormStatus(regOtpError, "");
+        regOtpInput.value = "";
+        regOtpInput.focus();
+      } catch (err) {
+        setFormStatus(regError, err.message || "Failed to dispatch email verification.", true);
+      } finally {
+        regSendCodeBtn.disabled = false;
+      }
+    });
+
+    registerOtpForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const enteredOtp = regOtpInput.value.trim();
+
+      if (!pendingRegistration) {
+        setFormStatus(regOtpError, "Session expired. Please try registering again.", true);
+        return;
+      }
+
+      regVerifyBtn.disabled = true;
+      setFormStatus(regOtpError, "Validating code...");
+
+      try {
+        const { data: userRec, error } = await supabaseClient
+          .from('users')
+          .select('*')
+          .eq('email', pendingRegistration.email)
+          .single();
+
+        if (error || !userRec) throw new Error("Could not find registration record.");
+
+        if (userRec.verification_otp !== enteredOtp) {
+          throw new Error("Invalid verification code. Please check your email inbox and enter the 6-digit code.");
+        }
+
+        if (userRec.verification_otp_expires && new Date() > new Date(userRec.verification_otp_expires)) {
+          throw new Error("Verification code has expired. Please request a new code.");
+        }
+
+        const { error: updErr } = await supabaseClient
+          .from('users')
+          .update({
+            is_verified: true,
+            verification_otp: null,
+            verification_otp_expires: null
+          })
+          .eq('id', userRec.id);
+
+        if (updErr) throw updErr;
+
+        registerModal.hidden = true;
+        pendingRegistration = null;
+        alert(`Registration successful! You can now allocate and return materials.`);
+        await loadUsers();
+      } catch (err) {
+        setFormStatus(regOtpError, err.message || "Verification failed.", true);
+      } finally {
+        regVerifyBtn.disabled = false;
+      }
+    });
+
+    // ==========================================
+    // 4. USER PASSWORD RESET SELF-SERVICE
+    // ==========================================
+    let pendingResetEmail = null;
+
+    openResetModalBtn.addEventListener("click", () => {
+      resetModal.hidden = false;
+      resetRequestForm.hidden = false;
+      resetSubmitForm.hidden = true;
+      setFormStatus(resetRequestError, "");
+      resetRequestForm.reset();
+    });
+
+    cancelResetBtn.addEventListener("click", () => {
+      resetModal.hidden = true;
+      pendingResetEmail = null;
+    });
+
+    backToResetReqBtn.addEventListener("click", () => {
+      resetSubmitForm.hidden = true;
+      resetRequestForm.hidden = false;
+      setFormStatus(resetSubmitError, "");
+    });
+
+    resetRequestForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = resetEmail.value.trim().toLowerCase();
+      resetSendCodeBtn.disabled = true;
+      setFormStatus(resetRequestError, "Sending reset code to your email...");
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('users')
+          .select('id, name')
+          .eq('email', email)
+          .single();
+
+        if (error || !data) {
+          throw new Error("No registered account found matching this email address.");
+        }
+
+        const otp = generateSecureOTP();
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+
+        const { error: updErr } = await supabaseClient
+          .from('users')
+          .update({
+            reset_otp: otp,
+            reset_otp_expires: expiresAt
+          })
+          .eq('id', data.id);
+
+        if (updErr) throw updErr;
+
+        await dispatchVerificationEmail(email, data.name, otp, "Password Reset");
+
+        pendingResetEmail = email;
+        resetRequestForm.hidden = true;
+        resetSubmitForm.hidden = false;
+        setFormStatus(resetSubmitError, "");
+        resetOtpInput.value = "";
+        resetNewPassword.value = "";
+        resetConfirmPassword.value = "";
+        resetOtpInput.focus();
+      } catch (err) {
+        setFormStatus(resetRequestError, err.message || "Failed dispatching reset code.", true);
+      } finally {
+        resetSendCodeBtn.disabled = false;
+      }
+    });
+
+    resetSubmitForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const enteredOtp = resetOtpInput.value.trim();
+      const newPwd = resetNewPassword.value;
+      const confirmPwd = resetConfirmPassword.value;
+
+      if (newPwd !== confirmPwd) {
+        setFormStatus(resetSubmitError, "Passwords do not match.", true);
+        return;
+      }
+
+      resetConfirmBtn.disabled = true;
+      setFormStatus(resetSubmitError, "Updating password...");
+
+      try {
+        const { data: userRec, error } = await supabaseClient
+          .from('users')
+          .select('*')
+          .eq('email', pendingResetEmail)
+          .single();
+
+        if (error || !userRec) throw new Error("User record not found.");
+
+        if (userRec.reset_otp !== enteredOtp) {
+          throw new Error("Invalid reset code. Please check your email inbox and enter the 6-digit code.");
+        }
+
+        if (userRec.reset_otp_expires && new Date() > new Date(userRec.reset_otp_expires)) {
+          throw new Error("Reset code has expired. Please request a new code.");
+        }
+
+        const newHash = await hashPassword(newPwd);
+        const { error: updErr } = await supabaseClient
+          .from('users')
+          .update({
+            password_hash: newHash,
+            reset_otp: null,
+            reset_otp_expires: null
+          })
+          .eq('id', userRec.id);
+
+        if (updErr) throw updErr;
+
+        alert("Your password has been updated successfully! You can now use your new password.");
+        resetModal.hidden = true;
+        pendingResetEmail = null;
+        await loadUsers();
+      } catch (err) {
+        setFormStatus(resetSubmitError, err.message || "Failed updating password.", true);
+      } finally {
+        resetConfirmBtn.disabled = false;
+      }
+    });
+
+    // ==========================================
+    // 5. STORAGE & INSPECTOR
+    // ==========================================
+    async function loadStorage() {
+      try {
+        const [cupboardsRes, racksRes, boxesRes, workbenchesRes] = await Promise.all([
+          supabaseClient.from('cupboards').select('*').order('created_at', { ascending: true }),
+          supabaseClient.from('racks').select('*').order('created_at', { ascending: true }),
+          supabaseClient.from('boxes').select('*').order('created_at', { ascending: true }),
+          supabaseClient.from('workbenches').select('*').order('created_at', { ascending: true })
+        ]);
+
+        if (cupboardsRes.error) throw cupboardsRes.error;
+        if (racksRes.error) throw racksRes.error;
+        if (boxesRes.error) throw boxesRes.error;
+        const workbenchesData = workbenchesRes.error ? [] : (workbenchesRes.data || []);
+
+        const racks = racksRes.data || [];
+        storageTree = (cupboardsRes.data || []).map(cupboard => ({
+          ...cupboard,
+          racks: racks.filter(rack => rack.cupboard_id === cupboard.id)
+        }));
+
+        storageBoxes = boxesRes.data || [];
+        storageWorkbenches = workbenchesData;
+
+        renderMaterialLocationOptions();
+        renderRemoveLocationOptions();
+        renderReturnLocationOptions();
+        renderUserReturnLocationOptions();
+        renderCombinedStorageInspector();
+        setConnectionVisuals(true);
+      } catch (error) {
+        setFormStatus(storageStatus, error.message, true);
+        setConnectionVisuals(false);
+      }
+    }
+
+    function makeDeleteButton(type, id, name, cupboardId = "") {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "location-delete";
+      button.textContent = "Delete";
+      button.dataset.deleteType = type;
+      button.dataset.deleteId = id;
+      button.dataset.deleteName = name;
+      if (cupboardId) button.dataset.cupboardId = cupboardId;
+      button.addEventListener("click", (e) => {
+        e.stopPropagation();
+        deleteLocation(button);
+      });
+      return button;
+    }
+
+    function renderCombinedStorageInspector() {
+      selectOptions(materialCupboard, storageTree, "Choose Cupboard", c => c.id, c => c.name);
+      unifiedInspectorContent.replaceChildren();
+
+      let items = [];
+      if (activeInspectorFilter === "cupboard") items = storageTree;
+      else if (activeInspectorFilter === "box") items = storageBoxes;
+      else if (activeInspectorFilter === "workbench") items = storageWorkbenches;
+
+      if (!items.length) {
+        const p = document.createElement("p");
+        p.textContent = `No ${activeInspectorFilter === 'cupboard' ? 'cupboards' : activeInspectorFilter + 'es'} added yet.`;
+        p.style.color = "var(--muted)";
+        unifiedInspectorContent.append(p);
+        return;
+      }
+
+      items.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "inspector-item" + (selectedInspectorLocationId === item.id ? " active" : "");
+
+        const head = document.createElement("div");
+        head.className = "inspector-item-head";
+
+        const titleSpan = document.createElement("span");
+        titleSpan.innerHTML = `<strong>${item.name}</strong> <span style="font-size:9.5px;font-weight:400;color:var(--muted);">&#9660; view stock</span>`;
+
+        const actions = document.createElement("div");
+        actions.className = "head-actions";
+
+        const delBtn = makeDeleteButton(activeInspectorFilter, item.id, item.name);
+        actions.append(delBtn);
+
+        head.append(titleSpan, actions);
+        card.append(head);
+
+        card.addEventListener("click", () => {
+          selectedInspectorLocationId = (selectedInspectorLocationId === item.id) ? null : item.id;
+          renderCombinedStorageInspector();
+        });
+
+        if (selectedInspectorLocationId === item.id) {
+          const detailContainer = document.createElement("div");
+          detailContainer.style.marginTop = "6px";
+
+          if (activeInspectorFilter === "cupboard") {
+            if (!item.racks || !item.racks.length) {
+              detailContainer.innerHTML = `<span style="font-size:10px;color:#718079;">No racks in this cupboard.</span>`;
+            } else {
+              item.racks.forEach(rack => {
+                const rackBox = document.createElement("div");
+                rackBox.className = "rack-material-box";
+
+                const rackHead = document.createElement("h5");
+                const rackNameSpan = document.createElement("span");
+                rackNameSpan.textContent = rack.name;
+
+                const rackDelBtn = makeDeleteButton("rack", rack.id, rack.name, item.id);
+                rackHead.append(rackNameSpan, rackDelBtn);
+                rackBox.append(rackHead);
+
+                const rackMaterials = products.filter(p => p.location_type === 'rack' && String(p.rack_id) === String(rack.id) && parseInt(p.quantity, 10) >= 1);
+                if (!rackMaterials.length) {
+                  const emptySpan = document.createElement("div");
+                  emptySpan.style.fontSize = "9.5px";
+                  emptySpan.style.color = "#8f9e97";
+                  emptySpan.style.marginTop = "3px";
+                  emptySpan.textContent = "(No materials stored on this rack)";
+                  rackBox.append(emptySpan);
+                } else {
+                  rackMaterials.forEach(m => {
+                    const rowDiv = document.createElement("div");
+                    rowDiv.className = "material-entry-pill";
+                    rowDiv.innerHTML = `<strong>${m.part_number}</strong> (${m.part_code}) - <em>${m.quantity} in stock</em>`;
+                    rackBox.append(rowDiv);
+                  });
+                }
+                detailContainer.append(rackBox);
+              });
+            }
+          } else if (activeInspectorFilter === "box") {
+            const boxMaterials = products.filter(p => p.location_type === 'box' && String(p.box_id) === String(item.id) && parseInt(p.quantity, 10) >= 1);
+            if (!boxMaterials.length) {
+              detailContainer.innerHTML = `<span style="font-size:10px;color:#718079;">(No materials stored in this box)</span>`;
+            } else {
+              boxMaterials.forEach(m => {
+                const rowDiv = document.createElement("div");
+                rowDiv.className = "material-entry-pill";
+                rowDiv.innerHTML = `<strong>${m.part_number}</strong> (${m.part_code}) - <em>${m.quantity} in stock</em>`;
+                detailContainer.append(rowDiv);
+              });
+            }
+          } else if (activeInspectorFilter === "workbench") {
+            const wbMaterials = products.filter(p => p.location_type === 'workbench' && String(p.workbench_id) === String(item.id) && parseInt(p.quantity, 10) >= 1);
+            if (!wbMaterials.length) {
+              detailContainer.innerHTML = `<span style="font-size:10px;color:#718079;">(No materials stored on this workbench)</span>`;
+            } else {
+              wbMaterials.forEach(m => {
+                const rowDiv = document.createElement("div");
+                rowDiv.className = "material-entry-pill";
+                rowDiv.innerHTML = `<strong>${m.part_number}</strong> (${m.part_code}) - <em>${m.quantity} in stock</em>`;
+                detailContainer.append(rowDiv);
+              });
+            }
+          }
+          card.append(detailContainer);
+        }
+
+        unifiedInspectorContent.append(card);
+      });
+    }
+
+    document.querySelectorAll(".pill-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".pill-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeInspectorFilter = btn.dataset.filter;
+        selectedInspectorLocationId = null;
+        renderCombinedStorageInspector();
+      });
+    });
+
+    async function deleteLocation(button) {
+      const { deleteType: type, deleteId: id, deleteName: name } = button.dataset;
+      const warning = type === "cupboard"
+        ? `Delete cupboard "${name}"? Its racks and materials stored on those racks will also be deleted.`
+        : `Delete ${type} "${name}"? Materials stored here will also be removed.`;
+
+      if (!window.confirm(warning)) return;
+
+      try {
+        let table = 'boxes';
+        if (type === 'cupboard') table = 'cupboards';
+        else if (type === 'rack') table = 'racks';
+        else if (type === 'workbench') table = 'workbenches';
+
+        const { error } = await supabaseClient.from(table).delete().eq('id', id);
+        if (error) throw error;
+
+        await loadStorage();
+        await refreshInventory();
+        setFormStatus(storageStatus, `${type[0].toUpperCase()}${type.slice(1)} removed.`);
+      } catch (error) {
+        setFormStatus(storageStatus, error.message, true);
+      }
+    }
+
+    // ACCURATE CONDITIONAL DISPLAY FOR ADD FORM
+    function renderMaterialLocationOptions() {
+      const locType = locationType.value;
+      const cupboard = storageTree.find((item) => String(item.id) === String(materialCupboard.value));
+
+      // Show Cupboard & Rack ONLY if 'rack' (Cupboard Rack) is selected
+      const isRack = locType === "rack";
+      const isBox = locType === "box";
+      const isWorkbench = locType === "workbench";
+
+      materialCupboardField.hidden = !isRack;
+      rackLocationField.hidden = !isRack;
+      boxLocationField.hidden = !isBox;
+      workbenchLocationField.hidden = !isWorkbench;
+
+      materialCupboard.required = isRack;
+      materialRack.required = isRack;
+      materialBox.required = isBox;
+      materialWorkbench.required = isWorkbench;
+
+      selectOptions(materialCupboard, storageTree, "Choose Cupboard", c => c.id, c => c.name);
+      selectOptions(materialRack, cupboard?.racks || [], "Choose Rack", r => r.id, r => r.name);
+      selectOptions(materialBox, storageBoxes, "Choose Box", b => b.id, b => b.name);
+      selectOptions(materialWorkbench, storageWorkbenches, "Choose Workbench", w => w.id, w => w.name);
+
+      materialCupboard.disabled = !isRack || !storageTree.length;
+      materialRack.disabled = !isRack || !cupboard?.racks.length;
+      materialBox.disabled = !isBox || !storageBoxes.length;
+      materialWorkbench.disabled = !isWorkbench || !storageWorkbenches.length;
+    }
+
+    // ACCURATE CONDITIONAL DISPLAY FOR REMOVE FORM
+    function renderRemoveLocationOptions() {
+      const locType = removeLocationType.value;
+      const cupboard = storageTree.find((item) => String(item.id) === String(removeCupboard.value));
+
+      const isRack = locType === "rack";
+      const isBox = locType === "box";
+      const isWorkbench = locType === "workbench";
+
+      removeCupboardField.hidden = !isRack;
+      removeRackField.hidden = !isRack;
+      removeBoxField.hidden = !isBox;
+      removeWorkbenchField.hidden = !isWorkbench;
+
+      removeCupboard.required = isRack;
+      removeRack.required = isRack;
+      removeBox.required = isBox;
+      removeWorkbench.required = isWorkbench;
+
+      selectOptions(removeCupboard, storageTree, "Choose Cupboard", c => c.id, c => c.name);
+      selectOptions(removeRack, cupboard?.racks || [], "Choose Rack", r => r.id, r => r.name);
+      selectOptions(removeBox, storageBoxes, "Choose Box", b => b.id, b => b.name);
+      selectOptions(removeWorkbench, storageWorkbenches, "Choose Workbench", w => w.id, w => w.name);
+
+      removeCupboard.disabled = !isRack || !storageTree.length;
+      removeRack.disabled = !isRack || !cupboard?.racks.length;
+      removeBox.disabled = !isBox || !storageBoxes.length;
+      removeWorkbench.disabled = !isWorkbench || !storageWorkbenches.length;
+    }
+
+    function renderReturnLocationOptions() {
+      const locType = returnLocationType.value;
+      const cupboard = storageTree.find((item) => String(item.id) === String(returnCupboard.value));
+
+      const isRack = locType === "rack";
+      const isBox = locType === "box";
+      const isWorkbench = locType === "workbench";
+
+      returnCupboardField.hidden = !isRack;
+      returnRackField.hidden = !isRack;
+      returnBoxField.hidden = !isBox;
+      returnWorkbenchField.hidden = !isWorkbench;
+
+      returnCupboard.required = isRack;
+      returnRack.required = isRack;
+      returnBox.required = isBox;
+      returnWorkbench.required = isWorkbench;
+
+      selectOptions(returnCupboard, storageTree, "Cupboard", c => c.id, c => c.name);
+      selectOptions(returnRack, cupboard?.racks || [], "Rack", r => r.id, r => r.name);
+      selectOptions(returnBox, storageBoxes, "Box", b => b.id, b => b.name);
+      selectOptions(returnWorkbench, storageWorkbenches, "Workbench", w => w.id, w => w.name);
+
+      returnCupboard.disabled = !isRack || !storageTree.length;
+      returnRack.disabled = !isRack || !cupboard?.racks.length;
+      returnBox.disabled = !isBox || !storageBoxes.length;
+      returnWorkbench.disabled = !isWorkbench || !storageWorkbenches.length;
+    }
+
+    function renderUserReturnLocationOptions() {
+      const locType = userReturnLocationType.value;
+      const cupboard = storageTree.find((item) => String(item.id) === String(userReturnCupboard.value));
+
+      const isRack = locType === "rack";
+      const isBox = locType === "box";
+      const isWorkbench = locType === "workbench";
+
+      userReturnCupboardField.hidden = !isRack;
+      userReturnRackField.hidden = !isRack;
+      userReturnBoxField.hidden = !isBox;
+      userReturnWorkbenchField.hidden = !isWorkbench;
+
+      userReturnCupboard.required = isRack;
+      userReturnRack.required = isRack;
+      userReturnBox.required = isBox;
+      userReturnWorkbench.required = isWorkbench;
+
+      selectOptions(userReturnCupboard, storageTree, "Cupboard", c => c.id, c => c.name);
+      selectOptions(userReturnRack, cupboard?.racks || [], "Rack", r => r.id, r => r.name);
+      selectOptions(userReturnBox, storageBoxes, "Box", b => b.id, b => b.name);
+      selectOptions(userReturnWorkbench, storageWorkbenches, "Workbench", w => w.id, w => w.name);
+
+      userReturnCupboard.disabled = !isRack || !storageTree.length;
+      userReturnRack.disabled = !isRack || !cupboard?.racks.length;
+      userReturnBox.disabled = !isBox || !storageBoxes.length;
+      userReturnWorkbench.disabled = !isWorkbench || !storageWorkbenches.length;
+    }
+
+    // Dynamic re-render on cupboard select so dependent racks re-render smoothly
+    materialCupboard.addEventListener("change", () => {
+      const cupboard = storageTree.find((item) => String(item.id) === String(materialCupboard.value));
+      selectOptions(materialRack, cupboard?.racks || [], "Choose Rack", r => r.id, r => r.name);
+      materialRack.disabled = !cupboard?.racks.length;
+    });
+
+    removeCupboard.addEventListener("change", () => {
+      const cupboard = storageTree.find((item) => String(item.id) === String(removeCupboard.value));
+      selectOptions(removeRack, cupboard?.racks || [], "Choose Rack", r => r.id, r => r.name);
+      removeRack.disabled = !cupboard?.racks.length;
+    });
+
+    returnCupboard.addEventListener("change", () => {
+      const cupboard = storageTree.find((item) => String(item.id) === String(returnCupboard.value));
+      selectOptions(returnRack, cupboard?.racks || [], "Rack", r => r.id, r => r.name);
+      returnRack.disabled = !cupboard?.racks.length;
+    });
+
+    userReturnCupboard.addEventListener("change", () => {
+      const cupboard = storageTree.find((item) => String(item.id) === String(userReturnCupboard.value));
+      selectOptions(userReturnRack, cupboard?.racks || [], "Rack", r => r.id, r => r.name);
+      userReturnRack.disabled = !cupboard?.racks.length;
+    });
+
+    document.getElementById("cupboardRackForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const name = form.name.value.trim();
+      const rackCount = parseInt(form.rackCount.value, 10);
+
+      try {
+        const { data: cupboardData, error: cupboardError } = await supabaseClient
+          .from('cupboards')
+          .insert([{ name }])
+          .select()
+          .single();
+
+        if (cupboardError) throw cupboardError;
+
+        const racks = [];
+        for (let i = 1; i <= rackCount; i++) {
+          racks.push({ cupboard_id: cupboardData.id, name: `Rack ${i}` });
+        }
+
+        const { error: racksError } = await supabaseClient.from('racks').insert(racks);
+        if (racksError) throw racksError;
+
+        form.reset();
+        await loadStorage();
+        setFormStatus(storageStatus, `Cupboard "${name}" with ${rackCount} rack(s) added.`);
+      } catch (error) {
+        setFormStatus(storageStatus, error.message, true);
+      }
+    });
+
+    document.getElementById("boxForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const name = form.name.value.trim();
+
+      try {
+        const { error } = await supabaseClient.from('boxes').insert([{ name }]);
+        if (error) throw error;
+
+        form.reset();
+        await loadStorage();
+        setFormStatus(storageStatus, `Box "${name}" added.`);
+      } catch (error) {
+        setFormStatus(storageStatus, error.message, true);
+      }
+    });
+
+    document.getElementById("workbenchForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const name = form.name.value.trim();
+
+      try {
+        const { error } = await supabaseClient.from('workbenches').insert([{ name }]);
+        if (error) throw error;
+
+        form.reset();
+        await loadStorage();
+        setFormStatus(storageStatus, `Workbench "${name}" added.`);
+      } catch (error) {
+        setFormStatus(storageStatus, error.message, true);
+      }
+    });
+
+    // ==========================================
+    // 6. USER MANAGEMENT
+    // ==========================================
+    function isGuestEmail(email) {
+      if (!email) return false;
+      return email.toLowerCase().endsWith('@guest.lab');
+    }
+
+    async function loadUsers() {
+      try {
+        const { data, error } = await supabaseClient
+          .from('users')
+          .select('*')
+          .order('name', { ascending: true });
+
+        if (error) throw error;
+        users = data || [];
+        renderUsers();
+        populateUserDropdowns();
+        populateDatalists();
+      } catch (error) {
+        setFormStatus(userStatus, error.message, true);
+      }
+    }
+
+    async function toggleUserVerifierStatus(userId, isVerifier) {
+      try {
+        const { error } = await supabaseClient
+          .from('users')
+          .update({ is_verifier: isVerifier })
+          .eq('id', userId);
+
+        if (error) throw error;
+        const target = users.find(u => String(u.id) === String(userId));
+        if (target) target.is_verifier = isVerifier;
+        setFormStatus(userStatus, "Verifier status updated.");
+      } catch (err) {
+        setFormStatus(userStatus, "Error updating verifier: " + err.message, true);
+      }
+    }
+
+    function renderUsers() {
+      usersList.replaceChildren();
+
+      const regularUsers = users.filter(u => !isGuestEmail(u.email));
+
+      if (!regularUsers.length) {
+        emptyUsers.hidden = false;
+        return;
+      }
+
+      emptyUsers.hidden = true;
+
+      for (const user of regularUsers) {
+        const row = document.createElement("article");
+        row.className = "user-row";
+
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "user-name";
+        nameSpan.textContent = user.name;
+
+        const emailSpan = document.createElement("span");
+        emailSpan.className = "user-email";
+        emailSpan.textContent = user.email;
+
+        const verifiedCell = document.createElement("div");
+        verifiedCell.style.textAlign = "center";
+        const isVer = user.is_verified !== false;
+        verifiedCell.innerHTML = isVer 
+          ? `<span style="color:#16a34a;font-weight:bold;">✓</span>`
+          : `<span style="color:#d9633b;font-size:9.5px;">Pending</span>`;
+
+        const verifierCell = document.createElement("div");
+        verifierCell.style.textAlign = "center";
+        const vCheckbox = document.createElement("input");
+        vCheckbox.type = "checkbox";
+        vCheckbox.checked = !!user.is_verifier;
+        vCheckbox.title = "Authorize user to verify physical returns";
+        vCheckbox.addEventListener("change", (e) => {
+          toggleUserVerifierStatus(user.id, e.target.checked);
+        });
+        verifierCell.append(vCheckbox);
+
+        const actionDiv = document.createElement("div");
+        actionDiv.style.textAlign = "right";
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "location-delete";
+        delBtn.textContent = "Delete";
+        delBtn.addEventListener("click", () => deleteUser(user.id, user.name));
+
+        actionDiv.append(delBtn);
+        row.append(nameSpan, emailSpan, verifiedCell, verifierCell, actionDiv);
+        usersList.append(row);
+      }
+    }
+
+    function populateUserDropdowns() {
+      const activeEligibleUsers = users.filter(u => !isGuestEmail(u.email) && u.is_verified !== false);
+      selectOptions(takeUserSelect, activeEligibleUsers, "Select User", u => u.id, u => u.name);
+      selectOptions(returnUserSelect, activeEligibleUsers, "Select User", u => u.id, u => u.name);
+      selectOptions(userAllocViewerSelect, users, "Choose User to View Allocations", u => u.id, u => u.name);
+    }
+
+    function populateDatalists() {
+      partNumberSuggestionsList.replaceChildren();
+      partCodeSuggestionsList.replaceChildren();
+      const uniquePN = [...new Set(products.map(p => p.part_number))];
+      const uniquePC = [...new Set(products.map(p => p.part_code))];
+      uniquePN.forEach(pn => {
+        const opt = document.createElement("option");
+        opt.value = pn;
+        partNumberSuggestionsList.append(opt);
+      });
+      uniquePC.forEach(pc => {
+        const opt = document.createElement("option");
+        opt.value = pc;
+        partCodeSuggestionsList.append(opt);
+      });
+    }
+
+    async function resolveOrCreateGuestUser(inputName) {
+      if (!inputName) return null;
+      const clean = inputName.trim();
+      const cleanLower = clean.toLowerCase();
+
+      let matched = users.find(u => 
+        u.name.toLowerCase() === cleanLower || 
+        u.email.toLowerCase() === cleanLower ||
+        String(u.id) === clean
+      );
+
+      if (matched) return matched;
+
+      try {
+        const guestUid = Math.random().toString(36).substring(2, 7);
+        const sanitized = cleanLower.replace(/[^a-z0-9]/g, '') || 'guest';
+        const guestEmail = `${sanitized}.${guestUid}@guest.lab`;
+
+        const { data: newUser, error } = await supabaseClient
+          .from('users')
+          .insert([{ name: clean, email: guestEmail, is_verifier: false, is_verified: true }])
+          .select()
+          .single();
+
+        if (!error && newUser) {
+          users.push(newUser);
+          populateUserDropdowns();
+          return newUser;
+        }
+      } catch (err) {
+        console.warn("Could not create dynamic guest user:", err);
+      }
+
+      return { id: null, name: clean, email: "" };
+    }
+
+    async function cleanupGuestUserIfDone(userId) {
+      if (!userId) return;
+      const userObj = users.find(u => String(u.id) === String(userId));
+      if (!userObj || !isGuestEmail(userObj.email)) return;
+
+      try {
+        const { data: remainingAllocs, error } = await supabaseClient
+          .from('material_allocations')
+          .select('id')
+          .eq('user_id', userId)
+          .gt('quantity', 0);
+
+        if (!error && (!remainingAllocs || remainingAllocs.length === 0)) {
+          await supabaseClient.from('users').delete().eq('id', userId);
+          users = users.filter(u => String(u.id) !== String(userId));
+          populateUserDropdowns();
+          renderUsers();
+        }
+      } catch (err) {
+        console.warn("Guest user cleanup error:", err);
+      }
+    }
+
+    async function refreshUserAllocationsViewer(uId) {
+      if (!uId) {
+        userAllocViewerResults.innerHTML = `<p style="color:#718079;font-size:11px;padding: 16px 0;">Select a user from the dropdown above to view checkout records.</p>`;
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('material_allocations')
+          .select('*')
+          .eq('user_id', uId)
+          .gt('quantity', 0)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        const allocs = data || [];
+
+        userAllocViewerResults.replaceChildren();
+        if (!allocs.length) {
+          userAllocViewerResults.innerHTML = `<p style="font-size:11px;color:#718079;padding: 16px 0;">This user currently has 0 checked-out materials.</p>`;
+          return;
+        }
+
+        allocs.forEach(a => {
+          const locText = a.location_text || allocationOriginMap.get(a.id)?.location_text || "Storage";
+          const timeStamp = a.created_at || a.updated_at;
+          const dateStr = timeStamp ? new Date(timeStamp).toLocaleString() : "-";
+
+          const row = document.createElement("article");
+          row.className = "user-alloc-row";
+          row.innerHTML = `
+            <span><strong>${a.part_number}</strong></span>
+            <span class="part-code">${a.part_code}</span>
+            <span><strong>${a.quantity}</strong></span>
+            <span class="location-cell">${locText}</span>
+            <span style="font-size:10px;color:var(--muted);">${dateStr}</span>
+          `;
+          userAllocViewerResults.append(row);
+        });
+      } catch (err) {
+        userAllocViewerResults.innerHTML = `<p style="color:#b91c1c;font-size:11px;padding: 16px 0;">Error loading user allocations: ${err.message}</p>`;
+      }
+    }
+
+    userAllocViewerSelect.addEventListener("change", (e) => {
+      refreshUserAllocationsViewer(e.target.value);
+    });
+
+    userForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const name = userForm.userName.value.trim();
+      const email = userForm.email.value.trim().toLowerCase();
+      const initialPwd = userForm.initialPassword.value;
+      const isVerifier = userFormIsVerifier.checked;
+
+      try {
+        const pwdHash = await hashPassword(initialPwd);
+        const { error } = await supabaseClient
+          .from('users')
+          .insert([{ 
+            name, 
+            email, 
+            password_hash: pwdHash, 
+            is_verifier: isVerifier, 
+            is_verified: true 
+          }]);
+
+        if (error) throw error;
+
+        userForm.reset();
+        setFormStatus(userStatus, `User "${name}" manually created and verified.`);
+        await loadUsers();
+      } catch (error) {
+        setFormStatus(userStatus, error.message, true);
+      }
+    });
+
+    async function deleteUser(id, name) {
+      if (!window.confirm(`Delete user "${name}"?`)) return;
+
+      try {
+        const { error } = await supabaseClient
+          .from('users')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+
+        setFormStatus(userStatus, `User "${name}" removed.`);
+        await loadUsers();
+      } catch (error) {
+        setFormStatus(userStatus, error.message, true);
+      }
+    }
+
+    // ==========================================
+    // 7. ALLOCATION FETCH & SELECTION
+    // ==========================================
+    async function loadAllocationsForUser(userId) {
+      if (!userId) {
+        userAllocations = [];
+        selectOptions(returnAllocatedPartCodeSelect, [], "Allocated Part Code", a => a.id, a => a.part_code);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('material_allocations')
+          .select('*')
+          .eq('user_id', userId)
+          .gt('quantity', 0)
+          .order('part_code', { ascending: true });
+
+        if (error) throw error;
+        userAllocations = data || [];
+
+        selectOptions(
+          returnAllocatedPartCodeSelect,
+          userAllocations,
+          userAllocations.length ? "Select Allocated Part Code" : "No Allocated Part Codes",
+          a => a.id,
+          a => `${a.part_code} (Qty: ${a.quantity})`
+        );
+      } catch (err) {
+        setFormStatus(globalStripStatus, `Failed loading allocations: ${err.message}`, true);
+      }
+    }
+
+    async function loadAllocationsForUserPageByQuery(userIdentifier, userNameFallback = "") {
+      if (!userIdentifier && !userNameFallback) {
+        userPageAllocations = [];
+        selectOptions(userReturnAllocatedSelect, [], "Allocated Items", a => a.id, a => `${a.part_code} - ${a.part_number}`);
+        return;
+      }
+
+      try {
+        let query = supabaseClient.from('material_allocations').select('*').gt('quantity', 0);
+        if (userIdentifier) {
+          query = query.eq('user_id', userIdentifier);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+        userPageAllocations = data || [];
+
+        selectOptions(
+          userReturnAllocatedSelect,
+          userPageAllocations,
+          userPageAllocations.length ? "Select Allocated Item" : "No Open Allocations",
+          a => a.id,
+          a => `${a.part_code} | ${a.part_number} (Qty: ${a.quantity})`
+        );
+
+        if (userPageAllocations.length > 0) {
+          userReturnAllocatedSelect.value = userPageAllocations[0].id;
+          applyUserPageAllocationSelection(userPageAllocations[0]);
+        }
+      } catch (err) {
+        setFormStatus(userPageStripStatus, `Failed loading allocations: ${err.message}`, true);
+      }
+    }
+
+    returnUserSelect.addEventListener("change", (e) => {
+      loadAllocationsForUser(e.target.value);
+      returnPartNumber.value = "";
+      returnQuantity.value = "";
+      resetReturnLocationFields();
+    });
+
+    function resetReturnLocationFields() {
+      returnLocationType.value = "rack";
+      renderReturnLocationOptions();
+      returnCupboard.value = "";
+      returnRack.value = "";
+      returnBox.value = "";
+      returnWorkbench.value = "";
+    }
+
+    function resetUserReturnLocationFields() {
+      userReturnLocationType.value = "rack";
+      renderUserReturnLocationOptions();
+      userReturnCupboard.value = "";
+      userReturnRack.value = "";
+      userReturnBox.value = "";
+      userReturnWorkbench.value = "";
+    }
+
+    returnAllocatedPartCodeSelect.addEventListener("change", (e) => {
+      const allocId = e.target.value;
+      const item = userAllocations.find(a => String(a.id) === String(allocId));
+      if (item) {
+        returnPartNumber.value = item.part_number;
+        returnQuantity.value = item.quantity;
+
+        const cachedOrigin = allocationOriginMap.get(item.id);
+        const refProduct = products.find(p => 
+          p.part_number.trim().toLowerCase() === item.part_number.trim().toLowerCase() &&
+          p.part_code.trim().toLowerCase() === item.part_code.trim().toLowerCase()
+        );
+
+        const targetLocType = item.location_type || cachedOrigin?.location_type || refProduct?.location_type || "rack";
+        const targetCupboard = item.cupboard_id || cachedOrigin?.cupboard_id || refProduct?.cupboard_id;
+        const targetRack = item.rack_id || cachedOrigin?.rack_id || refProduct?.rack_id;
+        const targetBox = item.box_id || cachedOrigin?.box_id || refProduct?.box_id;
+        const targetWb = item.workbench_id || cachedOrigin?.workbench_id || refProduct?.workbench_id;
+
+        returnLocationType.value = targetLocType;
+        renderReturnLocationOptions();
+
+        if (targetLocType === "rack") {
+          if (targetCupboard) {
+            returnCupboard.value = targetCupboard;
+            renderReturnLocationOptions();
+          }
+          if (targetRack) returnRack.value = targetRack;
+        } else if (targetLocType === "box" && targetBox) {
+          returnBox.value = targetBox;
+        } else if (targetLocType === "workbench" && targetWb) {
+          returnWorkbench.value = targetWb;
+        }
+
+        setFormStatus(globalStripStatus, `Loaded "${item.part_number}". Can be directly returned or added to queue.`);
+      } else {
+        returnPartNumber.value = "";
+        returnQuantity.value = "";
+        resetReturnLocationFields();
+      }
+    });
+
+    function applyUserPageAllocationSelection(item) {
+      if (!item) {
+        userReturnPartNumber.value = "";
+        userReturnPartCode.value = "";
+        userReturnQuantity.value = "";
+        resetUserReturnLocationFields();
+        return;
+      }
+
+      userReturnPartNumber.value = item.part_number;
+      userReturnPartCode.value = item.part_code;
+      userReturnQuantity.value = item.quantity;
+
+      const cachedOrigin = allocationOriginMap.get(item.id);
+      const refProduct = products.find(p => 
+        p.part_number.trim().toLowerCase() === item.part_number.trim().toLowerCase() &&
+        p.part_code.trim().toLowerCase() === item.part_code.trim().toLowerCase()
+      );
+
+      const targetLocType = item.location_type || cachedOrigin?.location_type || refProduct?.location_type || "rack";
+      const targetCupboard = item.cupboard_id || cachedOrigin?.cupboard_id || refProduct?.cupboard_id;
+      const targetRack = item.rack_id || cachedOrigin?.rack_id || refProduct?.rack_id;
+      const targetBox = item.box_id || cachedOrigin?.box_id || refProduct?.box_id;
+      const targetWb = item.workbench_id || cachedOrigin?.workbench_id || refProduct?.workbench_id;
+
+      userReturnLocationType.value = targetLocType;
+      renderUserReturnLocationOptions();
+
+      if (targetLocType === "rack") {
+        if (targetCupboard) {
+          userReturnCupboard.value = targetCupboard;
+          renderUserReturnLocationOptions();
+        }
+        if (targetRack) userReturnRack.value = targetRack;
+      } else if (targetLocType === "box" && targetBox) {
+        userReturnBox.value = targetBox;
+      } else if (targetLocType === "workbench" && targetWb) {
+        userReturnWorkbench.value = targetWb;
+      }
+
+      setFormStatus(userPageStripStatus, `Auto-populated: ${item.part_number} (${item.part_code}) with original location.`);
+    }
+
+    userReturnAllocatedSelect.addEventListener("change", (e) => {
+      const allocId = e.target.value;
+      const item = userPageAllocations.find(a => String(a.id) === String(allocId));
+      applyUserPageAllocationSelection(item);
+    });
+
+    async function onUserReturnInputMatch() {
+      const val = userReturnUserInput.value.trim();
+      if (!val) {
+        userPageAllocations = [];
+        userReturnAllocatedSelect.replaceChildren(new Option("Allocated Items", ""));
+        applyUserPageAllocationSelection(null);
+        return;
+      }
+
+      const matchedUser = users.find(u => u.name.toLowerCase() === val.toLowerCase() || u.email.toLowerCase() === val.toLowerCase());
+      if (matchedUser) {
+        await loadAllocationsForUserPageByQuery(matchedUser.id, matchedUser.name);
+      }
+    }
+
+    userReturnUserInput.addEventListener("change", onUserReturnInputMatch);
+    userReturnUserInput.addEventListener("input", () => {
+      const val = userReturnUserInput.value.trim().toLowerCase();
+      const exactMatch = users.find(u => u.name.toLowerCase() === val || u.email.toLowerCase() === val);
+      if (exactMatch) onUserReturnInputMatch();
+    });
+
+    function resetUserPageTakeForm() {
+      userTakeUserInput.value = "";
+      userTakePartNumber.value = "";
+      userTakePartCode.value = "";
+      userTakeQuantity.value = "";
+    }
+
+    function resetUserPageReturnForm() {
+      userReturnUserInput.value = "";
+      userReturnAllocatedSelect.replaceChildren(new Option("Allocated Items", ""));
+      userReturnPartNumber.value = "";
+      userReturnPartCode.value = "";
+      userReturnQuantity.value = "";
+      resetUserReturnLocationFields();
+      userPageAllocations = [];
+    }
+
+    function onProductRowClicked(product) {
+      const availQty = parseInt(product.quantity, 10);
+      if (isNaN(availQty) || availQty <= 0) {
+        setFormStatus(globalStripStatus, `Material "${product.part_number}" is out of stock.`, true);
+        return;
+      }
+
+      document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
+      const clickedRow = document.querySelector(`.product-row[data-row-id="${product.id}"]`);
+      if (clickedRow) clickedRow.classList.add("selected-row");
+
+      currentlySelectedCatalogProduct = product;
+      takePartNumber.value = product.part_number;
+      takePartCode.value = product.part_code;
+
+      userTakePartNumber.value = product.part_number;
+      userTakePartCode.value = product.part_code;
+
+      takeQuantity.value = "";
+      takeQuantity.focus();
+
+      setFormStatus(globalStripStatus, `Selected "${product.part_number}" (${product.part_code}). Ready to stage or allocate.`);
+    }
+
+    // ==========================================
+    // 8. MULTI-PART STAGING ON SEARCH PAGE
+    // ==========================================
+    function renderSearchStagedParts() {
+      searchStagedPartsList.replaceChildren();
+
+      if (!searchStagedParts.length) {
+        searchStagedPartsBox.hidden = true;
+        return;
+      }
+
+      searchStagedPartsBox.hidden = false;
+
+      searchStagedParts.forEach((stagedItem, index) => {
+        const li = document.createElement("li");
+        li.className = "staged-part-row";
+
+        const pnSpan = document.createElement("span");
+        pnSpan.innerHTML = `<strong>${stagedItem.partNumber}</strong>`;
+
+        const pcSpan = document.createElement("span");
+        pcSpan.className = "part-code";
+        pcSpan.textContent = stagedItem.partCode;
+
+        const qtySpan = document.createElement("span");
+        qtySpan.innerHTML = `Qty: <strong>${stagedItem.quantity}</strong>`;
+
+        const actionDiv = document.createElement("div");
+        actionDiv.style.textAlign = "right";
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "location-delete";
+        delBtn.textContent = "Delete";
+        delBtn.title = "Delete item from queue";
+        delBtn.addEventListener("click", () => {
+          searchStagedParts.splice(index, 1);
+          renderSearchStagedParts();
+        });
+
+        actionDiv.append(delBtn);
+        li.append(pnSpan, pcSpan, qtySpan, actionDiv);
+        searchStagedPartsList.append(li);
+      });
+    }
+
+    searchAddStageBtn.addEventListener("click", () => {
+      const pNum = takePartNumber.value.trim();
+      const pCode = takePartCode.value.trim();
+      const qty = parseInt(takeQuantity.value, 10);
+
+      if (!pNum || !pCode) {
+        return setFormStatus(globalStripStatus, "Please select a product from catalog table first.", true);
+      }
+      if (isNaN(qty) || qty < 1) {
+        return setFormStatus(globalStripStatus, "Please enter a valid quantity of at least 1.", true);
+      }
+
+      const existingIndex = searchStagedParts.findIndex(item => item.mode === 'allocate' && item.partCode.toLowerCase() === pCode.toLowerCase());
+      if (existingIndex >= 0) {
+        searchStagedParts[existingIndex].quantity += qty;
+      } else {
+        searchStagedParts.push({
+          mode: 'allocate',
+          partCode: pCode,
+          partNumber: pNum,
+          quantity: qty,
+          materialId: currentlySelectedCatalogProduct?.id || null
+        });
+      }
+
+      takePartNumber.value = "";
+      takePartCode.value = "";
+      takeQuantity.value = "";
+      currentlySelectedCatalogProduct = null;
+      document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
+
+      renderSearchStagedParts();
+      setFormStatus(globalStripStatus, `Added "${pNum}" to queue.`);
+    });
+
+    searchAddReturnStageBtn.addEventListener("click", () => {
+      const pNum = returnPartNumber.value.trim();
+      const allocId = returnAllocatedPartCodeSelect.value;
+      const allocItem = userAllocations.find(a => String(a.id) === String(allocId));
+      const qty = parseInt(returnQuantity.value, 10);
+
+      if (!allocItem || !pNum) {
+        return setFormStatus(globalStripStatus, "Please select an Allocated Part Code to add for return.", true);
+      }
+      if (isNaN(qty) || qty < 1) {
+        return setFormStatus(globalStripStatus, "Please enter a valid quantity.", true);
+      }
+      if (qty > parseInt(allocItem.quantity, 10)) {
+        return setFormStatus(globalStripStatus, `Cannot return more than allocated (${allocItem.quantity}).`, true);
+      }
+
+      const locConfig = {
+        locationType: returnLocationType.value,
+        cupboardId: returnCupboard.value,
+        cupboardName: returnCupboard.selectedOptions[0]?.text,
+        rackId: returnRack.value,
+        rackName: returnRack.selectedOptions[0]?.text,
+        boxId: returnBox.value,
+        boxName: returnBox.selectedOptions[0]?.text,
+        workbenchId: returnWorkbench.value,
+        workbenchName: returnWorkbench.selectedOptions[0]?.text
+      };
+
+      let locText = "";
+      if (locConfig.locationType === "rack") {
+        locText = `${locConfig.cupboardName || 'Cupboard'} / ${locConfig.rackName || 'Rack'}`;
+      } else if (locConfig.locationType === "box") {
+        locText = `Box: ${locConfig.boxName || 'Box'}`;
+      } else {
+        locText = `Workbench: ${locConfig.workbenchName || 'Workbench'}`;
+      }
+      locConfig.locationText = locText;
+
+      const existingIndex = searchStagedParts.findIndex(item => item.mode === 'return' && item.allocItem?.id === allocItem.id);
+      if (existingIndex >= 0) {
+        searchStagedParts[existingIndex].quantity = qty;
+        searchStagedParts[existingIndex].locConfig = locConfig;
+      } else {
+        searchStagedParts.push({
+          mode: 'return',
+          partCode: allocItem.part_code,
+          partNumber: pNum,
+          quantity: qty,
+          allocItem: allocItem,
+          locConfig: locConfig
+        });
+      }
+
+      returnPartNumber.value = "";
+      returnQuantity.value = "";
+      returnAllocatedPartCodeSelect.value = "";
+      resetReturnLocationFields();
+
+      renderSearchStagedParts();
+      setFormStatus(globalStripStatus, `Added "${pNum}" to queued return list.`);
+    });
+
+    searchExecuteAllocateBtn.addEventListener("click", () => {
+      const userId = takeUserSelect.value;
+      if (!userId) return setFormStatus(globalStripStatus, "Please select a user from the dropdown.", true);
+
+      const targetUser = users.find(u => String(u.id) === String(userId));
+
+      let executionQueue = searchStagedParts.filter(p => p.mode === 'allocate');
+      if (!executionQueue.length) {
+        const pNum = takePartNumber.value.trim();
+        const pCode = takePartCode.value.trim();
+        const qty = parseInt(takeQuantity.value, 10);
+        if (pNum && pCode && !isNaN(qty) && qty >= 1) {
+          executionQueue = [{
+            mode: 'allocate',
+            partCode: pCode,
+            partNumber: pNum,
+            quantity: qty,
+            materialId: currentlySelectedCatalogProduct?.id || null
+          }];
+        }
+      }
+
+      if (!executionQueue.length) {
+        return setFormStatus(globalStripStatus, "No products staged or selected for allocation.", true);
+      }
+
+      verifyUserPasswordBeforeAction(targetUser, "Allocate", async () => {
+        searchExecuteAllocateBtn.disabled = true;
+        try {
+          const userName = targetUser?.name || "User";
+          for (const item of executionQueue) {
+            await executeMaterialAllocation(userId, userName, item.partNumber, item.partCode, item.quantity, item.materialId);
+          }
+
+          searchStagedParts = searchStagedParts.filter(p => p.mode !== 'allocate');
+          renderSearchStagedParts();
+
+          takeUserSelect.value = "";
+          takePartNumber.value = "";
+          takePartCode.value = "";
+          takeQuantity.value = "";
+          currentlySelectedCatalogProduct = null;
+          document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
+
+          setFormStatus(globalStripStatus, `Successfully allocated items to ${userName}.`);
+        } catch (err) {
+          setFormStatus(globalStripStatus, err.message, true);
+        } finally {
+          searchExecuteAllocateBtn.disabled = false;
+        }
+      });
+    });
+
+    searchExecuteReturnBtn.addEventListener("click", () => {
+      const userId = returnUserSelect.value;
+      if (!userId) return setFormStatus(globalStripStatus, "Please select the user returning items.", true);
+
+      const targetUser = users.find(u => String(u.id) === String(userId));
+
+      let returnQueue = searchStagedParts.filter(p => p.mode === 'return');
+      if (!returnQueue.length) {
+        const allocId = returnAllocatedPartCodeSelect.value;
+        const allocItem = userAllocations.find(a => String(a.id) === String(allocId));
+        const returnQty = parseInt(returnQuantity.value, 10);
+
+        if (allocItem && !isNaN(returnQty) && returnQty >= 1) {
+          const locConfig = {
+            locationType: returnLocationType.value,
+            cupboardId: returnCupboard.value,
+            cupboardName: returnCupboard.selectedOptions[0]?.text,
+            rackId: returnRack.value,
+            rackName: returnRack.selectedOptions[0]?.text,
+            boxId: returnBox.value,
+            boxName: returnBox.selectedOptions[0]?.text,
+            workbenchId: returnWorkbench.value,
+            workbenchName: returnWorkbench.selectedOptions[0]?.text
+          };
+          let locText = "";
+          if (locConfig.locationType === "rack") {
+            locText = `${locConfig.cupboardName || 'Cupboard'} / ${locConfig.rackName || 'Rack'}`;
+          } else if (locConfig.locationType === "box") {
+            locText = `Box: ${locConfig.boxName || 'Box'}`;
+          } else {
+            locText = `Workbench: ${locConfig.workbenchName || 'Workbench'}`;
+          }
+          locConfig.locationText = locText;
+
+          returnQueue = [{
+            mode: 'return',
+            partCode: allocItem.part_code,
+            partNumber: allocItem.part_number,
+            quantity: returnQty,
+            allocItem: allocItem,
+            locConfig: locConfig
+          }];
+        }
+      }
+
+      if (!returnQueue.length) {
+        return setFormStatus(globalStripStatus, "No return items staged or selected.", true);
+      }
+
+      verifyUserPasswordBeforeAction(targetUser, "Return", async () => {
+        searchExecuteReturnBtn.disabled = true;
+        try {
+          const userName = targetUser?.name || "User";
+          for (const item of returnQueue) {
+            await executeMaterialReturn(userId, userName, item.allocItem, item.quantity, item.locConfig);
+          }
+
+          searchStagedParts = searchStagedParts.filter(p => p.mode !== 'return');
+          renderSearchStagedParts();
+
+          returnUserSelect.value = "";
+          returnPartNumber.value = "";
+          returnQuantity.value = "";
+          returnAllocatedPartCodeSelect.replaceChildren(new Option("Allocated Part Code", ""));
+          userAllocations = [];
+          resetReturnLocationFields();
+
+          setFormStatus(globalStripStatus, `Returned items recorded for ${userName} (Pending Physical Verification).`);
+        } catch (err) {
+          setFormStatus(globalStripStatus, err.message, true);
+        } finally {
+          searchExecuteReturnBtn.disabled = false;
+        }
+      });
+    });
+
+    document.querySelectorAll('input[name="globalOpMode"]').forEach(radio => {
+      radio.addEventListener("change", (e) => {
+        const isAlloc = e.target.value === "allocate";
+        searchAllocateControls.style.display = isAlloc ? "flex" : "none";
+        searchReturnControls.style.display = isAlloc ? "none" : "flex";
+        globalStripStatus.textContent = "";
+
+        takeUserSelect.value = "";
+        takePartNumber.value = "";
+        takePartCode.value = "";
+        takeQuantity.value = "";
+        currentlySelectedCatalogProduct = null;
+        document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
+
+        returnUserSelect.value = "";
+        returnPartNumber.value = "";
+        returnQuantity.value = "";
+        returnAllocatedPartCodeSelect.replaceChildren(new Option("Allocated Part Code", ""));
+        userAllocations = [];
+        resetReturnLocationFields();
+
+        renderSearchStagedParts();
+      });
+    });
+
+    document.querySelectorAll('input[name="userPageOpMode"]').forEach(radio => {
+      radio.addEventListener("change", (e) => {
+        const isAlloc = e.target.value === "allocate";
+        userPageTakeForm.style.display = isAlloc ? "contents" : "none";
+        userPageReturnForm.style.display = isAlloc ? "none" : "contents";
+        userPageStripStatus.textContent = "";
+
+        resetUserPageTakeForm();
+        resetUserPageReturnForm();
+      });
+    });
+
+    // ==========================================
+    // 9. AUDIT LOGGING & VERIFIER MODAL
+    // ==========================================
+    async function recordAllocationLog(userId, userName, partCode, partNumber, quantity, locationText) {
+      const nowIso = new Date().toISOString();
+      const payload = {
+        user_name: userName || "User",
+        part_code: partCode,
+        part_number: partNumber,
+        quantity: quantity,
+        status: "Allocated",
+        allocated_time: nowIso,
+        returned_time: null,
+        pending_return_time: null,
+        location_text: locationText || "Storage"
+      };
+
+      if (userId && typeof userId === "string" && userId.length >= 32) {
+        payload.user_id = userId;
+      }
+
+      const { error } = await supabaseClient.from(ACTIVE_LOG_TABLE).insert([payload]);
+      if (error && error.message?.includes('user_id')) {
+        delete payload.user_id;
+        await supabaseClient.from(ACTIVE_LOG_TABLE).insert([payload]);
+      }
+    }
+
+    async function recordReturnPendingLog(userId, userName, partCode, partNumber, quantityReturned, locConfig) {
+      const nowIso = new Date().toISOString();
+
+      try {
+        let query = supabaseClient
+          .from(ACTIVE_LOG_TABLE)
+          .select('id, quantity, user_id, user_name, part_code, status')
+          .eq('part_code', partCode)
+          .ilike('status', 'Allocat%')
+          .order('allocated_time', { ascending: false })
+          .limit(1);
+
+        if (userId && typeof userId === "string" && userId.length >= 32) {
+          query = query.eq('user_id', userId);
+        }
+
+        const { data: openLogs, error: findErr } = await query;
+
+        let targetRowId = null;
+        if (!findErr && openLogs && openLogs.length > 0) {
+          targetRowId = openLogs[0].id;
+        } else {
+          const { data: nameLogs } = await supabaseClient
+            .from(ACTIVE_LOG_TABLE)
+            .select('id')
+            .eq('part_code', partCode)
+            .eq('user_name', userName)
+            .ilike('status', 'Allocat%')
+            .order('allocated_time', { ascending: false })
+            .limit(1);
+
+          if (nameLogs && nameLogs.length > 0) {
+            targetRowId = nameLogs[0].id;
+          }
+        }
+
+        const updateData = {
+          status: "Pending Return Verification",
+          pending_return_time: nowIso,
+          location_text: locConfig.locationText || "Storage",
+          location_type: locConfig.locationType || "rack",
+          cupboard_id: locConfig.cupboardId || null,
+          rack_id: locConfig.rackId || null,
+          box_id: locConfig.boxId || null,
+          workbench_id: locConfig.workbenchId || null
+        };
+
+        if (targetRowId) {
+          const { error: updErr } = await supabaseClient
+            .from(ACTIVE_LOG_TABLE)
+            .update(updateData)
+            .eq('id', targetRowId);
+
+          if (updErr) {
+            await supabaseClient
+              .from(ACTIVE_LOG_TABLE)
+              .update({
+                status: "Pending Return Verification",
+                pending_return_time: nowIso,
+                location_text: locConfig.locationText || "Storage"
+              })
+              .eq('id', targetRowId);
+          }
+        } else {
+          await supabaseClient.from(ACTIVE_LOG_TABLE).insert([{
+            user_name: userName || "User",
+            part_code: partCode,
+            part_number: partNumber,
+            quantity: quantityReturned,
+            status: "Pending Return Verification",
+            allocated_time: null,
+            pending_return_time: nowIso,
+            location_text: locConfig.locationText || "Storage",
+            location_type: locConfig.locationType || "rack",
+            cupboard_id: locConfig.cupboardId || null,
+            rack_id: locConfig.rackId || null,
+            box_id: locConfig.boxId || null,
+            workbench_id: locConfig.workbenchId || null
+          }]);
+        }
+      } catch (err) {
+        console.error("Return log update failure:", err);
+      }
+    }
+
+    function openVerifierModal(logId) {
+      pendingVerificationLogId = logId;
+      verifierModalError.textContent = "";
+
+      const verifierUsers = users.filter(u => !isGuestEmail(u.email) && u.is_verifier === true);
+      const candidateList = verifierUsers.length ? verifierUsers : users.filter(u => !isGuestEmail(u.email));
+
+      modalVerifierSelect.replaceChildren(new Option("Select Verifying Person", ""));
+      candidateList.forEach(u => {
+        const opt = document.createElement("option");
+        opt.value = u.name;
+        opt.textContent = u.name;
+        modalVerifierSelect.append(opt);
+      });
+
+      verifierModal.hidden = false;
+    }
+
+    verifierCancelButton.addEventListener("click", () => {
+      verifierModal.hidden = true;
+      pendingVerificationLogId = null;
+    });
+
+    verifierForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const verifierName = modalVerifierSelect.value;
+      if (!verifierName) {
+        verifierModalError.textContent = "Please select an authorized verifier.";
+        return;
+      }
+
+      const logItem = activityLogs.find(l => String(l.id) === String(pendingVerificationLogId));
+      if (!logItem) {
+        verifierModalError.textContent = "Log entry not found.";
+        return;
+      }
+
+      try {
+        const returnQty = parseInt(logItem.quantity, 10) || 1;
+        const targetLocationType = (logItem.location_type || 'rack').toLowerCase().trim();
+        const cupboardId = logItem.cupboard_id || null;
+        const rackId = logItem.rack_id || null;
+        const boxId = logItem.box_id || null;
+        const workbenchId = logItem.workbench_id || null;
+        const locationText = (logItem.location_text || "Storage").trim().toLowerCase();
+
+        const { data: currentMaterials, error: fetchErr } = await supabaseClient
+          .from('materials')
+          .select('*');
+
+        if (fetchErr) throw fetchErr;
+        products = currentMaterials || [];
+
+        let existingAtDestination = products.find(p => {
+          const matchPN = p.part_number.trim().toLowerCase() === logItem.part_number.trim().toLowerCase();
+          const matchPC = p.part_code.trim().toLowerCase() === logItem.part_code.trim().toLowerCase();
+          if (!matchPN || !matchPC) return false;
+
+          const locTypeMatch = (p.location_type || '').trim().toLowerCase() === targetLocationType;
+          let idMatch = false;
+
+          if (locTypeMatch) {
+            if (targetLocationType === 'rack') {
+              idMatch = (rackId && String(p.rack_id) === String(rackId));
+            } else if (targetLocationType === 'box') {
+              idMatch = (boxId && String(p.box_id) === String(boxId));
+            } else if (targetLocationType === 'workbench') {
+              idMatch = (workbenchId && String(p.workbench_id) === String(workbenchId));
+            }
+          }
+
+          const textMatch = p.location_text && p.location_text.trim().toLowerCase() === locationText;
+          return idMatch || textMatch;
+        });
+
+        if (existingAtDestination) {
+          const updatedQty = (parseInt(existingAtDestination.quantity, 10) || 0) + returnQty;
+          const { error: updErr } = await supabaseClient
+            .from('materials')
+            .update({ quantity: updatedQty, updated_at: new Date().toISOString() })
+            .eq('id', existingAtDestination.id);
+
+          if (updErr) throw updErr;
+        } else {
+          const { error: insErr } = await supabaseClient.from('materials').insert([{
+            part_number: logItem.part_number.trim(),
+            part_code: logItem.part_code.trim(),
+            quantity: returnQty,
+            location_type: targetLocationType,
+            cupboard_id: cupboardId,
+            rack_id: rackId,
+            box_id: boxId,
+            workbench_id: workbenchId,
+            location_text: logItem.location_text || "Storage"
+          }]);
+
+          if (insErr) throw insErr;
+        }
+
+        const nowIso = new Date().toISOString();
+        await supabaseClient.from(ACTIVE_LOG_TABLE).update({
+          status: "Return",
+          returned_time: nowIso,
+          verified_by: verifierName
+        }).eq('id', logItem.id);
+
+        verifierModal.hidden = true;
+        pendingVerificationLogId = null;
+
+        await refreshInventory();
+        await loadLogs();
+      } catch (err) {
+        verifierModalError.textContent = err.message || "Failed verifying return.";
+      }
+    });
+
+    // ==========================================
+    // 10. ALLOCATION & RETURN EXECUTION
+    // ==========================================
+    async function executeMaterialAllocation(userId, userName, pNum, pCode, takeQty, matId = null) {
+      let query = supabaseClient.from('materials').select('*');
+      if (matId) {
+        query = query.eq('id', matId);
+      } else {
+        query = query.ilike('part_number', pNum).ilike('part_code', pCode);
+      }
+
+      const { data: liveItemData, error: fetchErr } = await query.limit(1);
+      if (fetchErr) throw new Error("Verification failed: " + fetchErr.message);
+
+      const item = liveItemData && liveItemData.length > 0 ? liveItemData[0] : null;
+      if (!item) throw new Error(`Material "${pNum}" (${pCode}) not found in inventory.`);
+
+      const currentLiveStock = parseInt(item.quantity, 10);
+      if (currentLiveStock < 1 || isNaN(currentLiveStock)) throw new Error(`Cannot allocate: 0 quantity available.`);
+      if (takeQty > currentLiveStock) throw new Error(`Insufficient stock for ${item.part_number}. Current live stock is ${currentLiveStock}.`);
+
+      let allocQuery = supabaseClient.from('material_allocations').select('*').eq('part_number', item.part_number).eq('part_code', item.part_code);
+      if (userId) allocQuery = allocQuery.eq('user_id', userId);
+      const { data: existingAlloc } = await allocQuery;
+
+      let activeAllocId = null;
+
+      if (existingAlloc && existingAlloc.length > 0) {
+        activeAllocId = existingAlloc[0].id;
+        const updatedQty = parseInt(existingAlloc[0].quantity, 10) + takeQty;
+        
+        let updatePayload = {
+          quantity: updatedQty,
+          location_type: item.location_type || existingAlloc[0].location_type,
+          cupboard_id: item.cupboard_id || existingAlloc[0].cupboard_id,
+          rack_id: item.rack_id || existingAlloc[0].rack_id,
+          box_id: item.box_id || existingAlloc[0].box_id,
+          workbench_id: item.workbench_id || existingAlloc[0].workbench_id,
+          location_text: item.location_text || existingAlloc[0].location_text,
+          updated_at: new Date()
+        };
+
+        let { error: allocUpdErr } = await supabaseClient.from('material_allocations').update(updatePayload).eq('id', existingAlloc[0].id);
+
+        if (allocUpdErr) {
+          await supabaseClient.from('material_allocations').update({ quantity: updatedQty, updated_at: new Date() }).eq('id', existingAlloc[0].id);
+        }
+      } else {
+        let insertPayload = {
+          user_id: userId,
+          material_id: item.id,
+          part_number: item.part_number,
+          part_code: item.part_code,
+          quantity: takeQty,
+          location_type: item.location_type,
+          cupboard_id: item.cupboard_id,
+          rack_id: item.rack_id,
+          box_id: item.box_id,
+          workbench_id: item.workbench_id,
+          location_text: item.location_text
+        };
+
+        let { data: insertedData, error: allocInsErr } = await supabaseClient.from('material_allocations').insert([insertPayload]).select();
+        if (allocInsErr) {
+          const fallback = { user_id: userId, material_id: item.id, part_number: item.part_number, part_code: item.part_code, quantity: takeQty };
+          const retry = await supabaseClient.from('material_allocations').insert([fallback]).select();
+          insertedData = retry.data;
+        }
+
+        if (insertedData && insertedData[0]) activeAllocId = insertedData[0].id;
+      }
+
+      if (activeAllocId) {
+        allocationOriginMap.set(activeAllocId, {
+          location_type: item.location_type,
+          cupboard_id: item.cupboard_id,
+          rack_id: item.rack_id,
+          box_id: item.box_id,
+          workbench_id: item.workbench_id,
+          location_text: item.location_text
+        });
+      }
+
+      const remaining = currentLiveStock - takeQty;
+      const { data: updData, error: updErr } = await supabaseClient
+        .from('materials')
+        .update({ quantity: remaining })
+        .eq('id', item.id)
+        .gte('quantity', takeQty)
+        .select();
+
+      if (updErr || !updData || updData.length === 0) {
+        throw new Error(`Allocation Conflict: Stock changed concurrently.`);
+      }
+
+      await recordAllocationLog(userId, userName, item.part_code, item.part_number, takeQty, item.location_text || "Storage");
+
+      await refreshInventory();
+      await loadLogs();
+      if (userAllocViewerSelect.value === userId) {
+        await refreshUserAllocationsViewer(userId);
+      }
+      return item;
+    }
+
+    async function executeMaterialReturn(userId, userName, allocItem, returnQty, locConfig) {
+      const targetLocationType = (locConfig.locationType || '').trim().toLowerCase();
+      let locationText = "";
+      let cupboardId = null;
+      let rackId = null;
+      let boxId = null;
+      let workbenchId = null;
+
+      if (targetLocationType === "rack") {
+        cupboardId = locConfig.cupboardId || null;
+        rackId = locConfig.rackId || null;
+        const cName = locConfig.cupboardName || "Cupboard";
+        const rName = locConfig.rackName || "Rack";
+        locationText = `${cName} / ${rName}`;
+        if (!cupboardId || !rackId) throw new Error("Please select both a cupboard and a rack.");
+      } else if (targetLocationType === "box") {
+        boxId = locConfig.boxId || null;
+        locationText = `Box: ${locConfig.boxName || 'Box'}`;
+        if (!boxId) throw new Error("Please select a target box.");
+      } else if (targetLocationType === "workbench") {
+        workbenchId = locConfig.workbenchId || null;
+        locationText = `Workbench: ${locConfig.workbenchName || 'Workbench'}`;
+        if (!workbenchId) throw new Error("Please select a target workbench.");
+      } else {
+        throw new Error("Invalid location type selected.");
+      }
+
+      const remainingAlloc = parseInt(allocItem.quantity, 10) - returnQty;
+      if (remainingAlloc <= 0) {
+        await supabaseClient.from('material_allocations').delete().eq('id', allocItem.id);
+        allocationOriginMap.delete(allocItem.id);
+      } else {
+        await supabaseClient.from('material_allocations').update({ quantity: remainingAlloc, updated_at: new Date() }).eq('id', allocItem.id);
+      }
+
+      await recordReturnPendingLog(userId, userName, allocItem.part_code, allocItem.part_number, returnQty, {
+        locationType: targetLocationType,
+        cupboardId: cupboardId,
+        rackId: rackId,
+        boxId: boxId,
+        workbenchId: workbenchId,
+        locationText: locationText
+      });
+
+      await cleanupGuestUserIfDone(userId);
+
+      await loadLogs();
+      if (userAllocViewerSelect.value === userId) {
+        await refreshUserAllocationsViewer(userId);
+      }
+      return locationText;
+    }
+
+    // ==========================================
+    // 11. USERS PAGE
+    // ==========================================
+    userPageTakeForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const rawUser = userTakeUserInput.value.trim();
+      if (!rawUser) return setFormStatus(userPageStripStatus, "Please enter a user name or email address.", true);
+
+      const userObj = await resolveOrCreateGuestUser(rawUser);
+      verifyUserPasswordBeforeAction(userObj, "Allocate", async () => {
+        userAllocateSubmitBtn.disabled = true;
+        try {
+          const pNum = userTakePartNumber.value.trim();
+          const pCode = userTakePartCode.value.trim();
+          if (!pNum || !pCode) throw new Error("Please enter both Part Number and Part Code.");
+
+          const takeQty = parseInt(userTakeQuantity.value, 10);
+          if (isNaN(takeQty) || takeQty < 1) throw new Error("Please enter a valid quantity starting from 1.");
+
+          const item = await executeMaterialAllocation(userObj.id, userObj.name, pNum, pCode, takeQty);
+          setFormStatus(userPageStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userObj.name}.`);
+          resetUserPageTakeForm();
+        } catch (err) {
+          setFormStatus(userPageStripStatus, err.message, true);
+        } finally {
+          userAllocateSubmitBtn.disabled = false;
+        }
+      });
+    });
+
+    userPageReturnForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const rawUser = userReturnUserInput.value.trim();
+      if (!rawUser) return setFormStatus(userPageStripStatus, "Please enter the user name or email address.", true);
+
+      const userObj = await resolveOrCreateGuestUser(rawUser);
+      verifyUserPasswordBeforeAction(userObj, "Return", async () => {
+        userReturnSubmitBtn.disabled = true;
+        try {
+          const returnQty = parseInt(userReturnQuantity.value, 10);
+          if (isNaN(returnQty) || returnQty < 1) throw new Error("Please enter a valid whole number quantity.");
+
+          const pNum = userReturnPartNumber.value.trim();
+          const pCode = userReturnPartCode.value.trim();
+
+          let allocItem = null;
+          if (userReturnAllocatedSelect.value) {
+            allocItem = userPageAllocations.find(a => String(a.id) === String(userReturnAllocatedSelect.value));
+          }
+          if (!allocItem && pCode) {
+            allocItem = userPageAllocations.find(a => a.part_code.toLowerCase() === pCode.toLowerCase());
+          }
+          if (!allocItem && pNum) {
+            allocItem = userPageAllocations.find(a => a.part_number.toLowerCase() === pNum.toLowerCase());
+          }
+
+          if (!allocItem) {
+            throw new Error(`No allocated material found for user "${userObj.name}" matching ${pCode || pNum || 'selected part'}.`);
+          }
+
+          if (returnQty > parseInt(allocItem.quantity, 10)) {
+            throw new Error(`Cannot return ${returnQty}. Allocated quantity is ${allocItem.quantity}.`);
+          }
+
+          const locConfig = {
+            locationType: userReturnLocationType.value,
+            cupboardId: userReturnCupboard.value,
+            cupboardName: userReturnCupboard.selectedOptions[0]?.text,
+            rackId: userReturnRack.value,
+            rackName: userReturnRack.selectedOptions[0]?.text,
+            boxId: userReturnBox.value,
+            boxName: userReturnBox.selectedOptions[0]?.text,
+            workbenchId: userReturnWorkbench.value,
+            workbenchName: userReturnWorkbench.selectedOptions[0]?.text
+          };
+
+          const locationText = await executeMaterialReturn(userObj.id, userObj.name, allocItem, returnQty, locConfig);
+          setFormStatus(userPageStripStatus, `Marked ${returnQty} units of "${allocItem.part_number}" returned to ${locationText} (Pending Verification).`);
+          resetUserPageReturnForm();
+        } catch (err) {
+          setFormStatus(userPageStripStatus, err.message, true);
+        } finally {
+          userReturnSubmitBtn.disabled = false;
+        }
+      });
+    });
+
+    // ==========================================
+    // 12. LIFECYCLE AUDIT LOGS
+    // ==========================================
+    async function loadLogs() {
+      try {
+        const { data, error } = await supabaseClient
+          .from(ACTIVE_LOG_TABLE)
+          .select('*')
+          .limit(1000);
+
+        if (!error && Array.isArray(data)) {
+          activityLogs = data.sort((a, b) => {
+            const timeA = new Date(b.allocated_time || b.pending_return_time || b.created_at || 0).getTime();
+            const timeB = new Date(a.allocated_time || a.pending_return_time || a.created_at || 0).getTime();
+            return timeA - timeB;
+          });
+          renderLogs();
+        } else if (error) {
+          console.warn(`Error querying ${ACTIVE_LOG_TABLE}:`, error.message);
+        }
+      } catch (err) {
+        console.warn("Error fetching logs:", err);
+      }
+    }
+
+    function renderLogs() {
+      logList.replaceChildren();
+
+      const statusFilter = logActionFilter.value;
+      const fromDateVal = logFromDateFilter.value;
+      const toDateVal = logToDateFilter.value;
+
+      const filtered = activityLogs.filter(item => {
+        const itemStatus = (item.status || item.action || 'Allocated').trim();
+        const isPending = itemStatus.toLowerCase().includes('pending');
+        const isReturn = !isPending && itemStatus.toLowerCase().startsWith('return');
+        
+        let normalizedStatus = 'Allocated';
+        if (isPending) normalizedStatus = 'Pending';
+        else if (isReturn) normalizedStatus = 'Return';
+
+        if (statusFilter !== "ALL" && normalizedStatus !== statusFilter) return false;
+
+        const dateStamp = item.allocated_time || item.pending_return_time || item.created_at || item.returned_time;
+        if (dateStamp) {
+          const itemDay = new Date(dateStamp).toISOString().split('T')[0];
+          if (fromDateVal && itemDay < fromDateVal) return false;
+          if (toDateVal && itemDay > toDateVal) return false;
+        }
+
+        return true;
+      });
+
+      if (!filtered.length) {
+        emptyLogs.hidden = false;
+        return;
+      }
+
+      emptyLogs.hidden = true;
+
+      filtered.forEach(log => {
+        const row = document.createElement("article");
+        row.className = "log-row";
+
+        const rawStatus = (log.status || log.action || 'Allocated').trim();
+        const isPending = rawStatus.toLowerCase().includes('pending');
+        const isReturn = !isPending && rawStatus.toLowerCase().startsWith('return');
+
+        let displayStatus = 'Allocated';
+        let badgeClass = 'allocated';
+
+        if (isPending) {
+          displayStatus = 'Pending Verification';
+          badgeClass = 'pending';
+        } else if (isReturn) {
+          displayStatus = 'Returned';
+          badgeClass = 'returned';
+        }
+
+        const rawAllocTime = log.allocated_time || (rawStatus.toUpperCase() === 'ALLOCATED' ? log.created_at : null);
+        const rawReturnTime = log.returned_time || log.pending_return_time || (isReturn ? log.created_at : null);
+
+        const allocStr = rawAllocTime ? new Date(rawAllocTime).toLocaleString() : '-';
+        const returnStr = rawReturnTime ? new Date(rawReturnTime).toLocaleString() : '-';
+
+        let actionHtml = '';
+        if (isPending) {
+          actionHtml = `<button class="verify-btn" type="button" data-log-id="${log.id}">Verify</button>`;
+        } else if (isReturn) {
+          actionHtml = `<span style="font-size:10.5px;color:#15803d;font-weight:700;">✓ ${log.verified_by || 'Verified'}</span>`;
+        } else {
+          actionHtml = `<span style="font-size:10px;color:var(--muted);">-</span>`;
+        }
+
+        row.innerHTML = `
+          <span><strong>${log.user_name || 'User'}</strong></span>
+          <span class="part-code">${log.part_code || '-'}</span>
+          <span><strong>${log.part_number || '-'}</strong></span>
+          <span><strong>${log.quantity || 1}</strong></span>
+          <span><span class="log-badge ${badgeClass}">${displayStatus}</span></span>
+          <span style="font-size:10px;color:#395045;">${allocStr}</span>
+          <span style="font-size:10px;color:#395045;">${returnStr}</span>
+          <span>${actionHtml}</span>
+        `;
+
+        const vBtn = row.querySelector('.verify-btn');
+        if (vBtn) {
+          vBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openVerifierModal(log.id);
+          });
+        }
+
+        logList.append(row);
+      });
+    }
+
+    logActionFilter.addEventListener("change", renderLogs);
+    logFromDateFilter.addEventListener("change", renderLogs);
+    logToDateFilter.addEventListener("change", renderLogs);
+
+    clearLogDatesBtn.addEventListener("click", () => {
+      logFromDateFilter.value = "";
+      logToDateFilter.value = "";
+      renderLogs();
+    });
+
+    // ==========================================
+    // 13. EXCEL EXPORTS
+    // ==========================================
+    exportButton.addEventListener("click", () => {
+      const activeProducts = products.filter(p => parseInt(p.quantity, 10) >= 1);
+      if (!activeProducts.length) return alert("No materials available to export.");
+
+      const query = searchInput.value.trim().toLowerCase();
+      const exportList = query
+        ? activeProducts.filter(p => p.part_number.toLowerCase().includes(query) || p.part_code.toLowerCase().includes(query))
+        : activeProducts;
+
+      if (!exportList.length) return alert("No matching materials found for your search term to export.");
+
+      const rows = exportList.map(p => ({
+        "Part Number": p.part_number,
+        "Part Code": p.part_code,
+        "Quantity": parseInt(p.quantity, 10) || 0,
+        "Location Type": p.location_type ? p.location_type.toUpperCase() : "STORAGE",
+        "Location Details": p.location_text || "-"
+      }));
+
+      const ws = prepareExcelWorksheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Material Inventory");
+      XLSX.writeFile(wb, "Lab_Material_Inventory.xlsx");
+    });
+
+    exportLogsButton.addEventListener("click", () => {
+      if (!activityLogs.length) return alert("No logs available to export.");
+
+      const rows = activityLogs.map(l => {
+        const isPending = (l.status || '').toLowerCase().includes('pending');
+        const isReturn = !isPending && (l.status || l.action || '').toLowerCase().startsWith('return');
+        const statusLabel = isPending ? "Pending Return Verification" : (isReturn ? "Returned" : "Allocated");
+
+        const rawAllocTime = l.allocated_time || (l.status?.toUpperCase() === 'ALLOCATED' ? l.created_at : null);
+        const rawReturnTime = l.returned_time || l.pending_return_time || (isReturn ? l.created_at : null);
+
+        return {
+          "Username": l.user_name || "User",
+          "Part Code": l.part_code || "-",
+          "Part Number": l.part_number || "-",
+          "Quantity": parseInt(l.quantity, 10) || 1,
+          "Status": statusLabel,
+          "Allocated Time": rawAllocTime ? new Date(rawAllocTime).toLocaleString() : "-",
+          "Return / Pending Time": rawReturnTime ? new Date(rawReturnTime).toLocaleString() : "-",
+          "Verified By": l.verified_by || "-"
+        };
+      });
+
+      const ws = prepareExcelWorksheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Material Logs");
+      XLSX.writeFile(wb, "Material_Activity_Logs.xlsx");
+    });
+
+    // ==========================================
+    // 14. MANUAL ADD & REMOVE
+    // ==========================================
+    materialForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const values = Object.fromEntries(new FormData(materialForm).entries());
+      const addQty = parseInt(values.quantity, 10);
+
+      if (isNaN(addQty) || addQty < 1) {
+        setFormStatus(materialStatus, "Please enter a valid whole number quantity starting from 1.", true);
+        return;
+      }
+
+      try {
+        let locationText = "";
+        let cupboardId = null;
+        let rackId = null;
+        let boxId = null;
+        let workbenchId = null;
+
+        if (values.locationType === "rack") {
+          const cName = materialCupboard.selectedOptions[0]?.text || "Unknown Cupboard";
+          const rName = materialRack.selectedOptions[0]?.text || "Unknown Rack";
+          locationText = `${cName} / ${rName}`;
+          cupboardId = values.cupboardId || null;
+          rackId = values.rackId || null;
+        } else if (values.locationType === "box") {
+          locationText = `Box: ${materialBox.selectedOptions[0]?.text || "Unknown Box"}`;
+          boxId = values.boxId || null;
+        } else if (values.locationType === "workbench") {
+          locationText = `Workbench: ${materialWorkbench.selectedOptions[0]?.text || "Unknown Workbench"}`;
+          workbenchId = values.workbenchId || null;
+        }
+
+        let existingItem = products.find(p => 
+          p.part_number.trim().toLowerCase() === values.partNumber.trim().toLowerCase() &&
+          p.part_code.trim().toLowerCase() === values.partCode.trim().toLowerCase() &&
+          p.location_type === values.locationType &&
+          (values.locationType !== 'rack' || String(p.rack_id) === String(rackId)) &&
+          (values.locationType !== 'box' || String(p.box_id) === String(boxId)) &&
+          (values.locationType !== 'workbench' || String(p.workbench_id) === String(workbenchId))
+        );
+
+        if (existingItem) {
+          const updatedQty = parseInt(existingItem.quantity, 10) + addQty;
+          await supabaseClient.from('materials').update({ quantity: updatedQty, updated_at: new Date() }).eq('id', existingItem.id);
+        } else {
+          await supabaseClient.from('materials').insert([{
+            part_number: values.partNumber.trim(),
+            part_code: values.partCode.trim(),
+            quantity: addQty,
+            location_type: values.locationType,
+            cupboard_id: cupboardId,
+            rack_id: rackId,
+            box_id: boxId,
+            workbench_id: workbenchId,
+            location_text: locationText
+          }]);
+        }
+
+        materialForm.reset();
+        renderMaterialLocationOptions();
+        setFormStatus(materialStatus, "Material added successfully.");
+        await refreshInventory();
+      } catch (error) {
+        setFormStatus(materialStatus, error.message, true);
+      }
+    });
+
+    removeMaterialForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const values = Object.fromEntries(new FormData(removeMaterialForm).entries());
+      const removeQty = parseInt(values.quantity, 10);
+
+      if (isNaN(removeQty) || removeQty < 1) {
+        setFormStatus(removeMaterialStatus, "Please enter a valid whole number quantity.", true);
+        return;
+      }
+
+      try {
+        let rackId = values.rackId || null;
+        let boxId = values.boxId || null;
+        let workbenchId = values.workbenchId || null;
+
+        let item = products.find(p => 
+          p.part_number.trim().toLowerCase() === values.partNumber.trim().toLowerCase() &&
+          p.part_code.trim().toLowerCase() === values.partCode.trim().toLowerCase() &&
+          p.location_type === values.locationType &&
+          (values.locationType !== 'rack' || String(p.rack_id) === String(rackId)) &&
+          (values.locationType !== 'box' || String(p.box_id) === String(boxId)) &&
+          (values.locationType !== 'workbench' || String(p.workbench_id) === String(workbenchId))
+        );
+
+        if (!item) throw new Error("No material found matching this part number, code, and location.");
+
+        const currentQty = parseInt(item.quantity, 10);
+        if (removeQty > currentQty) throw new Error(`Cannot remove ${removeQty}. Current stock is ${currentQty}.`);
+
+        if (!window.confirm(`Deduct ${removeQty} from ${item.part_number} at ${item.location_text}?`)) return;
+
+        const remaining = currentQty - removeQty;
+        if (remaining <= 0) {
+          await supabaseClient.from('materials').delete().eq('id', item.id);
+          setFormStatus(removeMaterialStatus, "Quantity reached 0; item removed from inventory.");
+        } else {
+          await supabaseClient.from('materials').update({ quantity: remaining }).eq('id', item.id);
+          setFormStatus(removeMaterialStatus, `Quantity deducted. ${remaining} units remaining.`);
+        }
+
+        removeMaterialForm.reset();
+        renderRemoveLocationOptions();
+        await refreshInventory();
+      } catch (error) {
+        setFormStatus(removeMaterialStatus, error.message, true);
+      }
+    });
+
+    // ==========================================
+    // 15. REAL-TIME SYNC & RENDERING
+    // ==========================================
+    async function refreshInventory() {
+      try {
+        const { data, error } = await supabaseClient.from('materials').select('*').order('part_number', { ascending: true });
+        if (error) throw error;
+        products = data || [];
+        
+        const totalUnits = products.reduce((acc, p) => {
+          const q = parseInt(p.quantity, 10);
+          return acc + (isNaN(q) || q < 1 ? 0 : q);
+        }, 0);
+
+        document.getElementById("itemCount").textContent = `${totalUnits} IN STOCK`;
+        
+        render();
+        renderCombinedStorageInspector();
+        populateDatalists();
+        setConnectionVisuals(true);
+      } catch (err) {
+        workbookStatus.textContent = "Error fetching catalog: " + err.message;
+        workbookStatus.classList.add("error");
+        setConnectionVisuals(false);
+      }
+    }
+
+    function setupContinuousSync() {
+      supabaseClient
+        .channel('public:materials')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'materials' }, () => { refreshInventory(); })
+        .subscribe();
+
+      supabaseClient
+        .channel('public:locations')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'cupboards' }, () => { loadStorage(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'boxes' }, () => { loadStorage(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'racks' }, () => { loadStorage(); })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'workbenches' }, () => { loadStorage(); })
+        .subscribe();
+
+      supabaseClient
+        .channel('public:users')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, () => { loadUsers(); })
+        .subscribe();
+
+      supabaseClient
+        .channel('public:material_allocations')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'material_allocations' }, () => {
+          if (returnUserSelect.value) loadAllocationsForUser(returnUserSelect.value);
+          if (userReturnUserInput.value) onUserReturnInputMatch();
+          if (userAllocViewerSelect.value) refreshUserAllocationsViewer(userAllocViewerSelect.value);
+        })
+        .subscribe();
+
+      supabaseClient
+        .channel('public:lifecycle_logs_realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: ACTIVE_LOG_TABLE }, () => { loadLogs(); })
+        .subscribe();
+
+      setInterval(() => { refreshInventory(); }, 4000);
+    }
+
+    function makeCell(className, text) {
+      const cell = document.createElement("span");
+      cell.className = className;
+      cell.textContent = text;
+      return cell;
+    }
+
+    function render() {
+      const query = submittedQuery?.toLocaleLowerCase();
+
+      const matching = query
+        ? products.filter(p => {
+            const qty = parseInt(p.quantity, 10);
+            return (
+              qty >= 1 &&
+              (p.part_number.toLocaleLowerCase().includes(query) || 
+               p.part_code.toLocaleLowerCase().includes(query))
+            );
+          })
+        : [];
+
+      productList.replaceChildren();
+
+      if (!submittedQuery) {
+        emptyState.hidden = false;
+        document.getElementById("emptyTitle").textContent = "Search Material Directory";
+        document.getElementById("emptyMessage").textContent = "Enter a part number or part code above and press Search.";
+      } else if (matching.length === 0) {
+        emptyState.hidden = false;
+        document.getElementById("emptyTitle").textContent = "No materials found";
+        document.getElementById("emptyMessage").textContent = "Try another part number or part code (items with 0 stock are hidden).";
+      } else {
+        emptyState.hidden = true;
+      }
+
+      for (const product of matching) {
+        const qty = parseInt(product.quantity, 10);
+        const row = document.createElement("article");
+        row.className = "product-row";
+        row.dataset.rowId = product.id;
+        
+        row.append(
+          makeCell("", product.part_number),
+          makeCell("part-code", product.part_code),
+          makeCell("quantity-cell", String(qty)),
+          makeCell("location-cell", product.location_text)
+        );
+        
+        row.addEventListener("click", () => onProductRowClicked(product));
+        productList.append(row);
+      }
+
+      clearButton.hidden = !searchInput.value;
+    }
+
+    function runSearch() {
+      submittedQuery = searchInput.value.trim() || null;
+      render();
+    }
+
+    // ==========================================
+    // 16. NAVIGATION & INITIALIZATION
+    // ==========================================
+    async function navigateTo(targetPageId) {
+      activePageId = targetPageId;
+
+      document.querySelectorAll(".page-tab").forEach(item => {
+        item.classList.toggle("active", item.dataset.page === targetPageId);
+      });
+
+      document.querySelectorAll(".page-view").forEach(view => {
+        view.hidden = view.id !== targetPageId;
+      });
+
+      if (targetPageId === "storagePage" || targetPageId === "materialPage") {
+        await loadStorage();
+      } else if (targetPageId === "usersPage") {
+        await loadUsers();
+      } else if (targetPageId === "logsPage") {
+        await loadLogs();
+      }
+    }
+
+    document.querySelectorAll(".page-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const targetPageId = tab.dataset.page;
+        const isProtected = targetPageId === "materialPage" || targetPageId === "storagePage" || targetPageId === "usersPage" || targetPageId === "logsPage";
+        if (isProtected && !isAuthenticated) {
+          promptLogin(targetPageId);
+          return;
+        }
+        navigateTo(targetPageId);
+      });
+    });
+
+    locationType.addEventListener("change", renderMaterialLocationOptions);
+    removeLocationType.addEventListener("change", renderRemoveLocationOptions);
+
+    returnLocationType.addEventListener("change", renderReturnLocationOptions);
+    returnCupboard.addEventListener("change", renderReturnLocationOptions);
+
+    userReturnLocationType.addEventListener("change", renderUserReturnLocationOptions);
+    userReturnCupboard.addEventListener("change", renderUserReturnLocationOptions);
+
+    searchInput.addEventListener("input", () => {
+      if (!searchInput.value) {
+        submittedQuery = null;
+        render();
+      }
+    });
+    searchInput.addEventListener("keydown", e => { if (e.key === "Enter") runSearch(); });
+    document.getElementById("searchButton").addEventListener("click", runSearch);
+    clearButton.addEventListener("click", () => {
+      searchInput.value = "";
+      submittedQuery = null;
+      render();
+    });
+
+    async function initializeApplication() {
+      loadingState.hidden = false;
+      errorState.hidden = true;
+      initialOverlay.hidden = false;
+      appShell.hidden = true;
+
+      try {
+        await checkServerConnection();
+
+        await Promise.all([
+          loadStorage(),
+          loadUsers(),
+          loadLogs(),
+          refreshInventory()
+        ]);
+
+        setupContinuousSync();
+
+        initialOverlay.hidden = true;
+        appShell.hidden = false;
+      } catch (err) {
+        loadingState.hidden = true;
+        errorState.hidden = false;
+        errorMsgText.textContent = err.message || (typeof err === "string" ? err : JSON.stringify(err));
+      }
+    }
+
+    retryButton.addEventListener("click", () => {
+      initializeApplication();
+    });
+
+    window.addEventListener("DOMContentLoaded", () => {
+      initializeApplication();
+    });
+  </script>
+</body>
+</html>
