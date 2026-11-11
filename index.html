@@ -301,7 +301,6 @@
     .strip-status { font-size: 9.5px; color: var(--green); min-height: 12px; margin: 0; padding-left: 2px; }
     .strip-status.error { color: #b55130; }
 
-    /* Change 1: Clean Single Line Row Style (Like Users List) */
     .staged-parts-box {
       border: 1px solid #e2ece7;
       border-radius: 4px;
@@ -310,7 +309,7 @@
       flex-shrink: 0;
     }
     .staged-parts-list {
-      max-height: 108px; /* Fits exactly 3 items without scrolling; scrolls when >3 */
+      max-height: 108px;
       overflow-y: auto;
       padding: 0;
       margin: 0;
@@ -567,12 +566,11 @@
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
-    .btn-secondary { background: #eef2f0; border: 1px solid #ced6d1; border-radius: 4px; padding: 0 12px; height: 32px; cursor: pointer; font-size: 11px; font-weight: 600; }
+    .btn-secondary { background: #eef2f0; border: 1px solid #ced6d1; border-radius: 4px; padding: 0 12px; height: 32px; cursor: font-size: 11px; font-weight: 600; }
     .otp-input { letter-spacing: 6px; font-size: 18px !important; text-align: center; font-weight: bold; font-family: var(--mono); }
 
     @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* Responsive Adaptation Across Multiple Monitor Sizes */
     @media (min-width: 1920px) {
       .shell { width: 95vw; max-width: 2200px; }
       body { font-size: 15px; }
@@ -701,7 +699,6 @@
             <div class="inline-field">
               <input name="quantity" id="takeQuantity" type="number" min="1" step="1" placeholder="Quantity" style="width: 80px;">
             </div>
-            <!-- Add button strictly stays as 'Add' -->
             <button class="compact-btn secondary-btn" type="button" id="searchAddStageBtn">Add</button>
             <button class="compact-btn danger" type="button" id="searchExecuteAllocateBtn">Allocate</button>
           </div>
@@ -752,13 +749,12 @@
                 <option value="">Workbench</option>
               </select>
             </div>
-            <!-- Add button strictly stays as 'Add' -->
             <button class="compact-btn secondary-btn" type="button" id="searchAddReturnStageBtn">Add</button>
             <button class="compact-btn success" type="button" id="searchExecuteReturnBtn">Return</button>
           </div>
         </div>
 
-        <!-- Clean, Compact Staged Items List on Search Page -->
+        <!-- Staged Items List on Search Page -->
         <div class="staged-parts-box" id="searchStagedPartsBox" hidden>
           <ul class="staged-parts-list" id="searchStagedPartsList"></ul>
         </div>
@@ -791,7 +787,6 @@
                 </select>
               </label>
               
-              <!-- Location Type Selection: Cupboard + Rack only for 'rack' -->
               <label class="field" id="materialCupboardField">Cupboard
                 <select name="cupboardId" id="materialCupboard" required disabled>
                   <option value="">Choose Cupboard</option>
@@ -803,14 +798,12 @@
                 </select>
               </label>
               
-              <!-- Location Type Selection: Box only for 'box' -->
               <label class="field" id="boxLocationField" hidden>Box
                 <select name="boxId" id="materialBox" disabled>
                   <option value="">Choose Box</option>
                 </select>
               </label>
               
-              <!-- Location Type Selection: Workbench only for 'workbench' -->
               <label class="field" id="workbenchLocationField" hidden>Workbench
                 <select name="workbenchId" id="materialWorkbench" disabled>
                   <option value="">Choose Workbench</option>
@@ -840,7 +833,6 @@
                 </select>
               </label>
               
-              <!-- Location Type Selection: Cupboard + Rack only for 'rack' -->
               <label class="field" id="removeCupboardField">Cupboard
                 <select name="cupboardId" id="removeCupboard" required disabled>
                   <option value="">Choose Cupboard</option>
@@ -852,14 +844,12 @@
                 </select>
               </label>
               
-              <!-- Location Type Selection: Box only for 'box' -->
               <label class="field" id="removeBoxField" hidden>Box
                 <select name="boxId" id="removeBox" disabled>
                   <option value="">Choose Box</option>
                 </select>
               </label>
               
-              <!-- Location Type Selection: Workbench only for 'workbench' -->
               <label class="field" id="removeWorkbenchField" hidden>Workbench
                 <select name="workbenchId" id="removeWorkbench" disabled>
                   <option value="">Choose Workbench</option>
@@ -927,7 +917,7 @@
       </div>
     </section>
 
-    <!-- Users Page (Empty text input without suggestions) -->
+    <!-- Users Page -->
     <section class="catalog page-view" id="usersPage" hidden>
       <div class="page-heading"><p>ADMINISTRATION</p><h2>Manage Users &amp; Material Allocations</h2></div>
       
@@ -1004,7 +994,7 @@
           </div>
         </div>
 
-        <!-- Direct Allocate & Return in Users Page (No user suggestions, clean text window) -->
+        <!-- Direct Allocate & Return in Users Page -->
         <div class="aligned-bottom-bar" id="userAlignedBottomBar">
           <div class="transaction-bar">
             <div class="compact-switch">
@@ -1015,7 +1005,7 @@
             <datalist id="partNumberSuggestionsList"></datalist>
             <datalist id="partCodeSuggestionsList"></datalist>
 
-            <!-- Allocate Form (Empty text window, NO suggestions) -->
+            <!-- Allocate Form -->
             <form id="userPageTakeForm" style="display: contents;">
               <div class="inline-field">
                 <input name="userManual" id="userTakeUserInput" required autocomplete="off" placeholder="User Name / Email" style="width: 160px;">
@@ -1032,7 +1022,7 @@
               <button class="compact-btn danger" type="submit" id="userAllocateSubmitBtn">Allocate</button>
             </form>
 
-            <!-- Return Form (Empty text window, NO suggestions) -->
+            <!-- Return Form -->
             <form id="userPageReturnForm" style="display: none;">
               <div class="inline-field">
                 <input name="userManual" id="userReturnUserInput" required autocomplete="off" placeholder="User Name / Email" style="width: 140px;">
@@ -1297,7 +1287,7 @@
     </div>
   </div>
 
-  <!-- 6. Verifier Selector Modal (Show only user name, no email) -->
+  <!-- 6. Verifier Selector Modal -->
   <div class="modal-overlay" id="verifierModal" hidden>
     <div class="modal-card">
       <h3 style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Physical Return Sign-Off</h3>
@@ -1440,7 +1430,6 @@
     const resetConfirmBtn = document.getElementById("resetConfirmBtn");
     const backToResetReqBtn = document.getElementById("backToResetReqBtn");
 
-    // Master Admin Password with UI Change Capability (Default: festo)
     let currentAdminPassword = localStorage.getItem("lab_admin_master_pwd") || "festo";
     const TIMEOUT_SECONDS = 30;
 
@@ -1459,7 +1448,6 @@
     const sessionTimerText = document.getElementById("sessionTimerText");
     const logoutButton = document.getElementById("logoutButton");
 
-    // Admin Password Change Modal Elements
     const openAdminChangePwdBtn = document.getElementById("openAdminChangePwdBtn");
     const adminChangePwdModal = document.getElementById("adminChangePwdModal");
     const adminChangePwdForm = document.getElementById("adminChangePwdForm");
@@ -1578,7 +1566,6 @@
     window.addEventListener("keydown", handleScopedActivity, { passive: true });
     window.addEventListener("mousedown", handleScopedActivity, { passive: true });
 
-    // Validate using dynamic master password
     authForm.addEventListener("submit", (e) => {
       e.preventDefault();
       if (authPasswordInput.value.trim() === currentAdminPassword) {
@@ -1596,7 +1583,6 @@
 
     logoutButton.addEventListener("click", logout);
 
-    // Master Password Change Handlers
     openAdminChangePwdBtn.addEventListener("click", () => {
       adminChangePwdStatus.textContent = "";
       adminChangePwdForm.reset();
@@ -1635,7 +1621,6 @@
       alert("Admin master password changed successfully!");
     });
 
-    // DOM References
     const labTitleText = document.getElementById("labTitleText");
     const brandMark = document.getElementById("brandMark");
     const secretBrandTrigger = document.getElementById("secretBrandTrigger");
@@ -1646,7 +1631,6 @@
     const workbookStatus = document.getElementById("workbookStatus");
     const exportButton = document.getElementById("exportButton");
     
-    // Add / Remove
     const materialForm = document.getElementById("materialForm");
     const materialStatus = document.getElementById("materialStatus");
     const locationType = document.getElementById("locationType");
@@ -1673,7 +1657,6 @@
 
     const storageStatus = document.getElementById("storageStatus");
 
-    // Users
     const userForm = document.getElementById("userForm");
     const userStatus = document.getElementById("userStatus");
     const usersList = document.getElementById("usersList");
@@ -1681,7 +1664,6 @@
     const userAllocViewerSelect = document.getElementById("userAllocViewerSelect");
     const userAllocViewerResults = document.getElementById("userAllocViewerResults");
 
-    // Search Page Bottom Controls
     const searchAllocateControls = document.getElementById("searchAllocateControls");
     const searchReturnControls = document.getElementById("searchReturnControls");
     const takeUserSelect = document.getElementById("takeUserSelect");
@@ -1711,7 +1693,6 @@
     const searchStagedPartsList = document.getElementById("searchStagedPartsList");
     const globalStripStatus = document.getElementById("globalStripStatus");
 
-    // Users Page Bottom Bar (No suggestions, clean input)
     const userPageTakeForm = document.getElementById("userPageTakeForm");
     const userPageReturnForm = document.getElementById("userPageReturnForm");
     const userTakeUserInput = document.getElementById("userTakeUserInput");
@@ -1738,7 +1719,6 @@
     const partNumberSuggestionsList = document.getElementById("partNumberSuggestionsList");
     const partCodeSuggestionsList = document.getElementById("partCodeSuggestionsList");
 
-    // Logs & Date Pickers
     const logList = document.getElementById("logList");
     const emptyLogs = document.getElementById("emptyLogs");
     const exportLogsButton = document.getElementById("exportLogsButton");
@@ -2321,17 +2301,13 @@
       }
     }
 
-    // Change 3: Strict Location Display based on selection (Add Material Form)
     function renderMaterialLocationOptions() {
       const locType = locationType.value;
       const cupboard = storageTree.find((item) => String(item.id) === String(materialCupboard.value));
 
-      // Show cupboard & rack ONLY when locationType is 'rack'
       materialCupboardField.hidden = locType !== "rack";
       rackLocationField.hidden = locType !== "rack";
-      // Show box ONLY when locationType is 'box'
       boxLocationField.hidden = locType !== "box";
-      // Show workbench ONLY when locationType is 'workbench'
       workbenchLocationField.hidden = locType !== "workbench";
 
       materialCupboard.required = locType === "rack";
@@ -2350,17 +2326,13 @@
       materialWorkbench.disabled = locType !== "workbench" || !storageWorkbenches.length;
     }
 
-    // Change 3: Strict Location Display based on selection (Delete Material Form)
     function renderRemoveLocationOptions() {
       const locType = removeLocationType.value;
       const cupboard = storageTree.find((item) => String(item.id) === String(removeCupboard.value));
 
-      // Show cupboard & rack ONLY when locationType is 'rack'
       removeCupboardField.hidden = locType !== "rack";
       removeRackField.hidden = locType !== "rack";
-      // Show box ONLY when locationType is 'box'
       removeBoxField.hidden = locType !== "box";
-      // Show workbench ONLY when locationType is 'workbench'
       removeWorkbenchField.hidden = locType !== "workbench";
 
       removeCupboard.required = locType === "rack";
@@ -2599,7 +2571,6 @@
       selectOptions(userAllocViewerSelect, users, "Choose User to View Allocations", u => u.id, u => u.name);
     }
 
-    // Change 2: Do NOT populate or attach user suggestions to input fields in users page
     function populateDatalists() {
       partNumberSuggestionsList.replaceChildren();
       partCodeSuggestionsList.replaceChildren();
@@ -2993,7 +2964,6 @@
       userPageAllocations = [];
     }
 
-    // Selection on Catalog Table: Keep Add button strictly as "Add"
     function onProductRowClicked(product) {
       const availQty = parseInt(product.quantity, 10);
       if (isNaN(availQty) || availQty <= 0) {
@@ -3020,7 +2990,6 @@
 
     // ==========================================
     // 8. MULTI-PART STAGING ON SEARCH PAGE
-    // (Line format like user details, no boxy table, delete symbol)
     // ==========================================
     function renderSearchStagedParts() {
       searchStagedPartsList.replaceChildren();
@@ -3060,7 +3029,6 @@
         });
 
         actionDiv.append(delBtn);
-        // Only part number, part code, quantity and delete button (no allocating text)
         li.append(pnSpan, pcSpan, qtySpan, actionDiv);
         searchStagedPartsList.append(li);
       });
@@ -3203,7 +3171,6 @@
           searchStagedParts = searchStagedParts.filter(p => p.mode !== 'allocate');
           renderSearchStagedParts();
 
-          // Reset user and all form fields upon allocation completion
           takeUserSelect.value = "";
           takePartNumber.value = "";
           takePartCode.value = "";
@@ -3220,14 +3187,13 @@
       });
     });
 
-    // Execute Search Return (Direct return of due items without staging, or queued return)
+    // Execute Search Return
     searchExecuteReturnBtn.addEventListener("click", () => {
       const userId = returnUserSelect.value;
       if (!userId) return setFormStatus(globalStripStatus, "Please select the user returning items.", true);
 
       const targetUser = users.find(u => String(u.id) === String(userId));
 
-      // Items can be returned directly without adding them to queue
       let returnQueue = searchStagedParts.filter(p => p.mode === 'return');
       if (!returnQueue.length) {
         const allocId = returnAllocatedPartCodeSelect.value;
@@ -3282,7 +3248,6 @@
           searchStagedParts = searchStagedParts.filter(p => p.mode !== 'return');
           renderSearchStagedParts();
 
-          // Reset username and all return fields
           returnUserSelect.value = "";
           returnPartNumber.value = "";
           returnQuantity.value = "";
@@ -3299,7 +3264,6 @@
       });
     });
 
-    // Operation mode toggles: Reset username & inputs whenever clicking and returning back
     document.querySelectorAll('input[name="globalOpMode"]').forEach(radio => {
       radio.addEventListener("change", (e) => {
         const isAlloc = e.target.value === "allocate";
@@ -3307,7 +3271,6 @@
         searchReturnControls.style.display = isAlloc ? "none" : "flex";
         globalStripStatus.textContent = "";
 
-        // Reset usernames & input states when toggling allocate/return modes
         takeUserSelect.value = "";
         takePartNumber.value = "";
         takePartCode.value = "";
@@ -3339,7 +3302,7 @@
     });
 
     // ==========================================
-    // 9. AUDIT LOGGING & VERIFIER MODAL (NAME ONLY)
+    // 9. AUDIT LOGGING & VERIFIER MODAL
     // ==========================================
     async function recordAllocationLog(userId, userName, partCode, partNumber, quantity, locationText) {
       const nowIso = new Date().toISOString();
@@ -3406,7 +3369,11 @@
           status: "Pending Return Verification",
           pending_return_time: nowIso,
           location_text: locConfig.locationText || "Storage",
-          location_type: locConfig.locationType || "rack"
+          location_type: locConfig.locationType || "rack",
+          cupboard_id: locConfig.cupboardId || null,
+          rack_id: locConfig.rackId || null,
+          box_id: locConfig.boxId || null,
+          workbench_id: locConfig.workbenchId || null
         };
 
         if (targetRowId) {
@@ -3434,7 +3401,12 @@
             status: "Pending Return Verification",
             allocated_time: null,
             pending_return_time: nowIso,
-            location_text: locConfig.locationText || "Storage"
+            location_text: locConfig.locationText || "Storage",
+            location_type: locConfig.locationType || "rack",
+            cupboard_id: locConfig.cupboardId || null,
+            rack_id: locConfig.rackId || null,
+            box_id: locConfig.boxId || null,
+            workbench_id: locConfig.workbenchId || null
           }]);
         }
       } catch (err) {
@@ -3453,7 +3425,6 @@
       candidateList.forEach(u => {
         const opt = document.createElement("option");
         opt.value = u.name;
-        // Strict: only user with name, no email id shown
         opt.textContent = u.name;
         modalVerifierSelect.append(opt);
       });
@@ -3482,27 +3453,56 @@
 
       try {
         const returnQty = parseInt(logItem.quantity, 10) || 1;
-        const targetLocationType = (logItem.location_type || 'rack').toLowerCase();
+        const targetLocationType = (logItem.location_type || 'rack').toLowerCase().trim();
         const cupboardId = logItem.cupboard_id || null;
         const rackId = logItem.rack_id || null;
         const boxId = logItem.box_id || null;
         const workbenchId = logItem.workbench_id || null;
-        const locationText = logItem.location_text || "Storage";
+        const locationText = (logItem.location_text || "Storage").trim().toLowerCase();
 
-        let existingAtDestination = products.find(p => 
-          p.part_number.trim().toLowerCase() === logItem.part_number.trim().toLowerCase() &&
-          p.part_code.trim().toLowerCase() === logItem.part_code.trim().toLowerCase() &&
-          p.location_type === targetLocationType &&
-          (targetLocationType !== 'rack' || String(p.rack_id) === String(rackId)) &&
-          (targetLocationType !== 'box' || String(p.box_id) === String(boxId)) &&
-          (targetLocationType !== 'workbench' || String(p.workbench_id) === String(workbenchId))
-        );
+        // Refresh materials from database before verifying
+        const { data: currentMaterials, error: fetchErr } = await supabaseClient
+          .from('materials')
+          .select('*');
+
+        if (fetchErr) throw fetchErr;
+        products = currentMaterials || [];
+
+        // Check if item already exists at this exact location
+        let existingAtDestination = products.find(p => {
+          const matchPN = p.part_number.trim().toLowerCase() === logItem.part_number.trim().toLowerCase();
+          const matchPC = p.part_code.trim().toLowerCase() === logItem.part_code.trim().toLowerCase();
+          if (!matchPN || !matchPC) return false;
+
+          const locTypeMatch = (p.location_type || '').trim().toLowerCase() === targetLocationType;
+          let idMatch = false;
+
+          if (locTypeMatch) {
+            if (targetLocationType === 'rack') {
+              idMatch = (rackId && String(p.rack_id) === String(rackId));
+            } else if (targetLocationType === 'box') {
+              idMatch = (boxId && String(p.box_id) === String(boxId));
+            } else if (targetLocationType === 'workbench') {
+              idMatch = (workbenchId && String(p.workbench_id) === String(workbenchId));
+            }
+          }
+
+          const textMatch = p.location_text && p.location_text.trim().toLowerCase() === locationText;
+          return idMatch || textMatch;
+        });
 
         if (existingAtDestination) {
-          const updatedQty = parseInt(existingAtDestination.quantity, 10) + returnQty;
-          await supabaseClient.from('materials').update({ quantity: updatedQty, updated_at: new Date() }).eq('id', existingAtDestination.id);
+          // Part and location matched: increase existing stock
+          const updatedQty = (parseInt(existingAtDestination.quantity, 10) || 0) + returnQty;
+          const { error: updErr } = await supabaseClient
+            .from('materials')
+            .update({ quantity: updatedQty, updated_at: new Date().toISOString() })
+            .eq('id', existingAtDestination.id);
+
+          if (updErr) throw updErr;
         } else {
-          await supabaseClient.from('materials').insert([{
+          // Different location: create new entry
+          const { error: insErr } = await supabaseClient.from('materials').insert([{
             part_number: logItem.part_number.trim(),
             part_code: logItem.part_code.trim(),
             quantity: returnQty,
@@ -3511,8 +3511,10 @@
             rack_id: rackId,
             box_id: boxId,
             workbench_id: workbenchId,
-            location_text: locationText
+            location_text: logItem.location_text || "Storage"
           }]);
+
+          if (insErr) throw insErr;
         }
 
         const nowIso = new Date().toISOString();
@@ -3864,7 +3866,6 @@
 
         let actionHtml = '';
         if (isPending) {
-          // Change: Button text is strictly "Verify"
           actionHtml = `<button class="verify-btn" type="button" data-log-id="${log.id}">Verify</button>`;
         } else if (isReturn) {
           actionHtml = `<span style="font-size:10.5px;color:#15803d;font-weight:700;">✓ ${log.verified_by || 'Verified'}</span>`;
