@@ -349,6 +349,8 @@
     }
     .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .field { display: flex; min-width: 0; flex-direction: column; gap: 4px; color: #53645e; font-size: 11px; font-weight: 600; }
+    /* FIXED: Ensures conditional form fields stay hidden despite display: flex */
+    .field[hidden] { display: none !important; }
     .field input, .field select { width: 100%; height: 32px; padding: 0 9px; border: 1px solid #dce4df; border-radius: 4px; outline: none; background: white; color: var(--ink); font-size: 11px; }
     .field input:focus, .field select:focus { border-color: var(--green); box-shadow: 0 0 0 2px rgba(23,110,89,.08); }
     .form-status { min-height: 14px; margin: 0; color: var(--green); font-size: 10.5px; }
@@ -566,7 +568,7 @@
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
-    .btn-secondary { background: #eef2f0; border: 1px solid #ced6d1; border-radius: 4px; padding: 0 12px; height: 32px; cursor: font-size: 11px; font-weight: 600; }
+    .btn-secondary { background: #eef2f0; border: 1px solid #ced6d1; border-radius: 4px; padding: 0 12px; height: 32px; cursor: pointer; font-size: 11px; font-weight: 600; }
     .otp-input { letter-spacing: 6px; font-size: 18px !important; text-align: center; font-weight: bold; font-family: var(--mono); }
 
     @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
@@ -787,6 +789,7 @@
                 </select>
               </label>
               
+              <!-- Location Type Selection: Cupboard + Rack only for 'rack' -->
               <label class="field" id="materialCupboardField">Cupboard
                 <select name="cupboardId" id="materialCupboard" required disabled>
                   <option value="">Choose Cupboard</option>
@@ -798,12 +801,14 @@
                 </select>
               </label>
               
+              <!-- Location Type Selection: Box only for 'box' -->
               <label class="field" id="boxLocationField" hidden>Box
                 <select name="boxId" id="materialBox" disabled>
                   <option value="">Choose Box</option>
                 </select>
               </label>
               
+              <!-- Location Type Selection: Workbench only for 'workbench' -->
               <label class="field" id="workbenchLocationField" hidden>Workbench
                 <select name="workbenchId" id="materialWorkbench" disabled>
                   <option value="">Choose Workbench</option>
@@ -833,6 +838,7 @@
                 </select>
               </label>
               
+              <!-- Location Type Selection: Cupboard + Rack only for 'rack' -->
               <label class="field" id="removeCupboardField">Cupboard
                 <select name="cupboardId" id="removeCupboard" required disabled>
                   <option value="">Choose Cupboard</option>
@@ -844,12 +850,14 @@
                 </select>
               </label>
               
+              <!-- Location Type Selection: Box only for 'box' -->
               <label class="field" id="removeBoxField" hidden>Box
                 <select name="boxId" id="removeBox" disabled>
                   <option value="">Choose Box</option>
                 </select>
               </label>
               
+              <!-- Location Type Selection: Workbench only for 'workbench' -->
               <label class="field" id="removeWorkbenchField" hidden>Workbench
                 <select name="workbenchId" id="removeWorkbench" disabled>
                   <option value="">Choose Workbench</option>
@@ -1334,7 +1342,7 @@
     }
 
     function generateSecureOTP() {
-      const array = new Uint32Array(1);
+      const array = new Uint8Array(1);
       crypto.getRandomValues(array);
       return (100000 + (array[0] % 900000)).toString();
     }
@@ -1367,7 +1375,6 @@
     let activeInspectorFilter = "cupboard";
     let selectedInspectorLocationId = null;
 
-    // Multi-Part Staging Queue on Search Page
     let searchStagedParts = [];
     let currentlySelectedCatalogProduct = null;
 
@@ -2301,105 +2308,149 @@
       }
     }
 
+    // ACCURATE CONDITIONAL DISPLAY FOR ADD FORM
     function renderMaterialLocationOptions() {
       const locType = locationType.value;
       const cupboard = storageTree.find((item) => String(item.id) === String(materialCupboard.value));
 
-      materialCupboardField.hidden = locType !== "rack";
-      rackLocationField.hidden = locType !== "rack";
-      boxLocationField.hidden = locType !== "box";
-      workbenchLocationField.hidden = locType !== "workbench";
+      // Show Cupboard & Rack ONLY if 'rack' (Cupboard Rack) is selected
+      const isRack = locType === "rack";
+      const isBox = locType === "box";
+      const isWorkbench = locType === "workbench";
 
-      materialCupboard.required = locType === "rack";
-      materialRack.required = locType === "rack";
-      materialBox.required = locType === "box";
-      materialWorkbench.required = locType === "workbench";
+      materialCupboardField.hidden = !isRack;
+      rackLocationField.hidden = !isRack;
+      boxLocationField.hidden = !isBox;
+      workbenchLocationField.hidden = !isWorkbench;
+
+      materialCupboard.required = isRack;
+      materialRack.required = isRack;
+      materialBox.required = isBox;
+      materialWorkbench.required = isWorkbench;
 
       selectOptions(materialCupboard, storageTree, "Choose Cupboard", c => c.id, c => c.name);
       selectOptions(materialRack, cupboard?.racks || [], "Choose Rack", r => r.id, r => r.name);
       selectOptions(materialBox, storageBoxes, "Choose Box", b => b.id, b => b.name);
       selectOptions(materialWorkbench, storageWorkbenches, "Choose Workbench", w => w.id, w => w.name);
 
-      materialCupboard.disabled = locType !== "rack" || !storageTree.length;
-      materialRack.disabled = locType !== "rack" || !cupboard?.racks.length;
-      materialBox.disabled = locType !== "box" || !storageBoxes.length;
-      materialWorkbench.disabled = locType !== "workbench" || !storageWorkbenches.length;
+      materialCupboard.disabled = !isRack || !storageTree.length;
+      materialRack.disabled = !isRack || !cupboard?.racks.length;
+      materialBox.disabled = !isBox || !storageBoxes.length;
+      materialWorkbench.disabled = !isWorkbench || !storageWorkbenches.length;
     }
 
+    // ACCURATE CONDITIONAL DISPLAY FOR REMOVE FORM
     function renderRemoveLocationOptions() {
       const locType = removeLocationType.value;
       const cupboard = storageTree.find((item) => String(item.id) === String(removeCupboard.value));
 
-      removeCupboardField.hidden = locType !== "rack";
-      removeRackField.hidden = locType !== "rack";
-      removeBoxField.hidden = locType !== "box";
-      removeWorkbenchField.hidden = locType !== "workbench";
+      const isRack = locType === "rack";
+      const isBox = locType === "box";
+      const isWorkbench = locType === "workbench";
 
-      removeCupboard.required = locType === "rack";
-      removeRack.required = locType === "rack";
-      removeBox.required = locType === "box";
-      removeWorkbench.required = locType === "workbench";
+      removeCupboardField.hidden = !isRack;
+      removeRackField.hidden = !isRack;
+      removeBoxField.hidden = !isBox;
+      removeWorkbenchField.hidden = !isWorkbench;
+
+      removeCupboard.required = isRack;
+      removeRack.required = isRack;
+      removeBox.required = isBox;
+      removeWorkbench.required = isWorkbench;
 
       selectOptions(removeCupboard, storageTree, "Choose Cupboard", c => c.id, c => c.name);
       selectOptions(removeRack, cupboard?.racks || [], "Choose Rack", r => r.id, r => r.name);
       selectOptions(removeBox, storageBoxes, "Choose Box", b => b.id, b => b.name);
       selectOptions(removeWorkbench, storageWorkbenches, "Choose Workbench", w => w.id, w => w.name);
 
-      removeCupboard.disabled = locType !== "rack" || !storageTree.length;
-      removeRack.disabled = locType !== "rack" || !cupboard?.racks.length;
-      removeBox.disabled = locType !== "box" || !storageBoxes.length;
-      removeWorkbench.disabled = locType !== "workbench" || !storageWorkbenches.length;
+      removeCupboard.disabled = !isRack || !storageTree.length;
+      removeRack.disabled = !isRack || !cupboard?.racks.length;
+      removeBox.disabled = !isBox || !storageBoxes.length;
+      removeWorkbench.disabled = !isWorkbench || !storageWorkbenches.length;
     }
 
     function renderReturnLocationOptions() {
       const locType = returnLocationType.value;
       const cupboard = storageTree.find((item) => String(item.id) === String(returnCupboard.value));
 
-      returnCupboardField.hidden = locType !== "rack";
-      returnRackField.hidden = locType !== "rack";
-      returnBoxField.hidden = locType !== "box";
-      returnWorkbenchField.hidden = locType !== "workbench";
+      const isRack = locType === "rack";
+      const isBox = locType === "box";
+      const isWorkbench = locType === "workbench";
 
-      returnCupboard.required = locType === "rack";
-      returnRack.required = locType === "rack";
-      returnBox.required = locType === "box";
-      returnWorkbench.required = locType === "workbench";
+      returnCupboardField.hidden = !isRack;
+      returnRackField.hidden = !isRack;
+      returnBoxField.hidden = !isBox;
+      returnWorkbenchField.hidden = !isWorkbench;
+
+      returnCupboard.required = isRack;
+      returnRack.required = isRack;
+      returnBox.required = isBox;
+      returnWorkbench.required = isWorkbench;
 
       selectOptions(returnCupboard, storageTree, "Cupboard", c => c.id, c => c.name);
       selectOptions(returnRack, cupboard?.racks || [], "Rack", r => r.id, r => r.name);
       selectOptions(returnBox, storageBoxes, "Box", b => b.id, b => b.name);
       selectOptions(returnWorkbench, storageWorkbenches, "Workbench", w => w.id, w => w.name);
 
-      returnCupboard.disabled = locType !== "rack" || !storageTree.length;
-      returnRack.disabled = locType !== "rack" || !cupboard?.racks.length;
-      returnBox.disabled = locType !== "box" || !storageBoxes.length;
-      returnWorkbench.disabled = locType !== "workbench" || !storageWorkbenches.length;
+      returnCupboard.disabled = !isRack || !storageTree.length;
+      returnRack.disabled = !isRack || !cupboard?.racks.length;
+      returnBox.disabled = !isBox || !storageBoxes.length;
+      returnWorkbench.disabled = !isWorkbench || !storageWorkbenches.length;
     }
 
     function renderUserReturnLocationOptions() {
       const locType = userReturnLocationType.value;
       const cupboard = storageTree.find((item) => String(item.id) === String(userReturnCupboard.value));
 
-      userReturnCupboardField.hidden = locType !== "rack";
-      userReturnRackField.hidden = locType !== "rack";
-      userReturnBoxField.hidden = locType !== "box";
-      userReturnWorkbenchField.hidden = locType !== "workbench";
+      const isRack = locType === "rack";
+      const isBox = locType === "box";
+      const isWorkbench = locType === "workbench";
 
-      userReturnCupboard.required = locType === "rack";
-      userReturnRack.required = locType === "rack";
-      userReturnBox.required = locType === "box";
-      userReturnWorkbench.required = locType === "workbench";
+      userReturnCupboardField.hidden = !isRack;
+      userReturnRackField.hidden = !isRack;
+      userReturnBoxField.hidden = !isBox;
+      userReturnWorkbenchField.hidden = !isWorkbench;
+
+      userReturnCupboard.required = isRack;
+      userReturnRack.required = isRack;
+      userReturnBox.required = isBox;
+      userReturnWorkbench.required = isWorkbench;
 
       selectOptions(userReturnCupboard, storageTree, "Cupboard", c => c.id, c => c.name);
       selectOptions(userReturnRack, cupboard?.racks || [], "Rack", r => r.id, r => r.name);
       selectOptions(userReturnBox, storageBoxes, "Box", b => b.id, b => b.name);
       selectOptions(userReturnWorkbench, storageWorkbenches, "Workbench", w => w.id, w => w.name);
 
-      userReturnCupboard.disabled = locType !== "rack" || !storageTree.length;
-      userReturnRack.disabled = locType !== "rack" || !cupboard?.racks.length;
-      userReturnBox.disabled = locType !== "box" || !storageBoxes.length;
-      userReturnWorkbench.disabled = locType !== "workbench" || !storageWorkbenches.length;
+      userReturnCupboard.disabled = !isRack || !storageTree.length;
+      userReturnRack.disabled = !isRack || !cupboard?.racks.length;
+      userReturnBox.disabled = !isBox || !storageBoxes.length;
+      userReturnWorkbench.disabled = !isWorkbench || !storageWorkbenches.length;
     }
+
+    // Dynamic re-render on cupboard select so dependent racks re-render smoothly
+    materialCupboard.addEventListener("change", () => {
+      const cupboard = storageTree.find((item) => String(item.id) === String(materialCupboard.value));
+      selectOptions(materialRack, cupboard?.racks || [], "Choose Rack", r => r.id, r => r.name);
+      materialRack.disabled = !cupboard?.racks.length;
+    });
+
+    removeCupboard.addEventListener("change", () => {
+      const cupboard = storageTree.find((item) => String(item.id) === String(removeCupboard.value));
+      selectOptions(removeRack, cupboard?.racks || [], "Choose Rack", r => r.id, r => r.name);
+      removeRack.disabled = !cupboard?.racks.length;
+    });
+
+    returnCupboard.addEventListener("change", () => {
+      const cupboard = storageTree.find((item) => String(item.id) === String(returnCupboard.value));
+      selectOptions(returnRack, cupboard?.racks || [], "Rack", r => r.id, r => r.name);
+      returnRack.disabled = !cupboard?.racks.length;
+    });
+
+    userReturnCupboard.addEventListener("change", () => {
+      const cupboard = storageTree.find((item) => String(item.id) === String(userReturnCupboard.value));
+      selectOptions(userReturnRack, cupboard?.racks || [], "Rack", r => r.id, r => r.name);
+      userReturnRack.disabled = !cupboard?.racks.length;
+    });
 
     document.getElementById("cupboardRackForm").addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -3034,7 +3085,6 @@
       });
     }
 
-    // Add / Stage Part in Search Allocate
     searchAddStageBtn.addEventListener("click", () => {
       const pNum = takePartNumber.value.trim();
       const pCode = takePartCode.value.trim();
@@ -3070,7 +3120,6 @@
       setFormStatus(globalStripStatus, `Added "${pNum}" to queue.`);
     });
 
-    // Add / Stage Part in Search Return
     searchAddReturnStageBtn.addEventListener("click", () => {
       const pNum = returnPartNumber.value.trim();
       const allocId = returnAllocatedPartCodeSelect.value;
@@ -3133,7 +3182,6 @@
       setFormStatus(globalStripStatus, `Added "${pNum}" to queued return list.`);
     });
 
-    // Execute Search Allocate
     searchExecuteAllocateBtn.addEventListener("click", () => {
       const userId = takeUserSelect.value;
       if (!userId) return setFormStatus(globalStripStatus, "Please select a user from the dropdown.", true);
@@ -3187,7 +3235,6 @@
       });
     });
 
-    // Execute Search Return
     searchExecuteReturnBtn.addEventListener("click", () => {
       const userId = returnUserSelect.value;
       if (!userId) return setFormStatus(globalStripStatus, "Please select the user returning items.", true);
@@ -3460,7 +3507,6 @@
         const workbenchId = logItem.workbench_id || null;
         const locationText = (logItem.location_text || "Storage").trim().toLowerCase();
 
-        // Refresh materials from database before verifying
         const { data: currentMaterials, error: fetchErr } = await supabaseClient
           .from('materials')
           .select('*');
@@ -3468,7 +3514,6 @@
         if (fetchErr) throw fetchErr;
         products = currentMaterials || [];
 
-        // Check if item already exists at this exact location
         let existingAtDestination = products.find(p => {
           const matchPN = p.part_number.trim().toLowerCase() === logItem.part_number.trim().toLowerCase();
           const matchPC = p.part_code.trim().toLowerCase() === logItem.part_code.trim().toLowerCase();
@@ -3492,7 +3537,6 @@
         });
 
         if (existingAtDestination) {
-          // Part and location matched: increase existing stock
           const updatedQty = (parseInt(existingAtDestination.quantity, 10) || 0) + returnQty;
           const { error: updErr } = await supabaseClient
             .from('materials')
@@ -3501,7 +3545,6 @@
 
           if (updErr) throw updErr;
         } else {
-          // Different location: create new entry
           const { error: insErr } = await supabaseClient.from('materials').insert([{
             part_number: logItem.part_number.trim(),
             part_code: logItem.part_code.trim(),
@@ -3693,7 +3736,7 @@
     }
 
     // ==========================================
-    // 11. USERS PAGE (DIRECT PROGRAM - NO SUGGESTIONS)
+    // 11. USERS PAGE
     // ==========================================
     userPageTakeForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -4239,9 +4282,7 @@
     });
 
     locationType.addEventListener("change", renderMaterialLocationOptions);
-    materialCupboard.addEventListener("change", renderMaterialLocationOptions);
     removeLocationType.addEventListener("change", renderRemoveLocationOptions);
-    removeCupboard.addEventListener("change", renderRemoveLocationOptions);
 
     returnLocationType.addEventListener("change", renderReturnLocationOptions);
     returnCupboard.addEventListener("change", renderReturnLocationOptions);
