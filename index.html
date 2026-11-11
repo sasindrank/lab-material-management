@@ -48,8 +48,17 @@
     button, input, select { font: inherit; }
     button { color: inherit; }
     
+    .app-layout {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+    }
+    .app-layout[hidden] { display: none !important; }
+
     .shell {
-      width: min(96vw, 1750px);
+      flex: 1;
       height: 100vh;
       margin: 0 auto;
       padding: 0 1.5vw 10px;
@@ -57,8 +66,59 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      min-width: 0;
     }
-    .shell[hidden] { display: none !important; }
+
+    /* Right-side Vertical Navigation Sidebar */
+    .right-sidebar {
+      width: 54px;
+      background: #ffffff;
+      border-left: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 0;
+      gap: 10px;
+      flex-shrink: 0;
+      z-index: 100;
+      box-shadow: -2px 0 6px rgba(0,0,0,0.02);
+    }
+
+    .icon-nav-btn {
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      position: relative;
+      transition: all 0.15s ease-in-out;
+      padding: 0;
+    }
+    .icon-nav-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+    .icon-nav-btn:hover {
+      background: var(--mint);
+      color: var(--green-dark);
+      border-color: #cde2d8;
+    }
+    .icon-nav-btn.active {
+      background: var(--green-dark);
+      color: #ffffff;
+      border-color: var(--green-dark);
+    }
+    .icon-nav-btn[hidden] { display: none !important; }
 
     *::-webkit-scrollbar { width: 6px; height: 6px; }
     *::-webkit-scrollbar-track { background: #f1f5f2; border-radius: 4px; }
@@ -141,11 +201,6 @@
     .brand-mark.connected { background-color: #16a34a !important; }
 
     .nav-wrapper { display: flex; align-items: center; gap: 10px; }
-    .primary-nav { display: flex; align-items: stretch; gap: 6px; height: 52px; }
-    .page-tab { position: relative; padding: 0 14px; border: 0; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 600; }
-    .page-tab:hover, .page-tab.active { color: var(--green-dark); }
-    .page-tab.active::after { position: absolute; right: 12px; bottom: 0; left: 12px; height: 2px; background: var(--orange); content: ""; }
-    .page-tab[hidden] { display: none !important; }
     .page-view[hidden] { display: none !important; }
     
     .session-badge { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: var(--mono); color: var(--green-dark); background: var(--mint); padding: 4px 8px; border-radius: 4px; border: 1px solid #c2ded3; }
@@ -165,6 +220,7 @@
       transition: all .15s;
     }
     .auth-nav-btn:hover { background: var(--mint); border-color: var(--green); }
+    .auth-nav-btn[hidden] { display: none !important; }
 
     .kicker { margin: 0 0 2px; color: var(--green); font: 10px var(--mono); }
     .catalog {
@@ -327,7 +383,7 @@
     .staged-part-row:last-child { border-bottom: none; }
     .staged-part-row:hover { background: rgba(229,242,236,.4); }
 
-    /* Other Panels */
+    /* Split layouts and Forms */
     .material-split-layout {
       flex: 1;
       display: flex;
@@ -349,7 +405,6 @@
     }
     .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .field { display: flex; min-width: 0; flex-direction: column; gap: 4px; color: #53645e; font-size: 11px; font-weight: 600; }
-    /* FIXED: Ensures conditional form fields stay hidden despite display: flex */
     .field[hidden] { display: none !important; }
     .field input, .field select { width: 100%; height: 32px; padding: 0 9px; border: 1px solid #dce4df; border-radius: 4px; outline: none; background: white; color: var(--ink); font-size: 11px; }
     .field input:focus, .field select:focus { border-color: var(--green); box-shadow: 0 0 0 2px rgba(23,110,89,.08); }
@@ -574,17 +629,15 @@
     @keyframes appear { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 
     @media (min-width: 1920px) {
-      .shell { width: 95vw; max-width: 2200px; }
       body { font-size: 15px; }
       .field input, .field select, .inline-field input, .inline-field select { height: 34px; font-size: 12px; }
       .staged-parts-list { max-height: 120px; }
       .staged-part-row { height: 40px; }
     }
-    @media (max-width: 1280px) {
-      .shell { width: 98vw; padding: 0 8px 8px; }
-    }
     @media (max-width: 950px) {
       body { height: auto; overflow: auto; }
+      .app-layout { height: auto; overflow: visible; flex-direction: column-reverse; }
+      .right-sidebar { width: 100%; height: 48px; flex-direction: row; justify-content: center; border-left: none; border-top: 1px solid var(--line); }
       .shell { height: auto; overflow: visible; }
       .storage-layout { grid-template-columns: 1fr; overflow-y: visible; }
       .user-top-split { grid-template-columns: 1fr; height: auto; }
@@ -614,530 +667,555 @@
     </div>
   </div>
 
-  <!-- Shell -->
-  <main class="shell" id="appShell" hidden>
-    <header class="topbar">
-      <div class="brand" id="secretBrandTrigger" title="Lab Inventory">
-        <span class="brand-mark" id="brandMark" aria-hidden="true">L</span>
-        <span id="labTitleText">LAB INVENTORY</span>
-      </div>
-      <div class="nav-wrapper">
-        <div class="user-auth-links">
-          <button type="button" class="auth-nav-btn" id="openRegisterModalBtn">Register</button>
-          <button type="button" class="auth-nav-btn" id="openResetModalBtn">Forgot Password?</button>
-          <button type="button" class="auth-nav-btn" id="openAdminChangePwdBtn" title="Change master festo password">Change Admin Password</button>
+  <!-- Main Application Layout with Right Sidebar -->
+  <div class="app-layout" id="appLayout" hidden>
+    <!-- Main Content Shell -->
+    <main class="shell" id="appShell">
+      <header class="topbar">
+        <div class="brand" id="secretBrandTrigger" title="Lab Inventory">
+          <span class="brand-mark" id="brandMark" aria-hidden="true">L</span>
+          <span id="labTitleText">LAB INVENTORY</span>
         </div>
-
-        <div id="sessionIndicator" class="session-badge" hidden>
-          <span id="sessionTimerText">30s</span>
-          <button type="button" class="logout-btn" id="logoutButton">Log out</button>
-        </div>
-        <nav class="primary-nav" aria-label="Pages">
-          <button class="page-tab active" type="button" data-page="searchPage">Search</button>
-          <button class="page-tab admin-tab" type="button" data-page="materialPage" hidden>Add/Delete Material</button>
-          <button class="page-tab admin-tab" type="button" data-page="storagePage" hidden>Storage Locations</button>
-          <button class="page-tab admin-tab" type="button" data-page="usersPage" hidden>Users</button>
-          <button class="page-tab admin-tab" type="button" data-page="logsPage" hidden>Logs</button>
-        </nav>
-      </div>
-    </header>
-
-    <!-- Search Page -->
-    <section class="catalog page-view" id="searchPage" aria-label="Material catalog">
-      <div class="catalog-head">
-        <div><p class="kicker">DIRECTORY</p><h2>Material catalog</h2></div>
-        <div class="catalog-actions">
-          <div class="catalog-meta"><span id="itemCount">0 IN STOCK</span></div>
-          <button class="action-button" id="exportButton" type="button">Export Excel</button>
-        </div>
-      </div>
-
-      <div class="controls">
-        <label class="search">
-          <span class="search-icon" aria-hidden="true">&#128269;</span>
-          <input id="searchInput" type="text" placeholder="Search by part number or part code" autocomplete="off">
-          <button class="clear-button" id="clearButton" type="button" hidden>&times;</button>
-        </label>
-        <button class="action-button" id="searchButton" type="button">Search</button>
-      </div>
-      <p class="workbook-status" id="workbookStatus" role="status" aria-live="polite"></p>
-
-      <div class="table-scroll">
-        <div class="table-head" aria-hidden="true">
-          <span>PART NUMBER</span>
-          <span>PART CODE</span>
-          <span>QUANTITY</span>
-          <span>LOCATION</span>
-        </div>
-        <div class="product-list" id="productList" aria-live="polite"></div>
-        <div class="empty" id="emptyState" hidden>
-          <span class="empty-symbol" aria-hidden="true">/</span>
-          <strong id="emptyTitle">No materials found</strong>
-          <span id="emptyMessage">Try another name or item code.</span>
-        </div>
-      </div>
-
-      <!-- Bottom Bar on Search Page with Multi-Part Staging Table -->
-      <div class="aligned-bottom-bar" id="alignedBottomBar">
-        <div class="transaction-bar">
-          <div class="compact-switch">
-            <label><input type="radio" name="globalOpMode" value="allocate" checked> Allocate</label>
-            <label><input type="radio" name="globalOpMode" value="return"> Return</label>
+        <div class="nav-wrapper">
+          <div class="user-auth-links">
+            <button type="button" class="auth-nav-btn" id="openRegisterModalBtn">Register</button>
+            <button type="button" class="auth-nav-btn" id="openResetModalBtn">Forgot Password?</button>
+            <!-- Change Admin Password button is hidden by default and appears once admin password is authenticated -->
+            <button type="button" class="auth-nav-btn admin-elem" id="openAdminChangePwdBtn" title="Change master admin password" hidden>Change Admin Password</button>
           </div>
 
-          <!-- Staged Allocate Bar on Search Page -->
-          <div id="searchAllocateControls" style="display: flex; align-items: center; gap: 8px;">
-            <div class="inline-field">
-              <select name="userId" id="takeUserSelect" required style="width: 140px;">
-                <option value="">Select User</option>
-              </select>
-            </div>
-            <div class="inline-field">
-              <input name="partCode" id="takePartCode" readonly placeholder="Part Code" style="width: 120px;">
-            </div>
-            <div class="inline-field">
-              <input name="partNumber" id="takePartNumber" readonly placeholder="Part Number" style="width: 170px;">
-            </div>
-            <div class="inline-field">
-              <input name="quantity" id="takeQuantity" type="number" min="1" step="1" placeholder="Quantity" style="width: 80px;">
-            </div>
-            <button class="compact-btn secondary-btn" type="button" id="searchAddStageBtn">Add</button>
-            <button class="compact-btn danger" type="button" id="searchExecuteAllocateBtn">Allocate</button>
+          <div id="sessionIndicator" class="session-badge" hidden>
+            <span id="sessionTimerText">30s</span>
+            <button type="button" class="logout-btn" id="logoutButton">Log out</button>
           </div>
+        </div>
+      </header>
 
-          <!-- Staged Return Bar on Search Page -->
-          <div id="searchReturnControls" style="display: none; align-items: center; gap: 8px;">
-            <div class="inline-field">
-              <select name="userId" id="returnUserSelect" required style="width: 140px;">
-                <option value="">Select User</option>
-              </select>
-            </div>
-            <div class="inline-field">
-              <select name="allocationSelect" id="returnAllocatedPartCodeSelect" style="width: 180px;">
-                <option value="">Allocated Part Code</option>
-              </select>
-            </div>
-            <div class="inline-field">
-              <input name="partNumber" id="returnPartNumber" readonly placeholder="Part Name" style="width: 150px;">
-            </div>
-            <div class="inline-field">
-              <input name="quantity" id="returnQuantity" type="number" min="1" step="1" placeholder="Quantity" style="width: 75px;">
-            </div>
-
-            <div class="inline-field">
-              <select name="locationType" id="returnLocationType" style="width: 105px;">
-                <option value="rack">Cupboard Rack</option>
-                <option value="box">Box</option>
-                <option value="workbench">Workbench</option>
-              </select>
-            </div>
-            <div class="inline-field" id="returnCupboardField">
-              <select name="cupboardId" id="returnCupboard" required style="width: 105px;">
-                <option value="">Cupboard</option>
-              </select>
-            </div>
-            <div class="inline-field" id="returnRackField">
-              <select name="rackId" id="returnRack" required style="width: 80px;">
-                <option value="">Rack</option>
-              </select>
-            </div>
-            <div class="inline-field" id="returnBoxField" hidden>
-              <select name="boxId" id="returnBox" style="width: 105px;">
-                <option value="">Box</option>
-              </select>
-            </div>
-            <div class="inline-field" id="returnWorkbenchField" hidden>
-              <select name="workbenchId" id="returnWorkbench" style="width: 110px;">
-                <option value="">Workbench</option>
-              </select>
-            </div>
-            <button class="compact-btn secondary-btn" type="button" id="searchAddReturnStageBtn">Add</button>
-            <button class="compact-btn success" type="button" id="searchExecuteReturnBtn">Return</button>
+      <!-- Search Page -->
+      <section class="catalog page-view" id="searchPage" aria-label="Material catalog">
+        <div class="catalog-head">
+          <div><p class="kicker">DIRECTORY</p><h2>Material catalog</h2></div>
+          <div class="catalog-actions">
+            <div class="catalog-meta"><span id="itemCount">0 IN STOCK</span></div>
+            <button class="action-button" id="exportButton" type="button">Export Excel</button>
           </div>
         </div>
 
-        <!-- Staged Items List on Search Page -->
-        <div class="staged-parts-box" id="searchStagedPartsBox" hidden>
-          <ul class="staged-parts-list" id="searchStagedPartsList"></ul>
+        <div class="controls">
+          <label class="search">
+            <span class="search-icon" aria-hidden="true">&#128269;</span>
+            <input id="searchInput" type="text" placeholder="Search by part number or part code" autocomplete="off">
+            <button class="clear-button" id="clearButton" type="button" hidden>&times;</button>
+          </label>
+          <button class="action-button" id="searchButton" type="button">Search</button>
         </div>
+        <p class="workbook-status" id="workbookStatus" role="status" aria-live="polite"></p>
 
-        <p class="strip-status" id="globalStripStatus" role="status" aria-live="polite"></p>
-      </div>
-    </section>
-
-    <!-- Add & Delete Material Page -->
-    <section class="catalog page-view" id="materialPage" hidden>
-      <div class="page-heading">
-        <p>MANUAL INVENTORY</p>
-        <h2>Add &amp; Delete Material Stock</h2>
-      </div>
-
-      <div class="material-split-layout">
-        <!-- Add Material Form -->
-        <form class="material-compact-panel" id="materialForm">
-          <div>
-            <h3 style="margin: 0 0 6px; font-size: 13px; color: var(--green-dark);">Add Material Stock</h3>
-            <div class="form-grid">
-              <label class="field">Part Number<input name="partNumber" required maxlength="100" placeholder="e.g. PN-1029"></label>
-              <label class="field">Part Code<input name="partCode" required maxlength="100" placeholder="e.g. PC-A1"></label>
-              <label class="field">Quantity<input name="quantity" type="number" min="1" step="1" required placeholder="Qty"></label>
-              <label class="field">Location Type
-                <select name="locationType" id="locationType">
-                  <option value="rack">Cupboard Rack</option>
-                  <option value="box">Box</option>
-                  <option value="workbench">Workbench</option>
-                </select>
-              </label>
-              
-              <!-- Location Type Selection: Cupboard + Rack only for 'rack' -->
-              <label class="field" id="materialCupboardField">Cupboard
-                <select name="cupboardId" id="materialCupboard" required disabled>
-                  <option value="">Choose Cupboard</option>
-                </select>
-              </label>
-              <label class="field" id="rackLocationField">Rack
-                <select name="rackId" id="materialRack" required disabled>
-                  <option value="">Choose Rack</option>
-                </select>
-              </label>
-              
-              <!-- Location Type Selection: Box only for 'box' -->
-              <label class="field" id="boxLocationField" hidden>Box
-                <select name="boxId" id="materialBox" disabled>
-                  <option value="">Choose Box</option>
-                </select>
-              </label>
-              
-              <!-- Location Type Selection: Workbench only for 'workbench' -->
-              <label class="field" id="workbenchLocationField" hidden>Workbench
-                <select name="workbenchId" id="materialWorkbench" disabled>
-                  <option value="">Choose Workbench</option>
-                </select>
-              </label>
-            </div>
-          </div>
-          <div class="form-actions" style="margin-top: 8px; display: flex; gap: 12px; align-items: center;">
-            <button class="action-button success-button" type="submit">Save Material</button>
-            <p class="form-status" id="materialStatus" role="status" aria-live="polite"></p>
-          </div>
-        </form>
-
-        <!-- Delete Material Form -->
-        <form class="material-compact-panel" id="removeMaterialForm">
-          <div>
-            <h3 style="margin: 0 0 6px; font-size: 13px; color: #a6442b;">Delete Material Stock</h3>
-            <div class="form-grid">
-              <label class="field">Part Number<input name="partNumber" required maxlength="100" placeholder="e.g. PN-1029"></label>
-              <label class="field">Part Code<input name="partCode" required maxlength="100" placeholder="e.g. PC-A1"></label>
-              <label class="field">Quantity to Deduct<input name="quantity" type="number" min="1" step="1" required placeholder="Qty"></label>
-              <label class="field">Location Type
-                <select name="locationType" id="removeLocationType">
-                  <option value="rack">Cupboard Rack</option>
-                  <option value="box">Box</option>
-                  <option value="workbench">Workbench</option>
-                </select>
-              </label>
-              
-              <!-- Location Type Selection: Cupboard + Rack only for 'rack' -->
-              <label class="field" id="removeCupboardField">Cupboard
-                <select name="cupboardId" id="removeCupboard" required disabled>
-                  <option value="">Choose Cupboard</option>
-                </select>
-              </label>
-              <label class="field" id="removeRackField">Rack
-                <select name="rackId" id="removeRack" required disabled>
-                  <option value="">Choose Rack</option>
-                </select>
-              </label>
-              
-              <!-- Location Type Selection: Box only for 'box' -->
-              <label class="field" id="removeBoxField" hidden>Box
-                <select name="boxId" id="removeBox" disabled>
-                  <option value="">Choose Box</option>
-                </select>
-              </label>
-              
-              <!-- Location Type Selection: Workbench only for 'workbench' -->
-              <label class="field" id="removeWorkbenchField" hidden>Workbench
-                <select name="workbenchId" id="removeWorkbench" disabled>
-                  <option value="">Choose Workbench</option>
-                </select>
-              </label>
-            </div>
-          </div>
-          <div class="form-actions" style="margin-top: 8px; display: flex; gap: 12px; align-items: center;">
-            <button class="action-button danger-button" type="submit">Remove Quantity</button>
-            <p class="form-status" id="removeMaterialStatus" role="status" aria-live="polite"></p>
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <!-- Storage Locations Page -->
-    <section class="catalog page-view" id="storagePage" hidden>
-      <div class="page-heading">
-        <p>LOCATIONS &amp; AUDIT</p>
-        <h2>Storage Locations &amp; Material Inspector</h2>
-      </div>
-
-      <div class="storage-layout">
-        <div class="storage-sections">
-          <section class="storage-section">
-            <form class="storage-form" id="cupboardRackForm">
-              <h3>Cupboard and Rack</h3>
-              <div class="storage-inline-inputs">
-                <label class="field">Cupboard Name<input name="name" placeholder="e.g. Cupboard 1" required maxlength="80"></label>
-                <label class="field">Racks Count<input name="rackCount" type="number" min="1" max="50" step="1" value="1" required></label>
-              </div>
-              <button class="action-button storage-small-btn" type="submit">Add Cupboard &amp; Racks</button>
-            </form>
-          </section>
-
-          <section class="storage-section">
-            <form class="storage-form" id="boxForm">
-              <h3>Box</h3>
-              <label class="field">Box Name<input name="name" placeholder="e.g. Box A" required maxlength="80"></label>
-              <button class="action-button storage-small-btn" type="submit">Add Box</button>
-            </form>
-          </section>
-
-          <section class="storage-section">
-            <form class="storage-form" id="workbenchForm">
-              <h3>Workbench</h3>
-              <label class="field">Workbench Name<input name="name" placeholder="e.g. Workbench 1" required maxlength="80"></label>
-              <button class="action-button storage-small-btn" type="submit">Add Workbench</button>
-            </form>
-          </section>
-
-          <p class="form-status storage-status" id="storageStatus" role="status" aria-live="polite"></p>
-        </div>
-
-        <div class="unified-inspector-panel">
-          <h3>Storage Location Content Inspector</h3>
-          <p style="margin: 0 0 8px; font-size: 10.5px; color: var(--muted);">Click any location to inspect stored materials, or use Delete to remove the location.</p>
-          <div class="inspector-pills">
-            <button type="button" class="pill-btn active" data-filter="cupboard">Cupboards &amp; Racks</button>
-            <button type="button" class="pill-btn" data-filter="box">Boxes</button>
-            <button type="button" class="pill-btn" data-filter="workbench">Workbenches</button>
-          </div>
-          <div class="inspector-content" id="unifiedInspectorContent" aria-live="polite"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Users Page -->
-    <section class="catalog page-view" id="usersPage" hidden>
-      <div class="page-heading"><p>ADMINISTRATION</p><h2>Manage Users &amp; Material Allocations</h2></div>
-      
-      <div class="user-page-container">
-        <div class="user-top-split">
-          <form class="user-card-panel" id="userForm">
-            <h3 style="margin: 0 0 4px; font-size: 13px; color: var(--green-dark);">Manual User Allocation</h3>
-            <p style="margin: 0 0 8px; font-size: 10px; color: var(--muted);">Manually enroll lab members with verification access.</p>
-            <div class="field" style="margin-bottom: 6px;">
-              <label>User Name</label>
-              <input name="userName" required maxlength="100" placeholder="e.g. John Doe">
-            </div>
-            <div class="field" style="margin-bottom: 6px;">
-              <label>Email ID</label>
-              <input name="email" type="email" required maxlength="120" placeholder="user@company.com">
-            </div>
-            <div class="field" style="margin-bottom: 6px;">
-              <label>Initial Password</label>
-              <input name="initialPassword" type="password" required maxlength="50" placeholder="Set user password">
-            </div>
-            <div style="margin-bottom: 10px;">
-              <label class="verifier-toggle-label" style="display:inline-flex; align-items:center; gap:4px; font-size:10px; cursor:pointer;">
-                <input type="checkbox" id="userFormIsVerifier"> Can Verify Returned Items
-              </label>
-            </div>
-            <button class="action-button" type="submit" style="width: 100%; height: 32px;">Create &amp; Verify User</button>
-            <p class="form-status" id="userStatus" role="status" aria-live="polite" style="margin-top: 5px;"></p>
-          </form>
-
-          <div class="user-card-panel">
-            <div style="margin-bottom: 6px;">
-              <h3 style="margin: 0; font-size: 13px; color: var(--green-dark);">Registered Lab Users</h3>
-              <p style="margin: 2px 0 0; font-size: 10px; color: var(--muted);">View user verification status and toggle return sign-off privileges.</p>
-            </div>
-            <div class="user-table-head" aria-hidden="true">
-              <span>USER NAME</span>
-              <span>EMAIL ID</span>
-              <span style="text-align: center;">VERIFIED</span>
-              <span style="text-align: center;">VERIFIER</span>
-              <span style="text-align: right;">ACTION</span>
-            </div>
-            <div id="usersList" aria-live="polite"></div>
-            <div class="empty" id="emptyUsers" hidden>
-              <span class="empty-symbol" aria-hidden="true">&#9786;</span>
-              <strong>No users added yet</strong>
-              <span>Add users via manual creation or self-registration.</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Material Allocation Inspector Box -->
-        <div class="user-bottom-allocations">
-          <div class="user-bottom-allocations-head">
-            <div>
-              <h3 style="margin: 0; font-size: 13px; color: var(--green-dark);">Material Allocation Inspector</h3>
-              <p style="margin: 2px 0 0; font-size: 10px; color: var(--muted);">Select a user to view currently checked-out materials with timestamps.</p>
-            </div>
-            <div class="field" style="min-width: 250px; margin: 0;">
-              <select id="userAllocViewerSelect">
-                <option value="">Choose User to View Allocations</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="user-alloc-table-head" aria-hidden="true">
+        <div class="table-scroll">
+          <div class="table-head" aria-hidden="true">
             <span>PART NUMBER</span>
             <span>PART CODE</span>
-            <span>QTY</span>
+            <span>QUANTITY</span>
             <span>LOCATION</span>
-            <span>ALLOCATED DATE &amp; TIME</span>
           </div>
-          <div id="userAllocViewerResults" aria-live="polite">
-            <p style="color:#718079;font-size:11px;padding: 16px 0;">Select a user from the dropdown above to view checkout records.</p>
+          <div class="product-list" id="productList" aria-live="polite"></div>
+          <div class="empty" id="emptyState" hidden>
+            <span class="empty-symbol" aria-hidden="true">/</span>
+            <strong id="emptyTitle">No materials found</strong>
+            <span id="emptyMessage">Try another name or item code.</span>
           </div>
         </div>
 
-        <!-- Direct Allocate & Return in Users Page -->
-        <div class="aligned-bottom-bar" id="userAlignedBottomBar">
+        <!-- Bottom Bar on Search Page with Multi-Part Staging Table -->
+        <div class="aligned-bottom-bar" id="alignedBottomBar">
           <div class="transaction-bar">
             <div class="compact-switch">
-              <label><input type="radio" name="userPageOpMode" value="allocate" checked> Allocate</label>
-              <label><input type="radio" name="userPageOpMode" value="return"> Return</label>
+              <label><input type="radio" name="globalOpMode" value="allocate" checked> Allocate</label>
+              <label><input type="radio" name="globalOpMode" value="return"> Return</label>
             </div>
 
-            <datalist id="partNumberSuggestionsList"></datalist>
-            <datalist id="partCodeSuggestionsList"></datalist>
-
-            <!-- Allocate Form -->
-            <form id="userPageTakeForm" style="display: contents;">
+            <!-- Staged Allocate Bar on Search Page -->
+            <div id="searchAllocateControls" style="display: flex; align-items: center; gap: 8px;">
               <div class="inline-field">
-                <input name="userManual" id="userTakeUserInput" required autocomplete="off" placeholder="User Name / Email" style="width: 160px;">
-              </div>
-              <div class="inline-field">
-                <input list="partNumberSuggestionsList" name="partNumber" id="userTakePartNumber" required maxlength="100" placeholder="Part Number" style="width: 170px;">
-              </div>
-              <div class="inline-field">
-                <input list="partCodeSuggestionsList" name="partCode" id="userTakePartCode" required maxlength="100" placeholder="Part Code" style="width: 120px;">
-              </div>
-              <div class="inline-field">
-                <input name="quantity" id="userTakeQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 75px;">
-              </div>
-              <button class="compact-btn danger" type="submit" id="userAllocateSubmitBtn">Allocate</button>
-            </form>
-
-            <!-- Return Form -->
-            <form id="userPageReturnForm" style="display: none;">
-              <div class="inline-field">
-                <input name="userManual" id="userReturnUserInput" required autocomplete="off" placeholder="User Name / Email" style="width: 140px;">
-              </div>
-              <div class="inline-field">
-                <select name="allocationSelect" id="userReturnAllocatedSelect" style="width: 170px;">
-                  <option value="">Allocated Items</option>
+                <select name="userId" id="takeUserSelect" required style="width: 140px;">
+                  <option value="">Select User</option>
                 </select>
               </div>
               <div class="inline-field">
-                <input name="partNumber" id="userReturnPartNumber" placeholder="Part Number" style="width: 140px;">
+                <input name="partCode" id="takePartCode" readonly placeholder="Part Code" style="width: 120px;">
               </div>
               <div class="inline-field">
-                <input name="partCode" id="userReturnPartCode" placeholder="Part Code" style="width: 110px;">
+                <input name="partNumber" id="takePartNumber" readonly placeholder="Part Number" style="width: 170px;">
               </div>
               <div class="inline-field">
-                <input name="quantity" id="userReturnQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 65px;">
+                <input name="quantity" id="takeQuantity" type="number" min="1" step="1" placeholder="Quantity" style="width: 80px;">
+              </div>
+              <button class="compact-btn secondary-btn" type="button" id="searchAddStageBtn">Add</button>
+              <button class="compact-btn danger" type="button" id="searchExecuteAllocateBtn">Allocate</button>
+            </div>
+
+            <!-- Staged Return Bar on Search Page -->
+            <div id="searchReturnControls" style="display: none; align-items: center; gap: 8px;">
+              <div class="inline-field">
+                <select name="userId" id="returnUserSelect" required style="width: 140px;">
+                  <option value="">Select User</option>
+                </select>
+              </div>
+              <div class="inline-field">
+                <select name="allocationSelect" id="returnAllocatedPartCodeSelect" style="width: 180px;">
+                  <option value="">Allocated Part Code</option>
+                </select>
+              </div>
+              <div class="inline-field">
+                <input name="partNumber" id="returnPartNumber" readonly placeholder="Part Name" style="width: 150px;">
+              </div>
+              <div class="inline-field">
+                <input name="quantity" id="returnQuantity" type="number" min="1" step="1" placeholder="Quantity" style="width: 75px;">
               </div>
 
               <div class="inline-field">
-                <select name="locationType" id="userReturnLocationType" style="width: 105px;">
+                <select name="locationType" id="returnLocationType" style="width: 105px;">
                   <option value="rack">Cupboard Rack</option>
                   <option value="box">Box</option>
                   <option value="workbench">Workbench</option>
                 </select>
               </div>
-              <div class="inline-field" id="userReturnCupboardField">
-                <select name="cupboardId" id="userReturnCupboard" required style="width: 100px;">
+              <div class="inline-field" id="returnCupboardField">
+                <select name="cupboardId" id="returnCupboard" required style="width: 105px;">
                   <option value="">Cupboard</option>
                 </select>
               </div>
-              <div class="inline-field" id="userReturnRackField">
-                <select name="rackId" id="userReturnRack" required style="width: 80px;">
+              <div class="inline-field" id="returnRackField">
+                <select name="rackId" id="returnRack" required style="width: 80px;">
                   <option value="">Rack</option>
                 </select>
               </div>
-              <div class="inline-field" id="userReturnBoxField" hidden>
-                <select name="boxId" id="userReturnBox" style="width: 100px;">
+              <div class="inline-field" id="returnBoxField" hidden>
+                <select name="boxId" id="returnBox" style="width: 105px;">
                   <option value="">Box</option>
                 </select>
               </div>
-              <div class="inline-field" id="userReturnWorkbenchField" hidden>
-                <select name="workbenchId" id="userReturnWorkbench" style="width: 105px;">
+              <div class="inline-field" id="returnWorkbenchField" hidden>
+                <select name="workbenchId" id="returnWorkbench" style="width: 110px;">
                   <option value="">Workbench</option>
                 </select>
               </div>
-              <button class="compact-btn success" type="submit" id="userReturnSubmitBtn">Return</button>
-            </form>
+              <button class="compact-btn secondary-btn" type="button" id="searchAddReturnStageBtn">Add</button>
+              <button class="compact-btn success" type="button" id="searchExecuteReturnBtn">Return</button>
+            </div>
           </div>
-          <p class="strip-status" id="userPageStripStatus" role="status" aria-live="polite"></p>
+
+          <!-- Staged Items List on Search Page -->
+          <div class="staged-parts-box" id="searchStagedPartsBox" hidden>
+            <ul class="staged-parts-list" id="searchStagedPartsList"></ul>
+          </div>
+
+          <p class="strip-status" id="globalStripStatus" role="status" aria-live="polite"></p>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Lifecycle Logs Page -->
-    <section class="catalog page-view" id="logsPage" hidden>
-      <div class="catalog-head">
-        <div><p class="kicker">AUDIT TRAIL</p><h2>Material Activity Logs</h2></div>
-        <div class="catalog-actions">
-          <button class="action-button" id="exportLogsButton" type="button">Export Excel</button>
+      <!-- Add & Delete Material Page -->
+      <section class="catalog page-view" id="materialPage" hidden>
+        <div class="page-heading">
+          <p>MANUAL INVENTORY</p>
+          <h2>Add &amp; Delete Material Stock</h2>
         </div>
-      </div>
 
-      <div class="log-filter-bar">
-        <label>
-          Filter Status:
-          <select id="logActionFilter">
-            <option value="ALL">All Records</option>
-            <option value="Allocated">Only Allocated</option>
-            <option value="Pending">Pending Verification</option>
-            <option value="Return">Verified Returns</option>
-          </select>
-        </label>
+        <div class="material-split-layout">
+          <!-- Add Material Form -->
+          <form class="material-compact-panel" id="materialForm">
+            <div>
+              <h3 style="margin: 0 0 6px; font-size: 13px; color: var(--green-dark);">Add Material Stock</h3>
+              <div class="form-grid">
+                <label class="field">Part Number<input name="partNumber" required maxlength="100" placeholder="e.g. PN-1029"></label>
+                <label class="field">Part Code<input name="partCode" required maxlength="100" placeholder="e.g. PC-A1"></label>
+                <label class="field">Quantity<input name="quantity" type="number" min="1" step="1" required placeholder="Qty"></label>
+                <label class="field">Location Type
+                  <select name="locationType" id="locationType">
+                    <option value="rack">Cupboard Rack</option>
+                    <option value="box">Box</option>
+                    <option value="workbench">Workbench</option>
+                  </select>
+                </label>
+                
+                <!-- Location Type Selection: Cupboard + Rack only for 'rack' -->
+                <label class="field" id="materialCupboardField">Cupboard
+                  <select name="cupboardId" id="materialCupboard" required disabled>
+                    <option value="">Choose Cupboard</option>
+                  </select>
+                </label>
+                <label class="field" id="rackLocationField">Rack
+                  <select name="rackId" id="materialRack" required disabled>
+                    <option value="">Choose Rack</option>
+                  </select>
+                </label>
+                
+                <!-- Location Type Selection: Box only for 'box' -->
+                <label class="field" id="boxLocationField" hidden>Box
+                  <select name="boxId" id="materialBox" disabled>
+                    <option value="">Choose Box</option>
+                  </select>
+                </label>
+                
+                <!-- Location Type Selection: Workbench only for 'workbench' -->
+                <label class="field" id="workbenchLocationField" hidden>Workbench
+                  <select name="workbenchId" id="materialWorkbench" disabled>
+                    <option value="">Choose Workbench</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+            <div class="form-actions" style="margin-top: 8px; display: flex; gap: 12px; align-items: center;">
+              <button class="action-button success-button" type="submit">Save Material</button>
+              <p class="form-status" id="materialStatus" role="status" aria-live="polite"></p>
+            </div>
+          </form>
 
-        <label>
-          From Date:
-          <input type="date" id="logFromDateFilter">
-        </label>
-
-        <label>
-          To Date:
-          <input type="date" id="logToDateFilter">
-        </label>
-
-        <button type="button" class="btn-secondary" id="clearLogDatesBtn">Clear Dates</button>
-      </div>
-
-      <div class="table-scroll">
-        <div class="log-table-head" aria-hidden="true">
-          <span>USER NAME</span>
-          <span>PART CODE</span>
-          <span>PART NUMBER</span>
-          <span>QTY</span>
-          <span>STATUS</span>
-          <span>ALLOCATED TIME</span>
-          <span>RETURN / PENDING TIME</span>
-          <span>VERIFY</span>
+          <!-- Delete Material Form -->
+          <form class="material-compact-panel" id="removeMaterialForm">
+            <div>
+              <h3 style="margin: 0 0 6px; font-size: 13px; color: #a6442b;">Delete Material Stock</h3>
+              <div class="form-grid">
+                <label class="field">Part Number<input name="partNumber" required maxlength="100" placeholder="e.g. PN-1029"></label>
+                <label class="field">Part Code<input name="partCode" required maxlength="100" placeholder="e.g. PC-A1"></label>
+                <label class="field">Quantity to Deduct<input name="quantity" type="number" min="1" step="1" required placeholder="Qty"></label>
+                <label class="field">Location Type
+                  <select name="locationType" id="removeLocationType">
+                    <option value="rack">Cupboard Rack</option>
+                    <option value="box">Box</option>
+                    <option value="workbench">Workbench</option>
+                  </select>
+                </label>
+                
+                <!-- Location Type Selection: Cupboard + Rack only for 'rack' -->
+                <label class="field" id="removeCupboardField">Cupboard
+                  <select name="cupboardId" id="removeCupboard" required disabled>
+                    <option value="">Choose Cupboard</option>
+                  </select>
+                </label>
+                <label class="field" id="removeRackField">Rack
+                  <select name="rackId" id="removeRack" required disabled>
+                    <option value="">Choose Rack</option>
+                  </select>
+                </label>
+                
+                <!-- Location Type Selection: Box only for 'box' -->
+                <label class="field" id="removeBoxField" hidden>Box
+                  <select name="boxId" id="removeBox" disabled>
+                    <option value="">Choose Box</option>
+                  </select>
+                </label>
+                
+                <!-- Location Type Selection: Workbench only for 'workbench' -->
+                <label class="field" id="removeWorkbenchField" hidden>Workbench
+                  <select name="workbenchId" id="removeWorkbench" disabled>
+                    <option value="">Choose Workbench</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+            <div class="form-actions" style="margin-top: 8px; display: flex; gap: 12px; align-items: center;">
+              <button class="action-button danger-button" type="submit">Remove Quantity</button>
+              <p class="form-status" id="removeMaterialStatus" role="status" aria-live="polite"></p>
+            </div>
+          </form>
         </div>
-        <div id="logList" aria-live="polite"></div>
-        <div class="empty" id="emptyLogs" hidden>
-          <span class="empty-symbol" aria-hidden="true">&#9776;</span>
-          <strong>No matching activity records found</strong>
-          <span>Allocated materials and their return updates will appear here.</span>
+      </section>
+
+      <!-- Storage Locations Page -->
+      <section class="catalog page-view" id="storagePage" hidden>
+        <div class="page-heading">
+          <p>LOCATIONS &amp; AUDIT</p>
+          <h2>Storage Locations &amp; Material Inspector</h2>
         </div>
-      </div>
-    </section>
-  </main>
+
+        <div class="storage-layout">
+          <div class="storage-sections">
+            <section class="storage-section">
+              <form class="storage-form" id="cupboardRackForm">
+                <h3>Cupboard and Rack</h3>
+                <div class="storage-inline-inputs">
+                  <label class="field">Cupboard Name<input name="name" placeholder="e.g. Cupboard 1" required maxlength="80"></label>
+                  <label class="field">Racks Count<input name="rackCount" type="number" min="1" max="50" step="1" value="1" required></label>
+                </div>
+                <button class="action-button storage-small-btn" type="submit">Add Cupboard &amp; Racks</button>
+              </form>
+            </section>
+
+            <section class="storage-section">
+              <form class="storage-form" id="boxForm">
+                <h3>Box</h3>
+                <label class="field">Box Name<input name="name" placeholder="e.g. Box A" required maxlength="80"></label>
+                <button class="action-button storage-small-btn" type="submit">Add Box</button>
+              </form>
+            </section>
+
+            <section class="storage-section">
+              <form class="storage-form" id="workbenchForm">
+                <h3>Workbench</h3>
+                <label class="field">Workbench Name<input name="name" placeholder="e.g. Workbench 1" required maxlength="80"></label>
+                <button class="action-button storage-small-btn" type="submit">Add Workbench</button>
+              </form>
+            </section>
+
+            <p class="form-status storage-status" id="storageStatus" role="status" aria-live="polite"></p>
+          </div>
+
+          <div class="unified-inspector-panel">
+            <h3>Storage Location Content Inspector</h3>
+            <p style="margin: 0 0 8px; font-size: 10.5px; color: var(--muted);">Click any location to inspect stored materials, or use Delete to remove the location.</p>
+            <div class="inspector-pills">
+              <button type="button" class="pill-btn active" data-filter="cupboard">Cupboards &amp; Racks</button>
+              <button type="button" class="pill-btn" data-filter="box">Boxes</button>
+              <button type="button" class="pill-btn" data-filter="workbench">Workbenches</button>
+            </div>
+            <div class="inspector-content" id="unifiedInspectorContent" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Users Page -->
+      <section class="catalog page-view" id="usersPage" hidden>
+        <div class="page-heading"><p>ADMINISTRATION</p><h2>Manage Users &amp; Material Allocations</h2></div>
+        
+        <div class="user-page-container">
+          <div class="user-top-split">
+            <form class="user-card-panel" id="userForm">
+              <h3 style="margin: 0 0 4px; font-size: 13px; color: var(--green-dark);">Manual User Allocation</h3>
+              <p style="margin: 0 0 8px; font-size: 10px; color: var(--muted);">Manually enroll lab members with verification access.</p>
+              <div class="field" style="margin-bottom: 6px;">
+                <label>User Name</label>
+                <input name="userName" required maxlength="100" placeholder="e.g. John Doe">
+              </div>
+              <div class="field" style="margin-bottom: 6px;">
+                <label>Email ID</label>
+                <input name="email" type="email" required maxlength="120" placeholder="user@company.com">
+              </div>
+              <div class="field" style="margin-bottom: 6px;">
+                <label>Initial Password</label>
+                <input name="initialPassword" type="password" required maxlength="50" placeholder="Set user password">
+              </div>
+              <div style="margin-bottom: 10px;">
+                <label class="verifier-toggle-label" style="display:inline-flex; align-items:center; gap:4px; font-size:10px; cursor:pointer;">
+                  <input type="checkbox" id="userFormIsVerifier"> Can Verify Returned Items
+                </label>
+              </div>
+              <button class="action-button" type="submit" style="width: 100%; height: 32px;">Create &amp; Verify User</button>
+              <p class="form-status" id="userStatus" role="status" aria-live="polite" style="margin-top: 5px;"></p>
+            </form>
+
+            <div class="user-card-panel">
+              <div style="margin-bottom: 6px;">
+                <h3 style="margin: 0; font-size: 13px; color: var(--green-dark);">Registered Lab Users</h3>
+                <p style="margin: 2px 0 0; font-size: 10px; color: var(--muted);">View user verification status and toggle return sign-off privileges.</p>
+              </div>
+              <div class="user-table-head" aria-hidden="true">
+                <span>USER NAME</span>
+                <span>EMAIL ID</span>
+                <span style="text-align: center;">VERIFIED</span>
+                <span style="text-align: center;">VERIFIER</span>
+                <span style="text-align: right;">ACTION</span>
+              </div>
+              <div id="usersList" aria-live="polite"></div>
+              <div class="empty" id="emptyUsers" hidden>
+                <span class="empty-symbol" aria-hidden="true">&#9786;</span>
+                <strong>No users added yet</strong>
+                <span>Add users via manual creation or self-registration.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Material Allocation Inspector Box -->
+          <div class="user-bottom-allocations">
+            <div class="user-bottom-allocations-head">
+              <div>
+                <h3 style="margin: 0; font-size: 13px; color: var(--green-dark);">Material Allocation Inspector</h3>
+                <p style="margin: 2px 0 0; font-size: 10px; color: var(--muted);">Select a user to view currently checked-out materials with timestamps.</p>
+              </div>
+              <div class="field" style="min-width: 250px; margin: 0;">
+                <select id="userAllocViewerSelect">
+                  <option value="">Choose User to View Allocations</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="user-alloc-table-head" aria-hidden="true">
+              <span>PART NUMBER</span>
+              <span>PART CODE</span>
+              <span>QTY</span>
+              <span>LOCATION</span>
+              <span>ALLOCATED DATE &amp; TIME</span>
+            </div>
+            <div id="userAllocViewerResults" aria-live="polite">
+              <p style="color:#718079;font-size:11px;padding: 16px 0;">Select a user from the dropdown above to view checkout records.</p>
+            </div>
+          </div>
+
+          <!-- Direct Allocate & Return in Users Page -->
+          <div class="aligned-bottom-bar" id="userAlignedBottomBar">
+            <div class="transaction-bar">
+              <div class="compact-switch">
+                <label><input type="radio" name="userPageOpMode" value="allocate" checked> Allocate</label>
+                <label><input type="radio" name="userPageOpMode" value="return"> Return</label>
+              </div>
+
+              <datalist id="partNumberSuggestionsList"></datalist>
+              <datalist id="partCodeSuggestionsList"></datalist>
+
+              <!-- Allocate Form -->
+              <form id="userPageTakeForm" style="display: contents;">
+                <div class="inline-field">
+                  <input name="userManual" id="userTakeUserInput" required autocomplete="off" placeholder="User Name / Email" style="width: 160px;">
+                </div>
+                <div class="inline-field">
+                  <input list="partNumberSuggestionsList" name="partNumber" id="userTakePartNumber" required maxlength="100" placeholder="Part Number" style="width: 170px;">
+                </div>
+                <div class="inline-field">
+                  <input list="partCodeSuggestionsList" name="partCode" id="userTakePartCode" required maxlength="100" placeholder="Part Code" style="width: 120px;">
+                </div>
+                <div class="inline-field">
+                  <input name="quantity" id="userTakeQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 75px;">
+                </div>
+                <button class="compact-btn danger" type="submit" id="userAllocateSubmitBtn">Allocate</button>
+              </form>
+
+              <!-- Return Form -->
+              <form id="userPageReturnForm" style="display: none;">
+                <div class="inline-field">
+                  <input name="userManual" id="userReturnUserInput" required autocomplete="off" placeholder="User Name / Email" style="width: 140px;">
+                </div>
+                <div class="inline-field">
+                  <select name="allocationSelect" id="userReturnAllocatedSelect" style="width: 170px;">
+                    <option value="">Allocated Items</option>
+                  </select>
+                </div>
+                <div class="inline-field">
+                  <input name="partNumber" id="userReturnPartNumber" placeholder="Part Number" style="width: 140px;">
+                </div>
+                <div class="inline-field">
+                  <input name="partCode" id="userReturnPartCode" placeholder="Part Code" style="width: 110px;">
+                </div>
+                <div class="inline-field">
+                  <input name="quantity" id="userReturnQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 65px;">
+                </div>
+
+                <div class="inline-field">
+                  <select name="locationType" id="userReturnLocationType" style="width: 105px;">
+                    <option value="rack">Cupboard Rack</option>
+                    <option value="box">Box</option>
+                    <option value="workbench">Workbench</option>
+                  </select>
+                </div>
+                <div class="inline-field" id="userReturnCupboardField">
+                  <select name="cupboardId" id="userReturnCupboard" required style="width: 100px;">
+                    <option value="">Cupboard</option>
+                  </select>
+                </div>
+                <div class="inline-field" id="userReturnRackField">
+                  <select name="rackId" id="userReturnRack" required style="width: 80px;">
+                    <option value="">Rack</option>
+                  </select>
+                </div>
+                <div class="inline-field" id="userReturnBoxField" hidden>
+                  <select name="boxId" id="userReturnBox" style="width: 100px;">
+                    <option value="">Box</option>
+                  </select>
+                </div>
+                <div class="inline-field" id="userReturnWorkbenchField" hidden>
+                  <select name="workbenchId" id="userReturnWorkbench" style="width: 105px;">
+                    <option value="">Workbench</option>
+                  </select>
+                </div>
+                <button class="compact-btn success" type="submit" id="userReturnSubmitBtn">Return</button>
+              </form>
+            </div>
+            <p class="strip-status" id="userPageStripStatus" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Lifecycle Logs Page -->
+      <section class="catalog page-view" id="logsPage" hidden>
+        <div class="catalog-head">
+          <div><p class="kicker">AUDIT TRAIL</p><h2>Material Activity Logs</h2></div>
+          <div class="catalog-actions">
+            <button class="action-button" id="exportLogsButton" type="button">Export Excel</button>
+          </div>
+        </div>
+
+        <div class="log-filter-bar">
+          <label>
+            Filter Status:
+            <select id="logActionFilter">
+              <option value="ALL">All Records</option>
+              <option value="Allocated">Only Allocated</option>
+              <option value="Pending">Pending Verification</option>
+              <option value="Return">Verified Returns</option>
+            </select>
+          </label>
+
+          <label>
+            From Date:
+            <input type="date" id="logFromDateFilter">
+          </label>
+
+          <label>
+            To Date:
+            <input type="date" id="logToDateFilter">
+          </label>
+
+          <button type="button" class="btn-secondary" id="clearLogDatesBtn">Clear Dates</button>
+        </div>
+
+        <div class="table-scroll">
+          <div class="log-table-head" aria-hidden="true">
+            <span>USER NAME</span>
+            <span>PART CODE</span>
+            <span>PART NUMBER</span>
+            <span>QTY</span>
+            <span>STATUS</span>
+            <span>ALLOCATED TIME</span>
+            <span>RETURN / PENDING TIME</span>
+            <span>VERIFY</span>
+          </div>
+          <div id="logList" aria-live="polite"></div>
+          <div class="empty" id="emptyLogs" hidden>
+            <span class="empty-symbol" aria-hidden="true">&#9776;</span>
+            <strong>No matching activity records found</strong>
+            <span>Allocated materials and their return updates will appear here.</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Right-Side Vertical Icon Navigation -->
+    <aside class="right-sidebar" aria-label="Quick Navigation">
+      <!-- Search Page Icon -->
+      <button class="icon-nav-btn page-tab active" type="button" data-page="searchPage" title="Search Catalog" aria-label="Search Catalog">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </button>
+
+      <!-- Add/Delete Material Page Icon (Admin only) -->
+      <button class="icon-nav-btn page-tab admin-tab" type="button" data-page="materialPage" title="Add / Delete Material Stock" aria-label="Add / Delete Material Stock" hidden>
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>
+      </button>
+
+      <!-- Storage Locations Page Icon (Admin only) -->
+      <button class="icon-nav-btn page-tab admin-tab" type="button" data-page="storagePage" title="Storage Locations &amp; Inspector" aria-label="Storage Locations &amp; Inspector" hidden>
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+      </button>
+
+      <!-- Users Page Icon (Admin only) -->
+      <button class="icon-nav-btn page-tab admin-tab" type="button" data-page="usersPage" title="Manage Users" aria-label="Manage Users" hidden>
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      </button>
+
+      <!-- Lifecycle Logs Page Icon (Admin only) -->
+      <button class="icon-nav-btn page-tab admin-tab" type="button" data-page="logsPage" title="Activity Logs" aria-label="Activity Logs" hidden>
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+      </button>
+    </aside>
+  </div>
 
   <!-- ==================== MODALS ==================== -->
 
@@ -1342,7 +1420,7 @@
     }
 
     function generateSecureOTP() {
-      const array = new Uint32Array(1);
+      const array = new Uint8Array(1);
       crypto.getRandomValues(array);
       return (100000 + (array[0] % 900000)).toString();
     }
@@ -1390,7 +1468,7 @@
     const errorState = document.getElementById("errorState");
     const errorMsgText = document.getElementById("errorMsgText");
     const retryButton = document.getElementById("retryButton");
-    const appShell = document.getElementById("appShell");
+    const appLayout = document.getElementById("appLayout");
 
     const verifierModal = document.getElementById("verifierModal");
     const verifierForm = document.getElementById("verifierForm");
@@ -1512,8 +1590,9 @@
       authError.textContent = "";
       sessionIndicator.hidden = false;
 
-      document.querySelectorAll(".page-tab.admin-tab").forEach(tab => {
-        tab.hidden = false;
+      // Show hidden admin buttons and sidebar icon tabs
+      document.querySelectorAll(".admin-tab, .admin-elem").forEach(el => {
+        el.hidden = false;
       });
 
       startInactivityCountdown();
@@ -1534,8 +1613,9 @@
       authModal.hidden = true;
       pendingTargetPage = null;
 
-      document.querySelectorAll(".page-tab.admin-tab").forEach(tab => {
-        tab.hidden = true;
+      // Re-hide admin buttons and tabs
+      document.querySelectorAll(".admin-tab, .admin-elem").forEach(el => {
+        el.hidden = true;
       });
 
       renderLogs();
@@ -2308,12 +2388,10 @@
       }
     }
 
-    // ACCURATE CONDITIONAL DISPLAY FOR ADD FORM
     function renderMaterialLocationOptions() {
       const locType = locationType.value;
       const cupboard = storageTree.find((item) => String(item.id) === String(materialCupboard.value));
 
-      // Show Cupboard & Rack ONLY if 'rack' (Cupboard Rack) is selected
       const isRack = locType === "rack";
       const isBox = locType === "box";
       const isWorkbench = locType === "workbench";
@@ -2339,7 +2417,6 @@
       materialWorkbench.disabled = !isWorkbench || !storageWorkbenches.length;
     }
 
-    // ACCURATE CONDITIONAL DISPLAY FOR REMOVE FORM
     function renderRemoveLocationOptions() {
       const locType = removeLocationType.value;
       const cupboard = storageTree.find((item) => String(item.id) === String(removeCupboard.value));
@@ -2427,7 +2504,6 @@
       userReturnWorkbench.disabled = !isWorkbench || !storageWorkbenches.length;
     }
 
-    // Dynamic re-render on cupboard select so dependent racks re-render smoothly
     materialCupboard.addEventListener("change", () => {
       const cupboard = storageTree.find((item) => String(item.id) === String(materialCupboard.value));
       selectOptions(materialRack, cupboard?.racks || [], "Choose Rack", r => r.id, r => r.name);
@@ -4308,7 +4384,7 @@
       loadingState.hidden = false;
       errorState.hidden = true;
       initialOverlay.hidden = false;
-      appShell.hidden = true;
+      appLayout.hidden = true;
 
       try {
         await checkServerConnection();
@@ -4323,7 +4399,7 @@
         setupContinuousSync();
 
         initialOverlay.hidden = true;
-        appShell.hidden = false;
+        appLayout.hidden = false;
       } catch (err) {
         loadingState.hidden = true;
         errorState.hidden = false;
