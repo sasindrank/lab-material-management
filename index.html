@@ -59,7 +59,6 @@
     }
     .app-layout[hidden] { display: none !important; }
 
-    /* Dynamically fills the entire monitor screen without artificial width limits */
     .shell {
       flex: 1;
       width: 100%;
@@ -74,7 +73,7 @@
       min-width: 0;
     }
 
-    /* Fixed Auto-Hiding Taskbar Overlay on the Right Edge */
+    /* Fixed Auto-Hiding Taskbar on the Right Edge */
     .right-sidebar {
       position: fixed;
       right: 0;
@@ -92,10 +91,10 @@
       box-shadow: -4px 0 16px rgba(0, 0, 0, 0.12);
       backdrop-filter: blur(8px);
       transform: translateX(100%);
-      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Invisible cursor sensor strip along the right screen edge */
+    /* Invisible hover edge strip */
     .right-sidebar::before {
       content: "";
       position: absolute;
@@ -106,9 +105,8 @@
       background: transparent;
     }
 
-    /* Slides in on edge hover or when actively focused */
+    /* Slides in purely on hover or dynamic revealed state */
     .right-sidebar:hover,
-    .right-sidebar:focus-within,
     .right-sidebar.revealed {
       transform: translateX(0);
     }
@@ -127,6 +125,7 @@
       position: relative;
       transition: all 0.15s ease-in-out;
       padding: 0;
+      outline: none;
     }
     .icon-nav-btn svg {
       width: 20px;
@@ -688,7 +687,7 @@
 
   <!-- Main Application Layout with Floating Auto-Hide Right Sidebar -->
   <div class="app-layout" id="appLayout" hidden>
-    <!-- Main Content Shell (Unshifting, Full Flow) -->
+    <!-- Main Content Shell -->
     <main class="shell" id="appShell">
       <header class="topbar">
         <div class="brand" id="secretBrandTrigger" title="Lab Inventory">
@@ -699,7 +698,7 @@
           <div class="user-auth-links">
             <button type="button" class="auth-nav-btn" id="openRegisterModalBtn">Register</button>
             <button type="button" class="auth-nav-btn" id="openResetModalBtn">Forgot Password?</button>
-            <!-- Change Admin Password button is hidden by default and only appears once admin is authenticated -->
+            <!-- Change Admin Password button is revealed once admin is authenticated -->
             <button type="button" class="auth-nav-btn admin-elem" id="openAdminChangePwdBtn" title="Change master admin password" hidden>Change Admin Password</button>
           </div>
 
@@ -857,7 +856,6 @@
                   </select>
                 </label>
                 
-                <!-- Location Type Selection: Cupboard + Rack only for 'rack' -->
                 <label class="field" id="materialCupboardField">Cupboard
                   <select name="cupboardId" id="materialCupboard" required disabled>
                     <option value="">Choose Cupboard</option>
@@ -869,14 +867,12 @@
                   </select>
                 </label>
                 
-                <!-- Location Type Selection: Box only for 'box' -->
                 <label class="field" id="boxLocationField" hidden>Box
                   <select name="boxId" id="materialBox" disabled>
                     <option value="">Choose Box</option>
                   </select>
                 </label>
                 
-                <!-- Location Type Selection: Workbench only for 'workbench' -->
                 <label class="field" id="workbenchLocationField" hidden>Workbench
                   <select name="workbenchId" id="materialWorkbench" disabled>
                     <option value="">Choose Workbench</option>
@@ -906,7 +902,6 @@
                   </select>
                 </label>
                 
-                <!-- Location Type Selection: Cupboard + Rack only for 'rack' -->
                 <label class="field" id="removeCupboardField">Cupboard
                   <select name="cupboardId" id="removeCupboard" required disabled>
                     <option value="">Choose Cupboard</option>
@@ -918,14 +913,12 @@
                   </select>
                 </label>
                 
-                <!-- Location Type Selection: Box only for 'box' -->
                 <label class="field" id="removeBoxField" hidden>Box
                   <select name="boxId" id="removeBox" disabled>
                     <option value="">Choose Box</option>
                   </select>
                 </label>
                 
-                <!-- Location Type Selection: Workbench only for 'workbench' -->
                 <label class="field" id="removeWorkbenchField" hidden>Workbench
                   <select name="workbenchId" id="removeWorkbench" disabled>
                     <option value="">Choose Workbench</option>
@@ -1460,40 +1453,61 @@
     }
 
     // ==========================================
-    // 2. CENTRALIZED CROSS-LAPTOP ADMIN PASSWORD SYNC
+    // 2. CENTRALIZED CROSS-USER ADMIN PASSWORD SYNC
     // ==========================================
     const MASTER_ADMIN_EMAIL = "admin_system_master@lab.local";
-    let currentAdminPassword = localStorage.getItem("lab_admin_master_pwd") || "festo";
     let currentAdminPasswordHash = null;
 
     async function syncAdminPasswordFromDatabase() {
       try {
-        // Attempt 1: Check users table for central system admin record
-        const { data: userAdminRec, error } = await supabaseClient
+        // First priority: check system_config table for master admin key
+        const { data: configData, error: configErr } = await supabaseClient
+          .from('system_config')
+          .select('config_val')
+          .eq('config_key', 'admin_password_hash')
+          .maybeSingle();
+
+        if (!configErr && configData && configData.config_val) {
+          currentAdminPasswordHash = configData.config_val;
+          return;
+        }
+
+        // Second priority: check users table for centralized master admin user record
+        const { data: userAdminRec, error: userErr } = await supabaseClient
           .from('users')
           .select('password_hash, name')
           .eq('email', MASTER_ADMIN_EMAIL)
           .maybeSingle();
 
-        if (userAdminRec && userAdminRec.password_hash) {
+        if (!userErr && userAdminRec && userAdminRec.password_hash) {
           currentAdminPasswordHash = userAdminRec.password_hash;
           return;
         }
 
-        // If record doesn't exist yet, initialize it with default "festo"
-        if (!userAdminRec) {
-          const defaultHash = await hashPassword("festo");
-          currentAdminPasswordHash = defaultHash;
-          await supabaseClient.from('users').insert([{
+        // Initialize default password "festo" if no prior record exists
+        const defaultHash = await hashPassword("festo");
+        currentAdminPasswordHash = defaultHash;
+
+        try {
+          await supabaseClient.from('system_config').upsert({
+            config_key: 'admin_password_hash',
+            config_val: defaultHash,
+            updated_at: new Date().toISOString()
+          });
+        } catch (_) {}
+
+        try {
+          await supabaseClient.from('users').upsert({
             name: "Master Admin System",
             email: MASTER_ADMIN_EMAIL,
             password_hash: defaultHash,
             is_verifier: false,
             is_verified: true
-          }]);
-        }
+          }, { onConflict: 'email' });
+        } catch (_) {}
+
       } catch (err) {
-        console.warn("Could not fetch remote admin credentials, falling back to local cache:", err);
+        console.warn("Could not fetch remote admin credentials from DB:", err);
       }
     }
 
@@ -1504,44 +1518,61 @@
       if (currentAdminPasswordHash && hashedEntered === currentAdminPasswordHash) {
         return true;
       }
-      // Immediate local match fallback
-      if (entered === currentAdminPassword || hashedEntered === (await hashPassword(currentAdminPassword))) {
-        return true;
-      }
-      // Re-fetch in real time in case password was changed on another laptop a moment ago
+
+      // Re-fetch in real time in case password was changed by another user
       await syncAdminPasswordFromDatabase();
       if (currentAdminPasswordHash && hashedEntered === currentAdminPasswordHash) {
         return true;
       }
+
+      // Default fallback
+      const defaultHash = await hashPassword("festo");
+      if (hashedEntered === defaultHash && !currentAdminPasswordHash) {
+        return true;
+      }
+
       return false;
     }
 
     async function updateRemoteAdminPassword(newPlainPassword) {
       const newHash = await hashPassword(newPlainPassword);
-      currentAdminPassword = newPlainPassword;
       currentAdminPasswordHash = newHash;
-      localStorage.setItem("lab_admin_master_pwd", newPlainPassword);
 
-      // Save to Supabase to immediately sync across all laptops
-      const { data: existing } = await supabaseClient
-        .from('users')
-        .select('id')
-        .eq('email', MASTER_ADMIN_EMAIL)
-        .maybeSingle();
-
-      if (existing) {
-        await supabaseClient.from('users').update({
-          password_hash: newHash,
+      // Update system_config table for global visibility
+      try {
+        await supabaseClient.from('system_config').upsert({
+          config_key: 'admin_password_hash',
+          config_val: newHash,
           updated_at: new Date().toISOString()
-        }).eq('id', existing.id);
-      } else {
-        await supabaseClient.from('users').insert([{
-          name: "Master Admin System",
-          email: MASTER_ADMIN_EMAIL,
-          password_hash: newHash,
-          is_verifier: false,
-          is_verified: true
-        }]);
+        });
+      } catch (err) {
+        console.warn("Could not write to system_config:", err);
+      }
+
+      // Also sync to master user record in users table
+      try {
+        const { data: existing } = await supabaseClient
+          .from('users')
+          .select('id')
+          .eq('email', MASTER_ADMIN_EMAIL)
+          .maybeSingle();
+
+        if (existing) {
+          await supabaseClient.from('users').update({
+            password_hash: newHash,
+            updated_at: new Date().toISOString()
+          }).eq('id', existing.id);
+        } else {
+          await supabaseClient.from('users').insert([{
+            name: "Master Admin System",
+            email: MASTER_ADMIN_EMAIL,
+            password_hash: newHash,
+            is_verifier: false,
+            is_verified: true
+          }]);
+        }
+      } catch (err) {
+        console.warn("Could not write to users table:", err);
       }
     }
 
@@ -1646,13 +1677,22 @@
     const adminChangePwdStatus = document.getElementById("adminChangePwdStatus");
     const cancelAdminChangePwdBtn = document.getElementById("cancelAdminChangePwdBtn");
 
-    // Dynamic right-edge hover detector for the auto-hiding taskbar
+    // ==========================================
+    // REFINED TASKBAR HOVER & LEAVE LOGIC
+    // ==========================================
+    // Automatically slides out when cursor reaches the right edge (within 16px)
+    // Automatically slides in and closes when cursor moves away from the bar
     document.addEventListener("mousemove", (e) => {
-      if (window.innerWidth - e.clientX <= 16) {
+      const distanceToRight = window.innerWidth - e.clientX;
+      if (distanceToRight <= 16) {
         rightSidebar.classList.add("revealed");
-      } else if (e.clientX < window.innerWidth - 65) {
+      } else if (distanceToRight > 64) {
         rightSidebar.classList.remove("revealed");
       }
+    });
+
+    rightSidebar.addEventListener("mouseleave", () => {
+      rightSidebar.classList.remove("revealed");
     });
 
     function getRemainingSeconds() {
@@ -1703,7 +1743,6 @@
       authError.textContent = "";
       sessionIndicator.hidden = false;
 
-      // Reveal admin icon tabs in sidebar and Change Admin Password button
       document.querySelectorAll(".admin-tab, .admin-elem").forEach(el => {
         el.hidden = false;
       });
@@ -1726,7 +1765,6 @@
       authModal.hidden = true;
       pendingTargetPage = null;
 
-      // Re-hide admin elements and sidebar tabs
       document.querySelectorAll(".admin-tab, .admin-elem").forEach(el => {
         el.hidden = true;
       });
@@ -1821,7 +1859,7 @@
 
       await updateRemoteAdminPassword(newPwd);
       adminChangePwdModal.hidden = true;
-      alert("Admin master password changed and synchronized across all laptops successfully!");
+      alert("Admin password updated successfully. Changes are now live for all users.");
     });
 
     const labTitleText = document.getElementById("labTitleText");
@@ -2043,8 +2081,6 @@
 
     function renderUsers() {
       usersList.replaceChildren();
-
-      // Filter out internal system and guest users from the regular user table
       const regularUsers = users.filter(u => !isSpecialUser(u.email));
 
       if (!regularUsers.length) {
@@ -4355,12 +4391,19 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'workbenches' }, () => { loadStorage(); })
         .subscribe();
 
-      // Real-time synchronization of users & master admin password changes across all laptops
+      // Real-time synchronization of users & master admin password changes
       supabaseClient
         .channel('public:users')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, async () => {
           await syncAdminPasswordFromDatabase();
           await loadUsers();
+        })
+        .subscribe();
+
+      supabaseClient
+        .channel('public:system_config')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'system_config' }, async () => {
+          await syncAdminPasswordFromDatabase();
         })
         .subscribe();
 
@@ -4465,7 +4508,8 @@
     }
 
     document.querySelectorAll(".page-tab").forEach((tab) => {
-      tab.addEventListener("click", () => {
+      tab.addEventListener("click", (e) => {
+        tab.blur();
         const targetPageId = tab.dataset.page;
         const isProtected = targetPageId === "materialPage" || targetPageId === "storagePage" || targetPageId === "usersPage" || targetPageId === "logsPage";
         if (isProtected && !isAuthenticated) {
