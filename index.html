@@ -285,9 +285,9 @@
     .page-heading p { margin: 0 0 2px; color: #82908b; font: 9px var(--mono); }
     .page-heading h2 { font-size: 18px; }
 
-    /* Result Table & Centered Empty State */
+    /* Result Table & Centered Empty State: Part Number gets expanded space while Part Code & Qty stay compact */
     .table-scroll { flex: 1; overflow-x: auto; overflow-y: hidden; min-height: 0; width: 100%; display: flex; flex-direction: column; position: relative; }
-    .table-head, .product-row { display: grid; grid-template-columns: minmax(180px, 1.5fr) minmax(150px, 1.2fr) minmax(110px, .8fr) minmax(190px, 1.5fr); align-items: center; column-gap: 11px; }
+    .table-head, .product-row { display: grid; grid-template-columns: minmax(260px, 2.8fr) minmax(90px, 0.65fr) minmax(65px, 0.45fr) minmax(170px, 1.3fr); align-items: center; column-gap: 11px; }
     .table-head { min-height: 34px; height: 34px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; padding-right: 8px; }
     .product-list { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
     .product-row { min-height: 42px; border-bottom: 1px solid #eaf0eb; font-size: 11px; animation: appear .22s both; cursor: pointer; user-select: none; transition: background-color 0.15s, transform 0.1s; }
@@ -412,7 +412,7 @@
     }
     .staged-part-row {
       display: grid;
-      grid-template-columns: minmax(160px, 1.5fr) minmax(130px, 1fr) 90px 45px;
+      grid-template-columns: minmax(220px, 2.2fr) minmax(90px, 0.7fr) 75px 50px;
       align-items: center;
       height: 36px;
       padding: 0 10px;
@@ -574,7 +574,7 @@
     .user-bottom-allocations-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 6px; }
     .user-alloc-table-head, .user-alloc-row {
       display: grid;
-      grid-template-columns: minmax(160px, 1.5fr) minmax(130px, 1.2fr) 80px minmax(150px, 1.5fr) minmax(160px, 1.4fr);
+      grid-template-columns: minmax(220px, 2.2fr) minmax(95px, 0.75fr) 60px minmax(140px, 1.3fr) minmax(150px, 1.3fr);
       align-items: center;
       column-gap: 10px;
     }
@@ -608,7 +608,7 @@
     }
     .log-table-head, .log-row {
       display: grid;
-      grid-template-columns: minmax(130px, 1.2fr) minmax(95px, 0.9fr) minmax(130px, 1.2fr) 55px 140px minmax(135px, 1.2fr) minmax(135px, 1.2fr) minmax(100px, 0.9fr);
+      grid-template-columns: minmax(120px, 1.1fr) minmax(85px, 0.7fr) minmax(180px, 1.7fr) 50px 140px minmax(130px, 1.15fr) minmax(130px, 1.15fr) minmax(95px, 0.85fr);
       align-items: center;
       column-gap: 10px;
     }
@@ -754,7 +754,7 @@
           </div>
         </div>
 
-        <!-- Bottom Transaction Bar -->
+        <!-- Bottom Transaction Bar: Expanded Part Number space & Compact Part Code / Quantity -->
         <div class="aligned-bottom-bar" id="alignedBottomBar">
           <div class="transaction-bar">
             <div class="compact-switch">
@@ -763,68 +763,68 @@
             </div>
 
             <!-- Staged Allocate Bar -->
-            <div id="searchAllocateControls" style="display: flex; align-items: center; gap: 8px;">
+            <div id="searchAllocateControls" style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
               <div class="inline-field">
-                <select name="userId" id="takeUserSelect" required style="width: 140px;">
+                <select name="userId" id="takeUserSelect" required style="width: 135px;">
                   <option value="">Select User</option>
                 </select>
               </div>
               <div class="inline-field">
-                <input name="partCode" id="takePartCode" readonly placeholder="Part Code" style="width: 120px;" autocomplete="off">
+                <input name="partCode" id="takePartCode" readonly placeholder="Code" style="width: 82px;" autocomplete="off">
+              </div>
+              <div class="inline-field" style="flex: 1; min-width: 190px;">
+                <input name="partNumber" id="takePartNumber" readonly placeholder="Part Number" style="width: 100%;" autocomplete="off">
               </div>
               <div class="inline-field">
-                <input name="partNumber" id="takePartNumber" readonly placeholder="Part Number" style="width: 170px;" autocomplete="off">
-              </div>
-              <div class="inline-field">
-                <input name="quantity" id="takeQuantity" type="number" min="1" step="1" placeholder="Quantity" style="width: 80px;" autocomplete="off">
+                <input name="quantity" id="takeQuantity" type="number" min="1" step="1" placeholder="Qty" style="width: 58px;" autocomplete="off">
               </div>
               <button class="compact-btn secondary-btn" type="button" id="searchAddStageBtn">Add</button>
               <button class="compact-btn danger" type="button" id="searchExecuteAllocateBtn">Allocate</button>
             </div>
 
             <!-- Staged Return Bar -->
-            <div id="searchReturnControls" style="display: none; align-items: center; gap: 8px;">
+            <div id="searchReturnControls" style="display: none; align-items: center; gap: 8px; flex: 1; min-width: 0;">
               <div class="inline-field">
-                <select name="userId" id="returnUserSelect" required style="width: 140px;">
+                <select name="userId" id="returnUserSelect" required style="width: 130px;">
                   <option value="">Select User</option>
                 </select>
               </div>
               <div class="inline-field">
-                <select name="allocationSelect" id="returnAllocatedPartCodeSelect" style="width: 180px;">
-                  <option value="">Allocated Part Code</option>
+                <select name="allocationSelect" id="returnAllocatedPartCodeSelect" style="width: 135px;">
+                  <option value="">Allocated Code</option>
                 </select>
               </div>
-              <div class="inline-field">
-                <input name="partNumber" id="returnPartNumber" readonly placeholder="Part Name" style="width: 150px;" autocomplete="off">
+              <div class="inline-field" style="flex: 1; min-width: 170px;">
+                <input name="partNumber" id="returnPartNumber" readonly placeholder="Part Number" style="width: 100%;" autocomplete="off">
               </div>
               <div class="inline-field">
-                <input name="quantity" id="returnQuantity" type="number" min="1" step="1" placeholder="Quantity" style="width: 75px;" autocomplete="off">
+                <input name="quantity" id="returnQuantity" type="number" min="1" step="1" placeholder="Qty" style="width: 56px;" autocomplete="off">
               </div>
 
               <div class="inline-field">
-                <select name="locationType" id="returnLocationType" style="width: 105px;">
+                <select name="locationType" id="returnLocationType" style="width: 100px;">
                   <option value="rack">Cupboard Rack</option>
                   <option value="box">Box</option>
                   <option value="workbench">Workbench</option>
                 </select>
               </div>
               <div class="inline-field" id="returnCupboardField">
-                <select name="cupboardId" id="returnCupboard" required style="width: 105px;">
+                <select name="cupboardId" id="returnCupboard" required style="width: 98px;">
                   <option value="">Cupboard</option>
                 </select>
               </div>
               <div class="inline-field" id="returnRackField">
-                <select name="rackId" id="returnRack" required style="width: 80px;">
+                <select name="rackId" id="returnRack" required style="width: 75px;">
                   <option value="">Rack</option>
                 </select>
               </div>
               <div class="inline-field" id="returnBoxField" hidden>
-                <select name="boxId" id="returnBox" style="width: 105px;">
+                <select name="boxId" id="returnBox" style="width: 98px;">
                   <option value="">Box</option>
                 </select>
               </div>
               <div class="inline-field" id="returnWorkbenchField" hidden>
-                <select name="workbenchId" id="returnWorkbench" style="width: 110px;">
+                <select name="workbenchId" id="returnWorkbench" style="width: 105px;">
                   <option value="">Workbench</option>
                 </select>
               </div>
@@ -1082,66 +1082,66 @@
               </div>
 
               <!-- Allocate Form -->
-              <form id="userPageTakeForm" style="display: contents;" autocomplete="off">
+              <form id="userPageTakeForm" style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;" autocomplete="off">
                 <div class="inline-field">
-                  <input name="userManual" id="userTakeUserInput" required autocomplete="off" autocorrect="off" spellcheck="false" placeholder="User Name / Email" style="width: 160px;">
+                  <input name="userManual" id="userTakeUserInput" required autocomplete="off" autocorrect="off" spellcheck="false" placeholder="User Name / Email" style="width: 150px;">
+                </div>
+                <div class="inline-field" style="flex: 1; min-width: 190px;">
+                  <input name="partNumber" id="userTakePartNumber" required maxlength="100" placeholder="Part Number" style="width: 100%;" autocomplete="off" autocorrect="off" spellcheck="false">
                 </div>
                 <div class="inline-field">
-                  <input name="partNumber" id="userTakePartNumber" required maxlength="100" placeholder="Part Number" style="width: 170px;" autocomplete="off" autocorrect="off" spellcheck="false">
+                  <input name="partCode" id="userTakePartCode" required maxlength="100" placeholder="Code" style="width: 85px;" autocomplete="off" autocorrect="off" spellcheck="false">
                 </div>
                 <div class="inline-field">
-                  <input name="partCode" id="userTakePartCode" required maxlength="100" placeholder="Part Code" style="width: 120px;" autocomplete="off" autocorrect="off" spellcheck="false">
-                </div>
-                <div class="inline-field">
-                  <input name="quantity" id="userTakeQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 75px;" autocomplete="off">
+                  <input name="quantity" id="userTakeQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 58px;" autocomplete="off">
                 </div>
                 <button class="compact-btn danger" type="submit" id="userAllocateSubmitBtn">Allocate</button>
               </form>
 
               <!-- Return Form -->
-              <form id="userPageReturnForm" style="display: none;" autocomplete="off">
+              <form id="userPageReturnForm" style="display: none; align-items: center; gap: 8px; flex: 1; min-width: 0;" autocomplete="off">
                 <div class="inline-field">
-                  <input name="userManual" id="userReturnUserInput" required autocomplete="off" autocorrect="off" spellcheck="false" placeholder="User Name / Email" style="width: 140px;">
+                  <input name="userManual" id="userReturnUserInput" required autocomplete="off" autocorrect="off" spellcheck="false" placeholder="User Name / Email" style="width: 135px;">
                 </div>
                 <div class="inline-field">
-                  <select name="allocationSelect" id="userReturnAllocatedSelect" style="width: 170px;">
+                  <select name="allocationSelect" id="userReturnAllocatedSelect" style="width: 150px;">
                     <option value="">Allocated Items</option>
                   </select>
                 </div>
-                <div class="inline-field">
-                  <input name="partNumber" id="userReturnPartNumber" placeholder="Part Number" style="width: 140px;" autocomplete="off" autocorrect="off" spellcheck="false">
+                <div class="inline-field" style="flex: 1; min-width: 160px;">
+                  <input name="partNumber" id="userReturnPartNumber" placeholder="Part Number" style="width: 100%;" autocomplete="off" autocorrect="off" spellcheck="false">
                 </div>
                 <div class="inline-field">
-                  <input name="partCode" id="userReturnPartCode" placeholder="Part Code" style="width: 110px;" autocomplete="off" autocorrect="off" spellcheck="false">
+                  <input name="partCode" id="userReturnPartCode" placeholder="Code" style="width: 80px;" autocomplete="off" autocorrect="off" spellcheck="false">
                 </div>
                 <div class="inline-field">
-                  <input name="quantity" id="userReturnQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 65px;" autocomplete="off">
+                  <input name="quantity" id="userReturnQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 56px;" autocomplete="off">
                 </div>
 
                 <div class="inline-field">
-                  <select name="locationType" id="userReturnLocationType" style="width: 105px;">
+                  <select name="locationType" id="userReturnLocationType" style="width: 100px;">
                     <option value="rack">Cupboard Rack</option>
                     <option value="box">Box</option>
                     <option value="workbench">Workbench</option>
                   </select>
                 </div>
                 <div class="inline-field" id="userReturnCupboardField">
-                  <select name="cupboardId" id="userReturnCupboard" required style="width: 100px;">
+                  <select name="cupboardId" id="userReturnCupboard" required style="width: 95px;">
                     <option value="">Cupboard</option>
                   </select>
                 </div>
                 <div class="inline-field" id="userReturnRackField">
-                  <select name="rackId" id="userReturnRack" required style="width: 80px;">
+                  <select name="rackId" id="userReturnRack" required style="width: 75px;">
                     <option value="">Rack</option>
                   </select>
                 </div>
                 <div class="inline-field" id="userReturnBoxField" hidden>
-                  <select name="boxId" id="userReturnBox" style="width: 100px;">
+                  <select name="boxId" id="userReturnBox" style="width: 95px;">
                     <option value="">Box</option>
                   </select>
                 </div>
                 <div class="inline-field" id="userReturnWorkbenchField" hidden>
-                  <select name="workbenchId" id="userReturnWorkbench" style="width: 105px;">
+                  <select name="workbenchId" id="userReturnWorkbench" style="width: 100px;">
                     <option value="">Workbench</option>
                   </select>
                 </div>
@@ -2981,12 +2981,38 @@
     });
 
     // ==========================================
-    // 7. ALLOCATION FETCH & SELECTION
+    // 7. ALLOCATION FETCH & FILTERED OPTIONS
     // ==========================================
+    function refreshReturnDropdownOptions() {
+      const stagedReturnMap = new Map();
+      for (const item of searchStagedParts) {
+        if (item.mode === 'return' && item.allocItem) {
+          const idKey = String(item.allocItem.id);
+          stagedReturnMap.set(idKey, (stagedReturnMap.get(idKey) || 0) + item.quantity);
+        }
+      }
+
+      const availableAllocs = userAllocations
+        .map(a => {
+          const stagedQty = stagedReturnMap.get(String(a.id)) || 0;
+          const remaining = parseInt(a.quantity, 10) - stagedQty;
+          return { ...a, remainingQty: remaining };
+        })
+        .filter(a => a.remainingQty > 0);
+
+      selectOptions(
+        returnAllocatedPartCodeSelect,
+        availableAllocs,
+        availableAllocs.length ? "Select Allocated Code" : "No Remaining Codes",
+        a => a.id,
+        a => `${a.part_code} (Qty: ${a.remainingQty})`
+      );
+    }
+
     async function loadAllocationsForUser(userId) {
       if (!userId) {
         userAllocations = [];
-        selectOptions(returnAllocatedPartCodeSelect, [], "Allocated Part Code", a => a.id, a => a.part_code);
+        selectOptions(returnAllocatedPartCodeSelect, [], "Allocated Code", a => a.id, a => a.part_code);
         return;
       }
 
@@ -3000,14 +3026,7 @@
 
         if (error) throw error;
         userAllocations = data || [];
-
-        selectOptions(
-          returnAllocatedPartCodeSelect,
-          userAllocations,
-          userAllocations.length ? "Select Allocated Part Code" : "No Allocated Part Codes",
-          a => a.id,
-          a => `${a.part_code} (Qty: ${a.quantity})`
-        );
+        refreshReturnDropdownOptions();
       } catch (err) {
         setFormStatus(globalStripStatus, `Failed loading allocations: ${err.message}`, true);
       }
@@ -3076,8 +3095,13 @@
       const allocId = e.target.value;
       const item = userAllocations.find(a => String(a.id) === String(allocId));
       if (item) {
+        const stagedQty = searchStagedParts
+          .filter(s => s.mode === 'return' && String(s.allocItem?.id) === String(item.id))
+          .reduce((acc, s) => acc + s.quantity, 0);
+        const remainingAvailable = Math.max(0, parseInt(item.quantity, 10) - stagedQty);
+
         returnPartNumber.value = item.part_number;
-        returnQuantity.value = item.quantity;
+        returnQuantity.value = remainingAvailable;
 
         const cachedOrigin = allocationOriginMap.get(item.id);
         const refProduct = products.find(p => 
@@ -3202,10 +3226,21 @@
       userPageAllocations = [];
     }
 
+    function getEffectiveCatalogStock(product) {
+      const baseQty = parseInt(product.quantity, 10) || 0;
+      const stagedAllocQty = searchStagedParts
+        .filter(item => item.mode === 'allocate' && (
+          (item.materialId && String(item.materialId) === String(product.id)) ||
+          (!item.materialId && item.partCode.toLowerCase() === product.part_code.toLowerCase() && item.partNumber.toLowerCase() === product.part_number.toLowerCase())
+        ))
+        .reduce((sum, item) => sum + item.quantity, 0);
+      return Math.max(0, baseQty - stagedAllocQty);
+    }
+
     function onProductRowClicked(product) {
-      const availQty = parseInt(product.quantity, 10);
-      if (isNaN(availQty) || availQty <= 0) {
-        setFormStatus(globalStripStatus, `Material "${product.part_number}" is out of stock.`, true);
+      const availQty = getEffectiveCatalogStock(product);
+      if (availQty <= 0) {
+        setFormStatus(globalStripStatus, `Material "${product.part_number}" is out of stock or already added to queue.`, true);
         return;
       }
 
@@ -3221,9 +3256,9 @@
         takePartCode.value = product.part_code;
         takeQuantity.value = "";
         takeQuantity.focus();
-        setFormStatus(globalStripStatus, `Selected "${product.part_number}" (${product.part_code}). Ready to stage or allocate.`);
+        setFormStatus(globalStripStatus, `Selected "${product.part_number}" (${product.part_code}). Available: ${availQty}.`);
       } else {
-        // Return is selected on Search Page: do NOT allocate or stage in the search page. Populate the Users page allocation form instead.
+        // Return is selected on Search Page: do NOT allocate on search page; populate Users tab allocation form instead.
         takePartNumber.value = "";
         takePartCode.value = "";
         takeQuantity.value = "";
@@ -3271,8 +3306,18 @@
         delBtn.textContent = "Delete";
         delBtn.title = "Delete item from queue";
         delBtn.addEventListener("click", () => {
-          searchStagedParts.splice(index, 1);
+          const removedItem = searchStagedParts.splice(index, 1)[0];
           renderSearchStagedParts();
+
+          if (removedItem.mode === 'allocate') {
+            // Re-render catalog so deducted quantity/item is saved back into the material list
+            render();
+            setFormStatus(globalStripStatus, `Removed "${removedItem.partNumber}" from queue and restored to catalog list.`);
+          } else if (removedItem.mode === 'return') {
+            // Re-populate allocated dropdown so item is allocated back to user's open list
+            refreshReturnDropdownOptions();
+            setFormStatus(globalStripStatus, `Removed "${removedItem.partNumber}" from return queue and restored to allocated items.`);
+          }
         });
 
         actionDiv.append(delBtn);
@@ -3293,7 +3338,19 @@
         return setFormStatus(globalStripStatus, "Please enter a valid quantity of at least 1.", true);
       }
 
-      const existingIndex = searchStagedParts.findIndex(item => item.mode === 'allocate' && item.partCode.toLowerCase() === pCode.toLowerCase());
+      const targetProd = currentlySelectedCatalogProduct || products.find(p =>
+        p.part_number.trim().toLowerCase() === pNum.toLowerCase() &&
+        p.part_code.trim().toLowerCase() === pCode.toLowerCase()
+      );
+
+      if (targetProd) {
+        const availableNow = getEffectiveCatalogStock(targetProd);
+        if (qty > availableNow) {
+          return setFormStatus(globalStripStatus, `Cannot add ${qty}. Only ${availableNow} remaining available in catalog.`, true);
+        }
+      }
+
+      const existingIndex = searchStagedParts.findIndex(item => item.mode === 'allocate' && item.partCode.toLowerCase() === pCode.toLowerCase() && item.partNumber.toLowerCase() === pNum.toLowerCase());
       if (existingIndex >= 0) {
         searchStagedParts[existingIndex].quantity += qty;
       } else {
@@ -3302,7 +3359,7 @@
           partCode: pCode,
           partNumber: pNum,
           quantity: qty,
-          materialId: currentlySelectedCatalogProduct?.id || null
+          materialId: targetProd?.id || null
         });
       }
 
@@ -3313,7 +3370,9 @@
       document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
 
       renderSearchStagedParts();
-      setFormStatus(globalStripStatus, `Added "${pNum}" to queue.`);
+      // Update catalog immediately to remove allocated quantity/material from displayed material list
+      render();
+      setFormStatus(globalStripStatus, `Added "${pNum}" to queue and updated catalog list.`);
     });
 
     searchAddReturnStageBtn.addEventListener("click", () => {
@@ -3323,13 +3382,19 @@
       const qty = parseInt(returnQuantity.value, 10);
 
       if (!allocItem || !pNum) {
-        return setFormStatus(globalStripStatus, "Please select an Allocated Part Code to add for return.", true);
+        return setFormStatus(globalStripStatus, "Please select an Allocated Code to add for return.", true);
       }
       if (isNaN(qty) || qty < 1) {
         return setFormStatus(globalStripStatus, "Please enter a valid quantity.", true);
       }
-      if (qty > parseInt(allocItem.quantity, 10)) {
-        return setFormStatus(globalStripStatus, `Cannot return more than allocated (${allocItem.quantity}).`, true);
+
+      const alreadyStagedQty = searchStagedParts
+        .filter(s => s.mode === 'return' && String(s.allocItem?.id) === String(allocItem.id))
+        .reduce((sum, s) => sum + s.quantity, 0);
+      const maxReturnable = parseInt(allocItem.quantity, 10) - alreadyStagedQty;
+
+      if (qty > maxReturnable) {
+        return setFormStatus(globalStripStatus, `Cannot return more than remaining allocated (${maxReturnable}).`, true);
       }
 
       const locConfig = {
@@ -3354,9 +3419,9 @@
       }
       locConfig.locationText = locText;
 
-      const existingIndex = searchStagedParts.findIndex(item => item.mode === 'return' && item.allocItem?.id === allocItem.id);
+      const existingIndex = searchStagedParts.findIndex(item => item.mode === 'return' && String(item.allocItem?.id) === String(allocItem.id));
       if (existingIndex >= 0) {
-        searchStagedParts[existingIndex].quantity = qty;
+        searchStagedParts[existingIndex].quantity += qty;
         searchStagedParts[existingIndex].locConfig = locConfig;
       } else {
         searchStagedParts.push({
@@ -3374,8 +3439,10 @@
       returnAllocatedPartCodeSelect.value = "";
       resetReturnLocationFields();
 
+      // Remove from the user's allocated dropdown while queued for return
+      refreshReturnDropdownOptions();
       renderSearchStagedParts();
-      setFormStatus(globalStripStatus, `Added "${pNum}" to queued return list.`);
+      setFormStatus(globalStripStatus, `Added "${pNum}" to return queue.`);
     });
 
     searchExecuteAllocateBtn.addEventListener("click", () => {
@@ -3422,6 +3489,7 @@
           currentlySelectedCatalogProduct = null;
           document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
 
+          await refreshInventory();
           setFormStatus(globalStripStatus, `Successfully allocated items to ${userName}.`);
         } catch (err) {
           setFormStatus(globalStripStatus, err.message, true);
@@ -3494,7 +3562,7 @@
           returnUserSelect.value = "";
           returnPartNumber.value = "";
           returnQuantity.value = "";
-          returnAllocatedPartCodeSelect.replaceChildren(new Option("Allocated Part Code", ""));
+          returnAllocatedPartCodeSelect.replaceChildren(new Option("Allocated Code", ""));
           userAllocations = [];
           resetReturnLocationFields();
 
@@ -3524,19 +3592,20 @@
         returnUserSelect.value = "";
         returnPartNumber.value = "";
         returnQuantity.value = "";
-        returnAllocatedPartCodeSelect.replaceChildren(new Option("Allocated Part Code", ""));
+        returnAllocatedPartCodeSelect.replaceChildren(new Option("Allocated Code", ""));
         userAllocations = [];
         resetReturnLocationFields();
 
         renderSearchStagedParts();
+        render();
       });
     });
 
     document.querySelectorAll('input[name="userPageOpMode"]').forEach(radio => {
       radio.addEventListener("change", (e) => {
         const isAlloc = e.target.value === "allocate";
-        userPageTakeForm.style.display = isAlloc ? "contents" : "none";
-        userPageReturnForm.style.display = isAlloc ? "none" : "contents";
+        userPageTakeForm.style.display = isAlloc ? "flex" : "none";
+        userPageReturnForm.style.display = isAlloc ? "none" : "flex";
         setFormStatus(userPageStripStatus, "");
 
         resetUserPageTakeForm();
@@ -4418,7 +4487,7 @@
         products = data || [];
         
         const totalUnits = products.reduce((acc, p) => {
-          const q = parseInt(p.quantity, 10);
+          const q = getEffectiveCatalogStock(p);
           return acc + (isNaN(q) || q < 1 ? 0 : q);
         }, 0);
 
@@ -4488,9 +4557,15 @@
     function render() {
       const query = submittedQuery?.toLocaleLowerCase();
 
+      const totalUnits = products.reduce((acc, p) => {
+        const q = getEffectiveCatalogStock(p);
+        return acc + (isNaN(q) || q < 1 ? 0 : q);
+      }, 0);
+      document.getElementById("itemCount").textContent = `${totalUnits} IN STOCK`;
+
       const matching = query
         ? products.filter(p => {
-            const qty = parseInt(p.quantity, 10);
+            const qty = getEffectiveCatalogStock(p);
             return (
               qty >= 1 &&
               (p.part_number.toLocaleLowerCase().includes(query) || 
@@ -4514,7 +4589,7 @@
       }
 
       for (const product of matching) {
-        const qty = parseInt(product.quantity, 10);
+        const qty = getEffectiveCatalogStock(product);
         const row = document.createElement("article");
         row.className = "product-row";
         row.dataset.rowId = product.id;
