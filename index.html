@@ -285,15 +285,15 @@
     .page-heading p { margin: 0 0 2px; color: #82908b; font: 9px var(--mono); }
     .page-heading h2 { font-size: 18px; }
 
-    /* Result Table & Centered Empty State: Part Number gets expanded space while Part Code & Qty stay compact */
+    /* Result Table & Centered Empty State: Part Number is compact while Part Code gets expanded space */
     .table-scroll { flex: 1; overflow-x: auto; overflow-y: hidden; min-height: 0; width: 100%; display: flex; flex-direction: column; position: relative; }
-    .table-head, .product-row { display: grid; grid-template-columns: minmax(260px, 2.8fr) minmax(90px, 0.65fr) minmax(65px, 0.45fr) minmax(170px, 1.3fr); align-items: center; column-gap: 11px; }
+    .table-head, .product-row { display: grid; grid-template-columns: minmax(110px, 0.85fr) minmax(240px, 2.5fr) minmax(70px, 0.45fr) minmax(170px, 1.3fr); align-items: center; column-gap: 11px; }
     .table-head { min-height: 34px; height: 34px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; padding-right: 8px; }
     .product-list { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
     .product-row { min-height: 42px; border-bottom: 1px solid #eaf0eb; font-size: 11px; animation: appear .22s both; cursor: pointer; user-select: none; transition: background-color 0.15s, transform 0.1s; }
     .product-row:hover { background: rgba(229,242,236,.65); transform: translateX(2px); }
     .product-row.selected-row { background: #e1f0e8 !important; outline: 1px solid var(--green); }
-    .part-code { color: #718079; font: 10px var(--mono); }
+    .part-code { color: #475852; font: 11px var(--mono); font-weight: 500; }
     .location-cell { min-width: 0; overflow: hidden; color: #718079; text-overflow: ellipsis; white-space: nowrap; }
     .quantity-cell strong { font: 13px var(--mono); font-weight: 500; }
     
@@ -392,6 +392,8 @@
     .compact-btn.success:hover { background: #15803d; }
     .compact-btn.secondary-btn { background: #355348; border-color: #355348; }
     .compact-btn.secondary-btn:hover { background: #284037; }
+    .compact-btn.info-btn { background: #1d6352; border-color: #1d6352; }
+    .compact-btn.info-btn:hover { background: #14483c; }
 
     .strip-status { font-size: 9.5px; color: var(--green); min-height: 12px; margin: 0; padding-left: 2px; transition: opacity 0.3s; }
     .strip-status.error { color: #b55130; }
@@ -412,7 +414,7 @@
     }
     .staged-part-row {
       display: grid;
-      grid-template-columns: minmax(220px, 2.2fr) minmax(90px, 0.7fr) 75px 50px;
+      grid-template-columns: minmax(110px, 0.85fr) minmax(220px, 2.2fr) 75px 50px;
       align-items: center;
       height: 36px;
       padding: 0 10px;
@@ -534,8 +536,8 @@
       grid-template-columns: minmax(320px, 390px) minmax(0, 1.4fr);
       gap: 14px;
       align-items: stretch;
+      flex: 1;
       min-height: 290px;
-      flex-shrink: 0;
     }
     .user-card-panel {
       border: 1px solid var(--line);
@@ -559,28 +561,16 @@
     .user-table-head { min-height: 30px; height: 30px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; }
     .user-row { min-height: 36px; border-bottom: 1px solid #eaf0eb; font-size: 11px; }
 
-    .user-bottom-allocations {
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      background: #ffffff;
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      height: 220px;
-      min-height: 180px;
-      flex-shrink: 0;
-      overflow: hidden;
-    }
-    .user-bottom-allocations-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 6px; }
+    /* User Allocation Modal Table */
     .user-alloc-table-head, .user-alloc-row {
       display: grid;
-      grid-template-columns: minmax(220px, 2.2fr) minmax(95px, 0.75fr) 60px minmax(140px, 1.3fr) minmax(150px, 1.3fr);
+      grid-template-columns: minmax(110px, 0.9fr) minmax(190px, 1.8fr) 55px minmax(140px, 1.2fr) minmax(145px, 1.2fr);
       align-items: center;
       column-gap: 10px;
     }
-    .user-alloc-table-head { min-height: 28px; height: 28px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; }
-    #userAllocViewerResults { flex: 1; overflow-y: auto; min-height: 0; }
-    .user-alloc-row { min-height: 34px; border-bottom: 1px solid #eaf0eb; font-size: 11px; }
+    .user-alloc-table-head { min-height: 30px; height: 30px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; }
+    #userAllocViewerResults { max-height: 300px; overflow-y: auto; min-height: 120px; }
+    .user-alloc-row { min-height: 36px; border-bottom: 1px solid #eaf0eb; font-size: 11px; }
 
     /* Logs Page */
     .log-filter-bar {
@@ -661,6 +651,9 @@
       width: min(460px, 92%);
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
+    .modal-card.modal-wide {
+      width: min(760px, 94%);
+    }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
     .btn-secondary { background: #eef2f0; border: 1px solid #ced6d1; border-radius: 4px; padding: 0 12px; height: 32px; cursor: pointer; font-size: 11px; font-weight: 600; }
     .otp-input { letter-spacing: 6px; font-size: 18px !important; text-align: center; font-weight: bold; font-family: var(--mono); }
@@ -738,7 +731,7 @@
         </div>
         <p class="workbook-status" id="workbookStatus" role="status" aria-live="polite"></p>
 
-        <!-- Product Table Area with Centered Message -->
+        <!-- Product Table Area: Compact Part Number, Expanded Part Code -->
         <div class="table-scroll">
           <div class="table-head" aria-hidden="true">
             <span>PART NUMBER</span>
@@ -754,7 +747,7 @@
           </div>
         </div>
 
-        <!-- Bottom Transaction Bar: Expanded Part Number space & Compact Part Code / Quantity -->
+        <!-- Bottom Transaction Bar -->
         <div class="aligned-bottom-bar" id="alignedBottomBar">
           <div class="transaction-bar">
             <div class="compact-switch">
@@ -770,10 +763,10 @@
                 </select>
               </div>
               <div class="inline-field">
-                <input name="partCode" id="takePartCode" readonly placeholder="Code" style="width: 82px;" autocomplete="off">
+                <input name="partNumber" id="takePartNumber" readonly placeholder="Part Number" style="width: 115px;" autocomplete="off">
               </div>
               <div class="inline-field" style="flex: 1; min-width: 190px;">
-                <input name="partNumber" id="takePartNumber" readonly placeholder="Part Number" style="width: 100%;" autocomplete="off">
+                <input name="partCode" id="takePartCode" readonly placeholder="Part Code" style="width: 100%;" autocomplete="off">
               </div>
               <div class="inline-field">
                 <input name="quantity" id="takeQuantity" type="number" min="1" step="1" placeholder="Qty" style="width: 58px;" autocomplete="off">
@@ -785,51 +778,52 @@
             <!-- Staged Return Bar -->
             <div id="searchReturnControls" style="display: none; align-items: center; gap: 8px; flex: 1; min-width: 0;">
               <div class="inline-field">
-                <select name="userId" id="returnUserSelect" required style="width: 130px;">
+                <select name="userId" id="returnUserSelect" required style="width: 125px;">
                   <option value="">Select User</option>
                 </select>
               </div>
-              <div class="inline-field">
-                <select name="allocationSelect" id="returnAllocatedPartCodeSelect" style="width: 135px;">
+              <div class="inline-field" style="flex: 1; min-width: 175px;">
+                <select name="allocationSelect" id="returnAllocatedPartCodeSelect" style="width: 100%;">
                   <option value="">Allocated Code</option>
                 </select>
               </div>
-              <div class="inline-field" style="flex: 1; min-width: 170px;">
-                <input name="partNumber" id="returnPartNumber" readonly placeholder="Part Number" style="width: 100%;" autocomplete="off">
+              <div class="inline-field">
+                <input name="partNumber" id="returnPartNumber" readonly placeholder="Part Number" style="width: 110px;" autocomplete="off">
               </div>
               <div class="inline-field">
-                <input name="quantity" id="returnQuantity" type="number" min="1" step="1" placeholder="Qty" style="width: 56px;" autocomplete="off">
+                <input name="quantity" id="returnQuantity" type="number" min="1" step="1" placeholder="Qty" style="width: 54px;" autocomplete="off">
               </div>
 
               <div class="inline-field">
-                <select name="locationType" id="returnLocationType" style="width: 100px;">
+                <select name="locationType" id="returnLocationType" style="width: 96px;">
                   <option value="rack">Cupboard Rack</option>
                   <option value="box">Box</option>
                   <option value="workbench">Workbench</option>
                 </select>
               </div>
               <div class="inline-field" id="returnCupboardField">
-                <select name="cupboardId" id="returnCupboard" required style="width: 98px;">
+                <select name="cupboardId" id="returnCupboard" required style="width: 92px;">
                   <option value="">Cupboard</option>
                 </select>
               </div>
               <div class="inline-field" id="returnRackField">
-                <select name="rackId" id="returnRack" required style="width: 75px;">
+                <select name="rackId" id="returnRack" required style="width: 72px;">
                   <option value="">Rack</option>
                 </select>
               </div>
               <div class="inline-field" id="returnBoxField" hidden>
-                <select name="boxId" id="returnBox" style="width: 98px;">
+                <select name="boxId" id="returnBox" style="width: 92px;">
                   <option value="">Box</option>
                 </select>
               </div>
               <div class="inline-field" id="returnWorkbenchField" hidden>
-                <select name="workbenchId" id="returnWorkbench" style="width: 105px;">
+                <select name="workbenchId" id="returnWorkbench" style="width: 98px;">
                   <option value="">Workbench</option>
                 </select>
               </div>
               <button class="compact-btn secondary-btn" type="button" id="searchAddReturnStageBtn">Add</button>
               <button class="compact-btn success" type="button" id="searchExecuteReturnBtn">Return</button>
+              <button class="compact-btn info-btn" type="button" id="openUserAllocModalBtn" title="View User Allocated Materials">View Allocations</button>
             </div>
           </div>
 
@@ -996,7 +990,7 @@
         </div>
       </section>
 
-      <!-- Users Page -->
+      <!-- Users Page (Allocation List Viewer Removed) -->
       <section class="catalog page-view" id="usersPage" hidden>
         <div class="page-heading"><p>ADMINISTRATION</p><h2>Manage Users &amp; Material Allocations</h2></div>
         
@@ -1047,32 +1041,6 @@
             </div>
           </div>
 
-          <!-- Material Allocation Inspector Box -->
-          <div class="user-bottom-allocations">
-            <div class="user-bottom-allocations-head">
-              <div>
-                <h3 style="margin: 0; font-size: 13px; color: var(--green-dark);">Material Allocation Inspector</h3>
-                <p style="margin: 2px 0 0; font-size: 10px; color: var(--muted);">Select a user to view currently checked-out materials with timestamps.</p>
-              </div>
-              <div class="field" style="min-width: 250px; margin: 0;">
-                <select id="userAllocViewerSelect">
-                  <option value="">Choose User to View Allocations</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="user-alloc-table-head" aria-hidden="true">
-              <span>PART NUMBER</span>
-              <span>PART CODE</span>
-              <span>QTY</span>
-              <span>LOCATION</span>
-              <span>ALLOCATED DATE &amp; TIME</span>
-            </div>
-            <div id="userAllocViewerResults" aria-live="polite">
-              <p style="color:#718079;font-size:11px;padding: 16px 0;">Select a user from the dropdown above to view checkout records.</p>
-            </div>
-          </div>
-
           <!-- Direct Allocate & Return in Users Page -->
           <div class="aligned-bottom-bar" id="userAlignedBottomBar">
             <div class="transaction-bar">
@@ -1086,11 +1054,11 @@
                 <div class="inline-field">
                   <input name="userManual" id="userTakeUserInput" required autocomplete="off" autocorrect="off" spellcheck="false" placeholder="User Name / Email" style="width: 150px;">
                 </div>
-                <div class="inline-field" style="flex: 1; min-width: 190px;">
-                  <input name="partNumber" id="userTakePartNumber" required maxlength="100" placeholder="Part Number" style="width: 100%;" autocomplete="off" autocorrect="off" spellcheck="false">
-                </div>
                 <div class="inline-field">
-                  <input name="partCode" id="userTakePartCode" required maxlength="100" placeholder="Code" style="width: 85px;" autocomplete="off" autocorrect="off" spellcheck="false">
+                  <input name="partNumber" id="userTakePartNumber" required maxlength="100" placeholder="Part Number" style="width: 115px;" autocomplete="off" autocorrect="off" spellcheck="false">
+                </div>
+                <div class="inline-field" style="flex: 1; min-width: 190px;">
+                  <input name="partCode" id="userTakePartCode" required maxlength="100" placeholder="Part Code" style="width: 100%;" autocomplete="off" autocorrect="off" spellcheck="false">
                 </div>
                 <div class="inline-field">
                   <input name="quantity" id="userTakeQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 58px;" autocomplete="off">
@@ -1108,11 +1076,11 @@
                     <option value="">Allocated Items</option>
                   </select>
                 </div>
-                <div class="inline-field" style="flex: 1; min-width: 160px;">
-                  <input name="partNumber" id="userReturnPartNumber" placeholder="Part Number" style="width: 100%;" autocomplete="off" autocorrect="off" spellcheck="false">
-                </div>
                 <div class="inline-field">
-                  <input name="partCode" id="userReturnPartCode" placeholder="Code" style="width: 80px;" autocomplete="off" autocorrect="off" spellcheck="false">
+                  <input name="partNumber" id="userReturnPartNumber" placeholder="Part Number" style="width: 110px;" autocomplete="off" autocorrect="off" spellcheck="false">
+                </div>
+                <div class="inline-field" style="flex: 1; min-width: 160px;">
+                  <input name="partCode" id="userReturnPartCode" placeholder="Part Code" style="width: 100%;" autocomplete="off" autocorrect="off" spellcheck="false">
                 </div>
                 <div class="inline-field">
                   <input name="quantity" id="userReturnQuantity" type="number" min="1" step="1" required placeholder="Qty" style="width: 56px;" autocomplete="off">
@@ -1411,6 +1379,38 @@
     </div>
   </div>
 
+  <!-- 7. User Allocated Material Viewer Modal (Triggered from Search Page when Return is selected) -->
+  <div class="modal-overlay" id="userAllocModal" hidden>
+    <div class="modal-card modal-wide">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 10px;">
+        <div>
+          <h3 style="margin: 0; font-size: 15px; color: var(--green-dark);">Material Allocation Inspector</h3>
+          <p style="margin: 2px 0 0; font-size: 11px; color: var(--muted);">Select a user to view currently checked-out materials in their name.</p>
+        </div>
+        <div class="field" style="min-width: 240px; margin: 0;">
+          <select id="userAllocViewerSelect">
+            <option value="">Choose User to View Allocations</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="user-alloc-table-head" aria-hidden="true">
+        <span>PART NUMBER</span>
+        <span>PART CODE</span>
+        <span>QTY</span>
+        <span>LOCATION</span>
+        <span>ALLOCATED DATE &amp; TIME</span>
+      </div>
+      <div id="userAllocViewerResults" aria-live="polite">
+        <p style="color:#718079;font-size:11px;padding: 16px 0;">Select a user from the dropdown above to view checkout records.</p>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="closeUserAllocModalBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ==========================================
     // 1. SUPABASE CLIENT & EMAIL CONFIGURATION
@@ -1618,6 +1618,13 @@
     const adminConfirmPwdInput = document.getElementById("adminConfirmPwdInput");
     const adminChangePwdStatus = document.getElementById("adminChangePwdStatus");
     const cancelAdminChangePwdBtn = document.getElementById("cancelAdminChangePwdBtn");
+
+    // User Allocated Material Modal Elements
+    const openUserAllocModalBtn = document.getElementById("openUserAllocModalBtn");
+    const userAllocModal = document.getElementById("userAllocModal");
+    const closeUserAllocModalBtn = document.getElementById("closeUserAllocModalBtn");
+    const userAllocViewerSelect = document.getElementById("userAllocViewerSelect");
+    const userAllocViewerResults = document.getElementById("userAllocViewerResults");
 
     // ==========================================
     // AUTO-VANISH STATUS MESSAGE ENGINE (5 SECONDS)
@@ -1890,8 +1897,6 @@
     const userStatus = document.getElementById("userStatus");
     const usersList = document.getElementById("usersList");
     const emptyUsers = document.getElementById("emptyUsers");
-    const userAllocViewerSelect = document.getElementById("userAllocViewerSelect");
-    const userAllocViewerResults = document.getElementById("userAllocViewerResults");
 
     const searchAllocateControls = document.getElementById("searchAllocateControls");
     const searchReturnControls = document.getElementById("searchReturnControls");
@@ -2178,6 +2183,9 @@
       }
     }
 
+    // ==========================================
+    // USER ALLOCATION POPUP MODAL LOGIC
+    // ==========================================
     async function refreshUserAllocationsViewer(uId) {
       if (!uId) {
         userAllocViewerResults.innerHTML = `<p style="color:#718079;font-size:11px;padding: 16px 0;">Select a user from the dropdown above to view checkout records.</p>`;
@@ -2209,8 +2217,8 @@
           const row = document.createElement("article");
           row.className = "user-alloc-row";
           row.innerHTML = `
-            <span><strong>${a.part_number}</strong></span>
-            <span class="part-code">${a.part_code}</span>
+            <span>${a.part_number}</span>
+            <span class="part-code"><strong>${a.part_code}</strong></span>
             <span><strong>${a.quantity}</strong></span>
             <span class="location-cell">${locText}</span>
             <span style="font-size:10px;color:var(--muted);">${dateStr}</span>
@@ -2221,6 +2229,26 @@
         userAllocViewerResults.innerHTML = `<p style="color:#b91c1c;font-size:11px;padding: 16px 0;">Error loading user allocations: ${err.message}</p>`;
       }
     }
+
+    openUserAllocModalBtn.addEventListener("click", () => {
+      userAllocModal.hidden = false;
+      if (returnUserSelect.value) {
+        userAllocViewerSelect.value = returnUserSelect.value;
+        refreshUserAllocationsViewer(returnUserSelect.value);
+      } else {
+        refreshUserAllocationsViewer(userAllocViewerSelect.value);
+      }
+    });
+
+    closeUserAllocModalBtn.addEventListener("click", () => {
+      userAllocModal.hidden = true;
+    });
+
+    userAllocModal.addEventListener("click", (e) => {
+      if (e.target === userAllocModal) {
+        userAllocModal.hidden = true;
+      }
+    });
 
     userAllocViewerSelect.addEventListener("change", (e) => {
       refreshUserAllocationsViewer(e.target.value);
@@ -2701,7 +2729,7 @@
                   rackMaterials.forEach(m => {
                     const rowDiv = document.createElement("div");
                     rowDiv.className = "material-entry-pill";
-                    rowDiv.innerHTML = `<strong>${m.part_number}</strong> (${m.part_code}) - <em>${m.quantity} in stock</em>`;
+                    rowDiv.innerHTML = `<strong>${m.part_code}</strong> (${m.part_number}) - <em>${m.quantity} in stock</em>`;
                     rackBox.append(rowDiv);
                   });
                 }
@@ -2716,7 +2744,7 @@
               boxMaterials.forEach(m => {
                 const rowDiv = document.createElement("div");
                 rowDiv.className = "material-entry-pill";
-                rowDiv.innerHTML = `<strong>${m.part_number}</strong> (${m.part_code}) - <em>${m.quantity} in stock</em>`;
+                rowDiv.innerHTML = `<strong>${m.part_code}</strong> (${m.part_number}) - <em>${m.quantity} in stock</em>`;
                 detailContainer.append(rowDiv);
               });
             }
@@ -2728,7 +2756,7 @@
               wbMaterials.forEach(m => {
                 const rowDiv = document.createElement("div");
                 rowDiv.className = "material-entry-pill";
-                rowDiv.innerHTML = `<strong>${m.part_number}</strong> (${m.part_code}) - <em>${m.quantity} in stock</em>`;
+                rowDiv.innerHTML = `<strong>${m.part_code}</strong> (${m.part_number}) - <em>${m.quantity} in stock</em>`;
                 detailContainer.append(rowDiv);
               });
             }
@@ -3130,7 +3158,7 @@
           returnWorkbench.value = targetWb;
         }
 
-        setFormStatus(globalStripStatus, `Loaded "${item.part_number}". Ready for return queue.`);
+        setFormStatus(globalStripStatus, `Loaded "${item.part_code}". Ready for return queue.`);
       } else {
         returnPartNumber.value = "";
         returnQuantity.value = "";
@@ -3178,7 +3206,7 @@
         userReturnWorkbench.value = targetWb;
       }
 
-      setFormStatus(userPageStripStatus, `Auto-populated: ${item.part_number} (${item.part_code}) with original location.`);
+      setFormStatus(userPageStripStatus, `Auto-populated: ${item.part_code} (${item.part_number}) with original location.`);
     }
 
     userReturnAllocatedSelect.addEventListener("change", (e) => {
@@ -3240,7 +3268,7 @@
     function onProductRowClicked(product) {
       const availQty = getEffectiveCatalogStock(product);
       if (availQty <= 0) {
-        setFormStatus(globalStripStatus, `Material "${product.part_number}" is out of stock or already added to queue.`, true);
+        setFormStatus(globalStripStatus, `Material "${product.part_code}" is out of stock or already added to queue.`, true);
         return;
       }
 
@@ -3256,7 +3284,7 @@
         takePartCode.value = product.part_code;
         takeQuantity.value = "";
         takeQuantity.focus();
-        setFormStatus(globalStripStatus, `Selected "${product.part_number}" (${product.part_code}). Available: ${availQty}.`);
+        setFormStatus(globalStripStatus, `Selected "${product.part_code}" (${product.part_number}). Available: ${availQty}.`);
       } else {
         // Return is selected on Search Page: do NOT allocate on search page; populate Users tab allocation form instead.
         takePartNumber.value = "";
@@ -3266,7 +3294,7 @@
 
         userTakePartNumber.value = product.part_number;
         userTakePartCode.value = product.part_code;
-        setFormStatus(globalStripStatus, `"${product.part_number}" populated in Users tab for allocation.`);
+        setFormStatus(globalStripStatus, `"${product.part_code}" populated in Users tab for allocation.`);
       }
     }
 
@@ -3288,11 +3316,11 @@
         li.className = "staged-part-row";
 
         const pnSpan = document.createElement("span");
-        pnSpan.innerHTML = `<strong>${stagedItem.partNumber}</strong>`;
+        pnSpan.textContent = stagedItem.partNumber;
 
         const pcSpan = document.createElement("span");
         pcSpan.className = "part-code";
-        pcSpan.textContent = stagedItem.partCode;
+        pcSpan.innerHTML = `<strong>${stagedItem.partCode}</strong>`;
 
         const qtySpan = document.createElement("span");
         qtySpan.innerHTML = `Qty: <strong>${stagedItem.quantity}</strong>`;
@@ -3310,13 +3338,11 @@
           renderSearchStagedParts();
 
           if (removedItem.mode === 'allocate') {
-            // Re-render catalog so deducted quantity/item is saved back into the material list
             render();
-            setFormStatus(globalStripStatus, `Removed "${removedItem.partNumber}" from queue and restored to catalog list.`);
+            setFormStatus(globalStripStatus, `Removed "${removedItem.partCode}" from queue and restored to catalog list.`);
           } else if (removedItem.mode === 'return') {
-            // Re-populate allocated dropdown so item is allocated back to user's open list
             refreshReturnDropdownOptions();
-            setFormStatus(globalStripStatus, `Removed "${removedItem.partNumber}" from return queue and restored to allocated items.`);
+            setFormStatus(globalStripStatus, `Removed "${removedItem.partCode}" from return queue and restored to allocated items.`);
           }
         });
 
@@ -3370,9 +3396,8 @@
       document.querySelectorAll(".product-row").forEach(r => r.classList.remove("selected-row"));
 
       renderSearchStagedParts();
-      // Update catalog immediately to remove allocated quantity/material from displayed material list
       render();
-      setFormStatus(globalStripStatus, `Added "${pNum}" to queue and updated catalog list.`);
+      setFormStatus(globalStripStatus, `Added "${pCode}" to queue and updated catalog list.`);
     });
 
     searchAddReturnStageBtn.addEventListener("click", () => {
@@ -3439,10 +3464,9 @@
       returnAllocatedPartCodeSelect.value = "";
       resetReturnLocationFields();
 
-      // Remove from the user's allocated dropdown while queued for return
       refreshReturnDropdownOptions();
       renderSearchStagedParts();
-      setFormStatus(globalStripStatus, `Added "${pNum}" to return queue.`);
+      setFormStatus(globalStripStatus, `Added "${allocItem.part_code}" to return queue.`);
     });
 
     searchExecuteAllocateBtn.addEventListener("click", () => {
@@ -3861,7 +3885,7 @@
         return;
       }
 
-      if (!window.confirm(`Reject return of "${logItem.part_number}"? The quantity (${logItem.quantity}) will be reassigned back to ${logItem.user_name}.`)) {
+      if (!window.confirm(`Reject return of "${logItem.part_code}"? The quantity (${logItem.quantity}) will be reassigned back to ${logItem.user_name}.`)) {
         return;
       }
 
@@ -3924,7 +3948,7 @@
 
         await loadLogs();
         if (returnUserSelect.value) loadAllocationsForUser(returnUserSelect.value);
-        if (userAllocViewerSelect.value) refreshUserAllocationsViewer(userAllocViewerSelect.value);
+        if (!userAllocModal.hidden && userAllocViewerSelect.value) refreshUserAllocationsViewer(userAllocViewerSelect.value);
         alert(`Return rejected. ${qtyToRestore} units reassigned back to ${logItem.user_name}.`);
       } catch (err) {
         setFormStatus(verifierModalError, "Failed to reject return: " + err.message, true);
@@ -3946,11 +3970,11 @@
       if (fetchErr) throw new Error("Verification failed: " + fetchErr.message);
 
       const item = liveItemData && liveItemData.length > 0 ? liveItemData[0] : null;
-      if (!item) throw new Error(`Material "${pNum}" (${pCode}) not found in inventory.`);
+      if (!item) throw new Error(`Material "${pCode}" (${pNum}) not found in inventory.`);
 
       const currentLiveStock = parseInt(item.quantity, 10);
       if (currentLiveStock < 1 || isNaN(currentLiveStock)) throw new Error(`Cannot allocate: 0 quantity available.`);
-      if (takeQty > currentLiveStock) throw new Error(`Insufficient stock for ${item.part_number}. Current live stock is ${currentLiveStock}.`);
+      if (takeQty > currentLiveStock) throw new Error(`Insufficient stock for ${item.part_code}. Current live stock is ${currentLiveStock}.`);
 
       let allocQuery = supabaseClient.from('material_allocations').select('*').eq('part_number', item.part_number).eq('part_code', item.part_code);
       if (userId) allocQuery = allocQuery.eq('user_id', userId);
@@ -4030,7 +4054,7 @@
 
       await refreshInventory();
       await loadLogs();
-      if (userAllocViewerSelect.value === userId) {
+      if (!userAllocModal.hidden && userAllocViewerSelect.value === userId) {
         await refreshUserAllocationsViewer(userId);
       }
       return item;
@@ -4083,7 +4107,7 @@
       await cleanupGuestUserIfDone(userId);
 
       await loadLogs();
-      if (userAllocViewerSelect.value === userId) {
+      if (!userAllocModal.hidden && userAllocViewerSelect.value === userId) {
         await refreshUserAllocationsViewer(userId);
       }
       return locationText;
@@ -4109,7 +4133,7 @@
           if (isNaN(takeQty) || takeQty < 1) throw new Error("Please enter a valid quantity starting from 1.");
 
           const item = await executeMaterialAllocation(userObj.id, userObj.name, pNum, pCode, takeQty);
-          setFormStatus(userPageStripStatus, `Allocated ${takeQty} units of "${item.part_number}" to ${userObj.name}.`);
+          setFormStatus(userPageStripStatus, `Allocated ${takeQty} units of "${item.part_code}" to ${userObj.name}.`);
           resetUserPageTakeForm();
         } catch (err) {
           setFormStatus(userPageStripStatus, err.message, true);
@@ -4166,7 +4190,7 @@
           };
 
           const locationText = await executeMaterialReturn(userObj.id, userObj.name, allocItem, returnQty, locConfig);
-          setFormStatus(userPageStripStatus, `Marked ${returnQty} units of "${allocItem.part_number}" returned to ${locationText} (Pending Verification).`);
+          setFormStatus(userPageStripStatus, `Marked ${returnQty} units of "${allocItem.part_code}" returned to ${locationText} (Pending Verification).`);
           resetUserPageReturnForm();
         } catch (err) {
           setFormStatus(userPageStripStatus, err.message, true);
@@ -4458,7 +4482,7 @@
         const currentQty = parseInt(item.quantity, 10);
         if (removeQty > currentQty) throw new Error(`Cannot remove ${removeQty}. Current stock is ${currentQty}.`);
 
-        if (!window.confirm(`Deduct ${removeQty} from ${item.part_number} at ${item.location_text}?`)) return;
+        if (!window.confirm(`Deduct ${removeQty} from ${item.part_code} (${item.part_number}) at ${item.location_text}?`)) return;
 
         const remaining = currentQty - removeQty;
         if (remaining <= 0) {
@@ -4535,7 +4559,7 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'material_allocations' }, () => {
           if (returnUserSelect.value) loadAllocationsForUser(returnUserSelect.value);
           if (userReturnUserInput.value) onUserReturnInputMatch();
-          if (userAllocViewerSelect.value) refreshUserAllocationsViewer(userAllocViewerSelect.value);
+          if (!userAllocModal.hidden && userAllocViewerSelect.value) refreshUserAllocationsViewer(userAllocViewerSelect.value);
         })
         .subscribe();
 
