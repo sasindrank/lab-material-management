@@ -2605,6 +2605,10 @@
     // ==========================================
     // 6. STORAGE & INSPECTOR
     // ==========================================
+    function normalizeLocationName(raw) {
+      return raw.trim().replace(/\s+/g, " ").toLowerCase();
+    }
+
     async function loadStorage() {
       try {
         const [cupboardsRes, racksRes, boxesRes, workbenchesRes] = await Promise.all([
@@ -2993,21 +2997,36 @@
     document.getElementById("cupboardRackForm").addEventListener("submit", async (event) => {
       event.preventDefault();
       const form = event.currentTarget;
-      const name = form.name.value.trim();
+      const name = form.name.value.trim().replace(/\s+/g, " ");
       const rackCount = parseInt(form.rackCount.value, 10);
 
       if (!name) return;
 
-      const isDuplicate = storageTree.some(
-        (c) => c.name.trim().toLowerCase() === name.toLowerCase()
-      );
-      if (isDuplicate) {
-        setFormStatus(storageStatus, `Cupboard "${name}" already exists. Please use a unique name.`, true);
+      const normalizedInput = normalizeLocationName(name);
+
+      // 1. Immediate local cache check
+      if (storageTree.some((c) => normalizeLocationName(c.name) === normalizedInput)) {
+        setFormStatus(storageStatus, `Cupboard "${name}" already exists. Duplicate names are not allowed.`, true);
         form.name.focus();
+        form.name.select();
         return;
       }
 
       try {
+        // 2. Live database check to prevent concurrent duplicates
+        const { data: existingCupboards, error: fetchErr } = await supabaseClient
+          .from('cupboards')
+          .select('name');
+        if (fetchErr) throw fetchErr;
+
+        if ((existingCupboards || []).some((c) => normalizeLocationName(c.name) === normalizedInput)) {
+          await loadStorage();
+          setFormStatus(storageStatus, `Cupboard "${name}" already exists. Duplicate names are not allowed.`, true);
+          form.name.focus();
+          form.name.select();
+          return;
+        }
+
         const { data: cupboardData, error: cupboardError } = await supabaseClient
           .from('cupboards')
           .insert([{ name }])
@@ -3035,20 +3054,35 @@
     document.getElementById("boxForm").addEventListener("submit", async (event) => {
       event.preventDefault();
       const form = event.currentTarget;
-      const name = form.name.value.trim();
+      const name = form.name.value.trim().replace(/\s+/g, " ");
 
       if (!name) return;
 
-      const isDuplicate = storageBoxes.some(
-        (b) => b.name.trim().toLowerCase() === name.toLowerCase()
-      );
-      if (isDuplicate) {
-        setFormStatus(storageStatus, `Box "${name}" already exists. Please use a unique name.`, true);
+      const normalizedInput = normalizeLocationName(name);
+
+      // 1. Immediate local cache check
+      if (storageBoxes.some((b) => normalizeLocationName(b.name) === normalizedInput)) {
+        setFormStatus(storageStatus, `Box "${name}" already exists. Duplicate names are not allowed.`, true);
         form.name.focus();
+        form.name.select();
         return;
       }
 
       try {
+        // 2. Live database check to prevent concurrent duplicates
+        const { data: existingBoxes, error: fetchErr } = await supabaseClient
+          .from('boxes')
+          .select('name');
+        if (fetchErr) throw fetchErr;
+
+        if ((existingBoxes || []).some((b) => normalizeLocationName(b.name) === normalizedInput)) {
+          await loadStorage();
+          setFormStatus(storageStatus, `Box "${name}" already exists. Duplicate names are not allowed.`, true);
+          form.name.focus();
+          form.name.select();
+          return;
+        }
+
         const { error } = await supabaseClient.from('boxes').insert([{ name }]);
         if (error) throw error;
 
@@ -3063,20 +3097,35 @@
     document.getElementById("workbenchForm").addEventListener("submit", async (event) => {
       event.preventDefault();
       const form = event.currentTarget;
-      const name = form.name.value.trim();
+      const name = form.name.value.trim().replace(/\s+/g, " ");
 
       if (!name) return;
 
-      const isDuplicate = storageWorkbenches.some(
-        (w) => w.name.trim().toLowerCase() === name.toLowerCase()
-      );
-      if (isDuplicate) {
-        setFormStatus(storageStatus, `Workbench "${name}" already exists. Please use a unique name.`, true);
+      const normalizedInput = normalizeLocationName(name);
+
+      // 1. Immediate local cache check
+      if (storageWorkbenches.some((w) => normalizeLocationName(w.name) === normalizedInput)) {
+        setFormStatus(storageStatus, `Workbench "${name}" already exists. Duplicate names are not allowed.`, true);
         form.name.focus();
+        form.name.select();
         return;
       }
 
       try {
+        // 2. Live database check to prevent concurrent duplicates
+        const { data: existingWorkbenches, error: fetchErr } = await supabaseClient
+          .from('workbenches')
+          .select('name');
+        if (fetchErr) throw fetchErr;
+
+        if ((existingWorkbenches || []).some((w) => normalizeLocationName(w.name) === normalizedInput)) {
+          await loadStorage();
+          setFormStatus(storageStatus, `Workbench "${name}" already exists. Duplicate names are not allowed.`, true);
+          form.name.focus();
+          form.name.select();
+          return;
+        }
+
         const { error } = await supabaseClient.from('workbenches').insert([{ name }]);
         if (error) throw error;
 
