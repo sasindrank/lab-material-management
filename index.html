@@ -990,7 +990,7 @@
         </div>
       </section>
 
-      <!-- Users Page (Allocation List Viewer Removed) -->
+      <!-- Users Page -->
       <section class="catalog page-view" id="usersPage" hidden>
         <div class="page-heading"><p>ADMINISTRATION</p><h2>Manage Users &amp; Material Allocations</h2></div>
         
@@ -1360,7 +1360,7 @@
     <div class="modal-card">
       <h3 style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Physical Return Sign-Off</h3>
       <p style="margin: 0 0 14px; color: var(--muted); font-size: 11px;">
-        Inspect physical placement on shelf. Choose <strong>Verify</strong> to update material stock, or <strong>Reject</strong> to cancel return and reassign back to the user.
+        Inspect physical placement on shelf. Select an authorized verifier and enter their password to <strong>Verify</strong> stock update or <strong>Reject</strong> back to the user.
       </p>
       <form id="verifierForm">
         <div class="field" style="margin-bottom: 8px;">
@@ -2779,14 +2779,57 @@
     });
 
     async function deleteLocation(button) {
-      const { deleteType: type, deleteId: id, deleteName: name } = button.dataset;
+      const { deleteType: type, deleteId: id, deleteName: name, cupboardId } = button.dataset;
       const warning = type === "cupboard"
-        ? `Delete cupboard "${name}"? Its racks and materials stored on those racks will also be deleted.`
-        : `Delete ${type} "${name}"? Materials stored here will also be removed.`;
+        ? `Delete cupboard "${name}"? Its racks and all materials stored inside it will also be deleted.`
+        : `Delete ${type} "${name}"? All materials stored here will also be deleted.`;
 
       if (!window.confirm(warning)) return;
 
       try {
+        // Explicitly delete all materials stored inside the deleted storage location
+        if (type === 'cupboard') {
+          const targetCupboard = storageTree.find(c => String(c.id) === String(id));
+          const rackIds = (targetCupboard?.racks || []).map(r => r.id);
+
+          const { error: matCupErr } = await supabaseClient.from('materials').delete().eq('cupboard_id', id);
+          if (matCupErr) throw matCupErr;
+
+          if (rackIds.length > 0) {
+            const { error: matRacksErr } = await supabaseClient.from('materials').delete().in('rack_id', rackIds);
+            if (matRacksErr) throw matRacksErr;
+          }
+
+          if (name) {
+            await supabaseClient.from('materials').delete().ilike('location_text', `${name.trim()} / %`);
+          }
+
+          await supabaseClient.from('racks').delete().eq('cupboard_id', id);
+        } else if (type === 'rack') {
+          const { error: matRackErr } = await supabaseClient.from('materials').delete().eq('rack_id', id);
+          if (matRackErr) throw matRackErr;
+
+          const parentCupboard = storageTree.find(c => String(c.id) === String(cupboardId));
+          if (parentCupboard && name) {
+            await supabaseClient.from('materials').delete().ilike('location_text', `${parentCupboard.name.trim()} / ${name.trim()}`);
+          }
+        } else if (type === 'box') {
+          const { error: matBoxErr } = await supabaseClient.from('materials').delete().eq('box_id', id);
+          if (matBoxErr) throw matBoxErr;
+
+          if (name) {
+            await supabaseClient.from('materials').delete().ilike('location_text', `Box: ${name.trim()}`);
+          }
+        } else if (type === 'workbench') {
+          const { error: matWbErr } = await supabaseClient.from('materials').delete().eq('workbench_id', id);
+          if (matWbErr) throw matWbErr;
+
+          if (name) {
+            await supabaseClient.from('materials').delete().ilike('location_text', `Workbench: ${name.trim()}`);
+          }
+        }
+
+        // Now delete the storage location itself
         let table = 'boxes';
         if (type === 'cupboard') table = 'cupboards';
         else if (type === 'rack') table = 'racks';
@@ -2795,9 +2838,13 @@
         const { error } = await supabaseClient.from(table).delete().eq('id', id);
         if (error) throw error;
 
+        if (String(selectedInspectorLocationId) === String(id)) {
+          selectedInspectorLocationId = null;
+        }
+
         await loadStorage();
         await refreshInventory();
-        setFormStatus(storageStatus, `${type[0].toUpperCase()}${type.slice(1)} removed.`);
+        setFormStatus(storageStatus, `${type[0].toUpperCase()}${type.slice(1)} and all contained materials removed.`);
       } catch (error) {
         setFormStatus(storageStatus, error.message, true);
       }
@@ -3638,7 +3685,7 @@
     });
 
     // ==========================================
-    // 9. AUDIT LOGGING & VERIFIER MODAL (Verify / Reject / Cancel)
+    // 9. AUDIT LOGGING & VERIFIER MODAL (Verify / Reject / Cancel with Password Auth)
     // ==========================================
     async function recordAllocationLog(userId, userName, partCode, partNumber, quantity, locationText) {
       const nowIso = new Date().toISOString();
@@ -3765,7 +3812,7 @@
       } else {
         verifierUsers.forEach(u => {
           const opt = document.createElement("option");
-          opt.value = u.name;
+          opt.value = u.id;
           opt.textContent = u.name;
           modalVerifierSelect.append(opt);
         });
@@ -3779,13 +3826,16 @@
       pendingVerificationLogId = null;
     });
 
-    verifierForm.addEventListener("submit", async (e) => {
+    verifierForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      const verifierName = modalVerifierSelect.value;
-      if (!verifierName) {
+      const verifierId = modalVerifierSelect.value;
+      if (!verifierId) {
         setFormStatus(verifierModalError, "Please select an authorized verifier.", true);
         return;
       }
+
+      const verifierUser = users.find(u => String(u.id) === String(verifierId));
+      const verifierName = verifierUser ? verifierUser.name : modalVerifierSelect.selectedOptions[0]?.text;
 
       const logItem = activityLogs.find(l => String(l.id) === String(pendingVerificationLogId));
       if (!logItem) {
@@ -3793,91 +3843,100 @@
         return;
       }
 
-      try {
-        const returnQty = parseInt(logItem.quantity, 10) || 1;
-        const targetLocationType = (logItem.location_type || 'rack').toLowerCase().trim();
-        const cupboardId = logItem.cupboard_id || null;
-        const rackId = logItem.rack_id || null;
-        const boxId = logItem.box_id || null;
-        const workbenchId = logItem.workbench_id || null;
-        const locationText = (logItem.location_text || "Storage").trim().toLowerCase();
+      // Authenticate the selected verifier using their password before completing sign-off
+      verifyUserPasswordBeforeAction(verifierUser, "Verify Return", async () => {
+        verifierConfirmButton.disabled = true;
+        try {
+          const returnQty = parseInt(logItem.quantity, 10) || 1;
+          const targetLocationType = (logItem.location_type || 'rack').toLowerCase().trim();
+          const cupboardId = logItem.cupboard_id || null;
+          const rackId = logItem.rack_id || null;
+          const boxId = logItem.box_id || null;
+          const workbenchId = logItem.workbench_id || null;
+          const locationText = (logItem.location_text || "Storage").trim().toLowerCase();
 
-        const { data: currentMaterials, error: fetchErr } = await supabaseClient
-          .from('materials')
-          .select('*');
+          const { data: currentMaterials, error: fetchErr } = await supabaseClient
+            .from('materials')
+            .select('*');
 
-        if (fetchErr) throw fetchErr;
-        products = currentMaterials || [];
+          if (fetchErr) throw fetchErr;
+          products = currentMaterials || [];
 
-        let existingAtDestination = products.find(p => {
-          const matchPN = p.part_number.trim().toLowerCase() === logItem.part_number.trim().toLowerCase();
-          const matchPC = p.part_code.trim().toLowerCase() === logItem.part_code.trim().toLowerCase();
-          if (!matchPN || !matchPC) return false;
+          let existingAtDestination = products.find(p => {
+            const matchPN = p.part_number.trim().toLowerCase() === logItem.part_number.trim().toLowerCase();
+            const matchPC = p.part_code.trim().toLowerCase() === logItem.part_code.trim().toLowerCase();
+            if (!matchPN || !matchPC) return false;
 
-          const locTypeMatch = (p.location_type || '').trim().toLowerCase() === targetLocationType;
-          let idMatch = false;
+            const locTypeMatch = (p.location_type || '').trim().toLowerCase() === targetLocationType;
+            let idMatch = false;
 
-          if (locTypeMatch) {
-            if (targetLocationType === 'rack') {
-              idMatch = (rackId && String(p.rack_id) === String(rackId));
-            } else if (targetLocationType === 'box') {
-              idMatch = (boxId && String(p.box_id) === String(boxId));
-            } else if (targetLocationType === 'workbench') {
-              idMatch = (workbenchId && String(p.workbench_id) === String(workbenchId));
+            if (locTypeMatch) {
+              if (targetLocationType === 'rack') {
+                idMatch = (rackId && String(p.rack_id) === String(rackId));
+              } else if (targetLocationType === 'box') {
+                idMatch = (boxId && String(p.box_id) === String(boxId));
+              } else if (targetLocationType === 'workbench') {
+                idMatch = (workbenchId && String(p.workbench_id) === String(workbenchId));
+              }
             }
+
+            const textMatch = p.location_text && p.location_text.trim().toLowerCase() === locationText;
+            return idMatch || textMatch;
+          });
+
+          if (existingAtDestination) {
+            const updatedQty = (parseInt(existingAtDestination.quantity, 10) || 0) + returnQty;
+            const { error: updErr } = await supabaseClient
+              .from('materials')
+              .update({ quantity: updatedQty, updated_at: new Date().toISOString() })
+              .eq('id', existingAtDestination.id);
+
+            if (updErr) throw updErr;
+          } else {
+            const { error: insErr } = await supabaseClient.from('materials').insert([{
+              part_number: logItem.part_number.trim(),
+              part_code: logItem.part_code.trim(),
+              quantity: returnQty,
+              location_type: targetLocationType,
+              cupboard_id: cupboardId,
+              rack_id: rackId,
+              box_id: boxId,
+              workbench_id: workbenchId,
+              location_text: logItem.location_text || "Storage"
+            }]);
+
+            if (insErr) throw insErr;
           }
 
-          const textMatch = p.location_text && p.location_text.trim().toLowerCase() === locationText;
-          return idMatch || textMatch;
-        });
+          const nowIso = new Date().toISOString();
+          await supabaseClient.from(ACTIVE_LOG_TABLE).update({
+            status: "Return",
+            returned_time: nowIso,
+            verified_by: verifierName
+          }).eq('id', logItem.id);
 
-        if (existingAtDestination) {
-          const updatedQty = (parseInt(existingAtDestination.quantity, 10) || 0) + returnQty;
-          const { error: updErr } = await supabaseClient
-            .from('materials')
-            .update({ quantity: updatedQty, updated_at: new Date().toISOString() })
-            .eq('id', existingAtDestination.id);
+          verifierModal.hidden = true;
+          pendingVerificationLogId = null;
 
-          if (updErr) throw updErr;
-        } else {
-          const { error: insErr } = await supabaseClient.from('materials').insert([{
-            part_number: logItem.part_number.trim(),
-            part_code: logItem.part_code.trim(),
-            quantity: returnQty,
-            location_type: targetLocationType,
-            cupboard_id: cupboardId,
-            rack_id: rackId,
-            box_id: boxId,
-            workbench_id: workbenchId,
-            location_text: logItem.location_text || "Storage"
-          }]);
-
-          if (insErr) throw insErr;
+          await refreshInventory();
+          await loadLogs();
+        } catch (err) {
+          setFormStatus(verifierModalError, err.message || "Failed verifying return.", true);
+        } finally {
+          verifierConfirmButton.disabled = false;
         }
-
-        const nowIso = new Date().toISOString();
-        await supabaseClient.from(ACTIVE_LOG_TABLE).update({
-          status: "Return",
-          returned_time: nowIso,
-          verified_by: verifierName
-        }).eq('id', logItem.id);
-
-        verifierModal.hidden = true;
-        pendingVerificationLogId = null;
-
-        await refreshInventory();
-        await loadLogs();
-      } catch (err) {
-        setFormStatus(verifierModalError, err.message || "Failed verifying return.", true);
-      }
+      });
     });
 
-    verifierRejectButton.addEventListener("click", async () => {
-      const verifierName = modalVerifierSelect.value;
-      if (!verifierName) {
+    verifierRejectButton.addEventListener("click", () => {
+      const verifierId = modalVerifierSelect.value;
+      if (!verifierId) {
         setFormStatus(verifierModalError, "Please select an authorized verifier who is rejecting this return.", true);
         return;
       }
+
+      const verifierUser = users.find(u => String(u.id) === String(verifierId));
+      const verifierName = verifierUser ? verifierUser.name : modalVerifierSelect.selectedOptions[0]?.text;
 
       const logItem = activityLogs.find(l => String(l.id) === String(pendingVerificationLogId));
       if (!logItem) {
@@ -3889,70 +3948,76 @@
         return;
       }
 
-      try {
-        const qtyToRestore = parseInt(logItem.quantity, 10) || 1;
-        const targetUserId = logItem.user_id || null;
+      // Authenticate the selected verifier using their password before rejecting
+      verifyUserPasswordBeforeAction(verifierUser, "Reject Return", async () => {
+        verifierRejectButton.disabled = true;
+        try {
+          const qtyToRestore = parseInt(logItem.quantity, 10) || 1;
+          const targetUserId = logItem.user_id || null;
 
-        let userObj = users.find(u => (targetUserId && String(u.id) === String(targetUserId)) || u.name.toLowerCase() === (logItem.user_name || '').toLowerCase());
-        if (!userObj && logItem.user_name) {
-          userObj = await resolveOrCreateGuestUser(logItem.user_name);
-        }
+          let userObj = users.find(u => (targetUserId && String(u.id) === String(targetUserId)) || u.name.toLowerCase() === (logItem.user_name || '').toLowerCase());
+          if (!userObj && logItem.user_name) {
+            userObj = await resolveOrCreateGuestUser(logItem.user_name);
+          }
 
-        const finalUserId = userObj ? userObj.id : targetUserId;
+          const finalUserId = userObj ? userObj.id : targetUserId;
 
-        let allocQuery = supabaseClient
-          .from('material_allocations')
-          .select('*')
-          .eq('part_number', logItem.part_number)
-          .eq('part_code', logItem.part_code);
-
-        if (finalUserId) {
-          allocQuery = allocQuery.eq('user_id', finalUserId);
-        }
-
-        const { data: existingAlloc, error: allocFetchErr } = await allocQuery;
-        if (allocFetchErr) throw allocFetchErr;
-
-        if (existingAlloc && existingAlloc.length > 0) {
-          const newQty = (parseInt(existingAlloc[0].quantity, 10) || 0) + qtyToRestore;
-          await supabaseClient
+          let allocQuery = supabaseClient
             .from('material_allocations')
-            .update({ quantity: newQty, updated_at: new Date().toISOString() })
-            .eq('id', existingAlloc[0].id);
-        } else {
-          await supabaseClient
-            .from('material_allocations')
-            .insert([{
-              user_id: finalUserId,
-              part_number: logItem.part_number,
-              part_code: logItem.part_code,
-              quantity: qtyToRestore,
-              location_text: logItem.location_text || "Storage",
-              location_type: logItem.location_type || "rack",
-              cupboard_id: logItem.cupboard_id || null,
-              rack_id: logItem.rack_id || null,
-              box_id: logItem.box_id || null,
-              workbench_id: logItem.workbench_id || null
-            }]);
+            .select('*')
+            .eq('part_number', logItem.part_number)
+            .eq('part_code', logItem.part_code);
+
+          if (finalUserId) {
+            allocQuery = allocQuery.eq('user_id', finalUserId);
+          }
+
+          const { data: existingAlloc, error: allocFetchErr } = await allocQuery;
+          if (allocFetchErr) throw allocFetchErr;
+
+          if (existingAlloc && existingAlloc.length > 0) {
+            const newQty = (parseInt(existingAlloc[0].quantity, 10) || 0) + qtyToRestore;
+            await supabaseClient
+              .from('material_allocations')
+              .update({ quantity: newQty, updated_at: new Date().toISOString() })
+              .eq('id', existingAlloc[0].id);
+          } else {
+            await supabaseClient
+              .from('material_allocations')
+              .insert([{
+                user_id: finalUserId,
+                part_number: logItem.part_number,
+                part_code: logItem.part_code,
+                quantity: qtyToRestore,
+                location_text: logItem.location_text || "Storage",
+                location_type: logItem.location_type || "rack",
+                cupboard_id: logItem.cupboard_id || null,
+                rack_id: logItem.rack_id || null,
+                box_id: logItem.box_id || null,
+                workbench_id: logItem.workbench_id || null
+              }]);
+          }
+
+          await supabaseClient.from(ACTIVE_LOG_TABLE).update({
+            status: "Allocated",
+            pending_return_time: null,
+            returned_time: null,
+            verified_by: `Rejected by ${verifierName}`
+          }).eq('id', logItem.id);
+
+          verifierModal.hidden = true;
+          pendingVerificationLogId = null;
+
+          await loadLogs();
+          if (returnUserSelect.value) loadAllocationsForUser(returnUserSelect.value);
+          if (!userAllocModal.hidden && userAllocViewerSelect.value) refreshUserAllocationsViewer(userAllocViewerSelect.value);
+          alert(`Return rejected. ${qtyToRestore} units reassigned back to ${logItem.user_name}.`);
+        } catch (err) {
+          setFormStatus(verifierModalError, "Failed to reject return: " + err.message, true);
+        } finally {
+          verifierRejectButton.disabled = false;
         }
-
-        await supabaseClient.from(ACTIVE_LOG_TABLE).update({
-          status: "Allocated",
-          pending_return_time: null,
-          returned_time: null,
-          verified_by: `Rejected by ${verifierName}`
-        }).eq('id', logItem.id);
-
-        verifierModal.hidden = true;
-        pendingVerificationLogId = null;
-
-        await loadLogs();
-        if (returnUserSelect.value) loadAllocationsForUser(returnUserSelect.value);
-        if (!userAllocModal.hidden && userAllocViewerSelect.value) refreshUserAllocationsViewer(userAllocViewerSelect.value);
-        alert(`Return rejected. ${qtyToRestore} units reassigned back to ${logItem.user_name}.`);
-      } catch (err) {
-        setFormStatus(verifierModalError, "Failed to reject return: " + err.message, true);
-      }
+      });
     });
 
     // ==========================================
