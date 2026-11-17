@@ -2996,6 +2996,17 @@
       const name = form.name.value.trim();
       const rackCount = parseInt(form.rackCount.value, 10);
 
+      if (!name) return;
+
+      const isDuplicate = storageTree.some(
+        (c) => c.name.trim().toLowerCase() === name.toLowerCase()
+      );
+      if (isDuplicate) {
+        setFormStatus(storageStatus, `Cupboard "${name}" already exists. Please use a unique name.`, true);
+        form.name.focus();
+        return;
+      }
+
       try {
         const { data: cupboardData, error: cupboardError } = await supabaseClient
           .from('cupboards')
@@ -3026,6 +3037,17 @@
       const form = event.currentTarget;
       const name = form.name.value.trim();
 
+      if (!name) return;
+
+      const isDuplicate = storageBoxes.some(
+        (b) => b.name.trim().toLowerCase() === name.toLowerCase()
+      );
+      if (isDuplicate) {
+        setFormStatus(storageStatus, `Box "${name}" already exists. Please use a unique name.`, true);
+        form.name.focus();
+        return;
+      }
+
       try {
         const { error } = await supabaseClient.from('boxes').insert([{ name }]);
         if (error) throw error;
@@ -3042,6 +3064,17 @@
       event.preventDefault();
       const form = event.currentTarget;
       const name = form.name.value.trim();
+
+      if (!name) return;
+
+      const isDuplicate = storageWorkbenches.some(
+        (w) => w.name.trim().toLowerCase() === name.toLowerCase()
+      );
+      if (isDuplicate) {
+        setFormStatus(storageStatus, `Workbench "${name}" already exists. Please use a unique name.`, true);
+        form.name.focus();
+        return;
+      }
 
       try {
         const { error } = await supabaseClient.from('workbenches').insert([{ name }]);
