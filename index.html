@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f8faf8">
   <title>Lab Inventory | Material Directory</title>
   <!-- Supabase JS Client, SheetJS, and EmailJS -->
@@ -36,8 +36,10 @@
     body {
       margin: 0;
       min-height: 100vh;
+      min-height: 100dvh;
       height: 100vh;
-      width: 100vw;
+      height: 100dvh;
+      width: 100%;
       overflow: hidden;
       color: var(--ink);
       font: 14px var(--sans);
@@ -50,8 +52,9 @@
     button { color: inherit; }
     
     .app-layout {
-      width: 100vw;
+      width: 100%;
       height: 100vh;
+      height: 100dvh;
       display: flex;
       flex-direction: row;
       overflow: hidden;
@@ -64,6 +67,7 @@
       width: 100%;
       max-width: 100%;
       height: 100vh;
+      height: 100dvh;
       margin: 0;
       padding: 0 24px 10px;
       background: rgba(248,250,248,.96);
@@ -210,29 +214,31 @@
 
     .topbar {
       min-height: 52px;
-      height: 52px;
+      height: auto;
+      padding: 8px 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 12px;
       border-bottom: 1px solid var(--line);
       flex-shrink: 0;
+      flex-wrap: wrap;
     }
     
     .brand { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 800; cursor: pointer; user-select: none; }
-    .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 4px; background: #dc2626; color: white; font-size: 16px; transition: background-color 0.3s; cursor: pointer; }
+    .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 4px; background: #dc2626; color: white; font-size: 16px; transition: background-color 0.3s; cursor: pointer; flex-shrink: 0; }
     #labTitleText { color: #dc2626; transition: color 0.3s; }
     #labTitleText.connected { color: #16a34a !important; }
     .brand-mark.connected { background-color: #16a34a !important; }
 
-    .nav-wrapper { display: flex; align-items: center; gap: 10px; }
+    .nav-wrapper { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .page-view[hidden] { display: none !important; }
     
     .session-badge { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: var(--mono); color: var(--green-dark); background: var(--mint); padding: 4px 8px; border-radius: 4px; border: 1px solid #c2ded3; }
     .session-badge[hidden] { display: none !important; }
     .logout-btn { background: transparent; border: 0; cursor: pointer; font-weight: bold; color: var(--search-button); padding: 0 4px; text-decoration: underline; font-size: 11px; }
 
-    .user-auth-links { display: flex; align-items: center; gap: 6px; }
+    .user-auth-links { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
     .auth-nav-btn {
       background: transparent;
       border: 1px solid var(--line);
@@ -243,6 +249,7 @@
       color: var(--green-dark);
       cursor: pointer;
       transition: all .15s;
+      white-space: nowrap;
     }
     .auth-nav-btn:hover { background: var(--mint); border-color: var(--green); }
     .auth-nav-btn[hidden] { display: none !important; }
@@ -256,7 +263,7 @@
       overflow: hidden;
       min-height: 0;
     }
-    .catalog-head { display: flex; align-items: end; justify-content: space-between; gap: 15px; margin-bottom: 8px; flex-shrink: 0; }
+    .catalog-head { display: flex; align-items: end; justify-content: space-between; gap: 15px; margin-bottom: 8px; flex-shrink: 0; flex-wrap: wrap; }
     .catalog-actions { display: flex; align-items: center; gap: 10px; }
     h2 { margin: 0; font-size: 18px; }
     .catalog-meta { display: flex; align-items: center; gap: 8px; padding-bottom: 2px; color: #75827d; font: 9px var(--mono); }
@@ -285,11 +292,11 @@
     .page-heading p { margin: 0 0 2px; color: #82908b; font: 9px var(--mono); }
     .page-heading h2 { font-size: 18px; }
 
-    /* Result Table & Centered Empty State: Part Number is compact while Part Code gets expanded space */
+    /* Result Table & Centered Empty State */
     .table-scroll { flex: 1; overflow-x: auto; overflow-y: hidden; min-height: 0; width: 100%; display: flex; flex-direction: column; position: relative; }
-    .table-head, .product-row { display: grid; grid-template-columns: minmax(110px, 0.85fr) minmax(240px, 2.5fr) minmax(70px, 0.45fr) minmax(170px, 1.3fr); align-items: center; column-gap: 11px; }
+    .table-head, .product-row { display: grid; grid-template-columns: minmax(110px, 0.85fr) minmax(200px, 2.5fr) minmax(70px, 0.45fr) minmax(150px, 1.3fr); align-items: center; column-gap: 11px; min-width: 560px; }
     .table-head { min-height: 34px; height: 34px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; padding-right: 8px; }
-    .product-list { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
+    .product-list { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; min-width: 560px; }
     .product-row { min-height: 42px; border-bottom: 1px solid #eaf0eb; font-size: 11px; animation: appear .22s both; cursor: pointer; user-select: none; transition: background-color 0.15s, transform 0.1s; }
     .product-row:hover { background: rgba(229,242,236,.65); transform: translateX(2px); }
     .product-row.selected-row { background: #e1f0e8 !important; outline: 1px solid var(--green); }
@@ -404,6 +411,7 @@
       background: #fafcfb;
       margin-top: 4px;
       flex-shrink: 0;
+      overflow-x: auto;
     }
     .staged-parts-list {
       max-height: 108px;
@@ -411,10 +419,11 @@
       padding: 0;
       margin: 0;
       list-style: none;
+      min-width: 440px;
     }
     .staged-part-row {
       display: grid;
-      grid-template-columns: minmax(110px, 0.85fr) minmax(220px, 2.2fr) 75px 50px;
+      grid-template-columns: minmax(100px, 0.85fr) minmax(180px, 2.2fr) 70px 55px;
       align-items: center;
       height: 36px;
       padding: 0 10px;
@@ -551,25 +560,38 @@
       height: 100%;
       overflow: hidden;
     }
-    #usersList { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; }
+    .user-table-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow-x: auto;
+    }
+    #usersList { flex: 1; overflow-y: auto; min-height: 0; padding-right: 4px; min-width: 460px; }
     .user-table-head, .user-row {
       display: grid;
       grid-template-columns: minmax(100px, 1fr) minmax(130px, 1.2fr) 65px 70px 55px;
       align-items: center;
       column-gap: 8px;
+      min-width: 460px;
     }
     .user-table-head { min-height: 30px; height: 30px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; }
     .user-row { min-height: 36px; border-bottom: 1px solid #eaf0eb; font-size: 11px; }
 
     /* User Allocation Modal Table */
+    .user-alloc-scroll {
+      width: 100%;
+      overflow-x: auto;
+    }
     .user-alloc-table-head, .user-alloc-row {
       display: grid;
       grid-template-columns: minmax(110px, 0.9fr) minmax(190px, 1.8fr) 55px minmax(140px, 1.2fr) minmax(145px, 1.2fr);
       align-items: center;
       column-gap: 10px;
+      min-width: 640px;
     }
     .user-alloc-table-head { min-height: 30px; height: 30px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; }
-    #userAllocViewerResults { max-height: 300px; overflow-y: auto; min-height: 120px; }
+    #userAllocViewerResults { max-height: 300px; overflow-y: auto; min-height: 120px; min-width: 640px; }
     .user-alloc-row { min-height: 36px; border-bottom: 1px solid #eaf0eb; font-size: 11px; }
 
     /* Logs Page */
@@ -601,9 +623,10 @@
       grid-template-columns: minmax(120px, 1.1fr) minmax(85px, 0.7fr) minmax(180px, 1.7fr) 50px 140px minmax(130px, 1.15fr) minmax(130px, 1.15fr) minmax(95px, 0.85fr);
       align-items: center;
       column-gap: 10px;
+      min-width: 980px;
     }
     .log-table-head { min-height: 34px; height: 34px; border-bottom: 1px solid var(--line); color: #89968f; font: 9px var(--mono); flex-shrink: 0; }
-    #logList { flex: 1; overflow-y: auto; min-height: 0; }
+    #logList { flex: 1; overflow-y: auto; min-height: 0; min-width: 980px; }
     .log-row { min-height: 40px; border-bottom: 1px solid #eaf0eb; font-size: 11px; }
     .log-badge {
       display: inline-block;
@@ -640,7 +663,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 12px;
       z-index: 2000;
+      overflow-y: auto;
     }
     .modal-overlay[hidden] { display: none !important; }
     .modal-card {
@@ -648,13 +673,15 @@
       border: 1px solid var(--line);
       border-radius: 6px;
       padding: 20px;
-      width: min(460px, 92%);
+      width: min(460px, 100%);
+      max-height: 92dvh;
+      overflow-y: auto;
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
     .modal-card.modal-wide {
-      width: min(760px, 94%);
+      width: min(760px, 100%);
     }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
     .btn-secondary { background: #eef2f0; border: 1px solid #ced6d1; border-radius: 4px; padding: 0 12px; height: 32px; cursor: pointer; font-size: 11px; font-weight: 600; }
     .otp-input { letter-spacing: 6px; font-size: 18px !important; text-align: center; font-weight: bold; font-family: var(--mono); }
 
@@ -665,6 +692,244 @@
       .field input, .field select, .inline-field input, .inline-field select { height: 34px; font-size: 12px; }
       .staged-parts-list { max-height: 120px; }
       .staged-part-row { height: 40px; }
+    }
+
+    /* =======================================================
+       MOBILE & TABLET RESPONSIVE ADJUSTMENTS (<= 768px)
+       ======================================================= */
+    @media (max-width: 768px) {
+      html, body {
+        height: auto;
+        min-height: 100dvh;
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+
+      .app-layout {
+        height: auto;
+        min-height: 100dvh;
+        flex-direction: column;
+        overflow: visible;
+      }
+
+      .shell {
+        height: auto;
+        min-height: 100dvh;
+        padding: 0 12px 20px;
+        overflow: visible;
+      }
+
+      /* Leave space at bottom when admin navigation dock is active */
+      body.admin-logged-in .shell {
+        padding-bottom: 76px;
+      }
+
+      /* Convert hover-only right taskbar into fixed bottom navigation bar on mobile */
+      .right-sidebar {
+        top: auto;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 58px;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
+        border-left: none;
+        border-top: 1px solid var(--line);
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+        transform: translateY(0) !important;
+      }
+      .right-sidebar::before {
+        display: none;
+      }
+
+      .topbar {
+        padding: 10px 0;
+        gap: 8px;
+      }
+
+      .nav-wrapper {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .catalog {
+        overflow: visible;
+        padding-top: 12px;
+      }
+
+      .catalog-head {
+        align-items: center;
+        gap: 10px;
+      }
+
+      .catalog-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .controls {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .controls .search {
+        height: 40px;
+        width: 100%;
+      }
+
+      .controls .action-button {
+        width: 100%;
+        height: 38px;
+      }
+
+      /* Catalog table container with minimum height & horizontal scroll */
+      .table-scroll {
+        min-height: 220px;
+        max-height: 46dvh;
+        overflow-x: auto;
+        overflow-y: auto;
+        border: 1px solid #e4ece7;
+        border-radius: 6px;
+        background: #ffffff;
+        padding: 0 8px;
+      }
+
+      .product-list {
+        overflow-y: visible;
+      }
+
+      /* Wrap transaction bars cleanly on mobile screens */
+      .aligned-bottom-bar {
+        padding: 10px;
+        margin-top: 10px;
+      }
+
+      .transaction-bar {
+        flex-wrap: wrap;
+        overflow-x: visible;
+        white-space: normal;
+        gap: 8px;
+      }
+
+      .compact-switch {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e5ece8;
+        padding-right: 0;
+        padding-bottom: 8px;
+        justify-content: flex-start;
+        gap: 18px;
+      }
+
+      #searchAllocateControls,
+      #searchReturnControls,
+      #userPageTakeForm,
+      #userPageReturnForm {
+        flex-wrap: wrap;
+        width: 100%;
+      }
+
+      #searchAllocateControls .inline-field,
+      #searchReturnControls .inline-field,
+      #userPageTakeForm .inline-field,
+      #userPageReturnForm .inline-field {
+        flex: 1 1 calc(50% - 4px) !important;
+        min-width: 130px !important;
+        width: auto !important;
+      }
+
+      #searchAllocateControls .inline-field input,
+      #searchAllocateControls .inline-field select,
+      #searchReturnControls .inline-field input,
+      #searchReturnControls .inline-field select,
+      #userPageTakeForm .inline-field input,
+      #userPageTakeForm .inline-field select,
+      #userPageReturnForm .inline-field input,
+      #userPageReturnForm .inline-field select {
+        width: 100% !important;
+        height: 36px;
+        font-size: 12px;
+      }
+
+      #searchAllocateControls .compact-btn,
+      #searchReturnControls .compact-btn,
+      #userPageTakeForm .compact-btn,
+      #userPageReturnForm .compact-btn {
+        flex: 1 1 calc(33.33% - 6px);
+        height: 36px;
+        font-size: 11px;
+      }
+
+      /* Stack forms & split layouts into single column on mobile */
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field input, .field select {
+        height: 38px;
+        font-size: 13px;
+      }
+
+      .storage-layout {
+        grid-template-columns: 1fr;
+        overflow: visible;
+        height: auto;
+      }
+
+      .storage-sections {
+        overflow: visible;
+      }
+
+      .storage-inline-inputs {
+        grid-template-columns: 1fr;
+      }
+
+      .unified-inspector-panel {
+        height: auto;
+        min-height: 280px;
+        max-height: 60dvh;
+      }
+
+      .user-top-split {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .user-card-panel {
+        height: auto;
+        max-height: 440px;
+      }
+
+      /* Log Filters */
+      .log-filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+
+      .log-filter-bar label {
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      .log-filter-bar select,
+      .log-filter-bar input[type="date"] {
+        flex: 1;
+        max-width: 65%;
+        height: 34px;
+      }
+
+      /* User Allocation Modal Header */
+      #userAllocModal .modal-card > div:first-child {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      #userAllocModal .field {
+        min-width: 100% !important;
+      }
     }
   </style>
 </head>
@@ -731,7 +996,7 @@
         </div>
         <p class="workbook-status" id="workbookStatus" role="status" aria-live="polite"></p>
 
-        <!-- Product Table Area: Compact Part Number, Expanded Part Code -->
+        <!-- Product Table Area -->
         <div class="table-scroll">
           <div class="table-head" aria-hidden="true">
             <span>PART NUMBER</span>
@@ -884,7 +1149,7 @@
                 </label>
               </div>
             </div>
-            <div class="form-actions" style="margin-top: 8px; display: flex; gap: 12px; align-items: center;">
+            <div class="form-actions" style="margin-top: 8px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
               <button class="action-button success-button" type="submit">Save Material</button>
               <p class="form-status" id="materialStatus" role="status" aria-live="polite"></p>
             </div>
@@ -930,7 +1195,7 @@
                 </label>
               </div>
             </div>
-            <div class="form-actions" style="margin-top: 8px; display: flex; gap: 12px; align-items: center;">
+            <div class="form-actions" style="margin-top: 8px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
               <button class="action-button danger-button" type="submit">Remove Quantity</button>
               <p class="form-status" id="removeMaterialStatus" role="status" aria-live="polite"></p>
             </div>
@@ -1025,14 +1290,16 @@
                 <h3 style="margin: 0; font-size: 13px; color: var(--green-dark);">Registered Lab Users</h3>
                 <p style="margin: 2px 0 0; font-size: 10px; color: var(--muted);">View user verification status and toggle return sign-off privileges.</p>
               </div>
-              <div class="user-table-head" aria-hidden="true">
-                <span>USER NAME</span>
-                <span>EMAIL ID</span>
-                <span style="text-align: center;">VERIFIED</span>
-                <span style="text-align: center;">VERIFIER</span>
-                <span style="text-align: right;">ACTION</span>
+              <div class="user-table-wrap">
+                <div class="user-table-head" aria-hidden="true">
+                  <span>USER NAME</span>
+                  <span>EMAIL ID</span>
+                  <span style="text-align: center;">VERIFIED</span>
+                  <span style="text-align: center;">VERIFIER</span>
+                  <span style="text-align: right;">ACTION</span>
+                </div>
+                <div id="usersList" aria-live="polite"></div>
               </div>
-              <div id="usersList" aria-live="polite"></div>
               <div class="empty" id="emptyUsers" hidden>
                 <span class="empty-symbol" aria-hidden="true">&#9786;</span>
                 <strong>No users added yet</strong>
@@ -1175,7 +1442,7 @@
       </section>
     </main>
 
-    <!-- Auto-Hiding Taskbar Overlay on Right (Removed entirely when logged off) -->
+    <!-- Auto-Hiding Taskbar Overlay on Desktop / Bottom Nav Dock on Mobile -->
     <aside class="right-sidebar" id="rightSidebar" aria-label="Quick Navigation" hidden>
       <button class="icon-nav-btn page-tab active" type="button" data-page="searchPage" title="Search Catalog" aria-label="Search Catalog">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -1355,7 +1622,7 @@
     </div>
   </div>
 
-  <!-- 6. Physical Return Verification Modal with Verify, Reject, and Cancel -->
+  <!-- 6. Physical Return Verification Modal -->
   <div class="modal-overlay" id="verifierModal" hidden>
     <div class="modal-card">
       <h3 style="margin: 0 0 6px; font-size: 15px; color: var(--green-dark);">Physical Return Sign-Off</h3>
@@ -1379,7 +1646,7 @@
     </div>
   </div>
 
-  <!-- 7. User Allocated Material Viewer Modal (Triggered from Search Page when Return is selected) -->
+  <!-- 7. User Allocated Material Viewer Modal -->
   <div class="modal-overlay" id="userAllocModal" hidden>
     <div class="modal-card modal-wide">
       <div style="display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 10px;">
@@ -1394,15 +1661,17 @@
         </div>
       </div>
 
-      <div class="user-alloc-table-head" aria-hidden="true">
-        <span>PART NUMBER</span>
-        <span>PART CODE</span>
-        <span>QTY</span>
-        <span>LOCATION</span>
-        <span>ALLOCATED DATE &amp; TIME</span>
-      </div>
-      <div id="userAllocViewerResults" aria-live="polite">
-        <p style="color:#718079;font-size:11px;padding: 16px 0;">Select a user from the dropdown above to view checkout records.</p>
+      <div class="user-alloc-scroll">
+        <div class="user-alloc-table-head" aria-hidden="true">
+          <span>PART NUMBER</span>
+          <span>PART CODE</span>
+          <span>QTY</span>
+          <span>LOCATION</span>
+          <span>ALLOCATED DATE &amp; TIME</span>
+        </div>
+        <div id="userAllocViewerResults" aria-live="polite">
+          <p style="color:#718079;font-size:11px;padding: 16px 0;">Select a user from the dropdown above to view checkout records.</p>
+        </div>
       </div>
 
       <div class="modal-actions">
@@ -1724,6 +1993,7 @@
 
     function loginSuccess() {
       isAuthenticated = true;
+      document.body.classList.add("admin-logged-in");
       authModal.hidden = true;
       authPasswordInput.value = "";
       authError.textContent = "";
@@ -1747,6 +2017,7 @@
 
     function logout() {
       isAuthenticated = false;
+      document.body.classList.remove("admin-logged-in");
       stopInactivityCountdown();
       sessionIndicator.hidden = true;
       authModal.hidden = true;
@@ -1794,6 +2065,7 @@
     window.addEventListener("mousemove", handleScopedActivity, { passive: true });
     window.addEventListener("keydown", handleScopedActivity, { passive: true });
     window.addEventListener("mousedown", handleScopedActivity, { passive: true });
+    window.addEventListener("touchstart", handleScopedActivity, { passive: true });
 
     authForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -2791,7 +3063,6 @@
       if (!window.confirm(warning)) return;
 
       try {
-        // Explicitly delete all materials stored inside the deleted storage location
         if (type === 'cupboard') {
           const targetCupboard = storageTree.find(c => String(c.id) === String(id));
           const rackIds = (targetCupboard?.racks || []).map(r => r.id);
@@ -2833,7 +3104,6 @@
           }
         }
 
-        // Now delete the storage location itself
         let table = 'boxes';
         if (type === 'cupboard') table = 'cupboards';
         else if (type === 'rack') table = 'racks';
@@ -3004,7 +3274,6 @@
 
       const normalizedInput = normalizeLocationName(name);
 
-      // 1. Immediate local cache check
       if (storageTree.some((c) => normalizeLocationName(c.name) === normalizedInput)) {
         setFormStatus(storageStatus, `Cupboard "${name}" already exists. Duplicate names are not allowed.`, true);
         form.name.focus();
@@ -3013,7 +3282,6 @@
       }
 
       try {
-        // 2. Live database check to prevent concurrent duplicates
         const { data: existingCupboards, error: fetchErr } = await supabaseClient
           .from('cupboards')
           .select('name');
@@ -3060,7 +3328,6 @@
 
       const normalizedInput = normalizeLocationName(name);
 
-      // 1. Immediate local cache check
       if (storageBoxes.some((b) => normalizeLocationName(b.name) === normalizedInput)) {
         setFormStatus(storageStatus, `Box "${name}" already exists. Duplicate names are not allowed.`, true);
         form.name.focus();
@@ -3069,7 +3336,6 @@
       }
 
       try {
-        // 2. Live database check to prevent concurrent duplicates
         const { data: existingBoxes, error: fetchErr } = await supabaseClient
           .from('boxes')
           .select('name');
@@ -3103,7 +3369,6 @@
 
       const normalizedInput = normalizeLocationName(name);
 
-      // 1. Immediate local cache check
       if (storageWorkbenches.some((w) => normalizeLocationName(w.name) === normalizedInput)) {
         setFormStatus(storageStatus, `Workbench "${name}" already exists. Duplicate names are not allowed.`, true);
         form.name.focus();
@@ -3112,7 +3377,6 @@
       }
 
       try {
-        // 2. Live database check to prevent concurrent duplicates
         const { data: existingWorkbenches, error: fetchErr } = await supabaseClient
           .from('workbenches')
           .select('name');
@@ -3415,7 +3679,6 @@
         takeQuantity.focus();
         setFormStatus(globalStripStatus, `Selected "${product.part_code}" (${product.part_number}). Available: ${availQty}.`);
       } else {
-        // Return is selected on Search Page: do NOT allocate on search page; populate Users tab allocation form instead.
         takePartNumber.value = "";
         takePartCode.value = "";
         takeQuantity.value = "";
@@ -3767,7 +4030,7 @@
     });
 
     // ==========================================
-    // 9. AUDIT LOGGING & VERIFIER MODAL (Verify / Reject / Cancel with Password Auth)
+    // 9. AUDIT LOGGING & VERIFIER MODAL
     // ==========================================
     async function recordAllocationLog(userId, userName, partCode, partNumber, quantity, locationText) {
       const nowIso = new Date().toISOString();
@@ -3925,7 +4188,6 @@
         return;
       }
 
-      // Authenticate the selected verifier using their password before completing sign-off
       verifyUserPasswordBeforeAction(verifierUser, "Verify Return", async () => {
         verifierConfirmButton.disabled = true;
         try {
@@ -4030,7 +4292,6 @@
         return;
       }
 
-      // Authenticate the selected verifier using their password before rejecting
       verifyUserPasswordBeforeAction(verifierUser, "Reject Return", async () => {
         verifierRejectButton.disabled = true;
         try {
@@ -4798,6 +5059,10 @@
       document.querySelectorAll(".page-view").forEach(view => {
         view.hidden = view.id !== targetPageId;
       });
+
+      if (window.innerWidth <= 768) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
 
       if (targetPageId === "storagePage" || targetPageId === "materialPage") {
         await loadStorage();
