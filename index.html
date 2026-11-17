@@ -715,26 +715,25 @@
       .shell {
         height: auto;
         min-height: 100dvh;
-        padding: 0 12px 20px;
+        padding: 0 10px 16px;
         overflow: visible;
       }
 
-      /* Leave space at bottom when admin navigation dock is active */
       body.admin-logged-in .shell {
-        padding-bottom: 76px;
+        padding-bottom: 72px;
       }
 
-      /* Convert hover-only right taskbar into fixed bottom navigation bar on mobile */
+      /* Fixed bottom navigation bar on mobile */
       .right-sidebar {
         top: auto;
         left: 0;
         right: 0;
         bottom: 0;
         width: 100%;
-        height: 58px;
+        height: 54px;
         flex-direction: row;
         justify-content: space-around;
-        padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
+        padding: 4px 10px calc(4px + env(safe-area-inset-bottom));
         border-left: none;
         border-top: 1px solid var(--line);
         box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
@@ -745,8 +744,8 @@
       }
 
       .topbar {
-        padding: 10px 0;
-        gap: 8px;
+        padding: 8px 0;
+        gap: 6px;
       }
 
       .nav-wrapper {
@@ -756,38 +755,60 @@
 
       .catalog {
         overflow: visible;
-        padding-top: 12px;
+        padding-top: 8px;
       }
 
       .catalog-head {
         align-items: center;
-        gap: 10px;
+        gap: 8px;
+        margin-bottom: 6px;
       }
 
       .catalog-actions {
-        width: 100%;
-        justify-content: space-between;
-      }
-
-      .controls {
-        flex-direction: column;
+        width: auto;
         gap: 8px;
       }
 
+      .catalog-actions .action-button {
+        height: 30px;
+        min-width: 76px;
+        padding: 0 10px;
+        font-size: 10.5px;
+      }
+
+      /* Prominent, wide Search Bar with compact inline Search button */
+      .controls {
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 4px;
+      }
+
       .controls .search {
-        height: 40px;
-        width: 100%;
+        height: 44px;
+        flex: 1 1 auto;
+        min-width: 0;
+        padding: 0 10px;
+        border-width: 1.5px;
+      }
+
+      .controls .search input {
+        font-size: 13.5px;
       }
 
       .controls .action-button {
-        width: 100%;
-        height: 38px;
+        width: auto;
+        min-width: 74px;
+        height: 44px;
+        padding: 0 14px;
+        font-size: 12px;
+        flex-shrink: 0;
       }
 
-      /* Catalog table container with minimum height & horizontal scroll */
+      /* Generous table viewport height on mobile */
       .table-scroll {
-        min-height: 220px;
-        max-height: 46dvh;
+        min-height: 240px;
+        max-height: 54dvh;
         overflow-x: auto;
         overflow-y: auto;
         border: 1px solid #e4ece7;
@@ -800,27 +821,33 @@
         overflow-y: visible;
       }
 
-      /* Wrap transaction bars cleanly on mobile screens */
+      /* Compact Allocate / Return Bottom Bar so it doesn't consume vertical space */
       .aligned-bottom-bar {
-        padding: 10px;
-        margin-top: 10px;
+        padding: 6px 8px;
+        margin-top: 8px;
+        gap: 3px;
       }
 
       .transaction-bar {
         flex-wrap: wrap;
         overflow-x: visible;
         white-space: normal;
-        gap: 8px;
+        gap: 5px;
+        padding-bottom: 0;
       }
 
       .compact-switch {
         width: 100%;
         border-right: none;
-        border-bottom: 1px solid #e5ece8;
+        border-bottom: 1px solid #e8efeb;
         padding-right: 0;
-        padding-bottom: 8px;
+        padding-bottom: 4px;
         justify-content: flex-start;
-        gap: 18px;
+        gap: 14px;
+      }
+
+      .compact-switch label {
+        font-size: 10.5px;
       }
 
       #searchAllocateControls,
@@ -829,15 +856,26 @@
       #userPageReturnForm {
         flex-wrap: wrap;
         width: 100%;
+        gap: 5px !important;
       }
 
+      /* Compact 2-column grid for fields inside Allocate/Return */
       #searchAllocateControls .inline-field,
       #searchReturnControls .inline-field,
       #userPageTakeForm .inline-field,
       #userPageReturnForm .inline-field {
-        flex: 1 1 calc(50% - 4px) !important;
-        min-width: 130px !important;
+        flex: 1 1 calc(50% - 3px) !important;
+        min-width: 110px !important;
         width: auto !important;
+      }
+
+      /* Quantity field takes compact width */
+      #searchAllocateControls .inline-field:has(input[name="quantity"]),
+      #searchReturnControls .inline-field:has(input[name="quantity"]),
+      #userPageTakeForm .inline-field:has(input[name="quantity"]),
+      #userPageReturnForm .inline-field:has(input[name="quantity"]) {
+        flex: 0 1 72px !important;
+        min-width: 64px !important;
       }
 
       #searchAllocateControls .inline-field input,
@@ -849,17 +887,26 @@
       #userPageReturnForm .inline-field input,
       #userPageReturnForm .inline-field select {
         width: 100% !important;
-        height: 36px;
-        font-size: 12px;
+        height: 28px;
+        padding: 0 6px;
+        font-size: 11px;
       }
 
+      /* Compact buttons neatly fitted in one row */
       #searchAllocateControls .compact-btn,
       #searchReturnControls .compact-btn,
       #userPageTakeForm .compact-btn,
       #userPageReturnForm .compact-btn {
-        flex: 1 1 calc(33.33% - 6px);
-        height: 36px;
-        font-size: 11px;
+        flex: 1 1 auto;
+        min-width: 0;
+        height: 28px;
+        padding: 0 8px;
+        font-size: 10.5px;
+      }
+
+      .strip-status {
+        font-size: 9px;
+        min-height: 10px;
       }
 
       /* Stack forms & split layouts into single column on mobile */
@@ -868,8 +915,8 @@
       }
 
       .field input, .field select {
-        height: 38px;
-        font-size: 13px;
+        height: 36px;
+        font-size: 12.5px;
       }
 
       .storage-layout {
@@ -888,7 +935,7 @@
 
       .unified-inspector-panel {
         height: auto;
-        min-height: 280px;
+        min-height: 260px;
         max-height: 60dvh;
       }
 
@@ -899,7 +946,7 @@
 
       .user-card-panel {
         height: auto;
-        max-height: 440px;
+        max-height: 420px;
       }
 
       /* Log Filters */
@@ -918,7 +965,7 @@
       .log-filter-bar input[type="date"] {
         flex: 1;
         max-width: 65%;
-        height: 34px;
+        height: 32px;
       }
 
       /* User Allocation Modal Header */
